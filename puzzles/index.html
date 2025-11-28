@@ -1,14 +1,641 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>puzzles - ba-by.ca</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Baby Shape Snaps</title>
+    <!-- Friendly Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #FFF3E0;
+            --slot-bg: rgba(0,0,0,0.1);
+            --primary: #FF6B6B;
+            --success: #4ECDC4;
+            --text-main: #2D3436;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none; /* Prevent scrolling while dragging */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 🏠 HOME BUTTON */
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            text-decoration: none;
+            box-shadow: 0 4px 0 #e0e0e0;
+            border: 2px solid #fff;
+            z-index: 100;
+            transition: transform 0.1s;
+        }
+        .home-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* ✨ PARTICLES CANVAS */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* --- GAME CONTAINER --- */
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 80px 20px 20px 20px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- HEADER / PROGRESS --- */
+        .level-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #8D6E63;
+            font-weight: 700;
+        }
+
+        /* --- PLAY AREA --- */
+        .play-area {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 40px;
+            position: relative;
+        }
+
+        /* Slots Row (Targets) */
+        .slots-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            min-height: 120px;
+        }
+
+        .slot {
+            width: 100px;
+            height: 100px;
+            background: var(--slot-bg);
+            border-radius: 20px;
+            border: 4px dashed rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .slot.hovered {
+            transform: scale(1.1);
+            background: rgba(0,0,0,0.15);
+            border-style: solid;
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        /* FIX: Only target the immediate SVG child (the silhouette), 
+           not the SVG inside the placed piece */
+        .slot > svg {
+            width: 80%;
+            height: 80%;
+            opacity: 0.3; /* Silhouette look */
+            fill: #5D4037;
+            pointer-events: none;
+        }
+
+        /* Pieces Row (Draggables) */
+        .pieces-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            min-height: 120px;
+            perspective: 1000px;
+        }
+
+        .piece {
+            width: 100px;
+            height: 100px;
+            cursor: grab;
+            touch-action: none;
+            position: relative; /* Changed from absolute to flow in flex, then absolute on drag */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 8px 0 rgba(0,0,0,0.15));
+            transition: transform 0.1s;
+            z-index: 10;
+        }
+
+        /* Ensure piece SVG stays full size */
+        .piece svg {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .piece:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+            filter: drop-shadow(0 15px 5px rgba(0,0,0,0.1));
+            z-index: 100;
+        }
+
+        .piece.dragging {
+            position: fixed; /* Popped out of layout */
+            pointer-events: none; /* Let events pass through to check for slots */
+            z-index: 1000;
+            width: 100px !important; /* Force size when dragging */
+            height: 100px !important;
+        }
+
+        .piece.placed {
+            position: absolute; /* Stick to slot */
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            filter: none;
+            z-index: 5;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- VICTORY SCREEN --- */
+        #victory-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        #victory-screen.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .victory-card {
+            background: white;
+            padding: 40px;
+            border-radius: 40px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            border: 4px solid #FFF3E0;
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #victory-screen.visible .victory-card {
+            transform: scale(1);
+        }
+
+        .next-btn {
+            background: #4ECDC4;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            font-family: 'Fredoka One', cursive;
+            border-radius: 50px;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #2aa198;
+            transition: transform 0.1s;
+        }
+        
+        .next-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; text-align: center; padding-top: 40px;">
-  <h1>puzzles game</h1>
-  <p>This is a placeholder page for the <strong>puzzles</strong> game.</p>
-  <p>You can replace this file with your real game later.</p>
-  <p><a href="../index.html">⬅ Back to ba-by.ca home</a></p>
+<body>
+
+    <canvas id="particles"></canvas>
+    <a href="/" class="home-btn" title="Back to Games">🏠</a>
+
+    <div class="game-container">
+        <div class="level-header">
+            <h1 id="level-title">Shapes</h1>
+            <div class="subtitle" id="level-subtitle">Drag to match!</div>
+        </div>
+
+        <div class="play-area" id="play-area">
+            <!-- Slots go here -->
+            <div class="slots-row" id="slots-container"></div>
+            
+            <!-- Pieces go here -->
+            <div class="pieces-row" id="pieces-container"></div>
+        </div>
+    </div>
+
+    <div id="victory-screen">
+        <div class="victory-card">
+            <h1 style="color: #FFD700; font-size: 4rem;">Yay!</h1>
+            <p class="subtitle" style="font-size: 1.5rem;">Good Job!</p>
+            <button class="next-btn" id="next-level-btn">Next Level ➜</button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Baby Shape Snaps Logic
+         */
+
+        // --- LEVELS DATA ---
+        // Using SVG Paths for single-file portability
+        const LEVELS = [
+            {
+                name: "Shapes",
+                bg: "linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)",
+                items: [
+                    { id: 'circle', name: 'Circle', color: '#FF6B6B', path: '<circle cx="50" cy="50" r="40"/>' },
+                    { id: 'square', name: 'Square', color: '#4ECDC4', path: '<rect x="15" y="15" width="70" height="70" rx="10"/>' },
+                    { id: 'triangle', name: 'Triangle', color: '#FFE66D', path: '<path d="M50 15 L85 80 L15 80 Z" stroke-linejoin="round" stroke-width="10"/>' }
+                ]
+            },
+            {
+                name: "Fruits",
+                bg: "linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%)",
+                items: [
+                    { id: 'apple', name: 'Apple', color: '#e53935', path: '<path d="M50 85 C30 85 15 65 15 45 C15 25 35 25 50 40 C65 25 85 25 85 45 C85 65 70 85 50 85 Z M50 40 L50 20 L65 25"/>' },
+                    { id: 'banana', name: 'Banana', color: '#FDD835', path: '<path d="M25 25 C35 80 80 80 85 20 C85 20 80 15 75 25 C70 70 40 70 35 20 Z"/>' },
+                    { id: 'grape', name: 'Grapes', color: '#8E24AA', path: '<circle cx="50" cy="80" r="10"/><circle cx="35" cy="65" r="10"/><circle cx="65" cy="65" r="10"/><circle cx="20" cy="45" r="10"/><circle cx="50" cy="45" r="10"/><circle cx="80" cy="45" r="10"/><circle cx="35" cy="25" r="10"/><circle cx="65" cy="25" r="10"/>' }
+                ]
+            },
+            {
+                name: "Animals",
+                bg: "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
+                items: [
+                    { id: 'cat', name: 'Cat', color: '#FB8C00', path: '<path d="M20 70 L30 30 L40 45 L60 45 L70 30 L80 70 Z M30 70 Q50 90 70 70" />' }, // Abstract
+                    { id: 'fish', name: 'Fish', color: '#039BE5', path: '<path d="M80 50 Q60 20 20 50 Q60 80 80 50 L95 20 L95 80 Z"/>' },
+                    { id: 'bear', name: 'Bear', color: '#795548', path: '<circle cx="20" cy="25" r="12"/><circle cx="80" cy="25" r="12"/><circle cx="50" cy="50" r="35"/>' }
+                ]
+            },
+            {
+                name: "Transport",
+                bg: "linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%)",
+                items: [
+                    { id: 'car', name: 'Car', color: '#D81B60', path: '<path d="M10 60 L20 40 L70 40 L80 60 Z M15 60 L75 60 L75 70 L15 70 Z"/><circle cx="25" cy="70" r="8" fill="black"/><circle cx="65" cy="70" r="8" fill="black"/>' },
+                    { id: 'boat', name: 'Boat', color: '#1E88E5', path: '<path d="M20 50 L80 50 L70 75 L30 75 Z M50 50 L50 20 L70 50 Z"/>' },
+                    { id: 'rocket', name: 'Rocket', color: '#5E35B1', path: '<path d="M50 10 L80 60 L70 80 L30 80 L20 60 Z"/>' }
+                ]
+            }
+        ];
+
+        let currentLevelIdx = 0;
+        let piecesPlaced = 0;
+        let dragSrcEl = null;
+        let activePiece = null;
+        let initialPos = { x: 0, y: 0 };
+        let currentPos = { x: 0, y: 0 };
+        let offset = { x: 0, y: 0 };
+
+        const els = {
+            slots: document.getElementById('slots-container'),
+            pieces: document.getElementById('pieces-container'),
+            title: document.getElementById('level-title'),
+            subtitle: document.getElementById('level-subtitle'),
+            victory: document.getElementById('victory-screen'),
+            nextBtn: document.getElementById('next-level-btn'),
+            body: document.body
+        };
+
+        // --- INIT ---
+        function init() {
+            loadLevel(currentLevelIdx);
+            
+            // Global Touch/Mouse Listeners for custom Drag
+            document.addEventListener('touchstart', dragStart, { passive: false });
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('touchend', dragEnd);
+            
+            document.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            els.nextBtn.addEventListener('click', nextLevel);
+            
+            setupParticles();
+            setupVoice();
+        }
+
+        function loadLevel(idx) {
+            const level = LEVELS[idx];
+            els.title.textContent = level.name;
+            els.body.style.background = level.bg;
+            els.slots.innerHTML = '';
+            els.pieces.innerHTML = '';
+            
+            // CLEANUP: Remove any "zombie" pieces that got stuck on body
+            document.querySelectorAll('.piece').forEach(p => {
+                if(p.parentNode === document.body) {
+                    p.remove();
+                }
+            });
+
+            piecesPlaced = 0;
+            els.victory.classList.remove('visible');
+
+            // 1. Create Slots (Targets)
+            level.items.forEach(item => {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                slot.dataset.id = item.id;
+                slot.innerHTML = createSVG(item.path, item.color); // Use colored SVG but opacity handles silhouette
+                els.slots.appendChild(slot);
+            });
+
+            // 2. Create Pieces (Draggables)
+            // Shuffle pieces
+            const shuffledItems = [...level.items].sort(() => Math.random() - 0.5);
+            shuffledItems.forEach(item => {
+                const pieceWrapper = document.createElement('div');
+                // Wrapper to hold space in flex layout
+                pieceWrapper.style.width = '100px'; 
+                pieceWrapper.style.height = '100px';
+                
+                const piece = document.createElement('div');
+                piece.className = 'piece';
+                piece.dataset.id = item.id;
+                piece.dataset.name = item.name;
+                piece.innerHTML = createSVG(item.path, item.color);
+                
+                // Keep ref to wrapper
+                piece.dataset.wrapper = true; 
+                pieceWrapper.appendChild(piece);
+                els.pieces.appendChild(pieceWrapper);
+            });
+        }
+
+        function createSVG(path, color) {
+            return `<svg viewBox="0 0 100 100" fill="${color}">${path}</svg>`;
+        }
+
+        // --- DRAG LOGIC ---
+        function dragStart(e) {
+            const target = e.target.closest('.piece');
+            if (!target || target.classList.contains('placed')) return;
+
+            e.preventDefault();
+            activePiece = target;
+            
+            // Get input coordinates
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+            // Calculate offset relative to piece center to snap to finger
+            const rect = activePiece.getBoundingClientRect();
+            offset.x = clientX - (rect.left + rect.width / 2);
+            offset.y = clientY - (rect.top + rect.height / 2);
+
+            // Set Initial Pos for visual placement
+            currentPos.x = clientX - offset.x;
+            currentPos.y = clientY - offset.y;
+
+            // Visual State
+            activePiece.classList.add('dragging');
+            activePiece.style.left = currentPos.x + 'px'; // Center on finger approx
+            activePiece.style.top = currentPos.y + 'px';
+            activePiece.style.transform = 'translate(-50%, -50%) scale(1.1)'; // Centering transform
+            
+            // Move to body so it floats over everything
+            document.body.appendChild(activePiece);
+        }
+
+        function drag(e) {
+            if (!activePiece) return;
+            e.preventDefault();
+
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+            currentPos.x = clientX;
+            currentPos.y = clientY;
+
+            activePiece.style.left = currentPos.x + 'px';
+            activePiece.style.top = currentPos.y + 'px';
+
+            checkHover();
+        }
+
+        function dragEnd(e) {
+            if (!activePiece) return;
+
+            const dropped = checkDrop();
+            
+            if (!dropped) {
+                // Return to original wrapper
+                activePiece.classList.remove('dragging');
+                activePiece.style.position = '';
+                activePiece.style.left = '';
+                activePiece.style.top = '';
+                activePiece.style.transform = '';
+                
+                // Find empty wrapper
+                const wrappers = Array.from(els.pieces.children);
+                // Simple logic: just find a wrapper that has no children
+                const emptyWrapper = wrappers.find(w => w.children.length === 0);
+                
+                if(emptyWrapper) {
+                    emptyWrapper.appendChild(activePiece);
+                } else {
+                    // Fallback: if somehow logic fails, recreate wrapper
+                    const pieceWrapper = document.createElement('div');
+                    pieceWrapper.style.width = '100px'; 
+                    pieceWrapper.style.height = '100px';
+                    pieceWrapper.appendChild(activePiece);
+                    els.pieces.appendChild(pieceWrapper);
+                }
+            }
+
+            activePiece = null;
+            document.querySelectorAll('.slot').forEach(s => s.classList.remove('hovered'));
+        }
+
+        // --- COLLISION LOGIC ---
+        function checkHover() {
+            // Simple AABB or Point collision
+            const pieceRect = activePiece.getBoundingClientRect();
+            const pX = pieceRect.left + pieceRect.width/2;
+            const pY = pieceRect.top + pieceRect.height/2;
+
+            document.querySelectorAll('.slot').forEach(slot => {
+                const rect = slot.getBoundingClientRect();
+                if (pX > rect.left && pX < rect.right && pY > rect.top && pY < rect.bottom) {
+                    slot.classList.add('hovered');
+                } else {
+                    slot.classList.remove('hovered');
+                }
+            });
+        }
+
+        function checkDrop() {
+            const pieceRect = activePiece.getBoundingClientRect();
+            const pX = pieceRect.left + pieceRect.width/2;
+            const pY = pieceRect.top + pieceRect.height/2;
+            let success = false;
+
+            document.querySelectorAll('.slot').forEach(slot => {
+                if (success) return; // Already placed
+                const rect = slot.getBoundingClientRect();
+                
+                // If inside slot AND id matches
+                if (pX > rect.left && pX < rect.right && pY > rect.top && pY < rect.bottom) {
+                    if (slot.dataset.id === activePiece.dataset.id) {
+                        snapToSlot(activePiece, slot);
+                        success = true;
+                    }
+                }
+            });
+            return success;
+        }
+
+        function snapToSlot(piece, slot) {
+            piece.classList.remove('dragging');
+            piece.classList.add('placed');
+            piece.style.transform = '';
+            piece.style.left = '';
+            piece.style.top = '';
+            
+            slot.appendChild(piece); // Move DOM element into slot
+            
+            // Celebration
+            createExplosion(slot.getBoundingClientRect().left + 50, slot.getBoundingClientRect().top + 50);
+            speak(piece.dataset.name);
+            
+            piecesPlaced++;
+            if (piecesPlaced === LEVELS[currentLevelIdx].items.length) {
+                setTimeout(triggerVictory, 1000);
+            }
+        }
+
+        // --- AUDIO ---
+        function setupVoice() {
+            // Init speech synthesis
+            window.speechSynthesis.getVoices();
+        }
+        function speak(text) {
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = 1.0; u.pitch = 1.2;
+            window.speechSynthesis.speak(u);
+        }
+
+        // --- GAME FLOW ---
+        function triggerVictory() {
+            els.victory.classList.add('visible');
+            speak("You did it! Amazing!");
+        }
+
+        function nextLevel() {
+            currentLevelIdx = (currentLevelIdx + 1) % LEVELS.length;
+            loadLevel(currentLevelIdx);
+        }
+
+        // --- PARTICLES ---
+        const ctx = document.getElementById('particles').getContext('2d');
+        let particles = [];
+        
+        function setupParticles() {
+            const resize = () => {
+                ctx.canvas.width = window.innerWidth;
+                ctx.canvas.height = window.innerHeight;
+            };
+            window.addEventListener('resize', resize);
+            resize();
+            loopParticles();
+        }
+
+        function createExplosion(x, y) {
+            const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D'];
+            for(let i=0; i<30; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 1,
+                    color: colors[Math.floor(Math.random()*colors.length)]
+                });
+            }
+        }
+
+        function loopParticles() {
+            ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
+            for(let i=0; i<particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy;
+                p.vy += 0.2; // grav
+                p.life -= 0.02;
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 5, 0, Math.PI*2);
+                ctx.fill();
+                if(p.life <= 0) { particles.splice(i, 1); i--; }
+            }
+            requestAnimationFrame(loopParticles);
+        }
+
+        init();
+
+    </script>
 </body>
 </html>
