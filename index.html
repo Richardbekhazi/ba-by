@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ba-by.ca - Ultimate Baby Games</title>
+    <style>
+        /* 🎨 THEME & VARIABLES */
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --yellow: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F7F9FC;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        /* 🧱 RESET & BASE */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Varela Round', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F7FA 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            color: var(--dark);
+            
+            /* 🖱️ CUSTOM CURSOR (Star Wand) */
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="%23FF6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="rgba(255,255,255,0.5)"/><path d="M12 8v8M8 12h8" stroke="%23FF6B6B" stroke-width="3"/></svg>') 16 16, auto;
+        }
+
+        /* Interactive Elements Cursor 
+           Changed 'pointer' to 'auto' to prevent the system hand from appearing.
+        */
+        a, .card-wrap, button, .play-btn {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="%23FF6B6B" stroke="%23fff" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>') 16 16, auto;
+        }
+
+        /* ☁️ ANIMATED BACKGROUND SCENERY */
+        .scenery {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* SUN CONTAINER */
+        .sun-container {
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 250px;
+            height: 250px;
+        }
+
+        /* Spinning Rays */
+        .sun-rays {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            border-radius: 50%;
+            box-shadow: 0 0 60px #FFD700;
+            animation: spinSun 60s linear infinite;
+        }
+
+        /* Static Cute Face */
+        .sun-face {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0; /* Hide text */
+            width: 60%;
+            height: 60%;
+            pointer-events: auto; /* Let kids click the sun */
+            cursor: pointer;
+        }
+        
+        /* CSS Drawn Face */
+        .sun-eye {
+            position: absolute;
+            top: 35%;
+            width: 15px;
+            height: 15px;
+            background: #333;
+            border-radius: 50%;
+            animation: blink 4s infinite;
+        }
+        .eye-left { left: 30%; }
+        .eye-right { right: 30%; }
+        
+        .sun-smile {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            border-bottom: 5px solid #333;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .cloud {
+            position: absolute;
+            background: #fff;
+            border-radius: 50px;
+            opacity: 0.8;
+            animation: floatCloud linear infinite;
+        }
+        .cloud::after, .cloud::before {
+            content: '';
+            position: absolute;
+            background: inherit;
+            border-radius: 50%;
+        }
+        
+        .c1 { width: 120px; height: 50px; top: 10%; left: -150px; animation-duration: 25s; }
+        .c1::after { width: 60px; height: 60px; top: -30px; left: 20px; }
+        .c1::before { width: 50px; height: 50px; top: -20px; right: 20px; }
+
+        .c2 { width: 180px; height: 70px; top: 30%; left: -200px; animation-duration: 35s; animation-delay: 5s; transform: scale(0.8); }
+        .c2::after { width: 80px; height: 80px; top: -40px; left: 30px; }
+        .c2::before { width: 70px; height: 70px; top: -30px; right: 30px; }
+
+        /* ✨ MAGIC CURSOR CANVAS */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* 🏠 MAIN LAYOUT */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 🎈 HEADER */
+        header {
+            text-align: center;
+            /* Added top margin to prevent logo clipping during animation */
+            margin-top: 4rem; 
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .logo-box {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: inline-block;
+            padding: 1.5rem 3rem;
+            border-radius: 60px;
+            border: 4px solid #fff;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: float 6s ease-in-out infinite;
+            position: relative;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Hover Effect for Header */
+        .logo-box:hover {
+            transform: scale(1.1) rotate(2deg);
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            border: 4px solid var(--primary);
+            transition: transform 0.3s;
+            z-index: 2; /* Ensure it stays on top */
+        }
+        
+        .logo-box:hover .logo-icon {
+            transform: translateX(-50%) rotate(-10deg) scale(1.1);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin: 0.5rem 0 0;
+            font-weight: 900;
+            letter-spacing: -2px;
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53, #4ECDC4);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(2px 4px 0px rgba(255,255,255,0.8));
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #555;
+            font-weight: bold;
+            background: #fff;
+            padding: 5px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* 🎮 GRID SYSTEM */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 40px;
+            padding: 20px;
+            perspective: 1000px; /* Essential for 3D effect */
+        }
+
+        /* 🃏 SUPER CARD COMPONENT */
+        .card-wrap {
+            position: relative;
+            height: 280px; /* Fixed height for consistency */
+            transform-style: preserve-3d;
+            cursor: pointer;
+            display: block; /* Ensures anchor behaves like a block container */
+            text-decoration: none; /* Removes underline */
+            -webkit-user-drag: none;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255,255,255,0.8);
+            border-radius: 40px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1), inset 0 0 0 2px rgba(255,255,255,0.5);
+            overflow: hidden;
+            /* Themes set by JS or CSS nth-child */
+        }
+
+        /* 3D Inner Parallax Layer */
+        .card-content {
+            transform: translateZ(30px); /* Pops out */
+            text-align: center;
+            pointer-events: none;
+            color: var(--dark);
+        }
+
+        .icon-box {
+            font-size: 5rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
+            transition: transform 0.4s var(--bounce);
+        }
+
+        .card h2 {
+            font-size: 1.8rem;
+            margin: 0;
+            color: #444;
+            font-weight: 800;
+        }
+
+        .play-btn {
+            margin-top: 15px;
+            padding: 10px 25px;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 5px 0 darken(var(--primary), 20%);
+            transform: translateZ(20px);
+            transition: transform 0.2s;
+        }
+
+        /* Hover & Active States */
+        .card-wrap:hover .icon-box {
+            transform: scale(1.2) rotate(10deg);
+        }
+        
+        .card-wrap:active .card {
+            transform: scale(0.95) !important; /* Override JS tilt on click */
+        }
+
+        /* Card Color Themes - Uses nth-child with cycling logic (8n+x) */
+        .card-wrap:nth-child(8n+1) .card { box-shadow: 0 20px 40px rgba(255, 107, 107, 0.2); border-bottom: 8px solid #FF6B6B; }
+        .card-wrap:nth-child(8n+2) .card { box-shadow: 0 20px 40px rgba(78, 205, 196, 0.2); border-bottom: 8px solid #4ECDC4; }
+        .card-wrap:nth-child(8n+3) .card { box-shadow: 0 20px 40px rgba(255, 230, 109, 0.2); border-bottom: 8px solid #FFE66D; }
+        .card-wrap:nth-child(8n+4) .card { box-shadow: 0 20px 40px rgba(161, 140, 209, 0.2); border-bottom: 8px solid #A18CD1; }
+        .card-wrap:nth-child(8n+5) .card { box-shadow: 0 20px 40px rgba(251, 194, 235, 0.2); border-bottom: 8px solid #FBC2EB; }
+        .card-wrap:nth-child(8n+6) .card { box-shadow: 0 20px 40px rgba(169, 222, 249, 0.2); border-bottom: 8px solid #A9DEF9; }
+        .card-wrap:nth-child(8n+7) .card { box-shadow: 0 20px 40px rgba(208, 244, 222, 0.2); border-bottom: 8px solid #D0F4DE; }
+        .card-wrap:nth-child(8n+8) .card { box-shadow: 0 20px 40px rgba(252, 246, 189, 0.2); border-bottom: 8px solid #FCF6BD; }
+
+
+        /* 🦶 FOOTER */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-weight: bold;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 💥 KEYFRAMES */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        @keyframes floatCloud {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(120vw); }
+        }
+        @keyframes spinSun {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        /* 📱 RESPONSIVE */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.5rem; }
+            .grid { grid-template-columns: 1fr; gap: 30px; }
+            .card-wrap { height: 240px; }
+            .sun-container { width: 150px; height: 150px; }
+        }
+
+        /* LOADING OVERLAY */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s;
+        }
+        .loader-icon { font-size: 3rem; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+    </style>
+</head>
+<body>
+
+    <!-- ⏳ LOADING SCREEN -->
+    <div id="loader">
+        <div class="loader-icon">🍼 Loading...</div>
+    </div>
+
+    <!-- 🌌 PARTICLES CANVAS -->
+    <canvas id="particles"></canvas>
+
+    <!-- 🏞️ ANIMATED BACKGROUND -->
+    <div class="scenery">
+        <div class="sun-container">
+            <div class="sun-rays"></div>
+            <!-- Improved Non-Creepy Static Face -->
+            <div class="sun-face">
+                <div class="sun-eye eye-left"></div>
+                <div class="sun-eye eye-right"></div>
+                <div class="sun-smile"></div>
+            </div>
+        </div>
+        
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+    </div>
+
+    <div class="container">
+        <!-- 🎈 HEADER -->
+        <header>
+            <div class="logo-box">
+                <div class="logo-icon">🐣</div>
+                <h1>ba-by.ca</h1>
+                <div class="subtitle">Games made with ❤️ for little hands</div>
+            </div>
+        </header>
+
+        <!-- 🎮 3D CARD GRID -->
+        <main class="grid" id="gameGrid">
+            
+            <!-- Card 1 -->
+            <a href="/abc/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">🅰️</div>
+                        <h2>ABC Time</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 2 -->
+            <a href="/colors/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">🎨</div>
+                        <h2>Colors</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 3 -->
+            <a href="/sounds/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">🐶</div>
+                        <h2>Sounds</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 4 -->
+            <a href="/puzzles/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">🧩</div>
+                        <h2>Puzzles</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 5 -->
+            <a href="/rooftoprush/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">🏃</div>
+                        <h2>Run!</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 6 -->
+            <a href="/dino/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">🦕</div>
+                        <h2>Dino</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 7 -->
+            <a href="/shapes/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">🔺</div>
+                        <h2>Shapes</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 8 -->
+            <a href="/numbers/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">1️⃣</div>
+                        <h2>Numbers</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 9: Rooftop Santa -->
+            <a href="/rooftopsanta/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">🎅</div>
+                        <h2>Rooftop Santa</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 10: Keyboard Letter -->
+            <a href="/keyboard-letter/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">⌨️</div>
+                        <h2>Key Letter</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 11: Number Counter -->
+            <a href="/number-counter/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">🔢</div>
+                        <h2>Num Counter</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card 12: Dino Rush -->
+            <a href="/dino-rush/" class="card-wrap">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="icon-box">🦖</div>
+                        <h2>Dino Rush</h2>
+                        <div class="play-btn">Play Now!</div>
+                    </div>
+                </div>
+            </a>
+
+        </main>
+
+        <footer>
+            <small>Tap anywhere for magic sparkles! ✨</small>
+        </footer>
+    </div>
+
+    <!-- 🧙‍♂️ WIZARDRY (SCRIPTS) -->
+    <script>
+        // --- 1. REMOVE LOADER ---
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 500);
+        });
+
+        // --- 2. 3D TILT EFFECT FOR CARDS ---
+        const cards = document.querySelectorAll('.card-wrap');
+        
+        cards.forEach(wrap => {
+            const card = wrap.querySelector('.card');
+            
+            // Mouse Move (Desktop)
+            wrap.addEventListener('mousemove', (e) => {
+                const rect = wrap.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Calculate rotation based on cursor position
+                const xPct = x / rect.width;
+                const yPct = y / rect.height;
+                
+                const rotateX = (0.5 - yPct) * 20; // Max 20deg tilt
+                const rotateY = (xPct - 0.5) * 20;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+            });
+
+            // Reset on Leave
+            wrap.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+            });
+
+            // --- 3. CLICK NAVIGATION WITH EXPLOSION ---
+            wrap.addEventListener('click', (e) => {
+                // Prevent default navigation initially
+                e.preventDefault();
+
+                // Trigger massive confetti at click location
+                createExplosion(e.clientX, e.clientY);
+                
+                // Slight delay for animation before navigating
+                setTimeout(() => {
+                    // Use wrap.href property to get the absolute, fully resolved URL
+                    // This fixes the "Invalid URL" error caused by relative paths
+                    window.location.href = wrap.href;
+                }, 300);
+            });
+        });
+
+
+        // --- 4. MAGIC SPARKLE CANVAS ---
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, type = 'trail') {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 10 + 5;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                // Pastel colors
+                const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#FF9F43', '#A29BFE'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.life = 100;
+                this.type = type;
+                if (type === 'explosion') {
+                    this.speedX = Math.random() * 10 - 5;
+                    this.speedY = Math.random() * 10 - 5;
+                    this.size = Math.random() * 15 + 5;
+                }
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.type === 'explosion') this.speedY += 0.2; // Gravity
+                this.life -= 2;
+                this.size *= 0.95;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                if (Math.random() > 0.5) {
+                    // Draw Circle
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                } else {
+                    // Draw Star (simplified as diamond)
+                    ctx.moveTo(this.x, this.y - this.size);
+                    ctx.lineTo(this.x + this.size, this.y);
+                    ctx.lineTo(this.x, this.y + this.size);
+                    ctx.lineTo(this.x - this.size, this.y);
+                }
+                ctx.fill();
+            }
+        }
+
+        function handleParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].life <= 0 || particles[i].size <= 0.5) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            handleParticles();
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Add particles on move
+        window.addEventListener('mousemove', (e) => {
+            if (particles.length < 100) { // Limit performance hit
+                particles.push(new Particle(e.x, e.y));
+            }
+        });
+        
+        // Add particles on touch
+        window.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            particles.push(new Particle(touch.clientX, touch.clientY));
+        });
+
+        // GLOBAL CLICK EXPLOSION (Added)
+        window.addEventListener('click', (e) => {
+            // Check if clicking a card (which has its own listener) to avoid double explosion
+            if (!e.target.closest('.card-wrap')) {
+                createExplosion(e.clientX, e.clientY);
+            }
+        });
+
+        // Explosion function
+        function createExplosion(x, y) {
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle(x, y, 'explosion'));
+            }
+        }
+
+    </script>
+</body>
+</html>
