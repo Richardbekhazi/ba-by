@@ -1,14 +1,645 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>shapes - ba-by.ca</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shape Poppers</title>
+    <!-- Friendly Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #E0F7FA;
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(180deg, #E0F7FA 0%, #E3F2FD 100%);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: crosshair;
+        }
+
+        /* ✨ PARTICLES CANVAS */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* 🏠 HOME BUTTON */
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            text-decoration: none;
+            box-shadow: 0 4px 0 #cbd5e1;
+            border: 2px solid #e2e8f0;
+            z-index: 100;
+            transition: transform 0.1s;
+        }
+        .home-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* 🎈 TOTAL SCORE COUNTER (New) */
+        #total-score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #fff;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            color: #2d3436;
+            box-shadow: 0 4px 0 #cbd5e1;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid #e2e8f0;
+        }
+
+        /* 📊 INDIVIDUAL COUNTERS PANEL */
+        #counters-panel {
+            position: absolute;
+            top: 90px; 
+            left: 0;
+            width: 100%;
+            padding: 0 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            pointer-events: none; 
+            z-index: 90;
+        }
+
+        .counter-badge {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.05);
+            transform: scale(0);
+            animation: popInBadge 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            border: 2px solid transparent; 
+            transition: transform 0.1s;
+        }
+        
+        .counter-badge.updated {
+            transform: scale(1.3);
+            z-index: 100;
+        }
+
+        @keyframes popInBadge {
+            to { transform: scale(1); }
+        }
+
+        .counter-icon {
+            width: 24px;
+            height: 24px;
+            display: block;
+            filter: drop-shadow(0 2px 0 rgba(0,0,0,0.1));
+        }
+        
+        .counter-val {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.1rem;
+            color: #2d3436;
+            min-width: 15px;
+            text-align: center;
+        }
+
+        /* 🎈 BALLOON CONTAINER */
+        #game-area {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .balloon-wrapper {
+            position: absolute;
+            bottom: -150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            will-change: transform;
+        }
+
+        /* The SVG Shape */
+        .balloon-shape {
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            transition: transform 0.1s;
+        }
+        
+        /* The String */
+        .balloon-string {
+            width: 2px;
+            height: 60px;
+            background: rgba(0,0,0,0.2);
+            margin-top: -2px;
+            transform-origin: top center;
+            animation: stringWiggle 2s ease-in-out infinite;
+        }
+
+        /* Animations */
+        @keyframes floatUp {
+            0% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-30vh) translateX(15px); }
+            50% { transform: translateY(-60vh) translateX(-15px); }
+            75% { transform: translateY(-90vh) translateX(10px); }
+            100% { transform: translateY(-120vh) translateX(0); }
+        }
+
+        @keyframes stringWiggle {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        @keyframes popAnim {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .popped .balloon-shape {
+            animation: popAnim 0.15s forwards;
+        }
+        .popped .balloon-string {
+            display: none;
+        }
+
+        /* UI Overlay */
+        .ui-layer {
+            position: absolute;
+            top: 20px;
+            right: 20px; /* Just a container, contents positioned relatively */
+            text-align: right;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #current-shape-name {
+            position: absolute;
+            top: 150px; /* Below counters */
+            width: 100%;
+            text-align: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 3rem;
+            color: var(--primary);
+            text-shadow: 2px 2px 0 white;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            left: 0;
+        }
+        #current-shape-name.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* Unlock Notification */
+        #unlock-msg {
+            position: absolute;
+            bottom: 30px; 
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            background: rgba(255,255,255,0.95);
+            padding: 15px 40px;
+            border-radius: 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 4px solid var(--accent);
+        }
+        #unlock-msg.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        #unlock-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        /* Start Prompt */
+        #start-prompt {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            color: #636e72;
+            text-align: center;
+            background: rgba(255,255,255,0.8);
+            padding: 20px 40px;
+            border-radius: 30px;
+            pointer-events: none;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; text-align: center; padding-top: 40px;">
-  <h1>shapes game</h1>
-  <p>This is a placeholder page for the <strong>shapes</strong> game.</p>
-  <p>You can replace this file with your real game later.</p>
-  <p><a href="../index.html">⬅ Back to ba-by.ca home</a></p>
+<body>
+
+    <canvas id="particles"></canvas>
+    
+    <a href="/" class="home-btn" title="Back to Games">🏠</a>
+    
+    <!-- Total Score -->
+    <div id="total-score">
+        <span>🎈</span> <span id="total-val">0</span>
+    </div>
+
+    <!-- Individual Shape Counters -->
+    <div id="counters-panel">
+        <!-- Counters injected here by JS -->
+    </div>
+
+    <div id="game-area">
+        <div id="start-prompt">Tap to Pop! 🎈</div>
+        
+        <div class="ui-layer">
+            <div id="current-shape-name"></div>
+        </div>
+
+        <div id="unlock-msg">
+            <div id="unlock-title">🎉 New Shape!</div>
+            <div id="unlock-name" style="font-family: 'Nunito'; font-weight:800; font-size:1.5rem; color:#636e72">Diamond</div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * SHAPE POPPERS v4.0
+         * - Improved Shapes (Better Moon)
+         * - Total Pop Counter
+         */
+
+        const SHAPES = [
+            // --- BASIC (Starting 5) ---
+            { id: 'circle', name: 'Circle', count: 0, weight: 1, color: '#FF6B6B', path: '<circle cx="50" cy="50" r="45" />' },
+            { id: 'square', name: 'Square', count: 0, weight: 1, color: '#4ECDC4', path: '<rect x="10" y="10" width="80" height="80" rx="10" />' },
+            { id: 'triangle', name: 'Triangle', count: 0, weight: 1, color: '#FFE66D', path: '<path d="M50 10 L90 85 L10 85 Z" stroke-linejoin="round" stroke-width="10"/>' },
+            { id: 'star', name: 'Star', count: 0, weight: 1, color: '#A29BFE', path: '<path d="M50 5 L63 35 L95 35 L70 55 L80 85 L50 70 L20 85 L30 55 L5 35 L37 35 Z" stroke-linejoin="round"/>' },
+            { id: 'heart', name: 'Heart', count: 0, weight: 1, color: '#FF9FF3', path: '<path d="M50 85 C50 85 10 55 10 30 A20 20 0 0 1 50 30 A20 20 0 0 1 90 30 C90 55 50 85 50 85 Z" />' },
+            
+            // --- UNLOCKABLE (Every 10 pops) ---
+            { id: 'diamond', name: 'Diamond', count: 0, weight: 1, color: '#54a0ff', path: '<polygon points="50,5 90,50 50,95 10,50" />' },
+            { id: 'oval', name: 'Oval', count: 0, weight: 1, color: '#00cec9', path: '<ellipse cx="50" cy="50" rx="45" ry="30" />' },
+            { id: 'pentagon', name: 'Pentagon', count: 0, weight: 1, color: '#fab1a0', path: '<polygon points="50,5 95,38 78,92 22,92 5,38" />' },
+            { id: 'hexagon', name: 'Hexagon', count: 0, weight: 1, color: '#6c5ce7', path: '<polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" />' },
+            // NEW MOON SHAPE
+            { id: 'moon', name: 'Moon', count: 0, weight: 1, color: '#fdcb6e', path: '<path d="M60 20 A 40 40 0 1 1 60 80 A 30 30 0 1 0 60 20 Z" />' }, 
+            { id: 'cross', name: 'Cross', count: 0, weight: 1, color: '#ff7675', path: '<path d="M35 10 H65 V35 H90 V65 H65 V90 H35 V65 H10 V35 H35 Z" />' },
+            { id: 'kite', name: 'Kite', count: 0, weight: 1, color: '#a29bfe', path: '<polygon points="50,5 90,40 50,95 10,40" />' },
+            { id: 'arrow', name: 'Arrow', count: 0, weight: 1, color: '#00b894', path: '<polygon points="50,10 90,50 70,50 70,90 30,90 30,50 10,50" />' },
+            { id: 'cloud', name: 'Cloud', count: 0, weight: 1, color: '#74b9ff', path: '<path d="M25,60 a20,20 0 0,1 0,-40 a20,20 0 0,1 50,0 a20,20 0 0,1 0,40 z" />' },
+            { id: 'lightning', name: 'Lightning', count: 0, weight: 1, color: '#fdcb6e', path: '<polygon points="60,5 20,50 45,50 30,95 80,45 55,45" />' },
+            { id: 'ring', name: 'Ring', count: 0, weight: 1, color: '#e17055', path: '<path d="M50 10 A40 40 0 1 0 50 90 A40 40 0 1 0 50 10 M50 30 A20 20 0 1 1 50 70 A20 20 0 1 1 50 30" fill-rule="evenodd"/>' },
+            { id: 'rectangle', name: 'Rectangle', count: 0, weight: 1, color: '#0984e3', path: '<rect x="15" y="25" width="70" height="50" rx="5" />' },
+            { id: 'trapezoid', name: 'Trapezoid', count: 0, weight: 1, color: '#d63031', path: '<polygon points="30,20 70,20 90,80 10,80" />' },
+            { id: 'octagon', name: 'Octagon', count: 0, weight: 1, color: '#636e72', path: '<polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" />' },
+            { id: 'flower', name: 'Flower', count: 0, weight: 1, color: '#e84393', path: '<path d="M50 30 A 20 20 0 0 1 70 50 A 20 20 0 0 1 50 70 A 20 20 0 0 1 30 50 A 20 20 0 0 1 50 30 M 50 10 A 20 20 0 0 1 50 30" />' }
+        ];
+
+        const COLORS = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A29BFE', '#FF9FF3', '#54a0ff'];
+
+        // --- State ---
+        let state = {
+            active: false,
+            totalPops: 0,
+            unlockedIndex: 5, // Start with 5 shapes
+            spawnInterval: null
+        };
+
+        const els = {
+            container: document.getElementById('game-area'),
+            shapeDisplay: document.getElementById('current-shape-name'),
+            startPrompt: document.getElementById('start-prompt'),
+            countersPanel: document.getElementById('counters-panel'),
+            unlockMsg: document.getElementById('unlock-msg'),
+            unlockName: document.getElementById('unlock-name'),
+            totalVal: document.getElementById('total-val')
+        };
+
+        // --- Audio Context ---
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playPopSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.15);
+
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            const voices = window.speechSynthesis.getVoices();
+            const preferred = voices.find(v => v.name.includes('Google US English')) || voices[0];
+            if(preferred) utterance.voice = preferred;
+            utterance.rate = 1.1;
+            utterance.pitch = 1.2;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- Game Logic ---
+
+        function startGame() {
+            if(state.active) return;
+            state.active = true;
+            els.startPrompt.style.display = 'none';
+            
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            // Init counters
+            renderInitialCounters();
+
+            spawnBalloon();
+            state.spawnInterval = setInterval(spawnBalloon, 1200);
+        }
+
+        function renderInitialCounters() {
+            els.countersPanel.innerHTML = '';
+            for(let i=0; i<state.unlockedIndex; i++) {
+                addCounter(SHAPES[i]);
+            }
+        }
+
+        function addCounter(shapeData) {
+            const badge = document.createElement('div');
+            badge.className = 'counter-badge';
+            badge.id = `badge-${shapeData.id}`;
+            // Use specific shape color for border and icon
+            badge.style.borderColor = shapeData.color; 
+            
+            badge.innerHTML = `
+                <svg class="counter-icon" viewBox="0 0 100 100" style="fill: ${shapeData.color};">
+                    ${shapeData.path}
+                </svg>
+                <span class="counter-val">${shapeData.count}</span>
+            `;
+            els.countersPanel.appendChild(badge);
+        }
+
+        function updateCounter(shapeData) {
+            const badge = document.getElementById(`badge-${shapeData.id}`);
+            if(badge) {
+                const val = badge.querySelector('.counter-val');
+                val.textContent = shapeData.count;
+                
+                // Pop animation
+                badge.classList.remove('updated');
+                void badge.offsetWidth;
+                badge.classList.add('updated');
+                setTimeout(() => badge.classList.remove('updated'), 200);
+            }
+        }
+
+        function getWeightedRandomShape() {
+            const unlockedShapes = SHAPES.slice(0, state.unlockedIndex);
+            let totalWeight = 0;
+            unlockedShapes.forEach(s => totalWeight += s.weight);
+            
+            let random = Math.random() * totalWeight;
+            
+            for (let shape of unlockedShapes) {
+                if (random < shape.weight) {
+                    if (shape.weight > 1) {
+                        shape.weight = Math.max(1, shape.weight - 0.5);
+                    }
+                    return shape;
+                }
+                random -= shape.weight;
+            }
+            return unlockedShapes[0];
+        }
+
+        function spawnBalloon() {
+            const shapeData = getWeightedRandomShape();
+            // Use the Shape's defined color instead of random
+            const color = shapeData.color; 
+            
+            const el = document.createElement('div');
+            el.className = 'balloon-wrapper';
+            
+            const leftPos = 10 + Math.random() * 80;
+            el.style.left = `${leftPos}%`;
+
+            const speed = 4 + Math.random() * 4; 
+            el.style.animation = `floatUp ${speed}s linear forwards`;
+
+            el.innerHTML = `
+                <svg class="balloon-shape" viewBox="0 0 100 100" style="fill: ${color};">
+                    ${shapeData.path}
+                    <path d="M30 30 Q 40 20 50 30" stroke="rgba(255,255,255,0.4)" stroke-width="5" fill="none" />
+                </svg>
+                <div class="balloon-string"></div>
+            `;
+
+            const popHandler = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                popBalloon(el, shapeData, color);
+            };
+
+            el.addEventListener('mousedown', popHandler);
+            el.addEventListener('touchstart', popHandler);
+
+            el.addEventListener('animationend', () => {
+                if(el.parentNode) el.parentNode.removeChild(el);
+            });
+
+            els.container.appendChild(el);
+        }
+
+        function popBalloon(el, shapeData, color) {
+            if(el.classList.contains('popped')) return;
+            el.classList.add('popped'); 
+
+            // Increment counters
+            shapeData.count++;
+            state.totalPops++;
+            els.totalVal.textContent = state.totalPops;
+            
+            // Visual Updates
+            updateCounter(shapeData);
+            
+            // Check for Unlock (Every 10 total pops)
+            if (state.totalPops > 0 && state.totalPops % 10 === 0 && state.unlockedIndex < SHAPES.length) {
+                const newShape = SHAPES[state.unlockedIndex];
+                // Boost weight for new shape so it appears often!
+                newShape.weight = 8; 
+                state.unlockedIndex++;
+                triggerUnlockEvent(newShape);
+            } else {
+                // Normal Pop
+                playPopSound();
+                speak(shapeData.name);
+                showName(shapeData.name, color);
+            }
+
+            // Particles
+            const rect = el.getBoundingClientRect();
+            createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2, color);
+
+            setTimeout(() => {
+                if(el.parentNode) el.parentNode.removeChild(el);
+            }, 200);
+        }
+
+        function triggerUnlockEvent(shape) {
+            // Special Audio
+            speak("New Shape! " + shape.name);
+            
+            // Add Visual Counter
+            addCounter(shape);
+
+            // Show Notification
+            els.unlockName.textContent = shape.name;
+            els.unlockName.style.color = shape.color;
+            els.unlockMsg.style.borderColor = shape.color;
+            els.unlockMsg.classList.add('show');
+
+            // Hide after delay
+            setTimeout(() => {
+                els.unlockMsg.classList.remove('show');
+            }, 3000);
+        }
+
+        function showName(text, color) {
+            // Show Name only
+            els.shapeDisplay.textContent = text;
+            els.shapeDisplay.style.color = color;
+            els.shapeDisplay.classList.remove('show');
+            void els.shapeDisplay.offsetWidth; 
+            els.shapeDisplay.classList.add('show');
+        }
+
+        // --- PARTICLE SYSTEM ---
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function setupCanvas() {
+            const resize = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            window.addEventListener('resize', resize);
+            resize();
+            animateParticles();
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y;
+                this.color = color;
+                this.size = Math.random() * 8 + 4; 
+                this.speedX = Math.random() * 6 - 3;
+                this.speedY = Math.random() * 6 - 3;
+                this.life = 100;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.speedY += 0.2; 
+                this.life -= 2;
+                this.size *= 0.95;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 20; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        document.body.addEventListener('click', startGame, {once: true});
+        document.body.addEventListener('touchstart', startGame, {once: true});
+
+        setupCanvas();
+
+    </script>
 </body>
 </html>
