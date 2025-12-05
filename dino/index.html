@@ -17,6 +17,7 @@
             --primary: #FF6B6B;
             --secondary: #4ECDC4;
             --text-main: #2D3436;
+            --accent: #FFE66D;
         }
 
         * {
@@ -76,7 +77,7 @@
             flex-direction: column;
             align-items: center;
             padding: 20px;
-            padding-top: 80px; /* Space for home button/header */
+            padding-top: 20px;
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
@@ -85,17 +86,41 @@
         h1 {
             font-family: 'Fredoka One', cursive;
             color: var(--primary);
-            font-size: 2.8rem;
-            margin: 0 0 20px 0;
+            font-size: 2.5rem;
+            margin: 0 0 15px 0;
+            margin-top: 50px; /* Space for home button */
             text-shadow: 3px 3px 0px rgba(255,255,255,0.8);
             text-align: center;
             letter-spacing: 1px;
-            animation: floatHeader 3s ease-in-out infinite;
         }
 
-        @keyframes floatHeader {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        /* --- LEVEL SELECTOR --- */
+        .level-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.5);
+            padding: 5px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .level-btn {
+            border: none;
+            background: transparent;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1rem;
+            color: #636e72;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .level-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
         }
 
         /* --- ANIMAL GRID --- */
@@ -105,7 +130,7 @@
             gap: 16px;
             width: 100%;
             padding: 10px;
-            padding-bottom: 40px;
+            padding-bottom: 60px; /* Extra space at bottom */
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -127,10 +152,8 @@
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             opacity: 0; /* For entrance animation */
-            animation: popIn 0.5s forwards;
+            animation: popIn 0.4s forwards;
         }
-
-        /* Staggered animation delay logic is handled in JS */
 
         .animal-card:active {
             transform: scale(0.92) translateY(4px) !important;
@@ -141,7 +164,6 @@
             font-size: 3.5rem;
             line-height: 1.2;
             filter: drop-shadow(0 4px 0 rgba(0,0,0,0.1));
-            transition: transform 0.2s;
         }
         
         .animal-name {
@@ -265,6 +287,13 @@
 
     <div class="app-container">
         <h1>Animal Safari 🌍</h1>
+        
+        <div class="level-controls">
+            <button class="level-btn active" onclick="loadLevel(1)">Level 1</button>
+            <button class="level-btn" onclick="loadLevel(2)">Level 2</button>
+            <button class="level-btn" onclick="loadLevel(3)">Level 3</button>
+        </div>
+
         <div class="safari-grid" id="grid">
             <!-- Animals injected here -->
         </div>
@@ -282,118 +311,98 @@
 
     <script>
         /**
-         * Animal Safari
-         * Focus: Big touch targets, Realistic Audio, Juice
+         * Animal Safari Configuration
+         * Source: Google Search Animals (logos/fnbx/animal_sounds)
          */
 
-        // High-Quality MP3s (Google Search Sounds) for broad mobile compatibility
-        const ANIMALS = [
-            { 
-                name: 'Lion', emoji: '🦁', color: '#FAB1A0', bg: '#fff0e6',
-                sound: 'The Lion says, Roar!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/lion.mp3' 
-            },
-            { 
-                name: 'Dog', emoji: '🐶', color: '#74b9ff', bg: '#e8f4ff',
-                sound: 'The Dog says, Woof Woof!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/dog.mp3' 
-            },
-            { 
-                name: 'Cat', emoji: '🐱', color: '#fd79a8', bg: '#fff0f6',
-                sound: 'The Cat says, Meow!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/cat.mp3' 
-            },
-            { 
-                name: 'Cow', emoji: '🐮', color: '#00b894', bg: '#e6fffa',
-                sound: 'The Cow says, Moooooo!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/cow.mp3' 
-            },
-            { 
-                name: 'Pig', emoji: '🐷', color: '#ff7675', bg: '#fff0ef',
-                sound: 'The Pig says, Oink Oink!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/pig.mp3' 
-            },
-            { 
-                name: 'Monkey', emoji: '🐵', color: '#fdcb6e', bg: '#fff9db',
-                sound: 'The Monkey says, Ooh Ooh Ah Ah!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/ape.mp3' 
-            },
-            { 
-                name: 'Elephant', emoji: '🐘', color: '#a29bfe', bg: '#f3f0ff',
-                sound: 'The Elephant goes, Trumpet!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/elephant.mp3' 
-            },
-            { 
-                name: 'Duck', emoji: '🦆', color: '#00cec9', bg: '#e6fffe',
-                sound: 'The Duck says, Quack Quack!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/duck.mp3' 
-            },
-            { 
-                name: 'Sheep', emoji: '🐑', color: '#636e72', bg: '#f1f2f6',
-                sound: 'The Sheep says, Baaaaa!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/sheep.mp3' 
-            },
-            { 
-                name: 'Tiger', emoji: '🐯', color: '#e17055', bg: '#fff0eb',
-                sound: 'The Tiger says, Grrrrr!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/tiger.mp3' 
-            },
-            { 
-                name: 'Frog', emoji: '🐸', color: '#27ae60', bg: '#ebfbee',
-                sound: 'The Frog says, Ribbit!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/frog.mp3' 
-            },
-            { 
-                name: 'Horse', emoji: '🐎', color: '#d35400', bg: '#fff0e6',
-                sound: 'The Horse says, Neigh!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/horse.mp3' 
-            },
-            { 
-                name: 'Rooster', emoji: '🐔', color: '#d63031', bg: '#ffeaea',
-                sound: 'The Rooster says, Cock-a-doodle-doo!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/rooster.mp3' 
-            },
-            { 
-                name: 'Owl', emoji: '🦉', color: '#8e44ad', bg: '#f3e5f5',
-                sound: 'The Owl says, Hoot Hoot!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/owl.mp3' 
-            },
-            { 
-                name: 'Zebra', emoji: '🦓', color: '#2d3436', bg: '#f5f6fa',
-                sound: 'The Zebra says, Whinny!', 
-                audioUrl: 'https://www.google.com/logos/fnbx/animal_sounds/zebra.mp3' 
-            },
-            { 
-                name: 'Bee', emoji: '🐝', color: '#f1c40f', bg: '#fff9db',
-                sound: 'The Bee says, Buzz Buzz!', 
-                audioUrl: 'https://actions.google.com/sounds/v1/animals/bee_buzz.ogg' 
-            },
-            // Fallbacks for those without direct Google MP3s
-            { name: 'Bear', emoji: '🐻', color: '#7f8c8d', sound: 'The Bear says, Grrrr!', bg: '#f8f9fa' },
-            { name: 'Giraffe', emoji: '🦒', color: '#e67e22', sound: 'The Giraffe says, Munch Munch!', bg: '#fff3e0' },
-            { name: 'Snake', emoji: '🐍', color: '#2ecc71', sound: 'The Snake says, Hiss!', bg: '#ebfbee' },
-            { name: 'Mouse', emoji: '🐭', color: '#a29bfe', sound: 'The Mouse says, Squeak Squeak!', bg: '#f3f0ff' },
-        ];
+        const GOOGLE_BASE = 'https://www.google.com/logos/fnbx/animal_sounds/';
 
-        // State
+        const LEVELS = {
+            1: [ // Farm & Home
+                { name: 'Dog', file: 'dog.mp3', emoji: '🐶', bg: '#e8f4ff' },
+                { name: 'Cat', file: 'cat.mp3', emoji: '🐱', bg: '#fff0f6' },
+                { name: 'Cow', file: 'cow.mp3', emoji: '🐮', bg: '#e6fffa' },
+                { name: 'Pig', file: 'pig.mp3', emoji: '🐷', bg: '#fff0ef' },
+                { name: 'Sheep', file: 'sheep.mp3', emoji: '🐑', bg: '#f1f2f6' },
+                { name: 'Duck', file: 'duck.mp3', emoji: '🦆', bg: '#e6fffe' },
+                { name: 'Chicken', file: 'chicken.mp3', emoji: '🐔', bg: '#ffeaea' },
+                { name: 'Rooster', file: 'rooster.mp3', emoji: '🐓', bg: '#fff5e6' },
+                { name: 'Horse', file: 'horse.mp3', emoji: '🐎', bg: '#fff0e6' },
+                { name: 'Turkey', file: 'turkey.mp3', emoji: '🦃', bg: '#fff3e0' },
+                { name: 'Rabbit', file: 'rabbit.mp3', emoji: '🐰', bg: '#fce4ec' },
+                { name: 'Frog', file: 'frog.mp3', emoji: '🐸', bg: '#ebfbee' },
+                { name: 'Owl', file: 'owl.mp3', emoji: '🦉', bg: '#f3e5f5' },
+                { name: 'Mouse', file: 'rat.mp3', emoji: '🐭', bg: '#f3e5f5' }, // Using rat for mouse
+                { name: 'Bird', file: 'robin.mp3', emoji: '🐦', bg: '#e3f2fd' }, // Robin as Bird
+                { name: 'Dove', file: 'dove.mp3', emoji: '🕊️', bg: '#f5f5f5' },
+                { name: 'Bee', file: 'bee.mp3', emoji: '🐝', bg: '#fffce6' },
+                { name: 'Guinea Pig', file: 'guinea_pig.mp3', emoji: '🐹', bg: '#fff8e1' },
+                { name: 'Ferret', file: 'ferret.mp3', emoji: '🦦', bg: '#d7ccc8' }
+            ],
+            2: [ // Wild & Forest
+                { name: 'Lion', file: 'lion.mp3', emoji: '🦁', bg: '#fff3e0' },
+                { name: 'Tiger', file: 'tiger.mp3', emoji: '🐯', bg: '#fff0eb' },
+                { name: 'Elephant', file: 'elephant.mp3', emoji: '🐘', bg: '#f3f0ff' },
+                { name: 'Zebra', file: 'zebra.mp3', emoji: '🦓', bg: '#f5f6fa' },
+                { name: 'Giraffe', file: 'giraffe.mp3', emoji: '🦒', bg: '#fff3e0' },
+                { name: 'Monkey', file: 'ape.mp3', emoji: '🐵', bg: '#fff9db' }, // Ape as Monkey
+                { name: 'Panda', file: 'panda.mp3', emoji: '🐼', bg: '#fafafa' },
+                { name: 'Wolf', file: 'wolf.mp3', emoji: '🐺', bg: '#cfd8dc' },
+                { name: 'Moose', file: 'moose.mp3', emoji: '🫎', bg: '#d7ccc8' },
+                { name: 'Raccoon', file: 'raccoon.mp3', emoji: '🦝', bg: '#eceff1' },
+                { name: 'Otter', file: 'otter.mp3', emoji: '🦦', bg: '#e0f7fa' },
+                { name: 'Penguin', file: 'penguin.mp3', emoji: '🐧', bg: '#e0f7fa' },
+                { name: 'Swan', file: 'swan.mp3', emoji: '🦢', bg: '#fafafa' },
+                { name: 'Whale', file: 'bowhead_whale.mp3', emoji: '🐳', bg: '#e1f5fe' },
+                { name: 'Shark', file: 'shark.mp3', emoji: '🦈', bg: '#e0f2f1' },
+                { name: 'Bat', file: 'bat.mp3', emoji: '🦇', bg: '#ede7f6' },
+                { name: 'Hedgehog', file: 'hedgehog.mp3', emoji: '🦔', bg: '#d7ccc8' },
+                { name: 'Leopard', file: 'leopard.mp3', emoji: '🐆', bg: '#fffde7' },
+                { name: 'Hyena', file: 'hyena.mp3', emoji: '🐕', bg: '#d7ccc8' }
+            ],
+            3: [ // Exotic & Rare
+                { name: 'Camel', file: 'camel.mp3', emoji: '🐫', bg: '#fff8e1' },
+                { name: 'Buffalo', file: 'buffalo.mp3', emoji: '🐃', bg: '#cfd8dc' },
+                { name: 'Yak', file: 'yak.mp3', emoji: '🐂', bg: '#d7ccc8' },
+                { name: 'Alpaca', file: 'alpaca.mp3', emoji: '🦙', bg: '#f5f5f5' },
+                { name: 'Antelope', file: 'antelope.mp3', emoji: '🦌', bg: '#efebe9' },
+                { name: 'Rhino', file: 'rhinoceros.mp3', emoji: '🦏', bg: '#cfd8dc' },
+                { name: 'Hippo', file: 'hippopotamus.mp3', emoji: '🦛', bg: '#eceff1' },
+                { name: 'Alligator', file: 'alligator.mp3', emoji: '🐊', bg: '#c8e6c9' },
+                { name: 'Snake', file: 'rattlesnake.mp3', emoji: '🐍', bg: '#e8f5e9' },
+                { name: 'Lizard', file: 'lizard.mp3', emoji: '🦎', bg: '#c8e6c9' },
+                { name: 'Dragon', file: 'komodo_dragon.mp3', emoji: '🐉', bg: '#dcedc8' },
+                { name: 'Dino', file: 'dinosaur.mp3', emoji: '🦖', bg: '#c8e6c9' },
+                { name: 'Scorpion', file: 'scorpion.mp3', emoji: '🦂', bg: '#ffe0b2' },
+                { name: 'Anteater', file: 'anteater.mp3', emoji: '🐜', bg: '#d7ccc8' },
+                { name: 'Parrot', file: 'african_grey_parrot.mp3', emoji: '🦜', bg: '#ffebee' },
+                { name: 'Crow', file: 'crow.mp3', emoji: '🐦‍⬛', bg: '#eceff1' },
+                { name: 'Falcon', file: 'falcon.mp3', emoji: '🦅', bg: '#cfd8dc' },
+                { name: 'Big Whale', file: 'humpback_whale.mp3', emoji: '🐋', bg: '#e3f2fd' }
+            ]
+        };
+
+        // --- GLOBAL STATE ---
         let state = {
             voice: null,
             isLocked: false,
-            currentAudio: null // Track currently playing audio to stop it
+            currentAudio: null,
+            currentLevel: 1
         };
 
-        // Elements
+        // --- DOM ELEMENTS ---
         const grid = document.getElementById('grid');
         const overlay = document.getElementById('overlay');
         const stageEmoji = document.getElementById('stage-emoji');
         const stageText = document.getElementById('stage-text');
         const stageSub = document.getElementById('stage-subtext');
         const canvas = document.getElementById('particles');
+        const homeBtn = document.querySelector('.home-btn');
 
-        // --- Init ---
+        // --- INITIALIZATION ---
         function init() {
             setupVoice();
-            renderGrid();
+            loadLevel(1); // Default to Level 1
             setupCanvas();
             
             if (speechSynthesis.onvoiceschanged !== undefined) {
@@ -411,9 +420,23 @@
                           voices[0];
         }
 
-        function renderGrid() {
+        // --- LEVEL LOGIC ---
+        window.loadLevel = function(level) {
+            state.currentLevel = level;
+            
+            // Update buttons
+            document.querySelectorAll('.level-btn').forEach((btn, idx) => {
+                if (idx + 1 === level) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            // Re-render Grid
+            renderGrid(LEVELS[level]);
+        }
+
+        function renderGrid(animals) {
             grid.innerHTML = '';
-            ANIMALS.forEach((animal, index) => {
+            animals.forEach((animal, index) => {
                 const card = document.createElement('div');
                 card.className = 'animal-card';
                 card.style.borderColor = animal.bg; 
@@ -455,41 +478,41 @@
             // 1. Pop Visuals
             stageEmoji.textContent = animal.emoji;
             stageText.textContent = animal.name;
-            stageText.style.color = animal.color;
+            stageText.style.color = '#2d3436';
             stageSub.textContent = "🔊 Listening...";
             
             overlay.classList.add('active');
 
             // 2. Particles
-            createExplosion(window.innerWidth/2, window.innerHeight/2, animal.color);
+            // Simple color hash or default if not provided
+            const pColor = animal.bg === '#ffffff' ? '#FF6B6B' : animal.bg; 
+            createExplosion(window.innerWidth/2, window.innerHeight/2, '#FF6B6B');
 
-            // 3. Audio Logic (Realistic > TTS)
+            // 3. Audio Logic
             setTimeout(() => {
                 playAnimalSound(animal);
             }, 300);
         }
 
         function playAnimalSound(animal) {
-            // Try playing audio file if it exists
-            if (animal.audioUrl) {
-                const audio = new Audio(animal.audioUrl);
-                state.currentAudio = audio;
-                
-                // Fallback to TTS if audio fails (network error, bad link)
-                audio.onerror = (e) => {
-                    console.log("Audio failed to load, falling back to TTS", e);
-                    speak(animal.sound);
-                };
+            const fullUrl = GOOGLE_BASE + animal.file;
+            const audio = new Audio(fullUrl);
+            state.currentAudio = audio;
+            
+            // LOOPING LOGIC: Enable loop
+            audio.loop = true;
+            
+            // Fallback to TTS if audio fails
+            audio.onerror = (e) => {
+                console.log("Audio failed to load, falling back to TTS", e);
+                speak(`The ${animal.name} says hello!`);
+            };
 
-                // Play
-                audio.play().catch(e => {
-                    console.log("Autoplay prevented or error", e);
-                    speak(animal.sound);
-                });
-            } else {
-                // No audio URL, direct TTS
-                speak(animal.sound);
-            }
+            // Play
+            audio.play().catch(e => {
+                console.log("Autoplay prevented or error", e);
+                speak(`The ${animal.name} says hello!`); 
+            });
         }
 
         function stopAudio() {
@@ -513,9 +536,7 @@
         }
 
         function speak(text) {
-            // Double check cancellation
             window.speechSynthesis.cancel();
-            
             const utterance = new SpeechSynthesisUtterance(text);
             if (state.voice) utterance.voice = state.voice;
             utterance.rate = 0.9;
