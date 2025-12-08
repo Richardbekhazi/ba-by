@@ -32,10 +32,11 @@
             padding: 0;
             font-family: 'Nunito', sans-serif;
             background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
-            height: 100vh;
-            overflow: hidden;
+            /* FIXED: Allow body to grow and scroll */
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
+            /* overflow: hidden;  <-- REMOVED THIS */
         }
 
         /* ✨ PARTICLES CANVAS */
@@ -51,7 +52,8 @@
 
         /* 🏠 HOME BUTTON */
         .home-btn {
-            position: absolute;
+            /* FIXED: Keep button visible when scrolling */
+            position: fixed; 
             top: 20px;
             left: 20px;
             width: 50px;
@@ -88,7 +90,7 @@
             color: var(--primary);
             font-size: 2.5rem;
             margin: 0 0 15px 0;
-            margin-top: 50px; /* Space for home button */
+            margin-top: 60px; /* Increased space for fixed home button */
             text-shadow: 3px 3px 0px rgba(255,255,255,0.8);
             text-align: center;
             letter-spacing: 1px;
@@ -103,6 +105,11 @@
             padding: 5px;
             border-radius: 30px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            /* Sticky header effect (optional) */
+            position: sticky;
+            top: 10px;
+            z-index: 90;
+            backdrop-filter: blur(5px);
         }
 
         .level-btn {
@@ -130,13 +137,9 @@
             gap: 16px;
             width: 100%;
             padding: 10px;
-            padding-bottom: 60px; /* Extra space at bottom */
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            padding-bottom: 60px;
+            /* Removed internal scrolling to let body scroll */
         }
-
-        /* Hide scrollbar */
-        .safari-grid::-webkit-scrollbar { display: none; }
 
         .animal-card {
             background: #fff;
@@ -458,7 +461,7 @@
 
                 const interact = (e) => {
                     e.preventDefault();
-                    activateAnimal(animal);
+                    activateAnimal(animal, e);
                 };
 
                 card.addEventListener('click', interact);
@@ -468,7 +471,7 @@
             });
         }
 
-        function activateAnimal(animal) {
+        function activateAnimal(animal, e) {
             if (state.isLocked) return;
             state.isLocked = true;
 
@@ -484,9 +487,20 @@
             overlay.classList.add('active');
 
             // 2. Particles
-            // Simple color hash or default if not provided
-            const pColor = animal.bg === '#ffffff' ? '#FF6B6B' : animal.bg; 
-            createExplosion(window.innerWidth/2, window.innerHeight/2, '#FF6B6B');
+            let x = window.innerWidth / 2;
+            let y = window.innerHeight / 2;
+
+            if (e) {
+                if (e.touches && e.touches.length > 0) {
+                    x = e.touches[0].clientX;
+                    y = e.touches[0].clientY;
+                } else if (e.clientX !== undefined) {
+                    x = e.clientX;
+                    y = e.clientY;
+                }
+            }
+
+            createExplosion(x, y, '#FF6B6B');
 
             // 3. Audio Logic
             setTimeout(() => {

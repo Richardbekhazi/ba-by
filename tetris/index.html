@@ -1,0 +1,744 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stacky Smiles</title>
+    <!-- Friendly Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #E0F7FA;
+            --ui-bg: #ffffff;
+            --primary: #FF6B6B;
+            --game-bg: #2d3436; 
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            
+            /* Custom Image Background */
+            background-color: #E0F7FA; 
+            background-image: url('background.svg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* 🏠 HOME BUTTON */
+        .home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 55px;
+            height: 55px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            text-decoration: none;
+            box-shadow: 0 6px 0 #cbd5e1;
+            border: 3px solid #e2e8f0;
+            z-index: 100;
+            transition: transform 0.1s;
+        }
+        .home-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* 🏆 SCORE BOARD */
+        #score-board {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #fff;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.8rem;
+            color: #FF9F43;
+            box-shadow: 0 6px 0 #cbd5e1;
+            border: 3px solid #e2e8f0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* MAIN LAYOUT CONTAINER */
+        #main-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            height: 100%;
+            padding-top: 80px; /* Space for top buttons */
+            padding-bottom: 20px;
+        }
+
+        /* On wider screens, put controls on the side */
+        @media (min-width: 768px) {
+            #main-layout {
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 40px;
+                padding-top: 0;
+            }
+        }
+
+        /* 🎮 GAME CONTAINER (Toy Frame) */
+        #game-container {
+            position: relative;
+            z-index: 10;
+            background: var(--game-bg); 
+            border: 12px solid #ffffff;
+            border-radius: 25px;
+            box-shadow: 
+                0 0 0 8px #4ECDC4, 
+                0 20px 50px rgba(0,0,0,0.2);
+            overflow: hidden;
+            /* Size is handled by JS for aspect ratio */
+            flex-shrink: 0;
+            transition: transform 0.1s;
+        }
+
+        #game-container.shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+            40%, 60% { transform: translate3d(8px, 0, 0); }
+        }
+
+        canvas {
+            display: block;
+            /* Canvas size is set by JS */
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* 🕹️ CONTROLS AREA */
+        .controls-area {
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .controls-area {
+                flex-direction: column-reverse; /* Put rotate button on top of d-pad on side view */
+            }
+        }
+
+        .d-pad {
+            display: flex;
+            gap: 15px;
+            background: rgba(255,255,255,0.6);
+            padding: 10px 20px;
+            border-radius: 40px;
+            backdrop-filter: blur(5px);
+        }
+
+        .action-pad {
+            display: flex;
+            background: rgba(255,255,255,0.6);
+            padding: 10px;
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+        }
+
+        .ctrl-btn {
+            width: 70px;
+            height: 70px;
+            border: none;
+            border-radius: 50%;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ctrl-btn::after {
+            content: '';
+            position: absolute;
+            top: 5px; left: 10px;
+            width: 20px; height: 10px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 10px;
+            transform: rotate(-15deg);
+        }
+
+        .ctrl-btn:active {
+            transform: translateY(6px);
+            box-shadow: none !important;
+        }
+
+        #btn-left { background: #4ECDC4; box-shadow: 0 6px 0 #2aa198; }
+        #btn-right { background: #4ECDC4; box-shadow: 0 6px 0 #2aa198; }
+        #btn-down { background: #FF6B6B; box-shadow: 0 6px 0 #d63031; }
+        #btn-up { 
+            width: 80px; height: 80px;
+            background: #FFE66D; 
+            box-shadow: 0 6px 0 #f1c40f; 
+            font-size: 2.5rem;
+        }
+
+        /* 🎉 OVERLAY */
+        #message-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: #fff;
+            padding: 20px 40px;
+            border-radius: 30px;
+            text-align: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 3rem;
+            color: var(--primary);
+            pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 0 rgba(0,0,0,0.1);
+            z-index: 200;
+            white-space: nowrap;
+            border: 5px solid #E0F7FA;
+        }
+        #message-overlay.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+    </style>
+</head>
+<body>
+
+    <a href="/" class="home-btn" title="Back to Games">🏠</a>
+    
+    <div id="score-board">
+        <span>⭐</span> <span id="score-val">0</span>
+    </div>
+
+    <!-- Main Layout Container for side-by-side on desktop -->
+    <div id="main-layout">
+        <div id="game-container">
+            <canvas id="tetris"></canvas>
+            <div id="message-overlay">Great Job! 🎉</div>
+        </div>
+
+        <div class="controls-area">
+            <div class="action-pad">
+                <button id="btn-up" class="ctrl-btn">↻</button>
+            </div>
+            <div class="d-pad">
+                <button id="btn-left" class="ctrl-btn">⬅️</button>
+                <button id="btn-down" class="ctrl-btn">⬇️</button>
+                <button id="btn-right" class="ctrl-btn">➡️</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * STACKY SMILES - TOY UI EDITION
+         */
+
+        const canvas = document.getElementById('tetris');
+        const ctx = canvas.getContext('2d');
+        const msgOverlay = document.getElementById('message-overlay');
+        const container = document.getElementById('game-container');
+        const scoreEl = document.getElementById('score-val');
+        const mainLayout = document.getElementById('main-layout');
+
+        // --- Config ---
+        const COLS = 10;
+        const ROWS = 20; // Official Tetris Height
+        let BLOCK_SIZE = 30; 
+        
+        const COLORS = [
+            null,
+            '#FF6B6B', // Red
+            '#4ECDC4', // Teal
+            '#FFE66D', // Yellow
+            '#A29BFE', // Purple
+            '#FF9F43', // Orange
+            '#54a0ff', // Blue
+            '#ff9ff3'  // Pink
+        ];
+
+        // Shapes (Square Matrices)
+        const PIECES = [
+            [],
+            [ // I 
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+                [0, 1, 0, 0],
+            ],
+            [ // J 
+                [0, 2, 0],
+                [0, 2, 0],
+                [2, 2, 0],
+            ],
+            [ // L 
+                [0, 3, 0],
+                [0, 3, 0],
+                [0, 3, 3],
+            ],
+            [ // O 
+                [4, 4],
+                [4, 4],
+            ],
+            [ // S 
+                [0, 5, 5],
+                [5, 5, 0],
+                [0, 0, 0],
+            ],
+            [ // T 
+                [0, 6, 0],
+                [6, 6, 6],
+                [0, 0, 0],
+            ],
+            [ // Z 
+                [7, 7, 0],
+                [0, 7, 7],
+                [0, 0, 0],
+            ]
+        ];
+
+        // --- Game State ---
+        let grid = []; 
+        let player = {
+            pos: {x: 0, y: 0},
+            matrix: null,
+            colorIndex: 0
+        };
+        let dropCounter = 0;
+        let dropInterval = 800; // Slower for babies
+        let lastTime = 0;
+        let particles = [];
+        let isClearing = false;
+        let score = 0;
+
+        // --- Resizing Logic ---
+        function resizeGame() {
+            // Available space in the layout container
+            const availableW = mainLayout.clientWidth * 0.9; // 90% of width
+            const availableH = mainLayout.clientHeight * 0.9; // 90% of height
+
+            // Account for container border
+            const borderSize = 24; // 12px * 2
+            
+            // Calculate potential block size based on width and height constraints
+            const sizeFromWidth = Math.floor((availableW - borderSize) / COLS);
+            const sizeFromHeight = Math.floor((availableH - borderSize) / ROWS);
+
+            // Use the smaller size to ensure it fits within both dimensions
+            BLOCK_SIZE = Math.min(sizeFromWidth, sizeFromHeight);
+            
+            // Ensure a reasonable minimum size
+            BLOCK_SIZE = Math.max(BLOCK_SIZE, 15);
+
+            // Set canvas size
+            canvas.width = COLS * BLOCK_SIZE;
+            canvas.height = ROWS * BLOCK_SIZE;
+            
+            // Set container size explicitly to match canvas + border
+            container.style.width = `${canvas.width + borderSize}px`;
+            container.style.height = `${canvas.height + borderSize}px`;
+
+            grid = createMatrix(COLS, ROWS); 
+            if (!player.matrix) playerReset();
+            draw();
+        }
+
+        // Debounce resize to prevent excessive calculations
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeGame, 100);
+        });
+
+        // --- Setup ---
+        function init() {
+            playerReset(); 
+            resizeGame();  
+            update();
+        }
+
+        // --- Touch Handling (Swipe) ---
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        }, {passive: false});
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            const dx = touch.clientX - touchStartX;
+            const dy = touch.clientY - touchStartY;
+            
+            // Tap = Rotate
+            if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+                playerRotate(1);
+            }
+            // Horizontal Swipe
+            else if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 30) playerMove(1);
+                else if (dx < -30) playerMove(-1);
+            }
+            // Vertical Swipe (Down)
+            else if (dy > 30) {
+                playerDrop();
+            }
+        });
+
+        // --- Core Logic ---
+
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) {
+                matrix.push(new Array(w).fill(0));
+            }
+            return matrix;
+        }
+
+        function collide(arena, player) {
+            const [m, o] = [player.matrix, player.pos];
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 &&
+                       (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function drawMatrix(matrix, offset) {
+            if (!matrix) return;
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        drawBlock(x + offset.x, y + offset.y, COLORS[value]);
+                    }
+                });
+            });
+        }
+
+        function drawBlock(x, y, color) {
+            const px = x * BLOCK_SIZE;
+            const py = y * BLOCK_SIZE;
+
+            ctx.fillStyle = color;
+            ctx.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+
+            // Bevels
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.fillRect(px, py, BLOCK_SIZE, 4);
+            ctx.fillRect(px, py, 4, BLOCK_SIZE);
+
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
+            ctx.fillRect(px + BLOCK_SIZE - 4, py, 4, BLOCK_SIZE);
+            ctx.fillRect(px, py + BLOCK_SIZE - 4, BLOCK_SIZE, 4);
+
+            // Face
+            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            const eyeSize = Math.max(3, BLOCK_SIZE * 0.12);
+            const eyeOffset = BLOCK_SIZE * 0.25;
+            const eyeY = BLOCK_SIZE * 0.35;
+            
+            // Eyes
+            ctx.beginPath();
+            ctx.arc(px + eyeOffset, py + eyeY, eyeSize, 0, Math.PI*2);
+            ctx.arc(px + BLOCK_SIZE - eyeOffset, py + eyeY, eyeSize, 0, Math.PI*2);
+            ctx.fill();
+            
+            // Smile
+            ctx.beginPath();
+            ctx.arc(px + BLOCK_SIZE/2, py + BLOCK_SIZE/2, BLOCK_SIZE * 0.2, 0.2, Math.PI - 0.2, false);
+            ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+            ctx.lineWidth = Math.max(2, BLOCK_SIZE * 0.05);
+            ctx.stroke();
+        }
+
+        function merge(arena, player) {
+            player.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        if (arena[y + player.pos.y] && arena[y + player.pos.y][x + player.pos.x] !== undefined) {
+                            arena[y + player.pos.y][x + player.pos.x] = value;
+                            createParticles((x + player.pos.x) * BLOCK_SIZE, (y + player.pos.y) * BLOCK_SIZE, COLORS[value]);
+                        }
+                    }
+                });
+            });
+            playNote(200, 'square'); 
+        }
+
+        function playerReset() {
+            const pieces = 'ILJOTSZ';
+            const typeId = (Math.random() * (PIECES.length - 1) | 0) + 1;
+            player.matrix = PIECES[typeId]; 
+            player.colorIndex = typeId; 
+            
+            // Center spawn
+            player.pos.y = 0;
+            player.pos.x = Math.floor(COLS / 2) - Math.floor(player.matrix[0].length / 2);
+            
+            if (collide(grid, player)) {
+                triggerReset(); 
+            }
+        }
+
+        function triggerReset() {
+            isClearing = true;
+            container.classList.add('shake');
+            playNote(150, 'sawtooth');
+            
+            score = 0;
+            scoreEl.textContent = score;
+
+            setTimeout(() => {
+                container.classList.remove('shake');
+                grid.forEach(row => row.fill(0));
+                isClearing = false;
+                playerReset();
+            }, 500);
+        }
+
+        function arenaSweep() {
+            let rowCount = 1;
+            outer: for (let y = grid.length - 1; y > 0; --y) {
+                for (let x = 0; x < grid[y].length; ++x) {
+                    if (grid[y][x] === 0) {
+                        continue outer;
+                    }
+                }
+
+                const row = grid.splice(y, 1)[0].fill(0);
+                grid.unshift(row);
+                ++y;
+
+                score += 10 * rowCount;
+                scoreEl.textContent = score;
+
+                playNote(400 + (rowCount*100), 'sine'); 
+                createConfetti();
+                rowCount *= 2;
+            }
+        }
+
+        function playerDrop() {
+            if(isClearing) return;
+            player.pos.y++;
+            if (collide(grid, player)) {
+                player.pos.y--;
+                merge(grid, player);
+                playerReset();
+                arenaSweep();
+            }
+            dropCounter = 0;
+        }
+
+        function playerMove(dir) {
+            if(isClearing) return;
+            player.pos.x += dir;
+            if (collide(grid, player)) {
+                player.pos.x -= dir;
+            }
+        }
+
+        function playerRotate(dir) {
+            if(isClearing) return;
+            const pos = player.pos.x;
+            let offset = 1;
+            rotate(player.matrix, dir);
+            while (collide(grid, player)) {
+                player.pos.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > player.matrix[0].length) {
+                    rotate(player.matrix, -dir);
+                    player.pos.x = pos;
+                    return;
+                }
+            }
+        }
+
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [
+                        matrix[x][y],
+                        matrix[y][x],
+                    ] = [
+                        matrix[y][x],
+                        matrix[x][y],
+                    ];
+                }
+            }
+            if (dir > 0) {
+                matrix.forEach(row => row.reverse());
+            } else {
+                matrix.reverse();
+            }
+        }
+
+        function update(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            if (!isClearing) {
+                dropCounter += deltaTime;
+                if (dropCounter > dropInterval) {
+                    playerDrop();
+                }
+            }
+
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawMatrix(grid, {x: 0, y: 0});
+            if(!isClearing && player.matrix) {
+                drawMatrix(player.matrix, player.pos);
+            }
+            updateParticles();
+        }
+
+        // --- Particle System ---
+        function createParticles(x, y, color) {
+            for(let i=0; i<8; i++) {
+                particles.push({
+                    x: x + BLOCK_SIZE/2,
+                    y: y + BLOCK_SIZE/2,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    color: color,
+                    life: 1.0
+                });
+            }
+        }
+
+        function createConfetti() {
+            for(let i=0; i<30; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: 0,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: Math.random() * 5 + 2,
+                    color: COLORS[Math.floor(Math.random() * (COLORS.length-1)) + 1],
+                    life: 2.0
+                });
+            }
+        }
+
+        function updateParticles() {
+            for(let i=0; i<particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2; 
+                p.life -= 0.02;
+                
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+
+                if(p.life <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        // --- Audio ---
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playNote(freq, type) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        // --- Controls ---
+        const btnUp = document.getElementById('btn-up');
+        const btnLeft = document.getElementById('btn-left');
+        const btnRight = document.getElementById('btn-right');
+        const btnDown = document.getElementById('btn-down');
+
+        const addBtn = (btn, action) => {
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); action(); });
+            btn.addEventListener('mousedown', (e) => { e.preventDefault(); action(); });
+        };
+
+        addBtn(btnUp, () => playerRotate(1));
+        addBtn(btnLeft, () => playerMove(-1));
+        addBtn(btnRight, () => playerMove(1));
+        addBtn(btnDown, () => playerDrop());
+
+        document.addEventListener('keydown', event => {
+            if (event.keyCode === 37) playerMove(-1);
+            else if (event.keyCode === 39) playerMove(1);
+            else if (event.keyCode === 40) playerDrop();
+            else if (event.keyCode === 38 || event.keyCode === 81) playerRotate(1);
+        });
+
+        init();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <!-- Soft Sky Gradient -->
+        <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#B3E5FC;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#E1F5FE;stop-opacity:1" />
+        </linearGradient>
+
+        <!-- Sun Gradient -->
+        <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color:#FFE082; stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#FFCA28; stop-opacity:1" />
+        </radialGradient>
+
+        <!-- Soft Cloud Shadow -->
+        <filter id="cloudShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.15" />
+        </filter>
+
+        <!-- Cute Cloud Shape -->
+        <symbol id="cloud" viewBox="0 0 100 60">
+            <path d="M25,60 a20,20 0 0,1 0,-40 h50 a20,20 0 0,1 0,40 z" fill="#FFFFFF" fill-opacity="0.9"/>
+            <circle cx="25" cy="35" r="20" fill="#FFFFFF" fill-opacity="0.95"/>
+            <circle cx="45" cy="25" r="25" fill="#FFFFFF" fill-opacity="0.95"/>
+            <circle cx="75" cy="35" r="20" fill="#FFFFFF" fill-opacity="0.95"/>
+        </symbol>
+
+        <!-- Bird Shape -->
+        <symbol id="bird" viewBox="0 0 20 10">
+            <path d="M0,5 Q5,10 10,5 Q15,10 20,5" fill="none" stroke="#90A4AE" stroke-width="2" stroke-linecap="round" />
+        </symbol>
+    </defs>
+
+    <!-- Main Background Sky -->
+    <rect width="100%" height="100%" fill="url(#skyGradient)"/>
+
+    <!-- Sun in the Corner (Animated Pulse) -->
+    <g transform="translate(120, 90)">
+        <circle r="55" fill="url(#sunGradient)">
+            <animateTransform attributeName="transform" type="scale" values="1;1.1;1" dur="4s" repeatCount="indefinite" />
+        </circle>
+        <!-- Sun Rays -->
+        <circle r="70" fill="white" opacity="0.2">
+            <animateTransform attributeName="transform" type="scale" values="1;1.2;1" dur="4s" repeatCount="indefinite" />
+        </circle>
+    </g>
+
+    <!-- Birds (Animated) -->
+    <use href="#bird" x="200" y="150" width="30" height="15">
+        <animate attributeName="x" from="850" to="-50" dur="25s" repeatCount="indefinite" />
+    </use>
+    <use href="#bird" x="250" y="180" width="20" height="10">
+        <animate attributeName="x" from="900" to="-50" dur="28s" repeatCount="indefinite" />
+    </use>
+
+    <!-- Hills / Ground -->
+    <!-- Back hill -->
+    <path d="M-50,420 C150,360 300,380 450,410 C600,440 720,430 850,400 L850,600 L-50,600 Z" fill="#C8E6C9" />
+
+    <!-- Front hill -->
+    <path d="M-80,460 C100,420 260,450 380,470 C520,495 650,490 860,470 L860,600 L-80,600 Z" fill="#A5D6A7" />
+
+    <!-- Floating Clouds (Animated) -->
+    <g filter="url(#cloudShadow)">
+        <use href="#cloud" y="60" transform="scale(1.5)">
+            <animate attributeName="x" values="-200; 900" dur="60s" repeatCount="indefinite" />
+        </use>
+        
+        <use href="#cloud" y="120" transform="scale(1.2)" opacity="0.9">
+            <animate attributeName="x" values="900; -200" dur="80s" repeatCount="indefinite" />
+        </use>
+
+        <use href="#cloud" y="280" transform="scale(0.8)" opacity="0.9">
+            <animate attributeName="x" values="-150; 900" dur="45s" repeatCount="indefinite" />
+        </use>
+
+        <use href="#cloud" y="100" transform="scale(0.6)" opacity="0.8">
+             <animate attributeName="x" values="500; 1200" dur="50s" repeatCount="indefinite" />
+        </use>
+    </g>
+</svg>
