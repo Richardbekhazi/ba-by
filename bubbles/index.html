@@ -111,6 +111,19 @@
             font-size: 0.8rem;
             z-index: 2;
         }
+        
+        .bar-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Fredoka One', cursive;
+            color: #2d3436;
+            font-size: 0.9rem;
+            z-index: 2;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+        }
+
         .hp-badge { background: #d63031; }
         .xp-badge { background: #f1c40f; color: #7f6000; }
 
@@ -263,7 +276,7 @@
 
     </style>
 </head>
-<body>
+<body id="gameBody">
 
     <a href="/" class="home-btn" title="Back to Games">🏠</a>
 
@@ -271,10 +284,12 @@
         <div class="bar-container">
             <div class="bar-badge hp-badge">HP</div>
             <div class="bar-fill" id="hp-bar"></div>
+            <span class="bar-text" id="hp-text">100/100</span>
         </div>
         <div class="bar-container">
             <div class="bar-badge xp-badge">LVL <span id="lvl-num">1</span></div>
             <div class="bar-fill" id="xp-bar"></div>
+            <span class="bar-text" id="xp-text">0/5</span>
         </div>
     </div>
 
@@ -303,15 +318,21 @@
 
     <script>
         /**
-         * BUBBLE HERO v4.0 (Simplifed & Stable)
-         * - Vector Graphics for enemies
-         * - Image Assets for Upgrades
+         * BUBBLE HERO v6.4
+         * - Damage Scaling
+         * - Luck System (Multi-drops)
+         * - XP Numeric Display
+         * - Safe Deletion Fix
          */
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const ASSET_PATH = '../assets/badges1/';
+        const body = document.getElementById('gameBody');
 
+        // --- Assets for upgrades ---
+        // (Enemies are vector now, but upgrades use images)
+        
         // --- Game State ---
         let game = {
             active: false,
@@ -321,7 +342,8 @@
             xpToNext: 5,
             width: window.innerWidth,
             height: window.innerHeight,
-            bossMode: false
+            bossMode: false,
+            time: 0
         };
 
         let player = {
@@ -333,6 +355,9 @@
             emoji: '🌟',
             hp: 100,
             maxHp: 100,
+            // Stats
+            damage: 1,
+            luck: 0,
             fireRate: 60,
             fireTimer: 0,
             bulletSpeed: 7,
@@ -351,17 +376,19 @@
         let targetY = player.y;
 
         // --- Config ---
-        const ENEMY_SPAWN_RATE = 100;
+        const BASE_SPAWN_RATE = 100;
         let spawnTimer = 0;
 
         const UPGRADES = [
             { id: 'multishot', name: 'More Bubbles', img: 'beer_t.png', desc: 'Shoot +1 bubble!', type: 'stat', key: 'bulletCount', val: 1 },
             { id: 'rate', name: 'Fast Fire', img: 'arrow_s_t.jpg', desc: 'Shoot faster!', type: 'stat', key: 'fireRate', val: -10, limit: 10 },
-            { id: 'size', name: 'Big Bubbles', img: 'bag_t.png', desc: 'Giant bubbles!', type: 'stat', key: 'bulletSize', val: 5 },
-            { id: 'pierce', name: 'Tough Bubble', img: 'anvil_t.png', desc: 'Bubbles pierce enemies!', type: 'stat', key: 'pierce', val: 1 },
+            { id: 'size', name: 'Big Bubbles', img: 'bag_t.png', desc: 'Big & Strong bubbles!', type: 'stat', key: 'bulletSize', val: 5, dmg: 1 },
+            { id: 'pierce', name: 'Tough Bubble', img: 'anvil_t.png', desc: 'Pierce & Damage Up!', type: 'stat', key: 'pierce', val: 1, dmg: 0.5 },
             { id: 'orbiter', name: 'Moon Shield', img: 'armor_t.jpg', desc: 'Protective moon!', type: 'special' },
             { id: 'speed', name: 'Speedy Star', img: 'baner_t.png', desc: 'Move faster!', type: 'stat', key: 'speed', val: 1 },
-            { id: 'heal', name: 'Yummy Heart', img: 'book_t.jpg', desc: 'Heal 50 HP!', type: 'heal', val: 50 }
+            { id: 'heal', name: 'Yummy Heart', img: 'book_t.jpg', desc: 'Heal 50 HP!', type: 'heal', val: 50 },
+            { id: 'maxhp', name: 'Big Heart', img: 'heart_t.png', desc: 'Max HP +50!', type: 'maxhp', val: 50 },
+            { id: 'luck', name: 'Lucky Charm', img: 'trinket_t.png', desc: 'Find more gems!', type: 'stat', key: 'luck', val: 1 }
         ];
 
         // --- Audio ---
@@ -410,12 +437,29 @@
                 y = Math.random() < 0.5 ? -40 : game.height + 40;
             }
 
+            // Enemy Scaling Logic
+            let hp = 1 + Math.floor(game.level / 3);
+            let speed = 1 + Math.random() * 1.5;
+            let color = '#b2bec3';
+            let size = 30 + Math.random() * 10;
+            let type = 1;
+
+            if (game.level >= 2 && Math.random() > 0.6) {
+                hp += 2; color = '#636e72'; size += 5; type = 2;
+            }
+            if (game.level >= 4 && Math.random() > 0.8) {
+                speed += 1.5; color = '#ff7675'; size -= 5; type = 3;
+            }
+
             enemies.push({
                 x: x, y: y,
-                size: 30 + Math.random() * 10,
-                speed: 1 + Math.random() * 1.5,
-                hp: 1 + Math.floor(game.level / 3),
-                color: '#b2bec3', // Vector color
+                size: size,
+                speed: speed,
+                hp: hp,
+                maxHp: hp,
+                color: color,
+                angle: 0,
+                type: type,
                 isBoss: false,
                 dead: false
             });
@@ -426,14 +470,19 @@
             const warning = document.getElementById('boss-warning');
             warning.classList.add('show');
             setTimeout(() => warning.classList.remove('show'), 3000);
+            
+            // Boss HP scales significantly
+            const bossHp = 50 + (game.level * 15); 
 
             enemies.push({
                 x: game.width / 2, 
-                y: -100,
-                size: 80,
-                speed: 0.8,
-                hp: 50 + (game.level * 5),
+                y: -150,
+                size: 90,
+                speed: 1.2 + (game.level * 0.05),
+                hp: bossHp,
+                maxHp: bossHp,
                 color: '#d63031', // Boss Red
+                angle: 0,
                 isBoss: true,
                 dead: false
             });
@@ -466,7 +515,8 @@
                     vx: Math.cos(finalAngle) * player.bulletSpeed,
                     vy: Math.sin(finalAngle) * player.bulletSpeed,
                     size: player.bulletSize,
-                    life: 200, 
+                    damage: player.damage,
+                    life: 300, // Longer life for infinite feel
                     pierceCount: player.pierce,
                     hitList: []
                 });
@@ -482,7 +532,9 @@
                 return;
             }
 
-            // --- Movement Logic ---
+            game.time += 0.05;
+
+            // --- Movement ---
             if(game.active) {
                 const dx = targetX - player.x;
                 const dy = targetY - player.y;
@@ -496,7 +548,6 @@
                     player.y = Math.max(player.size, Math.min(game.height - player.size, player.y));
                 }
 
-                // Auto Fire
                 player.fireTimer++;
                 if(player.fireTimer > player.fireRate) {
                     fire();
@@ -506,7 +557,7 @@
 
             // Spawn
             spawnTimer++;
-            const rate = game.bossMode ? ENEMY_SPAWN_RATE * 1.5 : Math.max(20, ENEMY_SPAWN_RATE - (game.level * 2));
+            const rate = game.bossMode ? BASE_SPAWN_RATE * 1.5 : Math.max(20, BASE_SPAWN_RATE - (game.level * 2));
             if(spawnTimer > rate) {
                 spawnEnemy();
                 spawnTimer = 0;
@@ -525,12 +576,11 @@
             enemies.forEach(e => {
                 if(e.dead) return;
                 
-                // Move
                 const angle = Math.atan2(player.y - e.y, player.x - e.x);
                 e.x += Math.cos(angle) * e.speed;
                 e.y += Math.sin(angle) * e.speed;
+                if(e.isBoss) e.angle += 0.02;
 
-                // Player Hit
                 const distPlayer = Math.hypot(player.x - e.x, player.y - e.y);
                 if(distPlayer < player.size + e.size - 10) {
                     player.hp -= 0.5;
@@ -538,53 +588,32 @@
                     if(player.hp <= 0) triggerGameOver();
                 }
 
-                // Bullet Hit
                 bullets.forEach(b => {
-                    if (b.hitList.includes(e)) return;
+                    if (b.hitList && b.hitList.includes(e)) return;
                     const dist = Math.hypot(e.x - b.x, e.y - b.y);
                     if(dist < e.size + b.size) {
-                        e.hp--;
+                        e.hp -= b.damage; // Use damage stat
                         playSound('pop');
                         
                         if (b.pierceCount > 0) {
                             b.pierceCount--;
                             b.hitList.push(e);
                         } else {
-                            b.life = 0; // Destroy bullet
+                            b.life = 0;
                         }
                         
                         if(e.hp <= 0) {
-                            e.dead = true; // Mark for removal
-                            gems.push({x: e.x, y: e.y, val: e.isBoss ? game.xpToNext : 1});
+                            killEnemy(e);
                         } else {
                             e.x -= Math.cos(angle) * 15;
                             e.y -= Math.sin(angle) * 15;
                         }
                     }
                 });
-
-                // Orbiter Hit
-                orbiters.forEach(o => {
-                    const ox = player.x + Math.cos(o.angle) * 70;
-                    const oy = player.y + Math.sin(o.angle) * 70;
-                    const dist = Math.hypot(e.x - ox, e.y - oy);
-                    if(dist < e.size + 20) {
-                        e.hp -= 0.5;
-                        if(e.hp <= 0) {
-                            e.dead = true;
-                            gems.push({x: e.x, y: e.y, val: 1});
-                        }
-                    }
-                });
             });
 
-            // Cleanup Dead Enemies
             enemies = enemies.filter(e => !e.dead);
 
-            // Update Orbiters
-            orbiters.forEach(o => o.angle += 0.05);
-
-            // Update Gems
             for(let i=0; i<gems.length; i++) {
                 let g = gems[i];
                 const dist = Math.hypot(player.x - g.x, player.y - g.y);
@@ -599,16 +628,60 @@
                     gems.splice(i, 1); i--;
                 }
             }
+            
+            for(let i=0; i<particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                if(p.life <= 0) { particles.splice(i, 1); i--; }
+            }
 
             requestAnimationFrame(update);
+        }
+
+        function killEnemy(e) {
+            e.dead = true;
+            createParticles(e.x, e.y, '#b2bec3', 8);
+            
+            if(e.isBoss) {
+                game.bossMode = false;
+                gems.push({x: e.x, y: e.y, val: game.xpToNext, size: 30, color: '#FFD700'}); 
+                body.classList.add('shake');
+                setTimeout(()=>body.classList.remove('shake'), 500);
+                createParticles(e.x, e.y, '#FF6B6B', 50);
+            } else {
+                // Luck / Loot Logic
+                let drops = 1;
+                if (Math.random() < (0.05 + player.luck * 0.1)) {
+                    drops += Math.floor(Math.random() * 2) + 1; 
+                }
+                
+                for(let i=0; i<drops; i++) {
+                    gems.push({x: e.x + (Math.random()*20-10), y: e.y + (Math.random()*20-10), val: 1});
+                }
+            }
+        }
+
+        function createParticles(x, y, color, count) {
+            for(let i=0; i<count; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.5) * 15,
+                    life: 1.0,
+                    color: color,
+                    size: Math.random() * 8 + 3
+                });
+            }
         }
 
         function draw() {
             ctx.clearRect(0, 0, game.width, game.height);
 
             gems.forEach(g => {
-                ctx.font = g.val > 1 ? "40px Arial" : "24px Arial";
-                ctx.fillText("💎", g.x - 12, g.y + 8);
+                ctx.font = g.size ? "50px Arial" : "24px Arial";
+                ctx.fillText("💎", g.x - (g.size ? 20 : 12), g.y + 8);
             });
 
             ctx.fillStyle = '#4BCFFA';
@@ -619,29 +692,86 @@
             });
 
             enemies.forEach(e => {
-                ctx.fillStyle = e.color;
-                ctx.beginPath();
-                ctx.arc(e.x, e.y, e.size, 0, Math.PI*2);
-                ctx.fill();
+                ctx.save();
+                ctx.translate(e.x, e.y);
+                if(e.isBoss) ctx.rotate(e.angle); 
                 
-                // Eyes
-                ctx.fillStyle = '#2d3436';
-                ctx.beginPath();
-                ctx.arc(e.x - e.size/3, e.y - e.size/5, e.size/5, 0, Math.PI*2);
-                ctx.arc(e.x + e.size/3, e.y - e.size/5, e.size/5, 0, Math.PI*2);
-                ctx.fill();
-
                 if(e.isBoss) {
-                    // Horns
-                    ctx.strokeStyle = '#636e72';
-                    ctx.lineWidth = 6;
+                    // Vector Boss (Spiky Shape)
+                    ctx.fillStyle = e.color;
                     ctx.beginPath();
-                    ctx.moveTo(e.x - e.size, e.y);
-                    ctx.lineTo(e.x - e.size - 20, e.y - 40);
-                    ctx.moveTo(e.x + e.size, e.y);
-                    ctx.lineTo(e.x + e.size + 20, e.y - 40);
-                    ctx.stroke();
+                    const spikes = 12;
+                    const outerRadius = e.size;
+                    const innerRadius = e.size / 2;
+                    for(let i=0; i<spikes*2; i++){
+                        const r = (i%2 === 0) ? outerRadius : innerRadius;
+                        const a = (Math.PI * i) / spikes;
+                        ctx.lineTo(Math.cos(a)*r, Math.sin(a)*r);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Boss Eyes
+                    ctx.fillStyle = '#2d3436';
+                    ctx.beginPath();
+                    ctx.arc(-20, -10, 10, 0, Math.PI*2);
+                    ctx.arc(20, -10, 10, 0, Math.PI*2);
+                    ctx.fill();
+                } else if (e.type === 2) { // Tank - Hexagon
+                    ctx.fillStyle = e.color;
+                    ctx.beginPath();
+                    for (let i = 0; i < 6; i++) {
+                        ctx.lineTo(e.size * Math.cos(i * Math.PI / 3), e.size * Math.sin(i * Math.PI / 3));
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                    // Eyes
+                    ctx.fillStyle = '#2d3436';
+                    ctx.beginPath(); ctx.arc(-10, -5, 4, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(10, -5, 4, 0, Math.PI*2); ctx.fill();
+                } else if (e.type === 3) { // Rusher - Triangle
+                    ctx.fillStyle = e.color;
+                    ctx.beginPath();
+                    ctx.moveTo(e.size, 0);
+                    ctx.lineTo(-e.size/2, e.size/2);
+                    ctx.lineTo(-e.size/2, -e.size/2);
+                    ctx.fill();
+                    // One cyclops eye
+                    ctx.fillStyle = '#2d3436';
+                    ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI*2); ctx.fill();
+                } else {
+                    // Normal - Circle
+                    ctx.fillStyle = e.color;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, e.size, 0, Math.PI*2);
+                    ctx.fill();
+                    // Eyes
+                    ctx.fillStyle = '#2d3436';
+                    ctx.beginPath(); ctx.arc(-10, -5, 4, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(10, -5, 4, 0, Math.PI*2); ctx.fill();
+                    
+                    if(Math.sin(game.time * 2 + e.y) > 0.95) {
+                         ctx.fillStyle = e.color; 
+                         ctx.fillRect(-12, -7, 24, 6);
+                    }
+                    
+                    // Type distinction visuals
+                    if(e.type === 3) { // Fast Red
+                        ctx.fillStyle = 'rgba(255,0,0,0.3)';
+                        ctx.beginPath(); ctx.arc(0, 0, e.size + 4, 0, Math.PI*2); ctx.fill();
+                    }
                 }
+                ctx.restore();
+
+                // HP Bar
+                const barW = e.size * 2;
+                const barH = 6;
+                const pct = e.hp / e.maxHp;
+                
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fillRect(e.x - e.size, e.y - e.size - 12, barW, barH);
+                ctx.fillStyle = pct > 0.5 ? '#2ecc71' : '#ff7675';
+                ctx.fillRect(e.x - e.size, e.y - e.size - 12, barW * pct, barH);
             });
 
             // Player Orbiters
@@ -654,6 +784,16 @@
 
             ctx.font = `${player.size * 2}px Arial`;
             ctx.fillText(player.emoji, player.x - player.size, player.y + player.size/2);
+            
+            // Particles
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            });
         }
 
         // --- UI & Helpers ---
@@ -676,6 +816,8 @@
             document.getElementById('xp-bar').style.width = `${xpPct}%`;
             document.getElementById('hp-bar').style.width = `${hpPct}%`;
             document.getElementById('lvl-num').textContent = game.level;
+            document.getElementById('hp-text').textContent = `${Math.ceil(player.hp)}/${player.maxHp}`;
+            document.getElementById('xp-text').textContent = `${game.xp}/${game.xpToNext}`;
         }
 
         function updateStatsUI() {
@@ -684,10 +826,12 @@
             const stats = [
                 { icon: '🫧', text: `x${player.bulletCount}` },
                 { icon: '🌙', text: `x${player.orbiters}` },
-                { icon: '🏹', text: `x${player.pierce}` }
+                { icon: '🏹', text: `x${player.pierce}` },
+                { icon: '⚔️', text: `${player.damage}` },
+                { icon: '🍀', text: `${player.luck}` }
             ];
             stats.forEach(s => {
-                if(s.text === 'x0') return;
+                if(s.text === 'x0' || s.text === '0') return;
                 const div = document.createElement('div');
                 div.className = 'stat-item';
                 div.innerHTML = `<span class="stat-icon">${s.icon}</span> ${s.text}`;
@@ -700,9 +844,15 @@
             const container = document.getElementById('cards-wrapper');
             container.innerHTML = '';
             
+            let availableUpgrades = UPGRADES.filter(u => {
+                if(u.type === 'heal') return player.hp < player.maxHp; 
+                if(u.type === 'maxhp') return player.hp >= player.maxHp; // Encourage maxhp if full
+                return true;
+            });
+            
             const options = [];
             while(options.length < 3) {
-                const pick = UPGRADES[Math.floor(Math.random() * UPGRADES.length)];
+                const pick = availableUpgrades[Math.floor(Math.random() * availableUpgrades.length)];
                 if(!options.includes(pick)) options.push(pick);
             }
 
@@ -732,7 +882,13 @@
                 }
             } else if (opt.type === 'heal') {
                 player.hp = Math.min(player.maxHp, player.hp + opt.val);
+            } else if (opt.type === 'maxhp') {
+                player.maxHp += opt.val;
+                player.hp += opt.val;
             }
+
+            if (opt.dmg) player.damage += opt.dmg;
+
             updateStatsUI();
             updateUI();
             document.getElementById('upgrade-overlay').classList.remove('active');
@@ -747,7 +903,8 @@
 
         function restartGame() {
             game.level = 1; game.xp = 0; game.xpToNext = 5; game.paused = false; game.bossMode = false;
-            player.hp = 100; player.bulletCount = 1; player.fireRate = 60; player.bulletSize = 15; player.pierce = 0; player.orbiters = 0;
+            player.hp = 100; player.maxHp = 100; player.bulletCount = 1; player.fireRate = 60; 
+            player.bulletSize = 15; player.pierce = 0; player.orbiters = 0; player.damage = 1; player.luck = 0;
             orbiters = []; enemies = []; bullets = []; gems = [];
             document.getElementById('game-over-overlay').classList.remove('active');
             updateUI(); updateStatsUI();
@@ -766,19 +923,21 @@
         window.addEventListener('touchstart', e => handleInput(e.touches[0].clientX, e.touches[0].clientY), {passive:false});
         window.addEventListener('touchmove', e => { e.preventDefault(); handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
         
-        window.addEventListener('resize', () => {
+        function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             game.width = canvas.width;
             game.height = canvas.height;
-        });
+            if (!game.active) {
+                player.x = game.width / 2;
+                player.y = game.height / 2;
+                targetX = player.x;
+                targetY = player.y;
+            }
+        }
 
-        // Start
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        game.width = canvas.width;
-        game.height = canvas.height;
-        targetX = player.x; targetY = player.y;
+        window.addEventListener('resize', resize);
+        resize();
         update();
 
     </script>
