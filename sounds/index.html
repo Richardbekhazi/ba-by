@@ -1,14 +1,331 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>sounds - ba-by.ca</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Musical Sounds - ba-by.ca</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-top: #FFF9C4;
+            --bg-bottom: #FFF176;
+            --primary: #FF5722;
+            --secondary: #673AB7;
+            --text-main: #3E2723;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .home-btn {
+            position: fixed; 
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            text-decoration: none;
+            box-shadow: 0 4px 0 #d7ccc8;
+            border: 2px solid #efebe9;
+            z-index: 100;
+        }
+
+        .app-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-top: 60px;
+            text-shadow: 2px 2px 0px white;
+            text-align: center;
+        }
+
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .sound-card {
+            background: white;
+            border-radius: 30px;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 0 #BDBDBD;
+            transition: transform 0.1s;
+            border: 5px solid white;
+        }
+
+        .sound-card:active {
+            transform: translateY(8px);
+            box-shadow: 0 2px 0 #BDBDBD;
+        }
+
+        .sound-emoji, .sound-icon {
+            font-size: 4rem;
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .sound-name {
+            font-family: 'Fredoka One', cursive;
+            color: var(--text-main);
+            font-size: 1.2rem;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .overlay.active { display: flex; }
+
+        #big-emoji {
+            font-size: 10rem;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+
+        .tap-hint {
+            margin-top: 40px;
+            font-weight: 800;
+            color: #9e9e9e;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 600px) {
+            .sound-grid { grid-template-columns: repeat(2, 1fr); }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; text-align: center; padding-top: 40px;">
-  <h1>sounds game</h1>
-  <p>This is a placeholder page for the <strong>sounds</strong> game.</p>
-  <p>You can replace this file with your real game later.</p>
-  <p><a href="../index.html">⬅ Back to ba-by.ca home</a></p>
+<body>
+
+    <canvas id="particles"></canvas>
+    <a href="/" class="home-btn">🏠</a>
+
+    <div class="app-container">
+        <h1>Music Box 🎵</h1>
+        <div class="sound-grid" id="grid"></div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div id="big-emoji">🎹</div>
+        <h2 id="big-name" style="font-family: 'Fredoka One'; font-size: 3rem; color: var(--secondary);">Piano</h2>
+        <div class="tap-hint">Tap to go back</div>
+    </div>
+
+    <script>
+    // Local folder for instrument sounds
+    const SOUND_BASE = 'play/';
+
+    const SOUNDS = [
+        { name: 'Piano', emoji: '🎹', color: '#E1F5FE', file: 'piano.mp3' },
+        { name: 'Drums', emoji: '🥁', color: '#FCE4EC', file: 'drum.mp3' },
+        { name: 'Bell', emoji: '🔔', color: '#FFF9C4', file: 'bell.mp3' },
+        { name: 'Guitar', emoji: '🎸', color: '#E8F5E9', file: 'guitar.mp3' },
+        { name: 'Trumpet', emoji: '🎺', color: '#FFF3E0', file: 'trumpet.mp3' },
+        { name: 'Violin', emoji: '🎻', color: '#F3E5F5', file: 'violin.mp3' },
+        { name: 'Xylophone', emoji: '🎹', color: '#E0F2F1', file: 'xylophone.mp3' },
+        { name: 'Saxophone', emoji: '🎷', color: '#FFFDE7', file: 'saxophone.mp3' },
+        { name: 'Harp', emoji: '🪕', color: '#F3E5F5', file: 'harp.mp3', icon: 'icons/harp.png' },
+        { name: 'Flute', emoji: '🪈', color: '#E0F7FA', file: 'flute.mp3' },
+        { name: 'Cello', emoji: '🎻', color: '#EFEBE9', file: 'cello.mp3' },
+        { name: 'Clarinet', emoji: '🎷', color: '#E0F2F1', file: 'clarinet.mp3', icon: 'icons/clarinet.png' },
+        { name: 'Trombone', emoji: '🎺', color: '#FFF3E0', file: 'trombone.mp3' },
+        { name: 'Tuba', emoji: '📯', color: '#FFF9C4', file: 'tuba.mp3' },
+        { name: 'Triangle', emoji: '🎵', color: '#F1F8E9', file: 'triangle.mp3', icon: 'icons/triangle.png' }
+    ];
+
+        const grid = document.getElementById('grid');
+        const overlay = document.getElementById('overlay');
+        const bigEmoji = document.getElementById('big-emoji');
+        const bigName = document.getElementById('big-name');
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+
+        let currentAudio = null;
+
+        function init() {
+            SOUNDS.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'sound-card';
+                card.style.backgroundColor = item.color;
+                
+                const visual = item.icon 
+                    ? `<img src="${item.icon}" class="sound-icon" alt="${item.name}">`
+                    : `<div class="sound-emoji">${item.emoji}</div>`;
+
+                card.innerHTML = `
+                    ${visual}
+                    <div class="sound-name">${item.name}</div>
+                `;
+                card.onclick = (e) => playSound(item, e);
+                grid.appendChild(card);
+            });
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            animate();
+        }
+
+        function playSound(item, e) {
+            // Visuals
+            if (item.icon) {
+                bigEmoji.innerHTML = `<img src="${item.icon}" style="width: 200px; height: 200px; object-fit: contain;">`;
+            } else {
+                bigEmoji.textContent = item.emoji;
+            }
+            bigName.textContent = item.name;
+            overlay.classList.add('active');
+            
+            // Audio
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            
+            // Speak the name
+            const msg = new SpeechSynthesisUtterance(item.name);
+            currentAudio = new Audio(SOUND_BASE + item.file);
+            currentAudio.loop = true;
+
+            window.speechSynthesis.speak(msg);
+            
+            currentAudio.play().catch((err) => {
+                console.log("Audio play failed:", err);
+            });
+
+            // Particles
+            const rect = e.currentTarget.getBoundingClientRect();
+            createExplosion(rect.left + rect.width/2, rect.top + rect.height/2, item.color);
+        }
+
+        overlay.onclick = () => {
+            overlay.classList.remove('active');
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            window.speechSynthesis.cancel();
+        };
+
+        // --- Particles ---
+        let particles = [];
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y;
+                this.color = color;
+                this.size = Math.random() * 15 + 5;
+                this.speedX = Math.random() * 10 - 5;
+                this.speedY = Math.random() * 10 - 5;
+                this.life = 1.0;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= 0.02;
+                this.size *= 0.95;
+            }
+            draw() {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function createExplosion(x, y, color) {
+            for(let i=0; i<20; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        init();
+    </script>
 </body>
 </html>
