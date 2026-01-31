@@ -114,25 +114,52 @@
             100% { transform: scale(1) rotate(0deg); }
         }
 
-        /* Top Bar inside Stage */
-        .stage-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        /* Floating Controls outside the stage */
+        .floating-controls {
+            position: relative;
+            width: 100%;
+            padding: 10px 20px;
+            margin-bottom: auto;
+            display: flex;
+            justify-content: space-between;
+            z-index: 110;
         }
 
         .icon-btn {
-            background: #f1f2f6;
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            padding: 0 15px;
+            height: 45px;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 800;
             color: #636e72;
-            transition: all 0.2s;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1), 0 4px 0 #cbd5e1;
         }
-        .icon-btn:hover { background: #e2e8f0; }
+
+        .icon-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #cbd5e1;
+        }
+
+        .icon-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .lang-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        #lang-btn { background: linear-gradient(135deg, #ffffff, #f1f2f6); }
+        #mute-btn { width: 60px; border-radius: 50%; padding: 0; font-size: 1.5rem; }
 
         /* The Letters */
         .letters {
@@ -144,7 +171,7 @@
 
         #big-letter {
             font-family: 'Fredoka One', cursive;
-            font-size: 8rem; /* Slightly smaller to fit object */
+            font-size: 10rem;
             line-height: 1;
             color: var(--primary);
             filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.1));
@@ -165,16 +192,20 @@
         .status-text {
             margin-top: 10px;
             color: #2d3436;
-            font-weight: 800;
-            font-size: 2.5rem;
+            font-weight: 900;
+            font-size: 3rem;
             min-height: 60px;
-            display: flex;
+            display: none; /* Hidden until first press */
             align-items: center;
             justify-content: center;
             gap: 15px;
             font-family: 'Fredoka One', cursive;
             text-transform: capitalize;
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .status-text.visible {
+            display: flex;
         }
         
         @keyframes popIn {
@@ -240,7 +271,7 @@
             align-items: center;
             justify-content: center;
             font-family: 'Fredoka One', cursive;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             color: #64748b;
             cursor: pointer;
             transition: all 0.1s;
@@ -267,9 +298,9 @@
         /* Responsive Tweaks */
         @media (max-width: 600px) {
             .app-container { padding-top: 70px; }
-            #big-letter { font-size: 6rem; }
-            #small-letter { font-size: 3rem; }
-            .status-text { font-size: 2rem; }
+            #big-letter { font-size: 7rem; }
+            #small-letter { font-size: 3.5rem; }
+            .status-text { font-size: 2.2rem; }
             .keyboard-grid { gap: 4px; }
             .key { border-radius: 8px; font-size: 1rem; border-bottom-width: 4px; }
         }
@@ -287,17 +318,20 @@
         
         <!-- Main Display Stage -->
         <div class="display-stage" id="stage">
-            
-            <div class="stage-controls">
+            <div class="floating-controls">
+                <div class="lang-group">
+                    <button class="icon-btn" id="btn-en" onclick="setLanguage('en')">EN</button>
+                    <button class="icon-btn" id="btn-fr" onclick="setLanguage('fr')">FR</button>
+                </div>
                 <button class="icon-btn" id="mute-btn" title="Toggle Sound">🔊</button>
             </div>
 
             <div class="letters">
-                <div id="big-letter">A</div>
-                <div id="small-letter">a</div>
+                <div id="big-letter">Hi!</div>
+                <div id="small-letter"></div>
             </div>
 
-            <div class="status-text" id="status-text">Press a key!</div>
+            <div class="status-text" id="status-text"></div>
 
             <!-- Integrated Replay Button -->
             <div class="replay-container" id="replay-container">
@@ -321,7 +355,7 @@
          */
 
         // --- Config ---
-        const COOLDOWN_MS = 1000; 
+        const COOLDOWN_MS = 1200; 
         const PASTEL_COLORS = [
             '#FF6B6B', '#4ECDC4', '#FFE66D', '#FF9F43', '#A29BFE', 
             '#6C5CE7', '#FD79A8', '#00CEC9', '#FAB1A0'
@@ -352,8 +386,37 @@
             'V': { word: 'Violin', icon: '🎻' },
             'W': { word: 'Whale', icon: '🐳' },
             'X': { word: 'Xylophone', icon: '🎵' }, // Changed to Xylophone
-            'Y': { word: 'Yo-Yo', icon: '🪀' },
+            'Y': { word: 'Yogurt', icon: '🍦' },
             'Z': { word: 'Zebra', icon: '🦓' }
+        };
+
+        const LETTER_OBJECTS_FR = {
+            'A': { word: 'Avion', icon: '✈️' },
+            'B': { word: 'Balle', icon: '⚽' },
+            'C': { word: 'Chat', icon: '🐱' },
+            'D': { word: 'Dauphin', icon: '🐬' },
+            'E': { word: 'Éléphant', icon: '🐘' },
+            'F': { word: 'Fleur', icon: '🌸' },
+            'G': { word: 'Gâteau', icon: '🍰' },
+            'H': { word: 'Hibou', icon: '🦉' },
+            'I': { word: 'Île', icon: '🏝️' },
+            'J': { word: 'Jardin', icon: '🏡' },
+            'K': { word: 'Kangourou', icon: '🦘' },
+            'L': { word: 'Lapin', icon: '🐰' },
+            'M': { word: 'Maison', icon: '🏠' },
+            'N': { word: 'Nuage', icon: '☁️' },
+            'O': { word: 'Oiseau', icon: '🐦' },
+            'P': { word: 'Pomme', icon: '🍎' },
+            'Q': { word: 'Quille', icon: '🎳' },
+            'R': { word: 'Robot', icon: '🤖' },
+            'S': { word: 'Soleil', icon: '☀️' },
+            'T': { word: 'Train', icon: '🚂' },
+            'U': { word: 'Univers', icon: '🚀' },
+            'V': { word: 'Vache', icon: '🐮' },
+            'W': { word: 'Wagon', icon: '🚃' },
+            'X': { word: 'Xylophone', icon: '🎵' },
+            'Y': { word: 'Yogourt', icon: '🍦' },
+            'Z': { word: 'Zèbre', icon: '🦓' }
         };
 
         // --- State ---
@@ -362,7 +425,8 @@
             isLocked: false,
             isMuted: false,
             voice: null,
-            foundLetters: new Set()
+            foundLetters: new Set(),
+            lang: localStorage.getItem('baby_lang') || 'en'
         };
 
         // --- DOM Elements ---
@@ -374,6 +438,8 @@
             keyboard: document.getElementById('keyboard'),
             wrapper: document.getElementById('keyboard-wrapper'),
             muteBtn: document.getElementById('mute-btn'),
+            btnEn: document.getElementById('btn-en'),
+            btnFr: document.getElementById('btn-fr'),
             replayContainer: document.getElementById('replay-container'),
             replayBtn: document.getElementById('play-again-btn'),
             canvas: document.getElementById('particles')
@@ -384,10 +450,16 @@
             createKeyboard();
             setupVoice();
             setupCanvas();
+            updateLangUI();
             
             if (speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = setupVoice;
             }
+
+            setTimeout(() => {
+                const welcome = state.lang === 'fr' ? "Salut ! Appuie sur une lettre pour apprendre !" : "Hi! Press any letter to start learning!";
+                speak(welcome);
+            }, 1000);
         }
 
         function createKeyboard() {
@@ -417,19 +489,23 @@
         // --- Audio Logic ---
         function setupVoice() {
             const voices = window.speechSynthesis.getVoices();
-            state.voice = voices.find(v => v.name.includes('Google US English')) ||
-                          voices.find(v => v.name.includes('Samantha')) ||
-                          voices.find(v => v.lang === 'en-US') ||
-                          voices[0];
+            const langCode = state.lang === 'fr' ? 'fr-FR' : 'en-US';
+            state.voice = voices.find(v => v.lang.startsWith(langCode)) || voices[0];
         }
 
-        function speak(text, force = false) {
+        function updateLangUI() {
+            els.btnEn.classList.toggle('active', state.lang === 'en');
+            els.btnFr.classList.toggle('active', state.lang === 'fr');
+            setupVoice();
+        }
+
+        function speak(text, force = false, rate = 0.85) {
             if (state.isMuted && !force) return;
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             if (state.voice) utterance.voice = state.voice;
-            utterance.rate = 0.9; 
-            utterance.pitch = 1.1; 
+            utterance.rate = rate; 
+            utterance.pitch = 1.15; 
             window.speechSynthesis.speak(utterance);
         }
 
@@ -441,7 +517,8 @@
             state.foundLetters.add(char); // Mark as found
 
             const color = PASTEL_COLORS[Math.floor(Math.random() * PASTEL_COLORS.length)];
-            const obj = LETTER_OBJECTS[char] || { word: 'Letter ' + char, icon: '' };
+            const dict = state.lang === 'fr' ? LETTER_OBJECTS_FR : LETTER_OBJECTS;
+            const obj = dict[char] || { word: char, icon: '' };
             
             // 1. Lock Input
             lockInput(true);
@@ -456,14 +533,14 @@
 
             // 4. Audio
             setTimeout(() => {
-                const phrase = `${char} is for ${obj.word}`;
+                const phrase = state.lang === 'fr' ? `${char} comme ${obj.word}` : `${char} is for ${obj.word}`;
                 speak(phrase);
             }, 50);
 
             // 5. Unlock OR Win
             setTimeout(() => {
                 if (state.foundLetters.size === 26) {
-                    triggerGrandFinale();
+                    setTimeout(triggerGrandFinale, 1500); // Wait for last word to finish
                 } else {
                     lockInput(false);
                 }
@@ -490,6 +567,7 @@
             els.small.style.color = color;
             els.small.classList.add('visible');
 
+            els.status.classList.add('visible');
             els.status.innerHTML = `${obj.icon} ${obj.word}`;
             els.status.style.animation = 'none';
             els.status.offsetHeight; 
@@ -528,7 +606,8 @@
             }, 200);
 
             // 3. Audio
-            speak("Amazing! You found all the letters!", true);
+            const winMsg = state.lang === 'fr' ? "Incroyable ! Tu as trouvé toutes les lettres !" : "Amazing! You found all the letters!";
+            speak(winMsg, true, 0.8);
 
             // 4. Reset after delay
             setTimeout(() => {
@@ -543,9 +622,10 @@
             els.wrapper.classList.remove('disabled');
             els.stage.classList.remove('celebrate');
             
-            els.status.textContent = "Press a key!";
-            els.big.textContent = "A";
-            els.small.textContent = "a";
+            els.status.classList.remove('visible');
+            els.status.innerHTML = "";
+            els.big.textContent = "Hi!";
+            els.small.textContent = "";
             els.small.classList.remove('visible');
             els.replayContainer.classList.remove('visible');
 
@@ -557,7 +637,8 @@
                 k.style.borderColor = '#e2e8f0';
             });
             
-            speak("Let's play again!");
+            const againMsg = state.lang === 'fr' ? "Jouons encore !" : "Let's play again!";
+            speak(againMsg);
         }
 
         // --- Input Listeners ---
@@ -570,6 +651,14 @@
             state.isMuted = !state.isMuted;
             els.muteBtn.textContent = state.isMuted ? '🔇' : '🔊';
         });
+
+        window.setLanguage = function(l) {
+            state.lang = l;
+            localStorage.setItem('baby_lang', l);
+            updateLangUI();
+            const msg = l === 'fr' ? "Français" : "English";
+            speak(msg, true);
+        };
 
         els.replayBtn.addEventListener('click', () => {
             if (state.currentLetter && !state.isLocked) {

@@ -11,7 +11,7 @@
 
     <style>
         :root {
-            --bg-color: #f7f9fc;
+            --bg-color: #e0f7fa;
         }
 
         * {
@@ -25,9 +25,11 @@
             margin: 0;
             padding: 0;
             font-family: 'Fredoka One', cursive;
-            background-color: var(--bg-color);
+            background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
+            transition: background 1s ease;
             height: 100vh;
             overflow: hidden;
+            background-attachment: fixed;
             display: flex;
             flex-direction: column;
         }
@@ -45,7 +47,7 @@
 
         /* 🏠 HOME BUTTON */
         .home-btn {
-            position: absolute;
+            position: fixed;
             top: 20px;
             left: 20px;
             width: 50px;
@@ -64,13 +66,43 @@
         }
         .home-btn:active { transform: translateY(4px); box-shadow: none; }
 
+        /* 🌐 LANGUAGE SWITCHER */
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+        .lang-btn {
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #cbd5e1;
+            transition: all 0.1s;
+        }
+        .lang-btn.active {
+            background: #ff6b6b;
+            color: white;
+            border-color: #ff6b6b;
+            box-shadow: 0 4px 0 #ee5253;
+        }
+        .lang-btn:active { transform: translateY(2px); box-shadow: none; }
+
         /* HEADER */
         .header {
             text-align: center;
-            padding-top: 20px;
-            margin-bottom: 10px;
+            padding: 20px 10px 30px 10px;
             z-index: 10;
+            margin-top: 60px; /* Space for fixed home button */
             flex-shrink: 0;
+            position: relative;
+            background: transparent;
         }
         h1 {
             color: #2d3436;
@@ -88,10 +120,9 @@
         /* 🎹 PAD GRID CONTAINER */
         .grid-container {
             flex: 1;
-            overflow-y: auto; /* Scrollable for many colors */
+            overflow-y: overlay; /* Scrollable for many colors */
             -webkit-overflow-scrolling: touch;
-            padding: 10px;
-            padding-bottom: 40px;
+            padding: 0 20px 60px 20px;
             width: 100%;
         }
 
@@ -131,11 +162,23 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            filter: drop-shadow(0 6px 0 rgba(0,0,0,0.1));
-            transition: filter 0.1s;
+            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.1));
+            transition: filter 0.2s, transform 0.3s ease-in-out;
+            animation: breathe 4s ease-in-out infinite;
         }
         
+        /* Staggered breathing for variety */
+        .color-pad:nth-child(odd) .pad-bg { animation-delay: -1s; }
+        .color-pad:nth-child(3n) .pad-bg { animation-delay: -2s; }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05) rotate(2deg); }
+        }
+
         .color-pad:active .pad-bg, .color-pad.active .pad-bg {
+            animation: none;
+            transform: scale(0.9);
             filter: drop-shadow(0 2px 0 rgba(0,0,0,0.1));
         }
 
@@ -178,6 +221,11 @@
     <canvas id="particles"></canvas>
     <a href="/" class="home-btn" title="Back to Games">🏠</a>
 
+    <div class="lang-switcher">
+        <button class="lang-btn active" id="btn-en" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" id="btn-fr" onclick="setLanguage('fr')">FR</button>
+    </div>
+
     <div class="header">
         <h1>Jelly Colors 🎨</h1>
         <p>Tap the blobs!</p>
@@ -207,33 +255,33 @@
         ];
 
         const COLORS = [
-            { name: 'Red', hex: '#FF5252' },
-            { name: 'Orange', hex: '#FF9800' },
-            { name: 'Yellow', hex: '#FFEB3B', darkText: true },
-            { name: 'Lime', hex: '#CDDC39', darkText: true },
-            { name: 'Green', hex: '#4CAF50' },
-            { name: 'Teal', hex: '#009688' },
+            { name: 'Red', fr: 'Rouge', hex: '#FF5252' },
+            { name: 'Orange', fr: 'Orange', hex: '#FF9800' },
+            { name: 'Yellow', fr: 'Jaune', hex: '#FFEB3B', darkText: true },
+            { name: 'Lime', fr: 'Citron Vert', hex: '#CDDC39', darkText: true },
+            { name: 'Green', fr: 'Vert', hex: '#4CAF50' },
+            { name: 'Teal', fr: 'Sarcelle', hex: '#009688' },
             
-            { name: 'Cyan', hex: '#00BCD4' },
-            { name: 'Sky', hex: '#81D4FA', darkText: true },
-            { name: 'Blue', hex: '#2196F3' },
-            { name: 'Navy', hex: '#3F51B5' },
-            { name: 'Indigo', hex: '#303F9F' },
-            { name: 'Violet', hex: '#673AB7' },
+            { name: 'Cyan', fr: 'Cyan', hex: '#00BCD4' },
+            { name: 'Sky', fr: 'Ciel', hex: '#81D4FA', darkText: true },
+            { name: 'Blue', fr: 'Bleu', hex: '#2196F3' },
+            { name: 'Navy', fr: 'Bleu Marine', hex: '#3F51B5' },
+            { name: 'Indigo', fr: 'Indigo', hex: '#303F9F' },
+            { name: 'Violet', fr: 'Violet', hex: '#673AB7' },
             
-            { name: 'Purple', hex: '#9C27B0' },
-            { name: 'Magenta', hex: '#E91E63' },
-            { name: 'Pink', hex: '#F48FB1' },
-            { name: 'Rose', hex: '#FF4081' },
-            { name: 'Coral', hex: '#FF7043' },
-            { name: 'Brown', hex: '#795548' },
+            { name: 'Purple', fr: 'Pourpre', hex: '#9C27B0' },
+            { name: 'Magenta', fr: 'Magenta', hex: '#E91E63' },
+            { name: 'Pink', fr: 'Rose', hex: '#F48FB1' },
+            { name: 'Rose', fr: 'Rose Vif', hex: '#FF4081' },
+            { name: 'Coral', fr: 'Corail', hex: '#FF7043' },
+            { name: 'Brown', fr: 'Marron', hex: '#795548' },
             
-            { name: 'Tan', hex: '#D7CCC8', darkText: true },
-            { name: 'Gold', hex: '#FFD700', darkText: true },
-            { name: 'Silver', hex: '#BDBDBD', darkText: true },
-            { name: 'Gray', hex: '#607D8B' },
-            { name: 'Black', hex: '#212121' },
-            { name: 'White', hex: '#FFFFFF', darkText: true }
+            { name: 'Tan', fr: 'Tanné', hex: '#D7CCC8', darkText: true },
+            { name: 'Gold', fr: 'Or', hex: '#FFD700', darkText: true },
+            { name: 'Silver', fr: 'Argent', hex: '#BDBDBD', darkText: true },
+            { name: 'Gray', fr: 'Gris', hex: '#607D8B' },
+            { name: 'Black', fr: 'Noir', hex: '#212121' },
+            { name: 'White', fr: 'Blanc', hex: '#FFFFFF', darkText: true }
         ];
 
         // Organic Blob Paths (Normalized for 100x100 viewbox)
@@ -247,6 +295,23 @@
         const grid = document.getElementById('grid');
         
         // --- Audio Context ---
+        let currentLang = 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
+            
+            // Feedback
+            const msg = lang === 'en' ? "English" : "Français";
+            
+            // Update all pad labels
+            document.querySelectorAll('.color-pad').forEach((btn, index) => {
+                btn.querySelector('.pad-label').textContent = lang === 'en' ? COLORS[index].name : COLORS[index].fr;
+            });
+            speak(msg, lang === 'en' ? 'en-US' : 'fr-FR');
+        }
+
         let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playTone(freq) {
@@ -268,11 +333,12 @@
             osc.stop(audioCtx.currentTime + 0.4);
         }
 
-        function speak(text) {
+        function speak(text, lang = 'en-US') {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
             const voices = window.speechSynthesis.getVoices();
-            const preferred = voices.find(v => v.name.includes('Google US English')) || voices[0];
+            const preferred = voices.find(v => v.lang.startsWith(lang.split('-')[0])) || voices[0];
             if(preferred) utterance.voice = preferred;
             utterance.rate = 1.0;
             utterance.pitch = 1.2;
@@ -297,7 +363,7 @@
                     <svg class="pad-bg" viewBox="-80 -80 160 160">
                         <path d="${blobPath}" fill="${color.hex}" />
                     </svg>
-                    <div class="pad-label">${color.name}</div>
+                    <div class="pad-label">${currentLang === 'en' ? color.name : color.fr}</div>
                 `;
 
                 // Interactions
@@ -321,7 +387,14 @@
 
             // Audio
             playTone(note);
-            speak(color.name);
+            if (currentLang === 'en') {
+                speak(color.name, 'en-US');
+            } else {
+                speak(color.fr, 'fr-FR');
+            }
+
+            // Update background color subtly
+            document.body.style.backgroundColor = color.hex + '22'; // 22 is low opacity hex
 
             // Particles
             const rect = btn.getBoundingClientRect();
@@ -367,19 +440,31 @@
             constructor(x, y, color) {
                 this.x = x; this.y = y;
                 this.color = color;
-                this.size = Math.random() * 8 + 4; 
+                this.size = Math.random() * 10 + 5; 
                 this.speedX = Math.random() * 8 - 4;
                 this.speedY = Math.random() * 8 - 4;
                 this.life = 100;
+                this.isStar = Math.random() > 0.7;
             }
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
                 this.speedY += 0.2; 
-                this.life -= 2;
+                this.life -= 1.5;
                 this.size *= 0.95;
             }
             draw() {
+                if (this.isStar) {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.life * 0.1);
+                    ctx.fillStyle = '#FFF';
+                    for(let i=0; i<4; i++) {
+                        ctx.rotate(Math.PI/2);
+                        ctx.fillRect(-this.size/2, -1, this.size, 2);
+                    }
+                    ctx.restore();
+                }
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
