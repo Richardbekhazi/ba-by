@@ -460,12 +460,12 @@
                 card.appendChild(name);
 
                 const interact = (e) => {
-                    e.preventDefault();
                     activateAnimal(animal, e);
                 };
 
+                // Use click only; mobile browsers handle click events on tap efficiently 
+                // without the touch-action interference.
                 card.addEventListener('click', interact);
-                card.addEventListener('touchstart', interact, {passive: false});
 
                 grid.appendChild(card);
             });

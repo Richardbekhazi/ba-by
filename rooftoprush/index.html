@@ -2,13 +2,523 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>rooftoprush - ba-by.ca</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rooftop Rush - ba-by.ca</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sky: #87CEEB;
+      --cat-color: #FF9F43;
+    }
+    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: var(--sky);
+      font-family: 'Fredoka One', cursive;
+      touch-action: none;
+    }
+    canvas { display: block; }
+    
+    #ui {
+      position: fixed;
+      top: 80px;
+      width: 100%;
+      text-align: center;
+      pointer-events: none;
+      z-index: 10;
+      display: none;
+    }
+    .score {
+      font-size: 3rem;
+      color: white;
+      text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+    }
+    .coin-count {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.9);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 1.5rem;
+      color: #DAA520;
+      box-shadow: 0 4px 0 #cbd5e1;
+      z-index: 100;
+    }
+    
+    .home-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      text-decoration: none;
+      box-shadow: 0 4px 0 #cbd5e1;
+      z-index: 100;
+      pointer-events: auto;
+    }
+
+    /* MENU & SHOP */
+    #menu {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(135, 206, 235, 0.9);
+      z-index: 200;
+    }
+    .btn-play {
+      padding: 20px 60px;
+      font-size: 2.5rem;
+      background: #FF6B6B;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      box-shadow: 0 8px 0 #ee5253;
+      cursor: pointer;
+      margin-bottom: 40px;
+    }
+    .shop-container {
+      display: flex;
+      gap: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 30px;
+    }
+    .shop-item {
+      padding: 15px;
+      border: 4px solid #eee;
+      border-radius: 20px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .shop-item.active { border-color: #4ECDC4; background: #e6fffb; }
+    .shop-item.locked { opacity: 0.6; }
+    .item-emoji { font-size: 3rem; display: block; }
+    .item-price { color: #DAA520; font-size: 1rem; }
+
+    #tap-hint {
+      position: fixed;
+      bottom: 10%;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-size: 1.5rem;
+      animation: pulse 1.5s infinite;
+      display: none;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+  </style>
 </head>
-<body style="font-family: Arial, sans-serif; text-align: center; padding-top: 40px;">
-  <h1>rooftoprush game</h1>
-  <p>This is a placeholder page for the <strong>rooftoprush</strong> game.</p>
-  <p>You can replace this file with your real game later.</p>
-  <p><a href="../index.html">⬅ Back to ba-by.ca home</a></p>
+<body>
+
+  <a href="/" class="home-btn">🏠</a>
+  <div class="coin-count">⭐ <span id="total-coins">0</span></div>
+  
+  <div id="ui">
+    <div class="score" id="score">0</div>
+  </div>
+
+  <div id="menu">
+    <h1 style="font-size: 4rem; color: white; text-shadow: 4px 4px 0 #FF9F43;">Rooftop Rush</h1>
+    <div style="font-size: 2rem; color: #DAA520; margin-bottom: 20px; background: white; padding: 10px 30px; border-radius: 30px; box-shadow: 0 4px 0 #cbd5e1;">Your ⭐: <span id="menu-coins">0</span></div>
+    <button class="btn-play" onclick="startGame()">PLAY!</button>
+    <div class="shop-container">
+      <div class="shop-item active" id="item-cat" onclick="selectSkin('🐱', 0)">
+        <span class="item-emoji">🐱</span>
+        <span class="item-price">Owned</span>
+      </div>
+      <div class="shop-item locked" id="item-dog" onclick="buySkin('🐶', 50, 'item-dog')">
+        <span class="item-emoji">🐶</span>
+        <span class="item-price">⭐ 50</span>
+      </div>
+      <div class="shop-item locked" id="item-rabbit" onclick="buySkin('🐰', 100, 'item-rabbit')">
+        <span class="item-emoji">🐰</span>
+        <span class="item-price">⭐ 100</span>
+      </div>
+      <div class="shop-item locked" id="item-unicorn" onclick="buySkin('🦄', 150, 'item-unicorn')">
+        <span class="item-emoji">🦄</span>
+        <span class="item-price">⭐ 150</span>
+      </div>
+      <div class="shop-item locked" id="item-dragon" onclick="buySkin('🐲', 250, 'item-dragon')">
+        <span class="item-emoji">🐲</span>
+        <span class="item-price">⭐ 250</span>
+      </div>
+    </div>
+    <p style="color: white; margin-top: 20px;">Collect stars to unlock friends!</p>
+  </div>
+
+  <div id="tap-hint">Tap to Jump! 🐱</div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const menuCoinsEl = document.getElementById('menu-coins');
+    const totalCoinsEl = document.getElementById('total-coins');
+    const menuEl = document.getElementById('menu');
+    const uiEl = document.getElementById('ui');
+
+    // Game Constants
+    const GRAVITY = 0.4;
+    const JUMP_FORCE = -10;
+    const SPEED = 3;
+    const COLORS = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A29BFE', '#FD79A8', '#55E6C1'];
+
+    let totalCoins = parseInt(localStorage.getItem('rr_coins')) || 0;
+    let unlockedSkins = JSON.parse(localStorage.getItem('rr_skins')) || ['🐱'];
+    let score = 0;
+    let particles = [];
+    let platforms = [];
+    let coins = [];
+    let gameActive = false;
+
+    const cat = {
+      x: 100,
+      y: 0,
+      w: 60,
+      h: 60,
+      vy: 0,
+      emoji: localStorage.getItem('rr_current_skin') || '🐱',
+      rotation: 0
+    };
+
+    function init() {
+      resize();
+      updateCoinDisplay();
+      updateShopUI();
+      animate();
+    }
+
+    function updateCoinDisplay() {
+      totalCoinsEl.innerText = totalCoins;
+      if(menuCoinsEl) menuCoinsEl.innerText = totalCoins;
+      localStorage.setItem('rr_coins', totalCoins);
+    }
+
+    function updateShopUI() {
+      unlockedSkins.forEach(skin => {
+        const idMap = {
+          '🐱': 'item-cat',
+          '🐶': 'item-dog',
+          '🐰': 'item-rabbit',
+          '🦄': 'item-unicorn',
+          '🐲': 'item-dragon'
+        };
+        const el = document.getElementById(idMap[skin]);
+        if (el) {
+          el.classList.remove('locked');
+          if(el.querySelector('.item-price')) el.querySelector('.item-price').innerText = 'Owned';
+        }
+      });
+      document.querySelectorAll('.shop-item').forEach(el => el.classList.remove('active'));
+      const activeId = {'🐱':'item-cat','🐶':'item-dog','🐰':'item-rabbit','🦄':'item-unicorn','🐲':'item-dragon'}[cat.emoji];
+      if(document.getElementById(activeId)) document.getElementById(activeId).classList.add('active');
+    }
+
+    function buySkin(skin, price, id) {
+      if (unlockedSkins.includes(skin)) {
+        selectSkin(skin);
+      } else if (totalCoins >= price) {
+        totalCoins -= price;
+        unlockedSkins.push(skin);
+        localStorage.setItem('rr_skins', JSON.stringify(unlockedSkins));
+        updateCoinDisplay();
+        selectSkin(skin);
+      } else {
+        playSound('boing');
+      }
+    }
+
+    function selectSkin(skin) {
+      cat.emoji = skin;
+      localStorage.setItem('rr_current_skin', skin);
+      updateShopUI();
+    }
+
+    function startGame() {
+      menuEl.style.display = 'none';
+      uiEl.style.display = 'block';
+      document.getElementById('tap-hint').style.display = 'block';
+      platforms = [];
+      coins = [];
+      score = 0;
+      scoreEl.innerText = score;
+      cat.y = canvas.height / 2;
+      cat.vy = 0;
+      for(let i = 0; i < 5; i++) addPlatform(i * 300);
+      gameActive = true;
+      resize();
+    }
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function addPlatform(xOffset) {
+      const lastX = platforms.length > 0 ? platforms[platforms.length - 1].x : xOffset;
+      const width = 150 + Math.random() * 100;
+      const height = 200 + Math.random() * 200;
+      platforms.push({
+        x: lastX + 250 + Math.random() * 50,
+        y: canvas.height - height,
+        w: width,
+        h: height,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        passed: false
+      });
+
+      // Add a coin above the platform
+      if (Math.random() > 0.3) {
+        coins.push({
+          x: platforms[platforms.length-1].x + width/2,
+          y: platforms[platforms.length-1].y - 50 - Math.random() * 100,
+          collected: false
+        });
+      }
+    }
+
+    function jump() {
+      cat.vy = JUMP_FORCE;
+      cat.rotation = -0.2;
+      playSound('pop');
+      document.getElementById('tap-hint').style.display = 'none';
+    }
+
+    function playSound(type) {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'pop') {
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+      } else if (type === 'land') {
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+      } else if (type === 'boing') {
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      } else if (type === 'coin') {
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+      }
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function createExplosion(x, y, color) {
+      for (let i = 0; i < 10; i++) {
+        particles.push({
+          x, y,
+          vx: (Math.random() - 0.5) * 10,
+          vy: (Math.random() - 0.5) * 10,
+          size: Math.random() * 10 + 5,
+          color,
+          life: 1.0
+        });
+      }
+    }
+
+    function update() {
+      if (!gameActive) return;
+      // Cat Physics
+      cat.vy += GRAVITY;
+      cat.y += cat.vy;
+      cat.rotation *= 0.9;
+
+      // Infinite Fall Protection (For 2 year olds)
+      if (cat.y > canvas.height) {
+        cat.y = canvas.height - 100;
+        cat.vy = -15;
+        playSound('boing');
+        score = Math.max(0, score - 1);
+        scoreEl.innerText = score;
+      }
+
+      // Platform Logic
+      platforms.forEach(p => {
+        p.x -= SPEED;
+
+        // Collision Detection (Landing)
+        if (cat.vy > 0 && 
+            cat.x + cat.w > p.x && 
+            cat.x < p.x + p.w && 
+            cat.y + cat.h > p.y && 
+            cat.y + cat.h < p.y + p.h + 20) {
+          
+          cat.y = p.y - cat.h;
+          cat.vy = 0;
+          
+          if (!p.passed) {
+            p.passed = true;
+            score++;
+            scoreEl.innerText = score;
+            createExplosion(cat.x + cat.w/2, cat.y + cat.h, p.color);
+            playSound('land');
+          }
+        }
+      });
+
+      // Coin Logic
+      coins.forEach((c, i) => {
+        c.x -= SPEED;
+        
+        // Collision with cat
+        const dist = Math.hypot(cat.x + cat.w/2 - c.x, cat.y + cat.h/2 - c.y);
+        if (!c.collected && dist < 50) {
+          c.collected = true;
+          totalCoins++;
+          updateCoinDisplay();
+          score += 2;
+          scoreEl.innerText = score;
+          playSound('coin');
+          createExplosion(c.x, c.y, '#FFD700');
+        }
+      });
+
+      // Cleanup coins
+      coins = coins.filter(c => !c.collected && c.x > -50);
+
+      // Remove old platforms, add new ones
+      if (platforms[0].x + platforms[0].w < 0) {
+        platforms.shift();
+        addPlatform();
+      }
+
+      // Particles
+      particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.02;
+        if (p.life <= 0) particles.splice(i, 1);
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!gameActive && platforms.length === 0) return;
+
+      // Draw Sky Clouds (Simple)
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.beginPath();
+      ctx.arc(100, 100, 40, 0, Math.PI*2);
+      ctx.arc(140, 100, 50, 0, Math.PI*2);
+      ctx.arc(180, 100, 40, 0, Math.PI*2);
+      ctx.fill();
+
+      // Draw Platforms
+      platforms.forEach(p => {
+        // Building body
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+        
+        // Roof line
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillRect(p.x, p.y, p.w, 10);
+
+        // Windows
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        for(let row = 0; row < 3; row++) {
+          for(let col = 0; col < 2; col++) {
+            ctx.fillRect(p.x + 20 + col*60, p.y + 40 + row*50, 30, 30);
+          }
+        }
+      });
+
+      // Draw Coins
+      coins.forEach(c => {
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 15, 0, Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle = '#DAA520';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.fillText('⭐', c.x, c.y + 5);
+      });
+
+      // Draw Particles
+      particles.forEach(p => {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1.0;
+
+      // Draw Cat
+      ctx.save();
+      ctx.translate(cat.x + cat.w/2, cat.y + cat.h/2);
+      ctx.rotate(cat.rotation);
+      ctx.font = '60px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(cat.emoji, 0, 0);
+      ctx.restore();
+    }
+
+    function animate() {
+      update();
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    // Input Handling
+    window.addEventListener('touchstart', (e) => {
+      if (e.target.tagName !== 'A') {
+        e.preventDefault();
+        jump();
+      }
+    }, { passive: false });
+
+    window.addEventListener('mousedown', (e) => {
+      if (e.target.tagName !== 'A') {
+        jump();
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        jump();
+      }
+    });
+
+    window.addEventListener('resize', resize);
+
+    // Start
+    init();
+  </script>
 </body>
 </html>
