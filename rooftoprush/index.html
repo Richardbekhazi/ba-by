@@ -17,9 +17,10 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background: var(--sky);
+      background: #87CEEB;
       font-family: 'Fredoka One', cursive;
       touch-action: none;
+      transition: background-color 2s ease; /* Smooth sky transition */
     }
     canvas { display: block; }
     
@@ -96,6 +97,9 @@
       background: white;
       padding: 20px;
       border-radius: 30px;
+      flex-wrap: wrap; /* Allow wrapping on small screens */
+      justify-content: center;
+      max-width: 90%;
     }
     .shop-item {
       padding: 15px;
@@ -103,11 +107,12 @@
       border-radius: 20px;
       text-align: center;
       cursor: pointer;
+      min-width: 80px;
     }
     .shop-item.active { border-color: #4ECDC4; background: #e6fffb; }
     .shop-item.locked { opacity: 0.6; }
-    .item-emoji { font-size: 3rem; display: block; }
-    .item-price { color: #DAA520; font-size: 1rem; }
+    .item-emoji { font-size: 2.5rem; display: block; }
+    .item-price { color: #DAA520; font-size: 0.9rem; }
 
     #tap-hint {
       position: fixed;
@@ -143,17 +148,37 @@
         <span class="item-emoji">🐱</span>
         <span class="item-price">Owned</span>
       </div>
-      <div class="shop-item locked" id="item-dog" onclick="buySkin('🐶', 50, 'item-dog')">
+      <div class="shop-item locked" id="item-dog" onclick="buySkin('🐶', 25, 'item-dog')">
         <span class="item-emoji">🐶</span>
+        <span class="item-price">⭐ 25</span>
+      </div>
+      <div class="shop-item locked" id="item-rabbit" onclick="buySkin('🐰', 50, 'item-rabbit')">
+        <span class="item-emoji">🐰</span>
         <span class="item-price">⭐ 50</span>
       </div>
-      <div class="shop-item locked" id="item-rabbit" onclick="buySkin('🐰', 100, 'item-rabbit')">
-        <span class="item-emoji">🐰</span>
+      <div class="shop-item locked" id="item-panda" onclick="buySkin('🐼', 75, 'item-panda')">
+        <span class="item-emoji">🐼</span>
+        <span class="item-price">⭐ 75</span>
+      </div>
+      <div class="shop-item locked" id="item-lion" onclick="buySkin('🦁', 100, 'item-lion')">
+        <span class="item-emoji">🦁</span>
         <span class="item-price">⭐ 100</span>
+      </div>
+      <div class="shop-item locked" id="item-monkey" onclick="buySkin('🐵', 125, 'item-monkey')">
+        <span class="item-emoji">🐵</span>
+        <span class="item-price">⭐ 125</span>
       </div>
       <div class="shop-item locked" id="item-unicorn" onclick="buySkin('🦄', 150, 'item-unicorn')">
         <span class="item-emoji">🦄</span>
         <span class="item-price">⭐ 150</span>
+      </div>
+      <div class="shop-item locked" id="item-fox" onclick="buySkin('🦊', 175, 'item-fox')">
+        <span class="item-emoji">🦊</span>
+        <span class="item-price">⭐ 175</span>
+      </div>
+      <div class="shop-item locked" id="item-bear" onclick="buySkin('🐻', 200, 'item-bear')">
+        <span class="item-emoji">🐻</span>
+        <span class="item-price">⭐ 200</span>
       </div>
       <div class="shop-item locked" id="item-dragon" onclick="buySkin('🐲', 250, 'item-dragon')">
         <span class="item-emoji">🐲</span>
@@ -179,8 +204,17 @@
     // Game Constants
     const GRAVITY = 0.4;
     const JUMP_FORCE = -10;
-    const SPEED = 3;
+    const SPEED = 3.5; // Slightly faster for fun
     const COLORS = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A29BFE', '#FD79A8', '#55E6C1'];
+    
+    // BIOME CONFIG
+    const BIOMES = {
+      CITY:   { bg: '#87CEEB', type: 'city' },
+      FOREST: { bg: '#A8D5BA', type: 'forest' },
+      SPACE:  { bg: '#2C3E50', type: 'space' }
+    };
+
+    let currentBg = BIOMES.CITY.bg;
 
     let totalCoins = parseInt(localStorage.getItem('rr_coins')) || 0;
     let unlockedSkins = JSON.parse(localStorage.getItem('rr_skins')) || ['🐱'];
@@ -189,6 +223,7 @@
     let platforms = [];
     let coins = [];
     let gameActive = false;
+    let currentWeather = null; // 'rain', 'snow', 'moonlight', 'sunny'
 
     const cat = {
       x: 100,
@@ -215,13 +250,7 @@
 
     function updateShopUI() {
       unlockedSkins.forEach(skin => {
-        const idMap = {
-          '🐱': 'item-cat',
-          '🐶': 'item-dog',
-          '🐰': 'item-rabbit',
-          '🦄': 'item-unicorn',
-          '🐲': 'item-dragon'
-        };
+        const idMap = { '🐱':'item-cat', '🐶':'item-dog', '🐰':'item-rabbit', '🐼':'item-panda', '🦁':'item-lion', '🐵': 'item-monkey', '🦄': 'item-unicorn', '🦊': 'item-fox', '🐻': 'item-bear', '🐲': 'item-dragon' };
         const el = document.getElementById(idMap[skin]);
         if (el) {
           el.classList.remove('locked');
@@ -229,8 +258,8 @@
         }
       });
       document.querySelectorAll('.shop-item').forEach(el => el.classList.remove('active'));
-      const activeId = {'🐱':'item-cat','🐶':'item-dog','🐰':'item-rabbit','🦄':'item-unicorn','🐲':'item-dragon'}[cat.emoji];
-      if(document.getElementById(activeId)) document.getElementById(activeId).classList.add('active');
+      const idMap = { '🐱':'item-cat', '🐶':'item-dog', '🐰':'item-rabbit', '🐼':'item-panda', '🦁':'item-lion', '🐵': 'item-monkey', '🦄': 'item-unicorn', '🦊': 'item-fox', '🐻': 'item-bear', '🐲': 'item-dragon' };
+      if(document.getElementById(idMap[cat.emoji])) document.getElementById(idMap[cat.emoji]).classList.add('active');
     }
 
     function buySkin(skin, price, id) {
@@ -260,9 +289,12 @@
       platforms = [];
       coins = [];
       score = 0;
+      currentWeather = null;
+      currentBg = BIOMES.CITY.bg;
       scoreEl.innerText = score;
       cat.y = canvas.height / 2;
       cat.vy = 0;
+      // Initial platform
       for(let i = 0; i < 5; i++) addPlatform(i * 300);
       gameActive = true;
       resize();
@@ -273,25 +305,59 @@
       canvas.height = window.innerHeight;
     }
 
+    // --- BIOME LOGIC ---
+    function getCurrentBiome() {
+      // Loop: 0-20 City, 20-50 Forest, 50-100 Space, 100-120 City...
+      const loopScore = score % 100;
+      if (loopScore < 20) return BIOMES.CITY;
+      if (loopScore < 50) return BIOMES.FOREST;
+      return BIOMES.SPACE;
+    }
+
     function addPlatform(xOffset) {
+      const biome = getCurrentBiome();
       const lastX = platforms.length > 0 ? platforms[platforms.length - 1].x : xOffset;
-      const width = 150 + Math.random() * 100;
-      const height = 200 + Math.random() * 200;
+      
+      const width = 160 + Math.random() * 80;
+      const height = 150 + Math.random() * 250; // Distance from bottom
+      
+      // Assign random color variation per platform
+      let color = '#ccc';
+      if (biome.type === 'city') {
+        const cityColors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A29BFE'];
+        color = cityColors[Math.floor(Math.random() * cityColors.length)];
+      } else if (biome.type === 'forest') {
+        // Trunk color
+        color = '#8D6E63'; 
+      } else if (biome.type === 'space') {
+        const spaceColors = ['#95a5a6', '#7f8c8d', '#bdc3c7'];
+        color = spaceColors[Math.floor(Math.random() * spaceColors.length)];
+      }
+
       platforms.push({
-        x: lastX + 250 + Math.random() * 50,
+        x: lastX + 220 + Math.random() * 60, // Gap
         y: canvas.height - height,
         w: width,
         h: height,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        color: color,
+        type: biome.type, // Store the specific type (city, forest, space)
         passed: false
       });
 
-      // Add a coin above the platform
+      // Add Coin
       if (Math.random() > 0.3) {
+        let val = 1;
+        let rand = Math.random();
+        if (rand > 0.98) val = 10; // Pouch
+        else if (rand > 0.93) val = 5; // Rare
+        else if (rand > 0.80) val = 2; // Uncommon
+
         coins.push({
           x: platforms[platforms.length-1].x + width/2,
-          y: platforms[platforms.length-1].y - 50 - Math.random() * 100,
-          collected: false
+          y: platforms[platforms.length-1].y - 60 - Math.random() * 50,
+          collected: false,
+          value: val,
+          pulse: 0
         });
       }
     }
@@ -342,15 +408,44 @@
           x, y,
           vx: (Math.random() - 0.5) * 10,
           vy: (Math.random() - 0.5) * 10,
-          size: Math.random() * 10 + 5,
+          size: Math.random() * 8 + 4,
           color,
           life: 1.0
         });
       }
     }
 
+    function lerpColor(a, b, amount) {
+      const ah = parseInt(a.replace(/#/g, ''), 16),
+            ar = ah >> 16, ag = ah >> 8 & 0xff, ab = ah & 0xff,
+            bh = parseInt(b.replace(/#/g, ''), 16),
+            br = bh >> 16, bg = bh >> 8 & 0xff, bb = bh & 0xff,
+            rr = ar + amount * (br - ar),
+            rg = ag + amount * (bg - ag),
+            rb = ab + amount * (bb - ab);
+      return '#' + ((1 << 24) + (Math.round(rr) << 16) + (Math.round(rg) << 8) + Math.round(rb)).toString(16).slice(1);
+    }
+
     function update() {
       if (!gameActive) return;
+      
+      // Update Background
+      const targetBiome = getCurrentBiome();
+      currentBg = lerpColor(currentBg, targetBiome.bg, 0.02);
+
+      // Weather Logic (Changes every 100 score after the first 100)
+      const weatherCycle = Math.floor(score / 100);
+      if (score >= 100 && (!currentWeather || this.lastWeatherCycle !== weatherCycle)) {
+        this.lastWeatherCycle = weatherCycle;
+        const rand = Math.random();
+        if (rand < 0.25) currentWeather = 'rain';
+        else if (rand < 0.50) currentWeather = 'snow';
+        else if (rand < 0.75) currentWeather = 'moonlight';
+        else currentWeather = 'sunny';
+      } else if (score < 100 && currentWeather !== null) {
+        currentWeather = null;
+      }
+      
       // Cat Physics
       cat.vy += GRAVITY;
       cat.y += cat.vy;
@@ -383,7 +478,7 @@
             p.passed = true;
             score++;
             scoreEl.innerText = score;
-            createExplosion(cat.x + cat.w/2, cat.y + cat.h, p.color);
+            createExplosion(cat.x + cat.w/2, cat.y + cat.h, '#fff');
             playSound('land');
           }
         }
@@ -397,7 +492,7 @@
         const dist = Math.hypot(cat.x + cat.w/2 - c.x, cat.y + cat.h/2 - c.y);
         if (!c.collected && dist < 50) {
           c.collected = true;
-          totalCoins++;
+          totalCoins += c.value;
           updateCoinDisplay();
           score += 2;
           scoreEl.innerText = score;
@@ -419,13 +514,15 @@
       particles.forEach((p, i) => {
         p.x += p.vx;
         p.y += p.vy;
-        p.life -= 0.02;
+        p.life -= 0.05;
         if (p.life <= 0) particles.splice(i, 1);
       });
     }
 
     function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = currentBg;
+      document.body.style.backgroundColor = currentBg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       if (!gameActive && platforms.length === 0) return;
 
       // Draw Sky Clouds (Simple)
@@ -436,39 +533,167 @@
       ctx.arc(180, 100, 40, 0, Math.PI*2);
       ctx.fill();
 
+      // Draw Background Stars for Space
+      if (getCurrentBiome().type === 'space') {
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        for(let i=0; i<10; i++) {
+            ctx.beginPath();
+            let sx = (Date.now()/50 + i*100) % canvas.width;
+            let sy = (i*80) % canvas.height;
+            ctx.arc(sx, sy, 2, 0, Math.PI*2);
+            ctx.fill();
+        }
+      }
+
+      // Draw Weather Effects
+      if (currentWeather === 'rain') {
+        ctx.strokeStyle = 'rgba(174, 194, 224, 0.5)';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 20; i++) {
+          let rx = (Date.now() * 0.5 + i * 100) % canvas.width;
+          let ry = (Date.now() * 0.8 + i * 200) % canvas.height;
+          ctx.beginPath();
+          ctx.moveTo(rx, ry);
+          ctx.lineTo(rx - 5, ry + 15);
+          ctx.stroke();
+        }
+      } else if (currentWeather === 'snow') {
+        ctx.fillStyle = 'white';
+        for (let i = 0; i < 30; i++) {
+          let sx = (Date.now() * 0.1 + i * 150) % canvas.width;
+          let sy = (Date.now() * 0.05 + i * 100) % canvas.height;
+          ctx.beginPath();
+          ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (currentWeather === 'moonlight') {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#f1c40f';
+        ctx.beginPath();
+        ctx.arc(canvas.width - 80, 80, 40, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (currentWeather === 'sunny') {
+        ctx.fillStyle = 'rgba(255, 255, 0, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Sun is already handled by biome logic or can be added here
+      }
+
       // Draw Platforms
       platforms.forEach(p => {
-        // Building body
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.w, p.h);
-        
-        // Roof line
-        ctx.fillStyle = 'rgba(0,0,0,0.1)';
-        ctx.fillRect(p.x, p.y, p.w, 10);
+        if (p.type === 'forest') {
+          // --- TREE DRAWING ---
+          // Trunk
+          ctx.fillStyle = '#8D6E63'; // Brown
+          ctx.fillRect(p.x + p.w/2 - 15, p.y + 20, 30, canvas.height - p.y);
+          
+          // Foliage (The Platform surface)
+          ctx.fillStyle = '#4CAF50'; // Green
+          // Draw multiple circles to look like a bush
+          ctx.beginPath();
+          ctx.arc(p.x + 20, p.y + 20, 40, 0, Math.PI*2);
+          ctx.arc(p.x + p.w/2, p.y + 10, 50, 0, Math.PI*2);
+          ctx.arc(p.x + p.w - 20, p.y + 20, 40, 0, Math.PI*2);
+          ctx.fill();
+          
+          // Flat top for collision visualization (optional debug, or just trust the bush)
+          // We can draw a slightly darker green rect top to show the walkable area
+          ctx.fillStyle = '#388E3C';
+          ctx.beginPath();
+          ctx.roundRect(p.x, p.y, p.w, 40, 20);
+          ctx.fill();
 
-        // Windows
-        ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        for(let row = 0; row < 3; row++) {
-          for(let col = 0; col < 2; col++) {
-            ctx.fillRect(p.x + 20 + col*60, p.y + 40 + row*50, 30, 30);
+        } else if (p.type === 'space') {
+          // --- ASTEROID DRAWING ---
+          // Floating Rock (doesn't touch bottom)
+          ctx.fillStyle = '#7f8c8d'; // Grey
+          ctx.beginPath();
+          // Irregular shape approx
+          ctx.moveTo(p.x, p.y + 20);
+          ctx.lineTo(p.x + 20, p.y);
+          ctx.lineTo(p.x + p.w - 20, p.y);
+          ctx.lineTo(p.x + p.w, p.y + 20);
+          ctx.lineTo(p.x + p.w - 10, p.y + 60);
+          ctx.lineTo(p.x + 10, p.y + 50);
+          ctx.closePath();
+          ctx.fill();
+
+          // Craters
+          ctx.fillStyle = 'rgba(0,0,0,0.2)';
+          ctx.beginPath();
+          ctx.arc(p.x + 40, p.y + 30, 10, 0, Math.PI*2);
+          ctx.arc(p.x + p.w - 50, p.y + 25, 15, 0, Math.PI*2);
+          ctx.fill();
+
+        } else {
+          // --- CITY DRAWING ---
+          // Building body
+          ctx.fillStyle = p.color;
+          ctx.fillRect(p.x, p.y, p.w, p.h);
+          
+          // Roof line
+          ctx.fillStyle = 'rgba(0,0,0,0.1)';
+          ctx.fillRect(p.x, p.y, p.w, 10);
+
+          // Windows
+          ctx.fillStyle = 'rgba(255,255,255,0.5)';
+          for(let row = 0; row < 5; row++) {
+            if (p.y + 40 + row*50 > canvas.height) break;
+            for(let col = 0; col < 2; col++) {
+              ctx.fillRect(p.x + 20 + col*60, p.y + 40 + row*50, 30, 30);
+            }
           }
         }
       });
 
       // Draw Coins
       coins.forEach(c => {
-        ctx.fillStyle = '#FFD700';
+        c.pulse += 0.1;
+        const baseSize = 18 + (c.value > 1 ? Math.sqrt(c.value) * 5 : 0);
+        const s = (1 + Math.sin(c.pulse) * 0.1);
+        
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.scale(s, s);
+
+        // Outer Glow/Shadow
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+
+        // Coin Body
+        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, baseSize);
+        if (c.value === 10) { // Pouch/Red
+          gradient.addColorStop(0, '#FF7675'); gradient.addColorStop(1, '#D63031');
+        } else if (c.value >= 5) { // Gold
+          gradient.addColorStop(0, '#FFE66D'); gradient.addColorStop(1, '#F9CA24');
+        } else if (c.value === 2) { // Silver
+          gradient.addColorStop(0, '#DFE6E9'); gradient.addColorStop(1, '#B2BEC3');
+        } else { // Standard Star
+          gradient.addColorStop(0, '#FFF9C4'); gradient.addColorStop(1, '#FBC02D');
+        }
+
+        ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(c.x, c.y, 15, 0, Math.PI*2);
+        ctx.arc(0, 0, baseSize, 0, Math.PI*2);
         ctx.fill();
-        ctx.strokeStyle = '#DAA520';
-        ctx.lineWidth = 3;
-        ctx.stroke();
+
+        // Inner Icon
+        ctx.shadowBlur = 0;
         ctx.fillStyle = 'white';
-        ctx.fillText('⭐', c.x, c.y + 5);
+        ctx.font = `${baseSize * 0.8}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        let icon = '⭐';
+        if (c.value === 10) icon = '💰';
+        else if (c.value === 5) icon = '💎';
+        else if (c.value === 2) icon = '✨';
+        ctx.fillText(icon, 0, 0);
+        
+        ctx.restore();
       });
 
       // Draw Particles
+      ctx.save();
       particles.forEach(p => {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
@@ -476,15 +701,22 @@
         ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
         ctx.fill();
       });
-      ctx.globalAlpha = 1.0;
+      ctx.restore();
 
       // Draw Cat
       ctx.save();
+      // RESET all styles to ensure solid rendering
+      ctx.globalAlpha = 1.0;
+      ctx.shadowBlur = 0;
+      ctx.shadowColor = 'transparent';
+
       ctx.translate(cat.x + cat.w/2, cat.y + cat.h/2);
       ctx.rotate(cat.rotation);
+      ctx.scale(-1, 1); // Flip to look right (most emojis look left by default)
       ctx.font = '60px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'black'; // Emojis usually ignore this, but good for state safety
       ctx.fillText(cat.emoji, 0, 0);
       ctx.restore();
     }
