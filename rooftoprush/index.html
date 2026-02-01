@@ -79,6 +79,8 @@
       justify-content: center;
       background: rgba(135, 206, 235, 0.9);
       z-index: 200;
+      overflow-y: auto;
+      padding: 20px 0;
     }
     .btn-play {
       padding: 20px 60px;
@@ -89,6 +91,7 @@
       border-radius: 50px;
       box-shadow: 0 8px 0 #ee5253;
       cursor: pointer;
+      pointer-events: auto;
       margin-bottom: 40px;
     }
     .shop-container {
@@ -100,6 +103,7 @@
       flex-wrap: wrap; /* Allow wrapping on small screens */
       justify-content: center;
       max-width: 90%;
+      pointer-events: auto;
     }
     .shop-item {
       padding: 15px;
@@ -729,7 +733,7 @@
 
     // Input Handling
     window.addEventListener('touchstart', (e) => {
-      if (e.target.tagName !== 'A') {
+      if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON' && !e.target.closest('.shop-item')) {
         e.preventDefault();
         jump();
       }
