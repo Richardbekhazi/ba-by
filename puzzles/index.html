@@ -86,21 +86,30 @@
         /* --- HEADER / PROGRESS --- */
         .level-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         h1 {
             font-family: 'Fredoka One', cursive;
             color: var(--primary);
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin: 0;
-            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.1), 0 0 20px rgba(255, 107, 107, 0.2);
+            letter-spacing: 2px;
         }
 
         .subtitle {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: #8D6E63;
             font-weight: 700;
+            margin-top: 8px;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
         }
 
         /* --- PLAY AREA --- */
@@ -109,101 +118,185 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 40px;
+            gap: 50px;
             position: relative;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* The Board */
         .board {
-            background: #fdf0d5;
-            border: 12px solid var(--wood);
-            border-radius: 30px;
-            padding: 20px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.1), 0 10px 0 #bc9a6c;
+            background: linear-gradient(135deg, #fdf0d5 0%, #ffe8b6 100%);
+            border: 15px solid var(--wood);
+            border-radius: 40px;
+            padding: 30px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.08), 0 15px 0 #bc9a6c, 0 20px 40px rgba(0,0,0,0.1);
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             justify-content: center;
             align-items: center;
-            gap: 25px;
+            gap: 30px;
             position: relative;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.3) 0%, transparent 50%);
         }
 
         .slot {
-            width: 90px;
-            height: 90px;
-            background: var(--slot-bg);
-            border-radius: 25px;
-            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1);
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+            border-radius: 35px;
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.08), 
+                        inset -4px -4px 12px rgba(0,0,0,0.04),
+                        0 8px 20px rgba(0,0,0,0.08);
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 5px dashed rgba(93, 64, 55, 0.25);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .slot::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(78, 205, 196, 0) 0%, rgba(78, 205, 196, 0) 100%);
+            pointer-events: none;
+            transition: background 0.3s ease;
+            border-radius: 30px;
         }
 
         .slot.hint-pulse {
-            animation: hintPulse 1.5s infinite;
+            animation: hintPulse 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
         }
 
         @keyframes hintPulse {
-            0% { box-shadow: inset 0 0 0px var(--success); }
-            50% { box-shadow: inset 0 0 20px var(--success); }
-            100% { box-shadow: inset 0 0 0px var(--success); }
-        }
-
-        .slot {
-            border: 4px dashed rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s;
-            position: relative;
+            0% { 
+                transform: scale(1);
+                box-shadow: inset 0 4px 12px rgba(0,0,0,0.08), 
+                           inset -4px -4px 12px rgba(0,0,0,0.04),
+                           0 0px 0px rgba(78, 205, 196, 0);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: inset 0 4px 12px rgba(0,0,0,0.08), 
+                           inset -4px -4px 12px rgba(0,0,0,0.04),
+                           0 0px 25px rgba(78, 205, 196, 0.8);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: inset 0 4px 12px rgba(0,0,0,0.08), 
+                           inset -4px -4px 12px rgba(0,0,0,0.04),
+                           0 0px 0px rgba(78, 205, 196, 0);
+            }
         }
 
         .slot.hovered {
-            background: rgba(78, 205, 196, 0.2);
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.3) 0%, rgba(78, 205, 196, 0.1) 100%);
             border-color: var(--success);
+            border-style: solid;
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.08), 
+                        inset -4px -4px 12px rgba(0,0,0,0.04),
+                        0 0px 30px rgba(78, 205, 196, 0.6);
+            will-change: box-shadow;
+        }
+
+        .slot.hovered::before {
+            background: radial-gradient(circle at center, rgba(78, 205, 196, 0.3) 0%, rgba(78, 205, 196, 0) 70%);
+        }
+
+        /* Emoji Display */
+        .emoji-display {
+            font-size: 3.5rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
+        }
+
+        /* Grayed out placeholder emojis in slots */
+        .emoji-placeholder {
+            opacity: 0.3;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.08)) grayscale(100%);
         }
 
         /* FIX: Only target the immediate SVG child (the silhouette), 
            not the SVG inside the placed piece */
         .slot > svg {
-            width: 80%;
-            height: 80%;
-            opacity: 0.3; /* Silhouette look */
-            fill: #5D4037;
+            width: 70%;
+            height: 70%;
+            opacity: 0.35; /* Silhouette look */
+            fill: #6D4C41;
             pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
 
         /* Pieces Row (Draggables) */
         .pieces-row {
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
             flex-wrap: wrap;
             width: 100%;
-            padding: 10px;
+            padding: 20px;
+            gap: 15px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 100%);
+            border-radius: 30px;
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.05);
+            border: 3px solid rgba(255,255,255,0.6);
+            min-height: 130px;
+            align-items: center;
         }
 
         .piece {
-            width: 85px;
-            height: 85px;
+            width: 100px;
+            height: 100px;
             cursor: grab;
             touch-action: none;
-            position: relative; /* Changed from absolute to flow in flex, then absolute on drag */
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            filter: drop-shadow(0 8px 0 rgba(0,0,0,0.15));
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 10;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12), inset 0 -2px 8px rgba(0,0,0,0.04);
+            border: 2px solid rgba(255,255,255,0.8);
+            padding: 8px;
+        }
+
+        .piece:hover:not(.placed) {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.18), inset 0 -2px 8px rgba(0,0,0,0.04);
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
         }
 
         /* Ensure piece SVG stays full size */
         .piece svg {
-            width: 100%;
-            height: 100%;
+            width: 85%;
+            height: 85%;
             pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
 
-        .piece:active {
+        .piece .emoji-display {
+            font-size: 3.2rem;
+        }
+
+        .piece:active:not(.placed) {
             cursor: grabbing;
         }
 
@@ -211,14 +304,14 @@
             position: fixed; /* Popped out of layout */
             pointer-events: none; /* Let events pass through to check for slots */
             z-index: 1000;
-            width: 120px !important; 
-            height: 120px !important;
-            animation: wobble 0.5s infinite ease-in-out;
-        }
-
-        @keyframes wobble {
-            0%, 100% { transform: translate(-50%, -50%) rotate(-3deg); }
-            50% { transform: translate(-50%, -50%) rotate(3deg); }
+            width: 140px !important; 
+            height: 140px !important;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+            border: 2px solid rgba(78, 205, 196, 0.4);
+            will-change: transform;
+            transition: none !important;
         }
 
         .piece.placed {
@@ -228,20 +321,24 @@
             pointer-events: none;
             filter: none;
             z-index: 5;
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: transparent;
+            box-shadow: none;
+            border: none;
+            padding: 0;
         }
 
         @keyframes popIn {
-            0% { transform: scale(0); }
-            80% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            70% { transform: scale(1.15) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
         /* --- VICTORY SCREEN --- */
         #victory-screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.9);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 240, 200, 0.95) 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -250,6 +347,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
+            backdrop-filter: blur(4px);
         }
         
         #victory-screen.visible {
@@ -258,37 +356,69 @@
         }
 
         .victory-card {
-            background: white;
-            padding: 40px;
-            border-radius: 40px;
+            background: linear-gradient(135deg, white 0%, #FFF9F0 100%);
+            padding: 50px;
+            border-radius: 50px;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-            border: 4px solid #FFF3E0;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.15), inset 0 -4px 15px rgba(0,0,0,0.05);
+            border: 4px solid #FFD700;
             transform: scale(0.8);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(78, 205, 196, 0.1) 0%, transparent 50%);
         }
 
         #victory-screen.visible .victory-card {
             transform: scale(1);
         }
 
+        .victory-card h1 {
+            font-size: 5rem;
+            margin: 0 0 10px 0;
+            text-shadow: 3px 3px 0px rgba(255, 215, 0, 0.3);
+            animation: bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(-30px); opacity: 0; }
+            70% { transform: translateY(10px); }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .victory-card .subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .next-btn {
-            background: #4ECDC4;
+            background: linear-gradient(135deg, #4ECDC4 0%, #2aa198 100%);
             color: white;
             border: none;
-            padding: 15px 40px;
+            padding: 18px 50px;
             font-size: 1.5rem;
             font-family: 'Fredoka One', cursive;
-            border-radius: 50px;
-            margin-top: 20px;
+            border-radius: 60px;
             cursor: pointer;
-            box-shadow: 0 6px 0 #2aa198;
-            transition: transform 0.1s;
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.3), inset 0 -2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(78, 205, 196, 0.4), inset 0 -2px 8px rgba(0,0,0,0.1);
         }
         
         .next-btn:active {
-            transform: translateY(4px);
-            box-shadow: none;
+            transform: translateY(2px);
+            box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3), inset 0 -2px 8px rgba(0,0,0,0.1);
         }
 
     </style>
@@ -328,7 +458,7 @@
          */
 
         // --- LEVELS DATA ---
-        // Using SVG Paths for single-file portability
+        // Using emojis for visual appeal
         const LEVELS = [
             {
                 name: "Shapes",
@@ -349,45 +479,45 @@
                 name: "Fruits",
                 bg: "linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%)",
                 items: [
-                    { id: 'apple', name: 'Apple', color: '#e53935', path: '<path d="M50 85 C30 85 15 65 15 45 C15 25 35 25 50 40 C65 25 85 25 85 45 C85 65 70 85 50 85 Z M50 40 L50 20 L65 25"/>' },
-                    { id: 'banana', name: 'Banana', color: '#FDD835', path: '<path d="M25 25 C35 80 80 80 85 20 C85 20 80 15 75 25 C70 70 40 70 35 20 Z"/>' },
-                    { id: 'grape', name: 'Grapes', color: '#8E24AA', path: '<circle cx="50" cy="80" r="10"/><circle cx="35" cy="65" r="10"/><circle cx="65" cy="65" r="10"/><circle cx="20" cy="45" r="10"/><circle cx="50" cy="45" r="10"/><circle cx="80" cy="45" r="10"/><circle cx="35" cy="25" r="10"/><circle cx="65" cy="25" r="10"/>' },
-                    { id: 'orange', name: 'Orange', color: '#FB8C00', path: '<circle cx="50" cy="50" r="40"/><path d="M50 10 L50 20" stroke="green" stroke-width="5"/>' },
-                    { id: 'pear', name: 'Pear', color: '#AFB42B', path: '<path d="M50 15 C35 15 30 40 30 60 C30 80 40 90 50 90 C60 90 70 80 70 60 C70 40 65 15 50 15 Z"/>' },
-                    { id: 'cherry', name: 'Cherry', color: '#C62828', path: '<circle cx="35" cy="70" r="15"/><circle cx="65" cy="70" r="15"/><path d="M35 55 L50 20 L65 55" fill="none" stroke="brown" stroke-width="4"/>' },
-                    { id: 'strawberry', name: 'Strawberry', color: '#E91E63', path: '<path d="M50 90 C20 90 20 40 50 20 C80 40 80 90 50 90 Z"/>' },
-                    { id: 'watermelon', name: 'Watermelon', color: '#4CAF50', path: '<path d="M10 50 A 40 40 0 0 0 90 50 Z"/>' },
-                    { id: 'pineapple', name: 'Pineapple', color: '#FBC02D', path: '<rect x="30" y="40" width="40" height="50" rx="10"/><path d="M40 40 L50 10 L60 40" fill="green"/>' }
+                    { id: 'apple', name: 'Apple', emoji: '🍎' },
+                    { id: 'banana', name: 'Banana', emoji: '🍌' },
+                    { id: 'grape', name: 'Grapes', emoji: '🍇' },
+                    { id: 'orange', name: 'Orange', emoji: '🍊' },
+                    { id: 'pear', name: 'Pear', emoji: '🍐' },
+                    { id: 'cherry', name: 'Cherry', emoji: '🍒' },
+                    { id: 'strawberry', name: 'Strawberry', emoji: '🍓' },
+                    { id: 'watermelon', name: 'Watermelon', emoji: '🍉' },
+                    { id: 'pineapple', name: 'Pineapple', emoji: '🍍' }
                 ]
             },
             {
                 name: "Animals",
                 bg: "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
                 items: [
-                    { id: 'cat', name: 'Cat', color: '#FB8C00', path: '<path d="M20 70 L30 30 L40 45 L60 45 L70 30 L80 70 Z M30 70 Q50 90 70 70" />' }, // Abstract
-                    { id: 'fish', name: 'Fish', color: '#039BE5', path: '<path d="M80 50 Q60 20 20 50 Q60 80 80 50 L95 20 L95 80 Z"/>' },
-                    { id: 'bear', name: 'Bear', color: '#795548', path: '<circle cx="20" cy="25" r="12"/><circle cx="80" cy="25" r="12"/><circle cx="50" cy="50" r="35"/>' },
-                    { id: 'bird', name: 'Bird', color: '#FFEB3B', path: '<circle cx="40" cy="40" r="20"/><path d="M60 40 L80 35 L60 50 Z" fill="orange"/><path d="M20 40 L5 30 L5 50 Z"/>' },
-                    { id: 'pig', name: 'Pig', color: '#F48FB1', path: '<circle cx="50" cy="50" r="35"/><circle cx="50" cy="60" r="10" fill="#F06292"/><circle cx="25" cy="25" r="8"/><circle cx="75" cy="25" r="8"/>' },
-                    { id: 'duck', name: 'Duck', color: '#FFEB3B', path: '<path d="M30 50 Q30 20 50 20 Q70 20 70 50 Q70 80 30 80 Z"/><path d="M70 40 L85 45 L70 50 Z" fill="orange"/>' },
-                    { id: 'frog', name: 'Frog', color: '#4CAF50', path: '<circle cx="30" cy="30" r="10"/><circle cx="70" cy="30" r="10"/><ellipse cx="50" cy="60" rx="40" ry="30"/>' },
-                    { id: 'crab', name: 'Crab', color: '#F44336', path: '<ellipse cx="50" cy="60" rx="30" ry="20"/><path d="M20 40 L10 20 M80 40 L90 20" stroke="red" stroke-width="5"/>' },
-                    { id: 'turtle', name: 'Turtle', color: '#2E7D32', path: '<path d="M20 60 A 30 25 0 0 1 80 60 Z"/><circle cx="85" cy="60" r="8"/>' }
+                    { id: 'cat', name: 'Cat', emoji: '🐱' },
+                    { id: 'fish', name: 'Fish', emoji: '🐠' },
+                    { id: 'bear', name: 'Bear', emoji: '🐻' },
+                    { id: 'bird', name: 'Bird', emoji: '🐦' },
+                    { id: 'pig', name: 'Pig', emoji: '🐷' },
+                    { id: 'duck', name: 'Duck', emoji: '🦆' },
+                    { id: 'frog', name: 'Frog', emoji: '🐸' },
+                    { id: 'crab', name: 'Crab', emoji: '🦀' },
+                    { id: 'turtle', name: 'Turtle', emoji: '🐢' }
                 ]
             },
             {
                 name: "Transport",
                 bg: "linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%)",
                 items: [
-                    { id: 'car', name: 'Car', color: '#D81B60', path: '<path d="M10 60 L20 40 L70 40 L80 60 Z M15 60 L75 60 L75 70 L15 70 Z"/><circle cx="25" cy="70" r="8" fill="black"/><circle cx="65" cy="70" r="8" fill="black"/>' },
-                    { id: 'boat', name: 'Boat', color: '#1E88E5', path: '<path d="M20 50 L80 50 L70 75 L30 75 Z M50 50 L50 20 L70 50 Z"/>' },
-                    { id: 'rocket', name: 'Rocket', color: '#5E35B1', path: '<path d="M50 10 L80 60 L70 80 L30 80 L20 60 Z"/>' },
-                    { id: 'plane', name: 'Plane', color: '#0288D1', path: '<path d="M10 50 L90 50 L80 40 L20 40 Z M40 40 L50 10 L60 40 Z M40 50 L50 80 L60 50 Z"/>' },
-                    { id: 'truck', name: 'Truck', color: '#FBC02D', path: '<rect x="10" y="40" width="50" height="30"/><rect x="60" y="50" width="30" height="20"/><circle cx="20" cy="75" r="8"/><circle cx="80" cy="75" r="8"/>' },
-                    { id: 'bike', name: 'Bike', color: '#43A047', path: '<circle cx="25" cy="70" r="15" fill="none" stroke="black" stroke-width="3"/><circle cx="75" cy="70" r="15" fill="none" stroke="black" stroke-width="3"/><path d="M25 70 L50 40 L75 70" fill="none" stroke="black" stroke-width="3"/>' },
-                    { id: 'bus', name: 'Bus', color: '#FFD600', path: '<rect x="10" y="30" width="80" height="40" rx="5"/><circle cx="25" cy="75" r="8"/><circle cx="75" cy="75" r="8"/>' },
-                    { id: 'train', name: 'Train', color: '#757575', path: '<rect x="20" y="30" width="60" height="40"/><circle cx="30" cy="75" r="8"/><circle cx="70" cy="75" r="8"/><path d="M70 30 L70 15 H80 V30" fill="red"/>' },
-                    { id: 'helicopter', name: 'Helicopter', color: '#00ACC1', path: '<ellipse cx="50" cy="55" rx="30" ry="20"/><path d="M20 55 L5 50 V60 Z M50 35 V20 M30 20 H70" stroke="black" stroke-width="3"/>' }
+                    { id: 'car', name: 'Car', emoji: '🚗' },
+                    { id: 'boat', name: 'Boat', emoji: '⛵' },
+                    { id: 'rocket', name: 'Rocket', emoji: '🚀' },
+                    { id: 'plane', name: 'Plane', emoji: '✈️' },
+                    { id: 'truck', name: 'Truck', emoji: '🚚' },
+                    { id: 'bike', name: 'Bike', emoji: '🚴' },
+                    { id: 'bus', name: 'Bus', emoji: '🚌' },
+                    { id: 'train', name: 'Train', emoji: '🚂' },
+                    { id: 'helicopter', name: 'Helicopter', emoji: '🚁' }
                 ]
             }
         ];
@@ -456,7 +586,12 @@
                 const slot = document.createElement('div');
                 slot.className = 'slot';
                 slot.dataset.id = item.id;
-                slot.innerHTML = createSVG(item.path, item.color); // Use colored SVG but opacity handles silhouette
+                // Use emoji if available, otherwise use SVG
+                if (item.emoji) {
+                    slot.innerHTML = `<span class="emoji-display emoji-placeholder">${item.emoji}</span>`;
+                } else {
+                    slot.innerHTML = createSVG(item.path, item.color);
+                }
                 els.slots.appendChild(slot);
             });
 
@@ -473,7 +608,12 @@
                 piece.className = 'piece';
                 piece.dataset.id = item.id;
                 piece.dataset.name = item.name;
-                piece.innerHTML = createSVG(item.path, item.color);
+                // Use emoji if available, otherwise use SVG
+                if (item.emoji) {
+                    piece.innerHTML = `<span class="emoji-display">${item.emoji}</span>`;
+                } else {
+                    piece.innerHTML = createSVG(item.path, item.color);
+                }
                 
                 // Keep ref to wrapper
                 piece.dataset.wrapper = true; 
@@ -524,8 +664,8 @@
             const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
             const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
 
-            currentPos.x = clientX;
-            currentPos.y = clientY;
+            currentPos.x = clientX - offset.x;
+            currentPos.y = clientY - offset.y;
 
             activePiece.style.left = currentPos.x + 'px';
             activePiece.style.top = currentPos.y + 'px';
@@ -570,10 +710,9 @@
 
         // --- COLLISION LOGIC ---
         function checkHover() {
-            // Simple AABB or Point collision
-            const pieceRect = activePiece.getBoundingClientRect();
-            const pX = pieceRect.left + pieceRect.width/2;
-            const pY = pieceRect.top + pieceRect.height/2;
+            // Simple AABB using mouse position directly (faster than getBoundingClientRect)
+            const pX = currentPos.x;
+            const pY = currentPos.y;
 
             document.querySelectorAll('.slot').forEach(slot => {
                 const rect = slot.getBoundingClientRect();
