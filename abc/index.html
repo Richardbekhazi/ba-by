@@ -176,6 +176,250 @@
              color: white;
         }
 
+        /* GRAYED OUT WRONG OPTION */
+        .emoji-btn.wrong {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(1);
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        /* LEVEL UNLOCK SCREEN */
+        #unlock-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-family: 'Fredoka One', cursive;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        #unlock-screen.active {
+            display: flex;
+        }
+
+        #unlock-screen h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        }
+
+        #unlock-screen p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+        }
+
+        #unlock-screen .star {
+            font-size: 4rem;
+            display: inline-block;
+            margin: 0 10px;
+            animation: spin 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: scale(0) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        /* LEVEL SELECT SCREEN */
+        #level-select {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        #level-select.hidden {
+            display: none;
+        }
+
+        #level-select h1 {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            margin-top: 80px;
+        }
+
+        /* LANGUAGE SWITCHER - LEVEL SELECT */
+        #level-lang-switcher {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 310;
+        }
+        #level-lang-switcher .lang-btn {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #cbd5e1;
+            transition: all 0.1s;
+            font-size: 0.9rem;
+        }
+        #level-lang-switcher .lang-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 0 #5568d3;
+        }
+        #level-lang-switcher .lang-btn:active { transform: translateY(2px); box-shadow: none; }
+
+        /* PROGRESS INDICATOR STARS */
+        .progress-stars {
+            display: inline-block;
+            font-size: 1.2rem;
+            margin-left: 10px;
+            letter-spacing: 2px;
+            vertical-align: middle;
+        }
+
+        .level-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .level-btn {
+            padding: 30px 40px;
+            font-size: 1.8rem;
+            font-family: 'Fredoka One', cursive;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.2);
+            transition: all 0.1s;
+            font-weight: bold;
+        }
+
+        .level-btn:active {
+            transform: translateY(8px);
+            box-shadow: none;
+        }
+
+        .level-btn.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            color: #aaa;
+        }
+
+        .level-btn.locked:active {
+            transform: none;
+        }
+
+        /* PROGRESSION BAR */
+        .progress-bar-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            z-index: 80;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #FFE66D);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+
+        /* UNLOCK CHOICE SCREEN */
+        #unlock-choice {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 250;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        #unlock-choice.active {
+            display: flex;
+        }
+
+        #unlock-choice h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        }
+
+        #unlock-choice p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .unlock-buttons {
+            display: flex;
+            gap: 30px;
+        }
+
+        .unlock-btn {
+            padding: 20px 50px;
+            font-size: 1.5rem;
+            font-family: 'Fredoka One', cursive;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            transition: all 0.1s;
+            font-weight: bold;
+        }
+
+        .unlock-btn:active {
+            transform: translateY(6px);
+            box-shadow: none;
+        }
+
     </style>
 </head>
 <body>
@@ -183,6 +427,34 @@
     <canvas id="particles"></canvas>
     
     <a href="/" class="home-btn" title="Back to Games">🏠</a>
+
+    <!-- LEVEL SELECT SCREEN -->
+    <div id="level-select">
+        <div id="level-lang-switcher">
+            <button class="lang-btn active" id="btn-en-level" onclick="setLevelLanguage('en')">EN</button>
+            <button class="lang-btn" id="btn-fr-level" onclick="setLevelLanguage('fr')">FR</button>
+        </div>
+        <h1 id="level-title">🎓 Choose a Level</h1>
+        <div class="level-options" id="level-options">
+            <!-- Buttons injected here -->
+        </div>
+    </div>
+
+    <!-- UNLOCK CHOICE SCREEN -->
+    <div id="unlock-choice">
+        <div class="star">⭐</div>
+        <h2 id="choice-title">Level Up! 🎉</h2>
+        <p id="choice-message">Ready for 4 choices?</p>
+        <div class="unlock-buttons">
+            <button class="unlock-btn" onclick="continueToNextLevel()">Yes! 🚀</button>
+            <button class="unlock-btn" onclick="stayOnLevel()">Keep Playing 🎮</button>
+        </div>
+    </div>
+
+    <!-- PROGRESSION BAR -->
+    <div class="progress-bar-container" id="progress-container">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+    </div>
 
     <div id="game-area">
         <div id="letter-display">A</div>
@@ -225,11 +497,213 @@
         let current;
         let canClick = false;
         let roundCounter = 0;
+        let correctAnswersThisRound = 0;
+        let currentLang = 'en'; // For level select screen
+        
+        // Difficulty System
+        const CHOICES_PER_DIFFICULTY = [3, 4, 5, 6]; // Difficulty 0-3
+        const CORRECT_ANSWERS_TO_UNLOCK = [10, 20, 30]; // 10 to unlock diff 1, 20 for diff 2, 30 for diff 3
+        let currentDifficulty = 0;
+        let maxUnlockedDifficulty = 0;
+
+        // Translations
+        const translations = {
+            en: {
+                chooseLevel: '🎓 Choose a Level',
+                easy: '🎯 Easy',
+                level1: '⭐ Level 1',
+                level2: '🌟 Level 2',
+                level3: '👑 Level 3',
+                choices: 'Choices',
+                locked: 'Locked'
+            },
+            fr: {
+                chooseLevel: '🎓 Choisir un Niveau',
+                easy: '🎯 Facile',
+                level1: '⭐ Niveau 1',
+                level2: '🌟 Niveau 2',
+                level3: '👑 Niveau 3',
+                choices: 'Choix',
+                locked: 'Verrouillé'
+            }
+        };
 
         const gameArea = document.getElementById('game-area');
         const letterDisplay = document.getElementById('letter-display');
         const hintText = document.querySelector('.hint-text');
         const optionsDiv = document.getElementById('options');
+        const levelSelect = document.getElementById('level-select');
+        const levelOptionsDiv = document.getElementById('level-options');
+        const unlockChoice = document.getElementById('unlock-choice');
+        const progressBar = document.getElementById('progress-bar');
+
+        // ========== STORAGE & DIFFICULTY MANAGEMENT ==========
+        function loadProgress() {
+            maxUnlockedDifficulty = parseInt(localStorage.getItem('abc-max-difficulty') || '0');
+            currentDifficulty = maxUnlockedDifficulty;
+            // Load current session progress
+            const savedDifficulty = parseInt(localStorage.getItem('abc-current-difficulty') || '-1');
+            const savedCorrect = parseInt(localStorage.getItem('abc-correct-answers') || '0');
+            if (savedDifficulty >= 0) {
+                currentDifficulty = savedDifficulty;
+                correctAnswersThisRound = savedCorrect;
+            }
+        }
+
+        function saveProgress() {
+            localStorage.setItem('abc-max-difficulty', maxUnlockedDifficulty);
+            localStorage.setItem('abc-current-difficulty', currentDifficulty);
+            localStorage.setItem('abc-correct-answers', correctAnswersThisRound);
+        }
+
+        function clearSessionProgress() {
+            localStorage.removeItem('abc-current-difficulty');
+            localStorage.removeItem('abc-correct-answers');
+        }
+
+        function setLevelLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('btn-en-level').classList.toggle('active', lang === 'en');
+            document.getElementById('btn-fr-level').classList.toggle('active', lang === 'fr');
+            document.getElementById('level-title').innerText = translations[lang].chooseLevel;
+            // Refresh the level buttons with new language
+            showLevelSelect();
+        }
+
+        function getProgressStars(correct, threshold) {
+            if (correct === 0) return '';
+            const starCount = Math.min(correct, threshold); // Cap at threshold
+            const progressRatio = correct / threshold;
+            let stars = '';
+            
+            // Show up to 5 visual indicators
+            const indicatorCount = 5;
+            for (let i = 0; i < indicatorCount; i++) {
+                if (i < progressRatio * indicatorCount) {
+                    stars += '⭐'; // Filled star
+                } else if (i < progressRatio * indicatorCount + 0.5) {
+                    stars += '✨'; // Sparkle for partial
+                } else {
+                    stars += '☆'; // Empty star
+                }
+            }
+            return stars;
+        }
+
+        function showLevelSelect() {
+            levelSelect.classList.remove('hidden');
+            levelOptionsDiv.innerHTML = '';
+            
+            const levelNames = [
+                translations[currentLang].easy,
+                translations[currentLang].level1,
+                translations[currentLang].level2,
+                translations[currentLang].level3
+            ];
+            const choicesText = translations[currentLang].choices;
+            const lockedText = translations[currentLang].locked;
+            
+            const savedDifficulty = parseInt(localStorage.getItem('abc-current-difficulty') || '-1');
+            const savedCorrect = parseInt(localStorage.getItem('abc-correct-answers') || '0');
+            
+            for (let i = 0; i < 4; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'level-btn';
+                const choiceCount = CHOICES_PER_DIFFICULTY[i];
+                
+                // Show progress with visual stars
+                if (i === savedDifficulty && savedCorrect > 0) {
+                    const threshold = CORRECT_ANSWERS_TO_UNLOCK[i];
+                    const stars = getProgressStars(savedCorrect, threshold);
+                    btn.innerHTML = `<span>${levelNames[i]} (${choiceCount} ${choicesText})</span><span class="progress-stars">${stars}</span>`;
+                } else {
+                    btn.innerText = `${levelNames[i]} (${choiceCount} ${choicesText})`;
+                }
+                
+                if (i > maxUnlockedDifficulty) {
+                    btn.classList.add('locked');
+                    btn.disabled = true;
+                    btn.innerText = `${levelNames[i]} - ${lockedText}`;
+                } else {
+                    btn.addEventListener('click', () => startLevel(i));
+                }
+                
+                levelOptionsDiv.appendChild(btn);
+            }
+            
+            say('Choose a level');
+        }
+
+        function startLevel(difficulty) {
+            currentDifficulty = difficulty;
+            if (difficulty !== parseInt(localStorage.getItem('abc-current-difficulty') || '-1')) {
+                // Starting a new level, reset counter
+                correctAnswersThisRound = 0;
+            }
+            // else keep the existing progress
+            levelSelect.classList.add('hidden');
+            updateProgressBar();
+            nextRound();
+        }
+
+        function updateProgressBar() {
+            if (currentDifficulty < 3) {
+                const threshold = CORRECT_ANSWERS_TO_UNLOCK[currentDifficulty];
+                const progress = (correctAnswersThisRound / threshold) * 100;
+                progressBar.style.width = Math.min(progress, 100) + '%';
+            } else {
+                progressBar.style.width = '100%';
+            }
+        }
+
+        function getNumChoices() {
+            return CHOICES_PER_DIFFICULTY[currentDifficulty];
+        }
+
+        function checkUnlock() {
+            const threshold = CORRECT_ANSWERS_TO_UNLOCK[currentDifficulty];
+            if (threshold && correctAnswersThisRound >= threshold && currentDifficulty < 3) {
+                return true; // Signal that unlock happened
+            }
+            return false;
+        }
+
+        function showUnlockChoice() {
+            const titles = [
+                'Level Up! 🎉',
+                'Amazing! 🏆',
+                'Incredible! 👑'
+            ];
+            const messages = [
+                'Ready for 4 choices?',
+                'Ready for 5 choices?',
+                'Ready for 6 choices?'
+            ];
+            
+            unlockChoice.querySelector('#choice-title').innerText = titles[currentDifficulty];
+            unlockChoice.querySelector('#choice-message').innerText = messages[currentDifficulty];
+            unlockChoice.classList.add('active');
+            say(titles[currentDifficulty].replace(/[^a-zA-Z\s0-9]/g, ''));
+        }
+
+        function continueToNextLevel() {
+            unlockChoice.classList.remove('active');
+            maxUnlockedDifficulty = currentDifficulty + 1;
+            currentDifficulty = currentDifficulty + 1;
+            correctAnswersThisRound = 0;
+            saveProgress();
+            updateProgressBar();
+            nextRound();
+        }
+
+        function stayOnLevel() {
+            unlockChoice.classList.remove('active');
+            // Reset counter but stay on same level
+            correctAnswersThisRound = 0;
+            saveProgress();
+            updateProgressBar();
+            nextRound();
+        }
 
         // Simple Text to Speech
         function say(text) {
@@ -278,21 +752,21 @@
             // Say Prompt
             setTimeout(() => say(`${current.L} is for ${current.w}. Can you find the ${current.w}?`), 300);
 
-            // Prepare options (1 right, 2 wrong)
-            let wrongIdx1, wrongIdx2;
-            do {
-                wrongIdx1 = Math.floor(Math.random() * alphabet.length);
-            } while (wrongIdx1 === idx);
+            // Prepare options based on difficulty
+            const numChoices = getNumChoices();
+            const wrongIndices = [];
             
             do {
-                wrongIdx2 = Math.floor(Math.random() * alphabet.length);
-            } while (wrongIdx2 === idx || wrongIdx2 === wrongIdx1);
+                const wrongIdx = Math.floor(Math.random() * alphabet.length);
+                if (wrongIdx !== idx && !wrongIndices.includes(wrongIdx)) {
+                    wrongIndices.push(wrongIdx);
+                }
+            } while (wrongIndices.length < numChoices - 1);
 
-            const wrong1 = alphabet[wrongIdx1];
-            const wrong2 = alphabet[wrongIdx2];
+            const wrongItems = wrongIndices.map(i => alphabet[i]);
             
             // Randomize order
-            const choices = [current, wrong1, wrong2];
+            const choices = [current, ...wrongItems];
             // Shuffle
             for (let i = choices.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -321,7 +795,7 @@
                 // Interaction
                 const handleChoice = (e) => {
                     e.preventDefault(); // Stop double firing
-                    if (!canClick && !btn.classList.contains('fade-out')) return; 
+                    if (!canClick || btn.classList.contains('wrong')) return; 
 
                     // Say the name of whatever was pressed!
                     say(item.w);
@@ -331,7 +805,10 @@
                         if (!canClick) return; 
                         
                         canClick = false;
-                        btn.classList.add('celebrate');
+                        correctAnswersThisRound++;
+                        btn.classList.add('celebrate'); // Add green celebration visual
+                        updateProgressBar(); // Update progress bar
+                        saveProgress(); // Save progress to localStorage
                         
                         // Big Particle Explosion
                         const rect = btn.getBoundingClientRect();
@@ -339,12 +816,23 @@
                             setTimeout(() => createExplosion(rect.left + rect.width/2, rect.top + rect.height/2, getRandomPastelColor()), i * 200);
                         }
                         
-                        setTimeout(nextRound, 2500);
+                        // Check if we unlocked next difficulty
+                        const didUnlock = checkUnlock();
+                        
+                        if (didUnlock) {
+                            // Show choice screen
+                            setTimeout(() => {
+                                showUnlockChoice();
+                            }, 2500);
+                        } else {
+                            // Normal next round
+                            setTimeout(nextRound, 2500);
+                        }
                     } else {
-                        // Wrong
+                        // Wrong - gray it out, keep playing
                         if (!canClick) return; 
                         
-                        btn.classList.add('fade-out');
+                        btn.classList.add('wrong');
                     }
                 };
 
@@ -424,8 +912,17 @@
         }
 
         setupCanvas();
-        // Start immediately
-        nextRound();
+        loadProgress();
+        // Show level select with saved progress if any
+        showLevelSelect();
+        
+        // Show progress indicator if returning mid-session
+        const savedDifficulty = parseInt(localStorage.getItem('abc-current-difficulty') || '-1');
+        const savedCorrect = parseInt(localStorage.getItem('abc-correct-answers') || '0');
+        if (savedDifficulty >= 0 && savedCorrect > 0) {
+            hintText.style.fontSize = '1rem';
+            hintText.innerText = `📍 You have ${savedCorrect} correct answers - continue or choose a different level!`;
+        }
 
     </script>
 </body>
