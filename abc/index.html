@@ -378,115 +378,66 @@
     </div>
 
     <script>
-        /*  DATA: 2+ items per letter, with French articles  */
-        const LETTERS = [
-          { L:'A', items:[
-            { e:'\u{1F34E}', en:'Apple',    fr:'Pomme',   art:'la ' },
-            { e:'\u2708\uFE0F', en:'Airplane', fr:'Avion',   art:"l'" }
-          ]},
-          { L:'B', items:[
-            { e:'\u{1F43B}', en:'Bear',      fr:'Ours',      art:"l'" },
-            { e:'\u{1F98B}', en:'Butterfly',  fr:'Papillon',  art:'le ' }
-          ]},
-          { L:'C', items:[
-            { e:'\u{1F431}', en:'Cat',  fr:'Chat',    art:'le ' },
-            { e:'\u{1F697}', en:'Car',  fr:'Voiture', art:'la ' }
-          ]},
-          { L:'D', items:[
-            { e:'\u{1F436}', en:'Dog',  fr:'Chien',  art:'le ' },
-            { e:'\u{1F986}', en:'Duck', fr:'Canard', art:'le ' }
-          ]},
-          { L:'E', items:[
-            { e:'\u{1F418}', en:'Elephant', fr:'\u00C9l\u00E9phant', art:"l'" },
-            { e:'\u{1F95A}', en:'Egg',      fr:'\u0152uf',           art:"l'" }
-          ]},
-          { L:'F', items:[
-            { e:'\u{1F41F}', en:'Fish',   fr:'Poisson', art:'le ' },
-            { e:'\u{1F338}', en:'Flower', fr:'Fleur',   art:'la ' }
-          ]},
-          { L:'G', items:[
-            { e:'\u{1F347}', en:'Grapes',  fr:'Raisin',  art:'le ' },
-            { e:'\u{1F992}', en:'Giraffe', fr:'Girafe',  art:'la ' }
-          ]},
-          { L:'H', items:[
-            { e:'\u{1F3E0}', en:'House', fr:'Maison', art:'la ' },
-            { e:'\u2764\uFE0F', en:'Heart', fr:'C\u0153ur',  art:'le ' }
-          ]},
-          { L:'I', items:[
-            { e:'\u{1F366}', en:'Ice Cream', fr:'Glace', art:'la ' },
-            { e:'\u{1F3DD}\uFE0F', en:'Island',    fr:'\u00CEle',  art:"l'" }
-          ]},
-          { L:'J', items:[
-            { e:'\u{1F699}', en:'Jeep',  fr:'Jeep', art:'la ' },
-            { e:'\u{1F9C3}', en:'Juice', fr:'Jus',  art:'le ' }
-          ]},
-          { L:'K', items:[
-            { e:'\u{1F511}', en:'Key',      fr:'Cl\u00E9',     art:'la ' },
-            { e:'\u{1F998}', en:'Kangaroo', fr:'Kangourou', art:'le ' }
-          ]},
-          { L:'L', items:[
-            { e:'\u{1F981}', en:'Lion', fr:'Lion',    art:'le ' },
-            { e:'\u{1F343}', en:'Leaf', fr:'Feuille', art:'la ' }
-          ]},
-          { L:'M', items:[
-            { e:'\u{1F319}', en:'Moon',   fr:'Lune',  art:'la ' },
-            { e:'\u{1F412}', en:'Monkey', fr:'Singe', art:'le ' }
-          ]},
-          { L:'N', items:[
-            { e:'\u{1F443}', en:'Nose', fr:'Nez', art:'le ' },
-            { e:'\u{1FAB9}', en:'Nest', fr:'Nid', art:'le ' }
-          ]},
-          { L:'O', items:[
-            { e:'\u{1F34A}', en:'Orange', fr:'Orange', art:"l'" },
-            { e:'\u{1F989}', en:'Owl',    fr:'Hibou',  art:'le ' }
-          ]},
-          { L:'P', items:[
-            { e:'\u{1F437}', en:'Pig',     fr:'Cochon',   art:'le ' },
-            { e:'\u{1F427}', en:'Penguin', fr:'Pingouin', art:'le ' }
-          ]},
-          { L:'Q', items:[
-            { e:'\u{1F451}', en:'Queen',    fr:'Reine',    art:'la ' },
-            { e:'\u2753',    en:'Question', fr:'Question', art:'la ' }
-          ]},
-          { L:'R', items:[
-            { e:'\u{1F308}', en:'Rainbow', fr:'Arc-en-ciel', art:"l'" },
-            { e:'\u{1F430}', en:'Rabbit',  fr:'Lapin',       art:'le ' }
-          ]},
-          { L:'S', items:[
-            { e:'\u2B50',    en:'Star', fr:'\u00C9toile', art:"l'" },
-            { e:'\u2600\uFE0F', en:'Sun',  fr:'Soleil',      art:'le ' }
-          ]},
-          { L:'T', items:[
-            { e:'\u{1F682}', en:'Train',  fr:'Train',   art:'le ' },
-            { e:'\u{1F422}', en:'Turtle', fr:'Tortue',  art:'la ' }
-          ]},
-          { L:'U', items:[
-            { e:'\u2602\uFE0F', en:'Umbrella', fr:'Parapluie', art:'le ' },
-            { e:'\u{1F984}', en:'Unicorn',  fr:'Licorne',   art:'la ' }
-          ]},
-          { L:'V', items:[
-            { e:'\u{1F3BB}', en:'Violin',  fr:'Violon', art:'le ' },
-            { e:'\u{1F30B}', en:'Volcano', fr:'Volcan', art:'le ' }
-          ]},
-          { L:'W', items:[
-            { e:'\u{1F433}', en:'Whale',      fr:'Baleine',   art:'la ' },
-            { e:'\u{1F349}', en:'Watermelon', fr:'Past\u00E8que', art:'la ' }
-          ]},
-          { L:'X', items:[
-            { e:'\u{1F9B4}', en:'X-Ray',      fr:'Rayon X',    art:'le ' },
-            { e:'\u{1F3B5}', en:'Xylophone',  fr:'Xylophone',  art:'le ' }
-          ]},
-          { L:'Y', items:[
-            { e:'\u{1F4D2}', en:'Yellow', fr:'Jaune', art:'le ' },
-            { e:'\u{1F9F6}', en:'Yarn',   fr:'Laine', art:'la ' }
-          ]},
-          { L:'Z', items:[
-            { e:'\u{1F993}', en:'Zebra', fr:'Z\u00E8bre', art:'le ' },
-            { e:'\u{1F4A4}', en:'Zzz',   fr:'Dodo',       art:'le ' }
-          ]}
-        ];
+        /* Separate data per language - words start with the correct letter */
+        const DATA = {
+          en: [
+            { L:'A', items:[{e:'\u{1F34E}',w:'Apple'},{e:'\u2708\uFE0F',w:'Airplane'}] },
+            { L:'B', items:[{e:'\u{1F43B}',w:'Bear'},{e:'\u{1F98B}',w:'Butterfly'}] },
+            { L:'C', items:[{e:'\u{1F431}',w:'Cat'},{e:'\u{1F697}',w:'Car'}] },
+            { L:'D', items:[{e:'\u{1F436}',w:'Dog'},{e:'\u{1F986}',w:'Duck'}] },
+            { L:'E', items:[{e:'\u{1F418}',w:'Elephant'},{e:'\u{1F95A}',w:'Egg'}] },
+            { L:'F', items:[{e:'\u{1F41F}',w:'Fish'},{e:'\u{1F338}',w:'Flower'}] },
+            { L:'G', items:[{e:'\u{1F347}',w:'Grapes'},{e:'\u{1F992}',w:'Giraffe'}] },
+            { L:'H', items:[{e:'\u{1F3E0}',w:'House'},{e:'\u2764\uFE0F',w:'Heart'}] },
+            { L:'I', items:[{e:'\u{1F366}',w:'Ice Cream'},{e:'\u{1F3DD}\uFE0F',w:'Island'}] },
+            { L:'J', items:[{e:'\u{1F699}',w:'Jeep'},{e:'\u{1F9C3}',w:'Juice'}] },
+            { L:'K', items:[{e:'\u{1F511}',w:'Key'},{e:'\u{1F998}',w:'Kangaroo'}] },
+            { L:'L', items:[{e:'\u{1F981}',w:'Lion'},{e:'\u{1F343}',w:'Leaf'}] },
+            { L:'M', items:[{e:'\u{1F319}',w:'Moon'},{e:'\u{1F412}',w:'Monkey'}] },
+            { L:'N', items:[{e:'\u{1F443}',w:'Nose'},{e:'\u{1FAB9}',w:'Nest'}] },
+            { L:'O', items:[{e:'\u{1F34A}',w:'Orange'},{e:'\u{1F989}',w:'Owl'}] },
+            { L:'P', items:[{e:'\u{1F437}',w:'Pig'},{e:'\u{1F427}',w:'Penguin'}] },
+            { L:'Q', items:[{e:'\u{1F451}',w:'Queen'},{e:'\u2753',w:'Question'}] },
+            { L:'R', items:[{e:'\u{1F308}',w:'Rainbow'},{e:'\u{1F430}',w:'Rabbit'}] },
+            { L:'S', items:[{e:'\u2B50',w:'Star'},{e:'\u2600\uFE0F',w:'Sun'}] },
+            { L:'T', items:[{e:'\u{1F682}',w:'Train'},{e:'\u{1F422}',w:'Turtle'}] },
+            { L:'U', items:[{e:'\u2602\uFE0F',w:'Umbrella'},{e:'\u{1F984}',w:'Unicorn'}] },
+            { L:'V', items:[{e:'\u{1F3BB}',w:'Violin'},{e:'\u{1F30B}',w:'Volcano'}] },
+            { L:'W', items:[{e:'\u{1F433}',w:'Whale'},{e:'\u{1F349}',w:'Watermelon'}] },
+            { L:'X', items:[{e:'\u{1F9B4}',w:'X-Ray'},{e:'\u{1F3B5}',w:'Xylophone'}] },
+            { L:'Y', items:[{e:'\u{1F4D2}',w:'Yellow'},{e:'\u{1F9F6}',w:'Yarn'}] },
+            { L:'Z', items:[{e:'\u{1F993}',w:'Zebra'},{e:'\u{1F4A4}',w:'Zzz'}] }
+          ],
+          fr: [
+            { L:'A', items:[{e:'\u2708\uFE0F',w:'Avion',art:"l'"},{e:'\u{1F41D}',w:'Abeille',art:"l'"}] },
+            { L:'B', items:[{e:'\u{1F40B}',w:'Baleine',art:'la '},{e:'\u{1F34C}',w:'Banane',art:'la '}] },
+            { L:'C', items:[{e:'\u{1F431}',w:'Chat',art:'le '},{e:'\u{1F986}',w:'Canard',art:'le '}] },
+            { L:'D', items:[{e:'\u{1F42C}',w:'Dauphin',art:'le '},{e:'\u{1F995}',w:'Dinosaure',art:'le '}] },
+            { L:'E', items:[{e:'\u{1F418}',w:'\u00C9l\u00E9phant',art:"l'"},{e:'\u2B50',w:'\u00C9toile',art:"l'"}] },
+            { L:'F', items:[{e:'\u{1F338}',w:'Fleur',art:'la '},{e:'\u{1F353}',w:'Fraise',art:'la '}] },
+            { L:'G', items:[{e:'\u{1F992}',w:'Girafe',art:'la '},{e:'\u{1F438}',w:'Grenouille',art:'la '}] },
+            { L:'H', items:[{e:'\u{1F989}',w:'Hibou',art:'le '},{e:'\u{1F994}',w:'H\u00E9risson',art:'le '}] },
+            { L:'I', items:[{e:'\u{1F3DD}\uFE0F',w:'\u00CEle',art:"l'"},{e:'\u{1F9CA}',w:'Igloo',art:"l'"}] },
+            { L:'J', items:[{e:'\u{1F9C3}',w:'Jus',art:'le '},{e:'\u{1F9F8}',w:'Jouet',art:'le '}] },
+            { L:'K', items:[{e:'\u{1F998}',w:'Kangourou',art:'le '},{e:'\u{1F428}',w:'Koala',art:'le '}] },
+            { L:'L', items:[{e:'\u{1F981}',w:'Lion',art:'le '},{e:'\u{1F319}',w:'Lune',art:'la '},{e:'\u{1F430}',w:'Lapin',art:'le '}] },
+            { L:'M', items:[{e:'\u{1F3E0}',w:'Maison',art:'la '},{e:'\u{1F411}',w:'Mouton',art:'le '}] },
+            { L:'N', items:[{e:'\u{1F443}',w:'Nez',art:'le '},{e:'\u{1FAB9}',w:'Nid',art:'le '}] },
+            { L:'O', items:[{e:'\u{1F34A}',w:'Orange',art:"l'"},{e:'\u{1F43B}',w:'Ours',art:"l'"}] },
+            { L:'P', items:[{e:'\u{1F98B}',w:'Papillon',art:'le '},{e:'\u{1F34E}',w:'Pomme',art:'la '}] },
+            { L:'Q', items:[{e:'\u2753',w:'Question',art:'la '},{e:'4\uFE0F\u20E3',w:'Quatre',art:'le '}] },
+            { L:'R', items:[{e:'\u{1F347}',w:'Raisin',art:'le '},{e:'\u{1F916}',w:'Robot',art:'le '}] },
+            { L:'S', items:[{e:'\u2600\uFE0F',w:'Soleil',art:'le '},{e:'\u{1F40D}',w:'Serpent',art:'le '}] },
+            { L:'T', items:[{e:'\u{1F682}',w:'Train',art:'le '},{e:'\u{1F422}',w:'Tortue',art:'la '}] },
+            { L:'U', items:[{e:'1\uFE0F\u20E3',w:'Un',art:''},{e:'\u{1F3ED}',w:'Usine',art:"l'"}] },
+            { L:'V', items:[{e:'\u{1F697}',w:'Voiture',art:'la '},{e:'\u{1F404}',w:'Vache',art:'la '}] },
+            { L:'W', items:[{e:'\u{1F683}',w:'Wagon',art:'le '}] },
+            { L:'X', items:[{e:'\u{1F3B5}',w:'Xylophone',art:'le '}] },
+            { L:'Y', items:[{e:'\u{1F95B}',w:'Yaourt',art:'le '},{e:'\u{1FA80}',w:'Yo-yo',art:'le '}] },
+            { L:'Z', items:[{e:'\u{1F993}',w:'Z\u00E8bre',art:'le '},{e:'0\uFE0F\u20E3',w:'Z\u00E9ro',art:'le '}] }
+          ]
+        };
 
-        /*  UI translations  */
         const UI = {
             en: {
                 title:       '\u{1F393} Choose a Level',
@@ -526,21 +477,18 @@
             }
         };
 
-        /*  Constants  */
         const CHOICES_PER_LEVEL = [3, 4, 5, 6];
         const UNLOCK_THRESHOLD = [10, 20, 30];
 
-        /*  State  */
         let lang = localStorage.getItem('abc-lang') || 'en';
         let maxUnlocked = parseInt(localStorage.getItem('abc-max-difficulty') || '0');
         let currentLevel = parseInt(localStorage.getItem('abc-current-difficulty') || '0');
         let correctCount = parseInt(localStorage.getItem('abc-correct-answers') || '0');
-        let currentItem = null;   // the target item this round
+        let currentItem = null;
         let currentLetterIdx = -1;
         let canClick = false;
-        let recentLetters = [];   // indices of recently shown letters
+        let recentLetters = [];
 
-        /*  DOM refs  */
         const $levelSelect  = document.getElementById('level-select');
         const $levelTitle   = document.getElementById('level-title');
         const $levelOptions = document.getElementById('level-options');
@@ -549,18 +497,15 @@
         const $choiceMsg    = document.getElementById('choice-message');
         const $btnYes       = document.getElementById('btn-yes');
         const $btnStay      = document.getElementById('btn-stay');
-        const $gameArea     = document.getElementById('game-area');
         const $letter       = document.getElementById('letter-display');
         const $hint         = document.getElementById('hint-text');
         const $options      = document.getElementById('options');
         const $progressBar  = document.getElementById('progress-bar');
 
-        /*  Helpers  */
+        function letters() { return DATA[lang]; }
         function t() { return UI[lang]; }
-        function w(item) { return lang === 'fr' ? item.fr : item.en; }
-        function article(item) { return lang === 'fr' ? item.art : ''; }
+        function art(item) { return item.art || ''; }
 
-        /*  Speech  */
         function say(text, speechLang) {
             window.speechSynthesis.cancel();
             const u = new SpeechSynthesisUtterance(text);
@@ -574,7 +519,6 @@
             window.speechSynthesis.speak(u);
         }
 
-        /*  Persistence  */
         function save() {
             localStorage.setItem('abc-lang', lang);
             localStorage.setItem('abc-max-difficulty', maxUnlocked);
@@ -582,7 +526,6 @@
             localStorage.setItem('abc-correct-answers', correctCount);
         }
 
-        /*  Language  */
         function setLang(l) {
             lang = l;
             save();
@@ -592,7 +535,6 @@
             renderLevelSelect();
         }
 
-        /*  Level select  */
         function showLevelSelect() {
             $levelSelect.classList.remove('hidden');
             document.querySelectorAll('#lang-toggle button').forEach(b => {
@@ -640,7 +582,6 @@
             nextRound();
         }
 
-        /*  Progress bar  */
         function updateProgressBar() {
             if (currentLevel < 3) {
                 const pct = (correctCount / UNLOCK_THRESHOLD[currentLevel]) * 100;
@@ -650,7 +591,6 @@
             }
         }
 
-        /*  Unlock choice  */
         function showUnlockChoice() {
             const tr = t();
             const titles = [tr.levelUp, tr.amazing, tr.incredible];
@@ -681,9 +621,9 @@
             nextRound();
         }
 
-        /*  Weighted letter picker (avoids recent)  */
         function pickLetterIdx() {
-            const weights = LETTERS.map((_, i) => recentLetters.includes(i) ? 0.05 : 1);
+            const data = letters();
+            const weights = data.map((_, i) => recentLetters.includes(i) ? 0.05 : 1);
             const total = weights.reduce((a, b) => a + b, 0);
             let r = Math.random() * total;
             for (let i = 0; i < weights.length; i++) {
@@ -693,59 +633,52 @@
             return weights.length - 1;
         }
 
-        /*  Game round  */
         function nextRound() {
             canClick = true;
             const tr = t();
+            const data = letters();
 
-            // Pick letter (weighted away from recent)
             const li = pickLetterIdx();
             currentLetterIdx = li;
             recentLetters.push(li);
             if (recentLetters.length > 8) recentLetters.shift();
 
-            const letterObj = LETTERS[li];
-            // Pick a random item from that letter
+            const letterObj = data[li];
             currentItem = letterObj.items[Math.floor(Math.random() * letterObj.items.length)];
 
-            // Display
             $letter.innerText = letterObj.L;
             $letter.style.color = randomColor();
             $letter.classList.remove('pop-in');
             void $letter.offsetWidth;
             $letter.classList.add('pop-in');
 
-            const word = w(currentItem);
-            const art = article(currentItem);
-            $hint.innerText = tr.find + art + word + '...';
+            const word = currentItem.w;
+            const a = art(currentItem);
+            $hint.innerText = tr.find + a + word + '...';
 
-            // Speech
             setTimeout(() => {
-                say(letterObj.L + ' ' + tr.isFor + ' ' + word + '. ' + tr.canYouFind + art + word + '?', lang);
+                say(letterObj.L + ' ' + tr.isFor + ' ' + word + '. ' + tr.canYouFind + a + word + '?', lang);
             }, 300);
 
-            // Build choices from different letters
             const numChoices = CHOICES_PER_LEVEL[currentLevel];
-            const usedLetterIdxs = new Set([li]);
-            const choiceItems = [currentItem];
+            const usedIdxs = new Set([li]);
+            const choices = [currentItem];
 
-            while (choiceItems.length < numChoices) {
+            while (choices.length < numChoices) {
                 let ri;
-                do { ri = Math.floor(Math.random() * LETTERS.length); } while (usedLetterIdxs.has(ri));
-                usedLetterIdxs.add(ri);
-                const otherItems = LETTERS[ri].items;
-                choiceItems.push(otherItems[Math.floor(Math.random() * otherItems.length)]);
+                do { ri = Math.floor(Math.random() * data.length); } while (usedIdxs.has(ri));
+                usedIdxs.add(ri);
+                const otherItems = data[ri].items;
+                choices.push(otherItems[Math.floor(Math.random() * otherItems.length)]);
             }
 
-            // Shuffle
-            for (let i = choiceItems.length - 1; i > 0; i--) {
+            for (let i = choices.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [choiceItems[i], choiceItems[j]] = [choiceItems[j], choiceItems[i]];
+                [choices[i], choices[j]] = [choices[j], choices[i]];
             }
 
-            // Render
             $options.innerHTML = '';
-            choiceItems.forEach((item, i) => {
+            choices.forEach((item, i) => {
                 const btn = document.createElement('div');
                 btn.className = 'emoji-btn pop-in';
                 btn.style.animationDelay = i * 0.08 + 's';
@@ -756,7 +689,7 @@
 
                 const text = document.createElement('div');
                 text.className = 'emoji-text';
-                text.innerText = w(item);
+                text.innerText = item.w;
 
                 btn.appendChild(icon);
                 btn.appendChild(text);
@@ -764,7 +697,7 @@
                 btn.addEventListener('click', (ev) => {
                     ev.preventDefault();
                     if (!canClick || btn.classList.contains('wrong')) return;
-                    say(w(item), lang);
+                    say(item.w, lang);
 
                     if (item === currentItem) {
                         if (!canClick) return;
@@ -792,22 +725,19 @@
             });
         }
 
-        /* Tap big letter */
         $letter.addEventListener('click', () => {
             if (currentItem) {
-                say(LETTERS[currentLetterIdx].L, lang);
+                say(letters()[currentLetterIdx].L, lang);
                 $letter.style.transform = 'scale(1.2)';
                 setTimeout(() => $letter.style.transform = 'scale(1)', 200);
             }
         });
 
-        /*  Utilities  */
         function randomColor() {
             const c = ['#FF6B6B','#4ECDC4','#FFE66D','#FF9F43','#A29BFE','#fd79a8','#00cec9'];
             return c[Math.floor(Math.random() * c.length)];
         }
 
-        /*  Particles  */
         const canvas = document.getElementById('particles');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -857,7 +787,6 @@
             requestAnimationFrame(animateParticles);
         }
 
-        /*  Init  */
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = () => {};
         }
