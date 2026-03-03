@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Musical Sounds - ba-by.ca</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
@@ -129,6 +130,8 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             z-index: 200;
             display: none;
             flex-direction: column;
@@ -253,16 +256,27 @@
                 currentAudio.currentTime = 0;
             }
             
-            // Speak the name
+            // Speak the name first, then play the instrument sound after a small delay
             const msg = new SpeechSynthesisUtterance(item.name);
+            msg.rate = 1.0;
+            msg.pitch = 1.2;
+            window.speechSynthesis.speak(msg);
+
             currentAudio = new Audio(SOUND_BASE + item.file);
             currentAudio.loop = true;
 
-            window.speechSynthesis.speak(msg);
-            
-            currentAudio.play().catch((err) => {
-                console.log("Audio play failed:", err);
-            });
+            // Delay the instrument sound slightly so the name finishes first
+            msg.onend = () => {
+                currentAudio.play().catch((err) => {
+                    console.log("Audio play failed:", err);
+                });
+            };
+            // Fallback play if onend doesn't fire
+            setTimeout(() => {
+                if (currentAudio && currentAudio.paused) {
+                    currentAudio.play().catch(() => {});
+                }
+            }, 1500);
 
             // Particles
             const rect = e.currentTarget.getBoundingClientRect();

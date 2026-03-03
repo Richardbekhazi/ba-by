@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stacky Smiles</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
     <!-- Friendly Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,7 +47,7 @@
 
         /* 🏠 HOME BUTTON */
         .home-btn {
-            position: absolute;
+            position: fixed;
             top: 20px;
             left: 20px;
             width: 55px;
@@ -381,7 +382,10 @@
             container.style.width = `${canvas.width + borderSize}px`;
             container.style.height = `${canvas.height + borderSize}px`;
 
-            grid = createMatrix(COLS, ROWS); 
+            // Only create grid if it doesn't exist yet (preserve game state on resize)
+            if (grid.length === 0) {
+                grid = createMatrix(COLS, ROWS);
+            }
             if (!player.matrix) playerReset();
             draw();
         }

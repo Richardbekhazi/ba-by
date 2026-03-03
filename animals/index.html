@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Animal Safari</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
     <!-- Friendly Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -516,9 +517,15 @@
             // LOOPING LOGIC: Enable loop
             audio.loop = true;
             
+            // Update subtext on successful load
+            audio.oncanplay = () => {
+                stageSub.textContent = `"${animal.name}!" 🔊`;
+            };
+            
             // Fallback to TTS if audio fails
             audio.onerror = (e) => {
                 console.log("Audio failed to load, falling back to TTS", e);
+                stageSub.textContent = `Say hi to ${animal.name}!`;
                 speak(`The ${animal.name} says hello!`);
             };
 

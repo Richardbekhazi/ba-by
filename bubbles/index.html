@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bubble Hero</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
     <!-- Friendly Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,7 +41,7 @@
 
         /* 🏠 HOME BUTTON */
         .home-btn {
-            position: absolute;
+            position: fixed;
             top: 20px;
             left: 20px;
             width: 50px;
@@ -571,6 +572,23 @@
                 b.life--;
                 if(b.life <= 0) { bullets.splice(i, 1); i--; }
             }
+
+            // Update Orbiters (rotate around player)
+            orbiters.forEach((o, i) => {
+                o.angle += 0.03;
+                const ox = player.x + Math.cos(o.angle) * 70;
+                const oy = player.y + Math.sin(o.angle) * 70;
+                
+                // Orbiter damage to enemies
+                enemies.forEach(e => {
+                    if (e.dead) return;
+                    const dist = Math.hypot(ox - e.x, oy - e.y);
+                    if (dist < e.size + 15) {
+                        e.hp -= 0.5;
+                        if (e.hp <= 0) killEnemy(e);
+                    }
+                });
+            });
 
             // Update Enemies & Collision
             enemies.forEach(e => {

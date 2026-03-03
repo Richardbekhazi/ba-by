@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Learn Letters with Richy</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
     <!-- Friendly Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,7 +50,7 @@
 
         /* 🏠 HOME BUTTON */
         .home-btn {
-            position: absolute;
+            position: fixed;
             top: 20px;
             left: 20px;
             width: 50px;
@@ -664,9 +665,11 @@
             if (state.currentLetter && !state.isLocked) {
                 lockInput(true);
                 const char = state.currentLetter;
-                const obj = LETTER_OBJECTS[char];
+                const dict = state.lang === 'fr' ? LETTER_OBJECTS_FR : LETTER_OBJECTS;
+                const obj = dict[char];
                 createExplosion(window.innerWidth / 2, window.innerHeight / 2, els.big.style.color);
-                speak(`${char} is for ${obj.word}`);
+                const phrase = state.lang === 'fr' ? `${char} comme ${obj.word}` : `${char} is for ${obj.word}`;
+                speak(phrase);
                 setTimeout(() => lockInput(false), 1200);
             }
         });

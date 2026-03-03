@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Rooftop Rush - ba-by.ca</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -373,8 +374,11 @@
       document.getElementById('tap-hint').style.display = 'none';
     }
 
+    // Shared AudioContext (prevents memory leak from creating new ones per sound)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
     function playSound(type) {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       
@@ -455,13 +459,16 @@
       cat.y += cat.vy;
       cat.rotation *= 0.9;
 
-      // Infinite Fall Protection (For 2 year olds)
+      // Infinite Fall Protection (For 2 year olds) - Bouncy safety net!
       if (cat.y > canvas.height) {
         cat.y = canvas.height - 100;
         cat.vy = -15;
         playSound('boing');
+        // Gentle score reduction, never below 0
         score = Math.max(0, score - 1);
         scoreEl.innerText = score;
+        // Show encouraging particles on bounce
+        createExplosion(cat.x + cat.w/2, canvas.height - 50, '#FFE66D');
       }
 
       // Platform Logic
