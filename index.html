@@ -6,6 +6,9 @@
     <meta name="description" content="Fun, safe, and educational games for babies and toddlers. Learn ABCs, colors, shapes, numbers, animals, and more — made with love!">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
     <title>ba-by.ca - Ultimate Baby Games</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
     <style>
         /* 🎨 THEME & VARIABLES */
         :root {
@@ -631,6 +634,7 @@
                 this.color = colors[Math.floor(Math.random() * colors.length)];
                 this.life = 100;
                 this.type = type;
+                this.shape = Math.random() > 0.5 ? 'circle' : 'diamond';
                 if (type === 'explosion') {
                     this.speedX = Math.random() * 10 - 5;
                     this.speedY = Math.random() * 10 - 5;
@@ -647,11 +651,9 @@
             draw() {
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
-                if (Math.random() > 0.5) {
-                    // Draw Circle
+                if (this.shape === 'circle') {
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 } else {
-                    // Draw Star (simplified as diamond)
                     ctx.moveTo(this.x, this.y - this.size);
                     ctx.lineTo(this.x + this.size, this.y);
                     ctx.lineTo(this.x, this.y + this.size);

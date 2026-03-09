@@ -274,6 +274,8 @@
         @keyframes bounceIn { 0% { transform: scale(0.5); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @keyframes popIn { 0% { transform: translateY(50px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
         @keyframes pulseRed { 0% { color: #d63031; } 50% { color: #ff7675; transform: scale(1.1); } 100% { color: #d63031; } }
+        @keyframes shake { 0%,100%{ transform:translateX(0) } 25%{ transform:translateX(-8px) } 75%{ transform:translateX(8px) } }
+        .shake { animation: shake 0.4s ease-in-out; }
 
     </style>
 </head>
@@ -382,12 +384,12 @@
 
         const UPGRADES = [
             { id: 'multishot', name: 'More Bubbles', img: 'beer_t.png', desc: 'Shoot +1 bubble!', type: 'stat', key: 'bulletCount', val: 1 },
-            { id: 'rate', name: 'Fast Fire', img: 'arrow_s_t.jpg', desc: 'Shoot faster!', type: 'stat', key: 'fireRate', val: -10, limit: 10 },
+            { id: 'rate', name: 'Fast Fire', img: 'arrow_s_t.png', desc: 'Shoot faster!', type: 'stat', key: 'fireRate', val: -10, limit: 10 },
             { id: 'size', name: 'Big Bubbles', img: 'bag_t.png', desc: 'Big & Strong bubbles!', type: 'stat', key: 'bulletSize', val: 5, dmg: 1 },
             { id: 'pierce', name: 'Tough Bubble', img: 'anvil_t.png', desc: 'Pierce & Damage Up!', type: 'stat', key: 'pierce', val: 1, dmg: 0.5 },
-            { id: 'orbiter', name: 'Moon Shield', img: 'armor_t.jpg', desc: 'Protective moon!', type: 'special' },
+            { id: 'orbiter', name: 'Moon Shield', img: 'armor_t.png', desc: 'Protective moon!', type: 'special' },
             { id: 'speed', name: 'Speedy Star', img: 'baner_t.png', desc: 'Move faster!', type: 'stat', key: 'speed', val: 1 },
-            { id: 'heal', name: 'Yummy Heart', img: 'book_t.jpg', desc: 'Heal 50 HP!', type: 'heal', val: 50 },
+            { id: 'heal', name: 'Yummy Heart', img: 'book_t.png', desc: 'Heal 50 HP!', type: 'heal', val: 50 },
             { id: 'maxhp', name: 'Big Heart', img: 'heart_t.png', desc: 'Max HP +50!', type: 'maxhp', val: 50 },
             { id: 'luck', name: 'Lucky Charm', img: 'trinket_t.png', desc: 'Find more gems!', type: 'stat', key: 'luck', val: 1 }
         ];
@@ -920,10 +922,11 @@
         }
 
         function restartGame() {
-            game.level = 1; game.xp = 0; game.xpToNext = 5; game.paused = false; game.bossMode = false;
-            player.hp = 100; player.maxHp = 100; player.bulletCount = 1; player.fireRate = 60; 
+            game.level = 1; game.xp = 0; game.xpToNext = 5; game.paused = false; game.bossMode = false; game.time = 0;
+            player.hp = 100; player.maxHp = 100; player.bulletCount = 1; player.fireRate = 60;
             player.bulletSize = 15; player.pierce = 0; player.orbiters = 0; player.damage = 1; player.luck = 0;
-            orbiters = []; enemies = []; bullets = []; gems = [];
+            player.speed = 5; player.bulletSpeed = 7;
+            orbiters = []; enemies = []; bullets = []; gems = []; particles = [];
             document.getElementById('game-over-overlay').classList.remove('active');
             updateUI(); updateStatsUI();
         }

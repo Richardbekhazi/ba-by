@@ -450,9 +450,10 @@
             const [m, o] = [player.matrix, player.pos];
             for (let y = 0; y < m.length; ++y) {
                 for (let x = 0; x < m[y].length; ++x) {
-                    if (m[y][x] !== 0 &&
-                       (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
-                        return true;
+                    if (m[y][x] !== 0) {
+                        const row = arena[y + o.y];
+                        if (!row) continue;
+                        if (row[x + o.x] !== 0) return true;
                     }
                 }
             }
@@ -523,7 +524,7 @@
         function playerReset() {
             const pieces = 'ILJOTSZ';
             const typeId = (Math.random() * (PIECES.length - 1) | 0) + 1;
-            player.matrix = PIECES[typeId]; 
+            player.matrix = PIECES[typeId].map(row => [...row]); 
             player.colorIndex = typeId; 
             
             // Center spawn

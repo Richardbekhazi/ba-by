@@ -362,7 +362,7 @@
                 { name: 'Bat', file: 'bat.mp3', emoji: '🦇', bg: '#ede7f6' },
                 { name: 'Hedgehog', file: 'hedgehog.mp3', emoji: '🦔', bg: '#d7ccc8' },
                 { name: 'Leopard', file: 'leopard.mp3', emoji: '🐆', bg: '#fffde7' },
-                { name: 'Hyena', file: 'hyena.mp3', emoji: '🐕', bg: '#d7ccc8' }
+                { name: 'Hyena', file: 'hyena.mp3', emoji: '�', bg: '#d7ccc8' }
             ],
             3: [ // Exotic & Rare
                 { name: 'Camel', file: 'camel.mp3', emoji: '🐫', bg: '#fff8e1' },
@@ -378,7 +378,7 @@
                 { name: 'Dragon', file: 'komodo_dragon.mp3', emoji: '🐉', bg: '#dcedc8' },
                 { name: 'Dino', file: 'dinosaur.mp3', emoji: '🦖', bg: '#c8e6c9' },
                 { name: 'Scorpion', file: 'scorpion.mp3', emoji: '🦂', bg: '#ffe0b2' },
-                { name: 'Anteater', file: 'anteater.mp3', emoji: '🐜', bg: '#d7ccc8' },
+                { name: 'Anteater', file: 'anteater.mp3', emoji: '🦡', bg: '#d7ccc8' },
                 { name: 'Parrot', file: 'african_grey_parrot.mp3', emoji: '🦜', bg: '#ffebee' },
                 { name: 'Crow', file: 'crow.mp3', emoji: '🐦‍⬛', bg: '#eceff1' },
                 { name: 'Falcon', file: 'falcon.mp3', emoji: '🦅', bg: '#cfd8dc' },
@@ -514,8 +514,8 @@
             const audio = new Audio(fullUrl);
             state.currentAudio = audio;
             
-            // LOOPING LOGIC: Enable loop
-            audio.loop = true;
+            // LOOPING LOGIC: Disable loop
+            audio.loop = false;
             
             // Update subtext on successful load
             audio.oncanplay = () => {

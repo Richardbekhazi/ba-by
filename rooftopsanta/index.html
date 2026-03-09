@@ -620,6 +620,16 @@
             if(windowMaterial) windowMaterial.emissiveIntensity += ((isDay ? 0 : 0.8) - windowMaterial.emissiveIntensity) * lerpSpeed;
         }
 
+        function disposeGroup(obj) {
+            obj.traverse(child => {
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+                    else child.material.dispose();
+                }
+            });
+        }
+
         function startGame() {
             startScreen.classList.add('hidden');
             gameOverScreen.classList.add('hidden');
@@ -632,9 +642,9 @@
             targetX = 0;
             player.position.set(0, 0, 0);
             player.rotation.z = 0;
-            obstacles.forEach(o => scene.remove(o));
-            collectables.forEach(c => scene.remove(c));
-            groundSegments.forEach(g => scene.remove(g));
+            obstacles.forEach(o => { disposeGroup(o); scene.remove(o); });
+            collectables.forEach(c => { disposeGroup(c); scene.remove(c); });
+            groundSegments.forEach(g => { disposeGroup(g); scene.remove(g); });
             obstacles = []; collectables = []; groundSegments = [];
             for (let i = 0; i < 15; i++) spawnGroundSegment(-i * 12);
             if (!animationId) animate();
@@ -661,7 +671,7 @@
                 for (let i = obstacles.length - 1; i >= 0; i--) {
                     let ob = obstacles[i];
                     if (ob.position.z > -30 && ob.position.z < 10) {
-                        scene.remove(ob); obstacles.splice(i, 1);
+                        disposeGroup(ob); scene.remove(ob); obstacles.splice(i, 1);
                     }
                 }
                 playerLane = 1; targetX = 0;
@@ -715,7 +725,7 @@
 
             groundSegments.forEach((g) => { g.position.z += gameSpeed; });
             if (groundSegments[0].position.z > 15) {
-                const oldSeg = groundSegments.shift(); scene.remove(oldSeg);
+                const oldSeg = groundSegments.shift(); disposeGroup(oldSeg); scene.remove(oldSeg);
                 let minZ = 0; groundSegments.forEach(g => { if(g.position.z < minZ) minZ = g.position.z });
                 spawnGroundSegment(minZ - 12);
             }
@@ -744,7 +754,7 @@
                         if (collision) gameOver();
                     }
                 }
-                if (ob.position.z > 15) { scene.remove(ob); obstacles.splice(i, 1); }
+                if (ob.position.z > 15) { disposeGroup(ob); scene.remove(ob); obstacles.splice(i, 1); }
             }
 
             for (let i = collectables.length - 1; i >= 0; i--) {
@@ -754,12 +764,12 @@
                 c.position.y = c.userData.startY + Math.sin(Date.now() * 0.005 + c.userData.floatOffset) * 0.3;
                 if (c.position.z > -1.5 && c.position.z < 1.5) {
                     if (Math.abs(c.position.x - player.position.x) < 1.8 && Math.abs(c.position.y - player.position.y) < 2.5) {
-                        scene.remove(c); collectables.splice(i, 1);
+                        disposeGroup(c); scene.remove(c); collectables.splice(i, 1);
                         totalWallet++; localStorage.setItem('santaRunnerGifts', totalWallet);
                         updateWalletUI();
                     }
                 }
-                if (c.position.z > 15) { scene.remove(c); collectables.splice(i, 1); }
+                if (c.position.z > 15) { disposeGroup(c); scene.remove(c); collectables.splice(i, 1); }
             }
             updateSnow();
         }

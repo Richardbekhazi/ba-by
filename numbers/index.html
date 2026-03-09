@@ -262,7 +262,11 @@
                 const word = numObj.words[currentLang] || "";
                 const utterance = new SpeechSynthesisUtterance(word);
                 const voices = window.speechSynthesis.getVoices();
-                let selectedVoice = voices.find(v => v.lang === config.code) || voices.find(v => v.lang.startsWith(config.code.split('-')[0]));\n                // Fallback: if no Filipino voice found, use English for Tagalog words\n                if(!selectedVoice && currentLang === 'tl') {\n                    selectedVoice = voices.find(v => v.lang.startsWith('en'));\n                }
+                let selectedVoice = voices.find(v => v.lang === config.code) || voices.find(v => v.lang.startsWith(config.code.split('-')[0]));
+                // Fallback: if no Filipino voice found, use English for Tagalog words
+                if(!selectedVoice && currentLang === 'tl') {
+                    selectedVoice = voices.find(v => v.lang.startsWith('en'));
+                }
                 if(selectedVoice) utterance.voice = selectedVoice;
                 utterance.lang = config.code;
                 utterance.rate = 1.0; 

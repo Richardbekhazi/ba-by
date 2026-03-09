@@ -229,6 +229,7 @@
     let coins = [];
     let gameActive = false;
     let currentWeather = null; // 'rain', 'snow', 'moonlight', 'sunny'
+    let lastWeatherCycle = -1;
 
     const cat = {
       x: 100,
@@ -443,8 +444,8 @@
 
       // Weather Logic (Changes every 100 score after the first 100)
       const weatherCycle = Math.floor(score / 100);
-      if (score >= 100 && (!currentWeather || this.lastWeatherCycle !== weatherCycle)) {
-        this.lastWeatherCycle = weatherCycle;
+      if (score >= 100 && (!currentWeather || lastWeatherCycle !== weatherCycle)) {
+        lastWeatherCycle = weatherCycle;
         const rand = Math.random();
         if (rand < 0.25) currentWeather = 'rain';
         else if (rand < 0.50) currentWeather = 'snow';
@@ -522,12 +523,12 @@
       }
 
       // Particles
-      particles.forEach((p, i) => {
+      particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
         p.life -= 0.05;
-        if (p.life <= 0) particles.splice(i, 1);
       });
+      particles = particles.filter(p => p.life > 0);
     }
 
     function draw() {
@@ -611,7 +612,7 @@
           // We can draw a slightly darker green rect top to show the walkable area
           ctx.fillStyle = '#388E3C';
           ctx.beginPath();
-          ctx.roundRect(p.x, p.y, p.w, 40, 20);
+          if (ctx.roundRect) { ctx.roundRect(p.x, p.y, p.w, 40, 20); } else { ctx.rect(p.x, p.y, p.w, 40); }
           ctx.fill();
 
         } else if (p.type === 'space') {
