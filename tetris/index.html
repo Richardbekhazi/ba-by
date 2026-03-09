@@ -452,7 +452,7 @@
                 for (let x = 0; x < m[y].length; ++x) {
                     if (m[y][x] !== 0) {
                         const row = arena[y + o.y];
-                        if (!row) continue;
+                        if (!row) return true;
                         if (row[x + o.x] !== 0) return true;
                     }
                 }
