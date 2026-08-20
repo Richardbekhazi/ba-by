@@ -465,6 +465,13 @@
         const SPEED_INITIAL = 0.5;
         const SPEED_MAX = 1.4;
         const MIN_CONTINUE_SECONDS = 30;
+        const TIME_PHASE_DISTANCE = 750;
+        const TIME_PHASES = [
+            { name: 'morning', sky: 0xffb38a, hemi: 2.1, directional: 2.4, light: 0xffd3a3, sun: 0.95, moon: 0.08 },
+            { name: 'day', sky: 0x87ceeb, hemi: 2.5, directional: 3.0, light: 0xffffff, sun: 1, moon: 0 },
+            { name: 'dusk', sky: 0x8b5fbf, hemi: 1.8, directional: 2.1, light: 0xffa36c, sun: 0.62, moon: 0.28 },
+            { name: 'night', sky: 0x0b1026, hemi: 1.35, directional: 1.9, light: 0xc7d2fe, sun: 0, moon: 1 }
+        ];
         
         // --- State ---
         let scene, camera, renderer;
@@ -486,6 +493,7 @@
         let lastMilestone = 0;
         let weatherCycle = -1;
         let currentWeather = 'clear';
+        let currentTimePhase = 'morning';
         let lives = 3;
         let invulnerableFrames = 0;
         
@@ -495,7 +503,7 @@
         let reviveCount = 0;
         
         let groundSegments = [], obstacles = [], collectables = [], particles = [], visualEffects = [];
-        let sun, moon, stars, hemiLight, dirLight, windowMaterial;
+        let sun, moon, stars, aurora, hemiLight, dirLight, windowMaterial;
         let animationId;
 
         // --- UI Elements ---
@@ -591,7 +599,14 @@
             musicStep++;
         }
 
-        function getMusicTheme() { return Math.floor(distance / 1000) % 2 === 0 ? 'day' : 'night'; }
+        function getTimePhase() {
+            return TIME_PHASES[Math.floor(distance / TIME_PHASE_DISTANCE) % TIME_PHASES.length].name;
+        }
+
+        function getMusicTheme() {
+            const phase = getTimePhase();
+            return phase === 'dusk' || phase === 'night' ? 'night' : 'day';
+        }
 
         function startMusic(themeName = getMusicTheme()) {
             initAudio();
@@ -681,8 +696,8 @@
         // --- Setup ---
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(COLORS.skyDay);
-            scene.fog = new THREE.FogExp2(COLORS.skyDay, 0.02);
+            scene.background = new THREE.Color(TIME_PHASES[0].sky);
+            scene.fog = new THREE.FogExp2(TIME_PHASES[0].sky, 0.02);
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 150);
             camera.position.set(0, 7, 16); camera.lookAt(0, 2, -6);
@@ -743,31 +758,49 @@
         }
 
         function createEnvironment() {
-            // Separate celestial bodies make nighttime look like a moon, not a pale sun.
-            const sunGeo = new THREE.SphereGeometry(8, 32, 32);
-            const sunMat = new THREE.MeshBasicMaterial({ color: COLORS.sun, fog: false, transparent: true });
-            sun = new THREE.Mesh(sunGeo, sunMat);
-            sun.position.set(30, 40, -80);
+            // Layered sun with a soft corona and rounded rays.
+            sun = new THREE.Group();
+            const sunMat = new THREE.MeshBasicMaterial({ color: 0xffed8a, fog: false, transparent: true });
+            const sunCore = new THREE.Mesh(new THREE.SphereGeometry(5.2, 32, 24), sunMat);
+            sun.add(sunCore);
             scene.add(sun);
 
-            const sunSpriteMat = new THREE.SpriteMaterial({ map: glowTexture, color: 0xffaa00, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
+            const sunSpriteMat = new THREE.SpriteMaterial({ map: glowTexture, color: 0xffb21c, transparent: true, opacity: 0.62, blending: THREE.AdditiveBlending, depthWrite: false });
             const sunGlow = new THREE.Sprite(sunSpriteMat);
-            sunGlow.scale.set(60, 60, 1);
+            sunGlow.scale.set(35, 35, 1);
             sun.add(sunGlow);
+            const rayMat = new THREE.MeshBasicMaterial({ color: 0xffdf6b, transparent: true, opacity: 0.68, fog: false });
+            const sunRays = new THREE.Group();
+            for (let i = 0; i < 12; i++) {
+                const ray = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 2.2, 10), rayMat);
+                const angle = i * Math.PI / 6;
+                ray.position.set(Math.cos(angle) * 7.2, Math.sin(angle) * 7.2, 0);
+                ray.rotation.z = angle - Math.PI / 2;
+                sunRays.add(ray);
+            }
+            sun.add(sunRays);
+            sun.userData = { core: sunCore, glow: sunGlow, rays: sunRays };
+            sun.position.set(-38, 22, -80);
 
+            // Smooth, clean crescent moon.
+            moon = new THREE.Group();
             const moonShape = new THREE.Shape();
-            moonShape.moveTo(3, 8);
-            moonShape.bezierCurveTo(-8, 6, -8, -6, 3, -8);
-            moonShape.bezierCurveTo(-3, -4, -3, 4, 3, 8);
+            moonShape.moveTo(5, 8);
+            moonShape.bezierCurveTo(-4, 7, -8, 3, -8, -1);
+            moonShape.bezierCurveTo(-8, -6, -3, -9, 4, -8);
+            moonShape.bezierCurveTo(0, -5, -2, -2, -2, 1);
+            moonShape.bezierCurveTo(-2, 4, 1, 7, 5, 8);
             const moonMat = new THREE.MeshBasicMaterial({ color: COLORS.moon, fog: false, transparent: true, opacity: 0, side: THREE.DoubleSide });
-            moon = new THREE.Mesh(new THREE.ShapeGeometry(moonShape), moonMat);
-            moon.position.set(30, 40, -80);
+            const moonCore = new THREE.Mesh(new THREE.ShapeGeometry(moonShape), moonMat);
+            moon.add(moonCore);
             scene.add(moon);
 
             const moonSpriteMat = new THREE.SpriteMaterial({ map: glowTexture, color: 0xffffee, transparent: true, opacity: 0, blending: THREE.AdditiveBlending });
             const moonGlow = new THREE.Sprite(moonSpriteMat);
-            moonGlow.scale.set(45, 45, 1);
+            moonGlow.scale.set(30, 30, 1);
             moon.add(moonGlow);
+            moon.userData = { core: moonCore, glow: moonGlow };
+            moon.position.set(38, -4, -80);
             
             // Stars
             const starGeo = new THREE.BufferGeometry();
@@ -777,6 +810,34 @@
             starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
             const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.8, map: glowTexture, transparent: true, alphaTest: 0.1, opacity: 0 });
             stars = new THREE.Points(starGeo, starMat); stars.position.y = 20; scene.add(stars);
+
+            // Aurora ribbons appear during rare clear-night weather.
+            const auroraCanvas = document.createElement('canvas');
+            auroraCanvas.width = 256; auroraCanvas.height = 64;
+            const auroraCtx = auroraCanvas.getContext('2d');
+            const auroraGradient = auroraCtx.createLinearGradient(0, 0, 256, 0);
+            auroraGradient.addColorStop(0, 'rgba(45,212,191,0)');
+            auroraGradient.addColorStop(0.3, 'rgba(45,212,191,0.85)');
+            auroraGradient.addColorStop(0.65, 'rgba(167,139,250,0.72)');
+            auroraGradient.addColorStop(1, 'rgba(56,189,248,0)');
+            auroraCtx.fillStyle = auroraGradient; auroraCtx.fillRect(0, 0, 256, 64);
+            auroraCtx.globalCompositeOperation = 'destination-in';
+            const auroraFade = auroraCtx.createLinearGradient(0, 0, 0, 64);
+            auroraFade.addColorStop(0, 'rgba(255,255,255,0)');
+            auroraFade.addColorStop(0.35, 'rgba(255,255,255,0.9)');
+            auroraFade.addColorStop(0.68, 'rgba(255,255,255,0.55)');
+            auroraFade.addColorStop(1, 'rgba(255,255,255,0)');
+            auroraCtx.fillStyle = auroraFade; auroraCtx.fillRect(0, 0, 256, 64);
+            const auroraTexture = new THREE.CanvasTexture(auroraCanvas);
+            aurora = new THREE.Group();
+            const auroraColors = [0x5eead4, 0xc4b5fd, 0x7dd3fc];
+            for (let i = 0; i < 3; i++) {
+                const ribbon = new THREE.Sprite(new THREE.SpriteMaterial({ map: auroraTexture, color: auroraColors[i], transparent: true, opacity: 0, depthWrite: false, fog: false }));
+                ribbon.position.set((i - 1) * 22, 17 + i * 3, -65 - i * 2);
+                ribbon.scale.set(36, 9, 1); ribbon.rotation.z = (i - 1) * 0.12;
+                aurora.add(ribbon);
+            }
+            scene.add(aurora);
 
             // Shared Material
             windowMaterial = new THREE.MeshStandardMaterial({ color: COLORS.window, emissive: COLORS.window, emissiveIntensity: 0 });
@@ -1215,12 +1276,19 @@
             const positions = points.geometry.attributes.position.array;
             const vels = points.userData.velocities;
             const weatherSettings = {
-                clear: { opacity: 0, fall: 0.15, drift: 0 },
-                flurries: { opacity: 0.3, fall: 0.55, drift: 0.03 },
-                snow: { opacity: 0.82, fall: 1, drift: 0.03 },
-                wind: { opacity: 0.42, fall: 0.75, drift: 0.16 }
+                clear: { opacity: 0, fall: 0.15, drift: 0, color: 0xffffff, size: 0.6, fog: 0.02 },
+                flurries: { opacity: 0.28, fall: 0.55, drift: 0.03, color: 0xffffff, size: 0.55, fog: 0.021 },
+                snow: { opacity: 0.76, fall: 1, drift: 0.04, color: 0xffffff, size: 0.64, fog: 0.024 },
+                wind: { opacity: 0.4, fall: 0.72, drift: 0.18, color: 0xdbeafe, size: 0.48, fog: 0.026 },
+                sparkles: { opacity: 0.32, fall: 0.28, drift: -0.025, color: 0xfff1a8, size: 0.72, fog: 0.019 },
+                blizzard: { opacity: 0.95, fall: 1.35, drift: 0.3, color: 0xe0f2fe, size: 0.72, fog: 0.034 },
+                aurora: { opacity: 0.08, fall: 0.22, drift: 0.01, color: 0xc4b5fd, size: 0.5, fog: 0.018 }
             }[currentWeather];
-            points.material.opacity += (weatherSettings.opacity - points.material.opacity) * Math.min(1, 0.025 * frameScale);
+            const weatherEase = Math.min(1, 0.025 * frameScale);
+            points.material.opacity += (weatherSettings.opacity - points.material.opacity) * weatherEase;
+            points.material.size += (weatherSettings.size - points.material.size) * weatherEase;
+            points.material.color.lerp(new THREE.Color(weatherSettings.color), weatherEase);
+            scene.fog.density += (weatherSettings.fog - scene.fog.density) * weatherEase;
             for(let i=0; i<vels.length; i++) {
                 let idx = i * 3;
                 positions[idx+1] -= vels[i] * weatherSettings.fall * frameScale;
@@ -1228,46 +1296,87 @@
                 if (positions[idx+1] < 0) { positions[idx+1] = 60; positions[idx] = (Math.random() - 0.5) * 120; }
             }
             points.geometry.attributes.position.needsUpdate = true;
+            if (aurora) {
+                const auroraTarget = currentWeather === 'aurora' && currentTimePhase === 'night' ? 0.34 : 0;
+                aurora.children.forEach((ribbon, index) => {
+                    ribbon.material.opacity += (auroraTarget - ribbon.material.opacity) * weatherEase;
+                    ribbon.position.y = 17 + index * 3 + Math.sin(performance.now() * 0.0008 + index) * 1.2;
+                    ribbon.rotation.z = (index - 1) * 0.12 + Math.sin(performance.now() * 0.0005 + index) * 0.045;
+                });
+            }
         }
 
         function updateWeather() {
-            const nextCycle = Math.floor(distance / 650);
+            const nextCycle = Math.floor(distance / 500);
             if (nextCycle === weatherCycle) return;
             weatherCycle = nextCycle;
             if (nextCycle === 0) {
                 currentWeather = 'clear';
                 return;
             }
-            const choices = ['clear', 'flurries', 'snow', 'wind'].filter(weather => weather !== currentWeather);
+            let choices;
+            if (currentTimePhase === 'night') choices = ['clear', 'flurries', 'snow', 'aurora', 'blizzard'];
+            else if (currentTimePhase === 'morning' || currentTimePhase === 'dusk') choices = ['clear', 'flurries', 'sparkles', 'snow', 'wind'];
+            else choices = ['clear', 'flurries', 'snow', 'wind', 'blizzard'];
+            choices = choices.filter(weather => weather !== currentWeather);
             currentWeather = choices[Math.floor(Math.random() * choices.length)];
-            const labels = { clear: 'Clear skies ahead ☀️', flurries: 'Light flurries ❄️', snow: 'Snowfall incoming ☃️', wind: 'Hold tight — winter wind! 💨' };
+            const labels = {
+                clear: 'Clear skies ahead ☀️', flurries: 'Light flurries ❄️', snow: 'Snowfall incoming ☃️',
+                wind: 'Hold tight — winter wind! 💨', sparkles: 'Magic fills the sky ✨',
+                blizzard: 'North Pole blizzard! 🌨️', aurora: 'Aurora over the rooftops! 🌌'
+            };
             showFeedback(labels[currentWeather]);
         }
 
         function updateDayNight() {
-            const cycle = Math.floor(distance / 1000);
-            const isDay = cycle % 2 === 0;
-            const lerpSpeed = 0.01;
+            const phaseProgress = (distance / TIME_PHASE_DISTANCE) % TIME_PHASES.length;
+            const phaseIndex = Math.floor(phaseProgress);
+            const phaseAmount = phaseProgress - phaseIndex;
+            const blend = THREE.MathUtils.clamp((phaseAmount - 0.72) / 0.28, 0, 1);
+            const smoothBlend = blend * blend * (3 - 2 * blend);
+            const from = TIME_PHASES[phaseIndex];
+            const to = TIME_PHASES[(phaseIndex + 1) % TIME_PHASES.length];
+            const previousPhase = currentTimePhase;
+            currentTimePhase = from.name;
+            const lerpSpeed = 0.035;
 
-            const nextTheme = isDay ? 'day' : 'night';
+            const nextTheme = currentTimePhase === 'dusk' || currentTimePhase === 'night' ? 'night' : 'day';
             if (currentMusicTheme !== nextTheme && gameActive && !gamePaused && soundEnabled) {
                 startMusic(nextTheme);
-                showFeedback(isDay ? 'Good morning! New music ☀️' : 'Moonlight melody 🌙');
+            }
+            if (previousPhase !== currentTimePhase) {
+                const labels = { morning: 'Christmas morning glow 🌅', day: 'Bright winter day ☀️', dusk: 'Rooftop sunset 🌇', night: 'Moonlight run 🌙' };
+                showFeedback(labels[currentTimePhase]);
             }
 
-            const targetSky = isDay ? new THREE.Color(COLORS.skyDay) : new THREE.Color(COLORS.skyNight);
+            const targetSky = new THREE.Color(from.sky).lerp(new THREE.Color(to.sky), smoothBlend);
             scene.background.lerp(targetSky, lerpSpeed);
             scene.fog.color.lerp(targetSky, lerpSpeed);
-            hemiLight.intensity += ((isDay ? 2.5 : 1.5) - hemiLight.intensity) * lerpSpeed;
-            dirLight.intensity += ((isDay ? 3.0 : 2.5) - dirLight.intensity) * lerpSpeed;
-            dirLight.color.lerp(isDay ? new THREE.Color(0xffffff) : new THREE.Color(0xc7d2fe), lerpSpeed);
-            sun.material.opacity += ((isDay ? 1 : 0) - sun.material.opacity) * lerpSpeed;
-            sun.children[0].material.opacity += ((isDay ? 0.6 : 0) - sun.children[0].material.opacity) * lerpSpeed;
-            moon.material.opacity += ((isDay ? 0 : 1) - moon.material.opacity) * lerpSpeed;
-            moon.children[0].material.opacity += ((isDay ? 0 : 0.45) - moon.children[0].material.opacity) * lerpSpeed;
-            
-            if(stars) stars.material.opacity += ((isDay ? 0 : 1) - stars.material.opacity) * lerpSpeed;
-            if(windowMaterial) windowMaterial.emissiveIntensity += ((isDay ? 0 : 0.8) - windowMaterial.emissiveIntensity) * lerpSpeed;
+            const hemiTarget = THREE.MathUtils.lerp(from.hemi, to.hemi, smoothBlend);
+            const dirTarget = THREE.MathUtils.lerp(from.directional, to.directional, smoothBlend);
+            const lightTarget = new THREE.Color(from.light).lerp(new THREE.Color(to.light), smoothBlend);
+            hemiLight.intensity += (hemiTarget - hemiLight.intensity) * lerpSpeed;
+            dirLight.intensity += (dirTarget - dirLight.intensity) * lerpSpeed;
+            dirLight.color.lerp(lightTarget, lerpSpeed);
+
+            const sunOpacity = THREE.MathUtils.lerp(from.sun, to.sun, smoothBlend);
+            const moonOpacity = THREE.MathUtils.lerp(from.moon, to.moon, smoothBlend);
+            sun.userData.core.material.opacity += (sunOpacity - sun.userData.core.material.opacity) * lerpSpeed;
+            sun.userData.glow.material.opacity += (sunOpacity * 0.62 - sun.userData.glow.material.opacity) * lerpSpeed;
+            sun.userData.rays.children[0].material.opacity += (sunOpacity * 0.68 - sun.userData.rays.children[0].material.opacity) * lerpSpeed;
+            moon.userData.core.material.opacity += (moonOpacity - moon.userData.core.material.opacity) * lerpSpeed;
+            moon.userData.glow.material.opacity += (moonOpacity * 0.48 - moon.userData.glow.material.opacity) * lerpSpeed;
+
+            const fullCycleProgress = (distance % (TIME_PHASE_DISTANCE * TIME_PHASES.length)) / (TIME_PHASE_DISTANCE * TIME_PHASES.length);
+            const sunAngle = Math.PI - fullCycleProgress * Math.PI * 2;
+            const moonAngle = sunAngle + Math.PI;
+            sun.position.set(Math.cos(sunAngle) * 36, 4 + Math.sin(sunAngle) * 8, -80);
+            moon.position.set(Math.cos(moonAngle) * 36, 4 + Math.sin(moonAngle) * 8, -80);
+            sun.rotation.z += 0.0006;
+
+            const starTarget = Math.max(0, (moonOpacity - 0.12) / 0.88);
+            if (stars) stars.material.opacity += (starTarget - stars.material.opacity) * lerpSpeed;
+            if (windowMaterial) windowMaterial.emissiveIntensity += (starTarget * 0.85 - windowMaterial.emissiveIntensity) * lerpSpeed;
         }
 
         function disposeGroup(obj) {
@@ -1294,7 +1403,19 @@
             lastMilestone = 0;
             weatherCycle = -1;
             currentWeather = 'clear';
+            currentTimePhase = 'morning';
             if (particles[0]) particles[0].material.opacity = 0;
+            if (stars) stars.material.opacity = 0;
+            if (aurora) aurora.children.forEach(ribbon => ribbon.material.opacity = 0);
+            if (sun) {
+                sun.userData.core.material.opacity = TIME_PHASES[0].sun;
+                sun.userData.glow.material.opacity = TIME_PHASES[0].sun * 0.62;
+                sun.userData.rays.children[0].material.opacity = TIME_PHASES[0].sun * 0.68;
+            }
+            if (moon) {
+                moon.userData.core.material.opacity = TIME_PHASES[0].moon;
+                moon.userData.glow.material.opacity = TIME_PHASES[0].moon * 0.48;
+            }
             lives = 3;
             invulnerableFrames = 0;
             updateLivesUI();
