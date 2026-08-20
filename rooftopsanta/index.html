@@ -464,7 +464,7 @@
         const JUMP_FORCE = 0.5;
         const SPEED_INITIAL = 0.5;
         const SPEED_MAX = 1.4;
-        const MIN_CONTINUE_SECONDS = 20;
+        const MIN_CONTINUE_SECONDS = 30;
         
         // --- State ---
         let scene, camera, renderer;
@@ -1274,6 +1274,7 @@
             continueBtn.innerHTML = `✨ Continue Run <span style="font-size: 0.72em; opacity: 0.9">• ${cost} 🎁</span>`;
             const protectedFromQuickSpend = segmentRunTime < MIN_CONTINUE_SECONDS;
             continueBtn.disabled = protectedFromQuickSpend || totalWallet < cost;
+            continueBtn.classList.toggle('hidden', protectedFromQuickSpend);
             continueStatusEl.classList.toggle('locked', protectedFromQuickSpend);
             if (protectedFromQuickSpend) {
                 continueStatusEl.textContent = `🔒 Gift protection: play at least ${MIN_CONTINUE_SECONDS} seconds before using saved gifts.`;
