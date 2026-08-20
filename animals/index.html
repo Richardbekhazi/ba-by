@@ -265,6 +265,28 @@
             border-radius: 20px;
         }
 
+        .sound-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 18px;
+        }
+        .sound-action {
+            min-height: 48px;
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 24px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1rem;
+            cursor: pointer;
+            color: white;
+            background: linear-gradient(135deg, #4ECDC4, #2aa198);
+            box-shadow: 0 5px 0 #20877f;
+        }
+        .sound-action.secondary { background: linear-gradient(135deg, #94a3b8, #64748b); box-shadow: 0 5px 0 #475569; }
+        .sound-action:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }
+        .sound-action:disabled { opacity: 0.55; cursor: wait; }
+
         @keyframes pulse {
             0% { opacity: 0.6; transform: scale(1); }
             50% { opacity: 1; transform: scale(1.05); }
@@ -282,6 +304,8 @@
             #stage-emoji { font-size: 7rem; }
             #stage-text { font-size: 2.8rem; }
             #stage-subtext { font-size: 1.2rem; }
+            .sound-actions { margin-top: 12px; }
+            .sound-action { padding: 8px 14px; min-height: 44px; }
         }
 
         @media (max-height: 500px) {
@@ -319,8 +343,12 @@
             <div id="stage-emoji">🦁</div>
             <div id="stage-text">Lion</div>
             <div id="stage-subtext">"Roar!"</div>
+            <div class="sound-actions">
+                <button class="sound-action" id="replay-sound">↻ Play Again</button>
+                <button class="sound-action secondary" id="close-animal">Close</button>
+            </div>
         </div>
-        <div class="close-hint">Tap anywhere to close</div>
+        <div class="close-hint">Real animal recording</div>
     </div>
 
     <script>
@@ -346,12 +374,12 @@
                 { name: 'Rabbit', file: 'rabbit.mp3', emoji: '🐰', bg: '#fce4ec' },
                 { name: 'Frog', file: 'frog.mp3', emoji: '🐸', bg: '#ebfbee' },
                 { name: 'Owl', file: 'owl.mp3', emoji: '🦉', bg: '#f3e5f5' },
-                { name: 'Mouse', file: 'rat.mp3', emoji: '🐭', bg: '#f3e5f5' }, // Using rat for mouse
-                { name: 'Bird', file: 'robin.mp3', emoji: '🐦', bg: '#e3f2fd' }, // Robin as Bird
+                { name: 'Rat', file: 'rat.mp3', emoji: '🐀', bg: '#f3e5f5' },
+                { name: 'Robin', file: 'robin.mp3', emoji: '🐦', bg: '#e3f2fd' },
                 { name: 'Dove', file: 'dove.mp3', emoji: '🕊️', bg: '#f5f5f5' },
                 { name: 'Bee', file: 'bee.mp3', emoji: '🐝', bg: '#fffce6' },
-                { name: 'Guinea Pig', file: 'guinea_pig.mp3', emoji: '🐹', bg: '#fff8e1' },
-                { name: 'Ferret', file: 'ferret.mp3', emoji: '🦦', bg: '#d7ccc8' }
+                { name: 'Guinea Pig', file: 'guinea-pig.mp3', emoji: '🐹', bg: '#fff8e1' },
+                { name: 'Ferret', file: 'ferret.mp3', emoji: '🐾', bg: '#d7ccc8' }
             ],
             2: [ // Wild & Forest
                 { name: 'Lion', file: 'lion.mp3', emoji: '🦁', bg: '#fff3e0' },
@@ -359,7 +387,7 @@
                 { name: 'Elephant', file: 'elephant.mp3', emoji: '🐘', bg: '#f3f0ff' },
                 { name: 'Zebra', file: 'zebra.mp3', emoji: '🦓', bg: '#f5f6fa' },
                 { name: 'Giraffe', file: 'giraffe.mp3', emoji: '🦒', bg: '#fff3e0' },
-                { name: 'Monkey', file: 'ape.mp3', emoji: '🐵', bg: '#fff9db' }, // Ape as Monkey
+                { name: 'Ape', file: 'ape.mp3', emoji: '🦍', bg: '#fff9db' },
                 { name: 'Panda', file: 'panda.mp3', emoji: '🐼', bg: '#fafafa' },
                 { name: 'Wolf', file: 'wolf.mp3', emoji: '🐺', bg: '#cfd8dc' },
                 { name: 'Moose', file: 'moose.mp3', emoji: '🫎', bg: '#d7ccc8' },
@@ -367,12 +395,11 @@
                 { name: 'Otter', file: 'otter.mp3', emoji: '🦦', bg: '#e0f7fa' },
                 { name: 'Penguin', file: 'penguin.mp3', emoji: '🐧', bg: '#e0f7fa' },
                 { name: 'Swan', file: 'swan.mp3', emoji: '🦢', bg: '#fafafa' },
-                { name: 'Whale', file: 'bowhead_whale.mp3', emoji: '🐳', bg: '#e1f5fe' },
                 { name: 'Shark', file: 'shark.mp3', emoji: '🦈', bg: '#e0f2f1' },
                 { name: 'Bat', file: 'bat.mp3', emoji: '🦇', bg: '#ede7f6' },
                 { name: 'Hedgehog', file: 'hedgehog.mp3', emoji: '🦔', bg: '#d7ccc8' },
                 { name: 'Leopard', file: 'leopard.mp3', emoji: '🐆', bg: '#fffde7' },
-                { name: 'Hyena', file: 'hyena.mp3', emoji: '�', bg: '#d7ccc8' }
+                { name: 'Hyena', file: 'hyena.mp3', emoji: '🐾', bg: '#d7ccc8' }
             ],
             3: [ // Exotic & Rare
                 { name: 'Camel', file: 'camel.mp3', emoji: '🐫', bg: '#fff8e1' },
@@ -383,24 +410,21 @@
                 { name: 'Rhino', file: 'rhinoceros.mp3', emoji: '🦏', bg: '#cfd8dc' },
                 { name: 'Hippo', file: 'hippopotamus.mp3', emoji: '🦛', bg: '#eceff1' },
                 { name: 'Alligator', file: 'alligator.mp3', emoji: '🐊', bg: '#c8e6c9' },
-                { name: 'Snake', file: 'rattlesnake.mp3', emoji: '🐍', bg: '#e8f5e9' },
+                { name: 'Rattlesnake', file: 'rattlesnake.mp3', emoji: '🐍', bg: '#e8f5e9' },
                 { name: 'Lizard', file: 'lizard.mp3', emoji: '🦎', bg: '#c8e6c9' },
-                { name: 'Dragon', file: 'komodo_dragon.mp3', emoji: '🐉', bg: '#dcedc8' },
-                { name: 'Dino', file: 'dinosaur.mp3', emoji: '🦖', bg: '#c8e6c9' },
                 { name: 'Scorpion', file: 'scorpion.mp3', emoji: '🦂', bg: '#ffe0b2' },
-                { name: 'Anteater', file: 'anteater.mp3', emoji: '🦡', bg: '#d7ccc8' },
-                { name: 'Parrot', file: 'african_grey_parrot.mp3', emoji: '🦜', bg: '#ffebee' },
+                { name: 'Anteater', file: 'anteater.mp3', emoji: '🐾', bg: '#d7ccc8' },
                 { name: 'Crow', file: 'crow.mp3', emoji: '🐦‍⬛', bg: '#eceff1' },
-                { name: 'Falcon', file: 'falcon.mp3', emoji: '🦅', bg: '#cfd8dc' },
-                { name: 'Big Whale', file: 'humpback_whale.mp3', emoji: '🐋', bg: '#e3f2fd' }
+                { name: 'Falcon', file: 'falcon.mp3', emoji: '🦅', bg: '#cfd8dc' }
             ]
         };
 
         // --- GLOBAL STATE ---
         let state = {
-            voice: null,
             isLocked: false,
             currentAudio: null,
+            currentAnimal: null,
+            playRequest: 0,
             currentLevel: 1
         };
 
@@ -412,26 +436,25 @@
         const stageSub = document.getElementById('stage-subtext');
         const canvas = document.getElementById('particles');
         const homeBtn = document.querySelector('.home-btn');
+        const replayBtn = document.getElementById('replay-sound');
+        const closeBtn = document.getElementById('close-animal');
 
         // --- INITIALIZATION ---
         function init() {
-            setupVoice();
             loadLevel(1); // Default to Level 1
             setupCanvas();
-            
-            if (speechSynthesis.onvoiceschanged !== undefined) {
-                speechSynthesis.onvoiceschanged = setupVoice;
-            }
 
-            overlay.addEventListener('click', closeOverlay);
-        }
-
-        function setupVoice() {
-            const voices = window.speechSynthesis.getVoices();
-            state.voice = voices.find(v => v.name.includes('Google US English')) ||
-                          voices.find(v => v.name.includes('Samantha')) ||
-                          voices.find(v => v.lang === 'en-US') ||
-                          voices[0];
+            overlay.addEventListener('click', (event) => {
+                if (event.target === overlay) closeOverlay();
+            });
+            replayBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                if (state.currentAnimal) playAnimalSound(state.currentAnimal);
+            });
+            closeBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                closeOverlay();
+            });
         }
 
         // --- LEVEL LOGIC ---
@@ -493,7 +516,9 @@
             stageEmoji.textContent = animal.emoji;
             stageText.textContent = animal.name;
             stageText.style.color = '#2d3436';
-            stageSub.textContent = "🔊 Listening...";
+            stageSub.textContent = "Loading real animal sound...";
+            replayBtn.disabled = true;
+            state.currentAnimal = animal;
             
             overlay.classList.add('active');
 
@@ -513,44 +538,45 @@
 
             createExplosion(x, y, '#FF6B6B');
 
-            // 3. Audio Logic
-            setTimeout(() => {
-                playAnimalSound(animal);
-            }, 300);
+            // Keep playback in the original tap event so mobile browsers allow it.
+            playAnimalSound(animal);
         }
 
         function playAnimalSound(animal) {
+            stopAudio();
+            const request = ++state.playRequest;
             const fullUrl = GOOGLE_BASE + animal.file;
             const audio = new Audio(fullUrl);
+            audio.preload = 'auto';
             state.currentAudio = audio;
-            
-            // LOOPING LOGIC: Disable loop
             audio.loop = false;
-            
-            // Update subtext on successful load
-            audio.oncanplay = () => {
-                stageSub.textContent = `"${animal.name}!" 🔊`;
-            };
-            
-            // Fallback to TTS if audio fails
-            audio.onerror = (e) => {
-                console.log("Audio failed to load, falling back to TTS", e);
-                stageSub.textContent = `Say hi to ${animal.name}!`;
-                speak(`The ${animal.name} says hello!`);
-            };
+            replayBtn.disabled = true;
+            stageSub.textContent = "Loading real animal sound...";
 
-            // Play
-            audio.play().catch(e => {
-                console.log("Autoplay prevented or error", e);
-                speak(`The ${animal.name} says hello!`); 
-            });
+            audio.oncanplay = () => {
+                if (request !== state.playRequest) return;
+                stageSub.textContent = `${animal.name} sound 🔊`;
+                replayBtn.disabled = false;
+            };
+            audio.onended = () => {
+                if (request !== state.playRequest) return;
+                stageSub.textContent = `${animal.name} sound finished`;
+                replayBtn.disabled = false;
+            };
+            audio.onerror = () => showAudioError(request);
+
+            audio.play().catch(() => showAudioError(request));
+        }
+
+        function showAudioError(request) {
+            if (request !== state.playRequest) return;
+            stageSub.textContent = "Sound unavailable — please try again";
+            replayBtn.disabled = false;
         }
 
         function stopAudio() {
-            // Stop TTS
-            window.speechSynthesis.cancel();
-            
-            // Stop Real Audio
+            state.playRequest++;
+
             if (state.currentAudio) {
                 state.currentAudio.pause();
                 state.currentAudio.currentTime = 0;
@@ -561,18 +587,10 @@
         function closeOverlay() {
             overlay.classList.remove('active');
             stopAudio();
+            state.currentAnimal = null;
             setTimeout(() => {
                 state.isLocked = false;
             }, 300);
-        }
-
-        function speak(text) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            if (state.voice) utterance.voice = state.voice;
-            utterance.rate = 0.9;
-            utterance.pitch = 1.1; 
-            window.speechSynthesis.speak(utterance);
         }
 
         // --- PARTICLE SYSTEM ---
