@@ -11,8 +11,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
     
     <style>
-        body {
+        html, body {
             margin: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
             overflow: hidden;
             font-family: 'Nunito', sans-serif;
             background-color: #87CEEB; /* Start with Day Blue */
@@ -70,12 +73,15 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             pointer-events: auto; z-index: 10; transition: opacity 0.3s;
+            overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+            touch-action: pan-y; padding: 16px; box-sizing: border-box;
         }
 
         #start-screen { background: rgba(11, 16, 38, 0.4); backdrop-filter: blur(2px); }
         #game-over-screen { background: rgba(11, 16, 38, 0.8); backdrop-filter: blur(8px); }
 
-        .start-content { text-align: center; animation: popIn 0.5s ease-out; }
+        .start-content { text-align: center; animation: popIn 0.5s ease-out; width: 100%; max-width: 760px; margin: auto; }
+        .start-content h1 { font-size: clamp(2.5rem, 12vw, 5rem); overflow-wrap: anywhere; }
         
         /* Card Style for Game Over */
         .menu-card {
@@ -142,6 +148,17 @@
             border-bottom: 3px solid #cbd5e1; display: inline-block; margin: 0 3px;
         }
         .hidden { display: none !important; }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            #start-screen, #game-over-screen { justify-content: flex-start; padding-block: 8px; }
+            .start-content, .menu-card { margin: auto; }
+            .start-content h1 { font-size: 3rem; }
+            .start-content h2 { margin: 4px 0 10px; font-size: 1.2rem; }
+            .score-display-full { margin-bottom: 10px; padding: 8px 20px; }
+            .btn { padding: 10px 0; font-size: 1.2rem; }
+            .controls-hint { margin-top: 10px; padding: 7px 14px; font-size: 0.8rem; }
+            .menu-card { padding: 18px 28px; }
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -228,7 +245,7 @@
         let reviveCount = 0;
         
         let groundSegments = [], obstacles = [], collectables = [], particles = [];
-        let sunMoon, stars, hemiLight, dirLight, windowMaterial; 
+        let sun, moon, stars, hemiLight, dirLight, windowMaterial;
         let animationId;
 
         // --- UI Elements ---
@@ -312,14 +329,31 @@
         }
 
         function createEnvironment() {
-            // Celestial Body
-            const moonGeo = new THREE.SphereGeometry(8, 32, 32);
-            const moonMat = new THREE.MeshBasicMaterial({ color: COLORS.sun, fog: false });
-            sunMoon = new THREE.Mesh(moonGeo, moonMat);
-            sunMoon.position.set(30, 40, -80); scene.add(sunMoon);
+            // Separate celestial bodies make nighttime look like a moon, not a pale sun.
+            const sunGeo = new THREE.SphereGeometry(8, 32, 32);
+            const sunMat = new THREE.MeshBasicMaterial({ color: COLORS.sun, fog: false, transparent: true });
+            sun = new THREE.Mesh(sunGeo, sunMat);
+            sun.position.set(30, 40, -80);
+            scene.add(sun);
 
-            const spriteMat = new THREE.SpriteMaterial({ map: glowTexture, color: 0xffaa00, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
-            const glow = new THREE.Sprite(spriteMat); glow.scale.set(60, 60, 1); sunMoon.add(glow);
+            const sunSpriteMat = new THREE.SpriteMaterial({ map: glowTexture, color: 0xffaa00, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending });
+            const sunGlow = new THREE.Sprite(sunSpriteMat);
+            sunGlow.scale.set(60, 60, 1);
+            sun.add(sunGlow);
+
+            const moonShape = new THREE.Shape();
+            moonShape.moveTo(3, 8);
+            moonShape.bezierCurveTo(-8, 6, -8, -6, 3, -8);
+            moonShape.bezierCurveTo(-3, -4, -3, 4, 3, 8);
+            const moonMat = new THREE.MeshBasicMaterial({ color: COLORS.moon, fog: false, transparent: true, opacity: 0, side: THREE.DoubleSide });
+            moon = new THREE.Mesh(new THREE.ShapeGeometry(moonShape), moonMat);
+            moon.position.set(30, 40, -80);
+            scene.add(moon);
+
+            const moonSpriteMat = new THREE.SpriteMaterial({ map: glowTexture, color: 0xffffee, transparent: true, opacity: 0, blending: THREE.AdditiveBlending });
+            const moonGlow = new THREE.Sprite(moonSpriteMat);
+            moonGlow.scale.set(45, 45, 1);
+            moon.add(moonGlow);
             
             // Stars
             const starGeo = new THREE.BufferGeometry();
@@ -605,16 +639,15 @@
             const lerpSpeed = 0.01;
 
             const targetSky = isDay ? new THREE.Color(COLORS.skyDay) : new THREE.Color(COLORS.skyNight);
-            const targetSunColor = isDay ? new THREE.Color(COLORS.sun) : new THREE.Color(COLORS.moon);
-            const targetGlowColor = isDay ? new THREE.Color(0xffaa00) : new THREE.Color(0xffffee);
-
             scene.background.lerp(targetSky, lerpSpeed);
             scene.fog.color.lerp(targetSky, lerpSpeed);
             hemiLight.intensity += ((isDay ? 2.5 : 1.5) - hemiLight.intensity) * lerpSpeed;
             dirLight.intensity += ((isDay ? 3.0 : 2.5) - dirLight.intensity) * lerpSpeed;
             dirLight.color.lerp(isDay ? new THREE.Color(0xffffff) : new THREE.Color(0xc7d2fe), lerpSpeed);
-            sunMoon.material.color.lerp(targetSunColor, lerpSpeed);
-            sunMoon.children[0].material.color.lerp(targetGlowColor, lerpSpeed);
+            sun.material.opacity += ((isDay ? 1 : 0) - sun.material.opacity) * lerpSpeed;
+            sun.children[0].material.opacity += ((isDay ? 0.6 : 0) - sun.children[0].material.opacity) * lerpSpeed;
+            moon.material.opacity += ((isDay ? 0 : 1) - moon.material.opacity) * lerpSpeed;
+            moon.children[0].material.opacity += ((isDay ? 0 : 0.45) - moon.children[0].material.opacity) * lerpSpeed;
             
             if(stars) stars.material.opacity += ((isDay ? 0 : 1) - stars.material.opacity) * lerpSpeed;
             if(windowMaterial) windowMaterial.emissiveIntensity += ((isDay ? 0 : 0.8) - windowMaterial.emissiveIntensity) * lerpSpeed;

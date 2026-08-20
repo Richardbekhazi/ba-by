@@ -33,6 +33,7 @@
             font-family: 'Nunito', sans-serif;
             background: radial-gradient(circle, #FFF9F0 0%, #FFE0B2 100%) fixed;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -145,11 +146,19 @@
             background-image: 
                 radial-gradient(circle at 20% 80%, rgba(255,255,255,0.4) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(255,255,255,0.3) 0%, transparent 50%);
+            width: 100%;
+            min-width: 0;
+            border-width: clamp(8px, 3vw, 15px);
+            border-radius: clamp(20px, 7vw, 40px);
+            padding: clamp(8px, 3vw, 30px);
+            gap: clamp(6px, 2vw, 30px);
         }
 
         .slot {
-            width: 110px;
-            height: 110px;
+            width: 100%;
+            min-width: 0;
+            height: auto;
+            aspect-ratio: 1;
             background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
             border-radius: 35px;
             box-shadow: inset 0 4px 12px rgba(0,0,0,0.08), 
@@ -261,8 +270,8 @@
         }
 
         .piece {
-            width: 100px;
-            height: 100px;
+            width: clamp(72px, 25vw, 100px);
+            height: clamp(72px, 25vw, 100px);
             cursor: grab;
             touch-action: none;
             position: relative;
@@ -422,6 +431,35 @@
             box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3), inset 0 -2px 8px rgba(0,0,0,0.1);
         }
 
+        .piece-wrapper {
+            width: clamp(72px, 25vw, 100px);
+            height: clamp(72px, 25vw, 100px);
+        }
+
+        @media (max-width: 600px) {
+            .game-container { padding: 70px 12px 12px; justify-content: flex-start; }
+            .level-header { margin-bottom: 14px; }
+            .level-header h1 { font-size: 2.1rem; }
+            .subtitle { margin-top: 2px; font-size: 1rem; }
+            .play-area { gap: 18px; }
+            .pieces-row { min-height: 90px; padding: 8px; gap: 6px; }
+            .piece-wrapper, .piece { width: clamp(60px, 20vw, 80px); height: clamp(60px, 20vw, 80px); }
+            .piece .emoji-display { font-size: 2.5rem; }
+            .victory-card { max-width: calc(100% - 24px); padding: 30px 20px; border-radius: 32px; }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .game-container { max-width: none; padding: 8px 12px 8px 76px; justify-content: flex-start; }
+            .level-header { margin-bottom: 6px; }
+            .level-header h1 { font-size: 1.8rem; }
+            .subtitle { margin-top: 0; font-size: 0.95rem; }
+            .play-area { gap: 10px; }
+            .slot { max-width: 72px; }
+            .board { width: auto; padding: 8px; gap: 8px; border-width: 8px; }
+            .pieces-row { min-height: 88px; padding: 7px; gap: 8px; }
+            .piece-wrapper, .piece { width: 72px; height: 72px; }
+        }
+
     </style>
 </head>
 <body>
@@ -472,7 +510,7 @@
                     { id: 'heart', name: 'Heart', color: '#FF9FF3', path: '<path d="M50 85 C50 85 15 60 15 35 A18 18 0 0 1 50 35 A18 18 0 0 1 85 35 C85 60 50 85 50 85 Z"/>' },
                     { id: 'diamond', name: 'Diamond', color: '#54a0ff', path: '<polygon points="50,10 85,50 50,90 15,50"/>' },
                     { id: 'pentagon', name: 'Pentagon', color: '#fab1a0', path: '<polygon points="50,10 90,40 75,85 25,85 10,40"/>' },
-                    { id: 'moon', name: 'Moon', color: '#fdcb6e', path: '<path d="M60 20 A 35 35 0 1 1 60 80 A 25 25 0 1 0 60 20 Z"/>' },
+                    { id: 'moon', name: 'Moon', color: '#fdcb6e', path: '<path d="M70 8 C42 12 22 34 22 58 C22 80 42 94 66 90 C52 80 44 65 44 49 C44 31 54 17 70 8 Z"/>' },
                     { id: 'hexagon', name: 'Hexagon', color: '#6c5ce7', path: '<polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>' }
                 ]
             },
@@ -602,8 +640,7 @@
             shuffledItems.forEach(item => {
                 const pieceWrapper = document.createElement('div');
                 pieceWrapper.className = 'piece-wrapper';
-                pieceWrapper.style.width = '100px';
-                pieceWrapper.style.height = '100px';
+                pieceWrapper.className = 'piece-wrapper';
                 
                 const piece = document.createElement('div');
                 piece.className = 'piece';
@@ -697,8 +734,7 @@
                 } else {
                     // Fallback: if somehow logic fails, recreate wrapper
                     const pieceWrapper = document.createElement('div');
-                    pieceWrapper.style.width = '100px'; 
-                    pieceWrapper.style.height = '100px';
+                    pieceWrapper.className = 'piece-wrapper';
                     pieceWrapper.appendChild(activePiece);
                     els.pieces.appendChild(pieceWrapper);
                 }
@@ -756,7 +792,8 @@
             slot.appendChild(piece); // Move DOM element into slot
             
             // Celebration
-            createExplosion(slot.getBoundingClientRect().left + 50, slot.getBoundingClientRect().top + 50);
+            const rect = slot.getBoundingClientRect();
+            createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
             speak(piece.dataset.name);
             
             resetHint();

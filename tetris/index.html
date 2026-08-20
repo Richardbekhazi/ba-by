@@ -30,6 +30,7 @@
             padding: 0;
             width: 100%;
             height: 100%;
+            height: 100dvh;
             overflow: hidden;
             font-family: 'Nunito', sans-serif;
             display: flex;
@@ -91,11 +92,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 10px;
             width: 100%;
             height: 100%;
-            padding-top: 80px; /* Space for top buttons */
-            padding-bottom: 20px;
+            padding: 82px 10px 10px;
+            min-width: 0;
+            min-height: 0;
         }
 
         /* On wider screens, put controls on the side */
@@ -149,9 +151,9 @@
         .controls-area {
             z-index: 100;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            gap: 20px;
+            gap: 8px;
             flex-shrink: 0;
         }
 
@@ -163,9 +165,9 @@
 
         .d-pad {
             display: flex;
-            gap: 15px;
+            gap: 8px;
             background: rgba(255,255,255,0.6);
-            padding: 10px 20px;
+            padding: 8px 10px;
             border-radius: 40px;
             backdrop-filter: blur(5px);
         }
@@ -173,17 +175,17 @@
         .action-pad {
             display: flex;
             background: rgba(255,255,255,0.6);
-            padding: 10px;
+            padding: 8px;
             border-radius: 50%;
             backdrop-filter: blur(5px);
         }
 
         .ctrl-btn {
-            width: 70px;
-            height: 70px;
+            width: 56px;
+            height: 56px;
             border: none;
             border-radius: 50%;
-            font-size: 2rem;
+            font-size: 1.5rem;
             color: white;
             cursor: pointer;
             transition: transform 0.1s;
@@ -214,10 +216,15 @@
         #btn-right { background: #4ECDC4; box-shadow: 0 6px 0 #2aa198; }
         #btn-down { background: #FF6B6B; box-shadow: 0 6px 0 #d63031; }
         #btn-up { 
-            width: 80px; height: 80px;
+            width: 60px; height: 60px;
             background: #FFE66D; 
             box-shadow: 0 6px 0 #f1c40f; 
-            font-size: 2.5rem;
+            font-size: 2rem;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            #main-layout { flex-direction: row; padding: 10px 14px 10px 84px; }
+            .controls-area { flex-direction: column-reverse; }
         }
 
         /* 🎉 OVERLAY */
@@ -357,22 +364,18 @@
 
         // --- Resizing Logic ---
         function resizeGame() {
-            // Available space in the layout container
-            const availableW = mainLayout.clientWidth * 0.9; // 90% of width
-            const availableH = mainLayout.clientHeight * 0.9; // 90% of height
-
-            // Account for container border
+            const layoutStyle = getComputedStyle(mainLayout);
+            const controls = document.querySelector('.controls-area');
+            const landscape = window.innerWidth > window.innerHeight;
             const borderSize = 24; // 12px * 2
-            
-            // Calculate potential block size based on width and height constraints
-            const sizeFromWidth = Math.floor((availableW - borderSize) / COLS);
-            const sizeFromHeight = Math.floor((availableH - borderSize) / ROWS);
-
-            // Use the smaller size to ensure it fits within both dimensions
-            BLOCK_SIZE = Math.min(sizeFromWidth, sizeFromHeight);
-            
-            // Ensure a reasonable minimum size
-            BLOCK_SIZE = Math.max(BLOCK_SIZE, 15);
+            const gap = parseFloat(layoutStyle.gap) || 0;
+            const innerWidth = mainLayout.clientWidth - parseFloat(layoutStyle.paddingLeft) - parseFloat(layoutStyle.paddingRight);
+            const innerHeight = mainLayout.clientHeight - parseFloat(layoutStyle.paddingTop) - parseFloat(layoutStyle.paddingBottom);
+            const availableWidth = innerWidth - (landscape ? controls.offsetWidth + gap : 0);
+            const availableHeight = innerHeight - (!landscape ? controls.offsetHeight + gap : 0);
+            const sizeFromWidth = Math.floor((availableWidth - borderSize) / COLS);
+            const sizeFromHeight = Math.floor((availableHeight - borderSize) / ROWS);
+            BLOCK_SIZE = Math.max(8, Math.min(sizeFromWidth, sizeFromHeight));
 
             // Set canvas size
             canvas.width = COLS * BLOCK_SIZE;

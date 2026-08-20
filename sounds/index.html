@@ -104,6 +104,7 @@
             box-shadow: 0 10px 0 #BDBDBD;
             transition: transform 0.1s;
             border: 5px solid white;
+            min-width: 0;
         }
 
         .sound-card:active {
@@ -138,6 +139,11 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
+            padding: 16px;
         }
 
         .overlay.active { display: flex; }
@@ -167,6 +173,13 @@
         @media (max-width: 600px) {
             .sound-grid { grid-template-columns: repeat(2, 1fr); }
             h1 { font-size: 1.8rem; }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            #big-emoji { font-size: 6rem; }
+            #big-emoji img { width: 110px !important; height: 110px !important; }
+            #big-name { margin: 8px 0 !important; font-size: 2rem !important; }
+            .tap-hint { margin-top: 10px; }
         }
     </style>
 </head>

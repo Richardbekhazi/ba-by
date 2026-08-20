@@ -32,6 +32,7 @@
             font-family: 'Nunito', sans-serif;
             background: radial-gradient(circle at center, #ffffff 0%, #E0F7FA 100%);
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -162,14 +163,19 @@
         /* 🃏 OVERLAYS */
         .overlay {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            inset: 0;
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(8px);
             z-index: 200;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
+            padding: 24px 12px;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
@@ -179,9 +185,13 @@
 
         .overlay-title {
             font-family: 'Fredoka One', cursive;
-            font-size: 3.5rem;
+            font-size: clamp(2.2rem, 12vw, 3.5rem);
             color: var(--primary);
-            margin-bottom: 20px;
+            width: 100%;
+            margin: auto 0 12px;
+            padding-inline: 8px;
+            line-height: 1.05;
+            overflow-wrap: anywhere;
             text-shadow: 3px 3px 0 #fff;
             text-align: center;
             animation: bounceIn 0.5s;
@@ -196,6 +206,8 @@
             width: 100%;
             max-width: 1000px;
             padding: 20px;
+            flex: none;
+            margin-bottom: auto;
         }
 
         .card {
@@ -213,6 +225,20 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             transition: transform 0.2s, border-color 0.2s;
             animation: popIn 0.4s backwards;
+        }
+
+        @media (max-width: 600px) {
+            .card { width: min(220px, calc(100vw - 40px)); }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .overlay { padding: 10px 12px; }
+            .overlay-title { flex: none; margin: 0 0 8px; font-size: 2rem; }
+            .cards-container { flex-wrap: nowrap; gap: 10px; padding: 4px; }
+            .card { width: 180px; height: 230px; padding: 12px; border-radius: 20px; }
+            .card-icon-img { width: 64px; height: 64px; }
+            .card-name { font-size: 1.1rem; }
+            .card-desc { font-size: 0.85rem; }
         }
 
         .card:hover { transform: translateY(-10px) scale(1.05); border-color: var(--secondary); }

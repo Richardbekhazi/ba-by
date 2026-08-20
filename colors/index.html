@@ -29,6 +29,7 @@
             background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
             transition: background 1s ease;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             background-attachment: fixed;
             display: flex;
@@ -121,6 +122,7 @@
         /* 🎹 PAD GRID CONTAINER */
         .grid-container {
             flex: 1;
+            min-height: 0;
             overflow-y: auto; /* Scrollable for many colors */
             -webkit-overflow-scrolling: touch;
             padding: 0 20px 60px 20px;
@@ -181,6 +183,12 @@
             animation: none;
             transform: scale(0.9);
             filter: drop-shadow(0 2px 0 rgba(0,0,0,0.1));
+        }
+
+        @media (max-height: 500px) {
+            .header { margin-top: 8px; padding: 8px 10px 10px; }
+            .header p { display: none; }
+            .grid-container { padding-bottom: 20px; }
         }
 
         /* The Label inside the pad */
