@@ -127,7 +127,9 @@
             pointer-events: auto; z-index: 10; transition: opacity 0.3s;
             overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
             touch-action: pan-y; padding: 16px; box-sizing: border-box;
+            scrollbar-width: none;
         }
+        #start-screen::-webkit-scrollbar, #game-over-screen::-webkit-scrollbar { display: none; }
 
         #start-screen { background: rgba(11, 16, 38, 0.4); backdrop-filter: blur(2px); }
         #game-over-screen { background: rgba(11, 16, 38, 0.8); backdrop-filter: blur(8px); }
@@ -200,6 +202,90 @@
             background: #f8fafc; padding: 4px 8px; border-radius: 6px; color: #0f172a;
             border-bottom: 3px solid #cbd5e1; display: inline-block; margin: 0 3px;
         }
+
+        /* Festive interface redesign */
+        .home-btn {
+            background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(219,244,255,0.92));
+            box-shadow: 0 8px 24px rgba(15,23,42,0.2), inset 0 1px 0 white;
+        }
+        .badge-container { gap: 10px; }
+        .badge {
+            padding: 9px 16px; border-radius: 18px; background: rgba(15,23,42,0.76);
+            backdrop-filter: blur(12px); border-color: rgba(255,255,255,0.7);
+            box-shadow: 0 7px 20px rgba(15,23,42,0.2), inset 0 1px 0 rgba(255,255,255,0.25);
+        }
+        .round-btn {
+            width: 54px; height: 54px; border-radius: 18px;
+            background: linear-gradient(145deg, rgba(30,41,59,0.84), rgba(15,23,42,0.7));
+        }
+        .touch-btn {
+            border-color: rgba(255,255,255,0.92);
+            background: linear-gradient(145deg, rgba(14,165,233,0.9), rgba(37,99,235,0.88));
+            box-shadow: 0 7px 0 rgba(30,64,175,0.52), 0 10px 24px rgba(15,23,42,0.2);
+        }
+        #start-screen {
+            background: linear-gradient(180deg, rgba(2,132,199,0.12), rgba(8,47,73,0.6));
+            backdrop-filter: blur(3px);
+        }
+        #game-over-screen, #pause-screen {
+            background: linear-gradient(180deg, rgba(8,47,73,0.7), rgba(15,23,42,0.92));
+            backdrop-filter: blur(11px);
+        }
+        #start-screen::before, #game-over-screen::before, #pause-screen::before {
+            content: ''; position: fixed; inset: 0; pointer-events: none; opacity: 0.52;
+            background-image: radial-gradient(circle, white 0 2px, transparent 2.5px), radial-gradient(circle, white 0 1px, transparent 1.5px);
+            background-size: 74px 74px, 43px 43px; background-position: 0 0, 18px 22px;
+            animation: uiSnow 12s linear infinite;
+        }
+        @keyframes uiSnow { to { background-position: 0 148px, 18px 108px; } }
+        .start-content { width: min(620px, 100%); position: relative; }
+        .hero-card {
+            position: relative; overflow: hidden; padding: clamp(22px, 5vw, 42px); border-radius: 40px;
+            background: linear-gradient(150deg, rgba(255,255,255,0.98), rgba(230,248,255,0.96));
+            border: 4px solid white; box-shadow: 0 28px 80px rgba(8,47,73,0.35), 0 0 0 9px rgba(255,255,255,0.14);
+        }
+        .hero-card::after {
+            content: ''; position: absolute; width: 230px; height: 230px; border-radius: 50%;
+            right: -100px; top: -120px; background: rgba(56,189,248,0.13); pointer-events: none;
+        }
+        .north-pole-tag, .result-tag {
+            display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: 999px;
+            background: #e0f2fe; color: #0369a1; font-size: 12px; font-weight: 900; letter-spacing: 1.5px;
+        }
+        .hero-character { margin: 10px 0 0; font-size: clamp(48px, 12vw, 72px); line-height: 1; filter: drop-shadow(0 9px 8px rgba(15,23,42,0.14)); animation: heroFloat 2.6s ease-in-out infinite; }
+        @keyframes heroFloat { 50% { transform: translateY(-6px) rotate(-2deg); } }
+        .start-content h1 { color: #e11d48; font-size: clamp(2.4rem, 11vw, 4.6rem); text-shadow: 3px 3px 0 #fecdd3; }
+        .title-small { display: block; color: #0ea5e9; font-size: 0.3em; letter-spacing: 0.25em; text-shadow: none; margin-bottom: 2px; }
+        .hero-subtitle { color: #475569; margin: 7px auto 18px; font-size: clamp(1rem, 4vw, 1.3rem); text-shadow: none; }
+        .mission-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 18px; }
+        .mission-chip { padding: 10px 6px; border-radius: 16px; background: rgba(224,242,254,0.75); color: #075985; font-weight: 900; font-size: 13px; }
+        .mission-chip span { display: block; font-size: 22px; margin-bottom: 2px; }
+        .score-display-full {
+            background: linear-gradient(135deg, #fff7ed, #ffedd5); padding: 10px 22px; border-radius: 18px;
+            display: inline-flex; align-items: center; gap: 12px; margin-bottom: 18px; border: 2px solid #fed7aa;
+        }
+        .score-label-full { color: #9a3412; font-size: 12px; margin: 0; font-weight: 900; letter-spacing: 1px; }
+        .score-value-full { color: #ea580c; font-size: 27px; }
+        .controls-hint { margin-top: 16px; color: #475569; font-size: 14px; background: rgba(255,255,255,0.74); padding: 11px 18px; border-radius: 18px; }
+        .pause-card, .menu-card {
+            position: relative; background: linear-gradient(155deg, #ffffff, #eefaff); border: 4px solid white;
+            box-shadow: 0 28px 80px rgba(8,47,73,0.42), 0 0 0 9px rgba(255,255,255,0.14);
+        }
+        .pause-card { border-radius: 34px; }
+        .menu-card { width: min(520px, calc(100% - 24px)); max-width: none; box-sizing: border-box; border-radius: 38px; padding: clamp(24px, 6vw, 42px); }
+        .pause-icon, .result-icon { font-size: 58px; line-height: 1; filter: drop-shadow(0 8px 12px rgba(15,23,42,0.16)); }
+        .pause-card h2 { margin: 10px 0 4px; color: #0f4c81; font: 2rem 'Fredoka One', cursive; }
+        .pause-card p { margin: 0 0 24px; color: #64748b; font-weight: 800; }
+        .menu-card h1 { margin-top: 8px; font-size: clamp(2rem, 9vw, 3.1rem); color: #0f4c81; }
+        .menu-card h2 { font-size: 17px; margin: 4px 0 18px; }
+        .score-grid { grid-template-columns: repeat(3, 1fr); gap: 9px; margin-bottom: 18px; }
+        .score-box { padding: 14px 6px; border-radius: 18px; background: #f0f9ff; border: 2px solid #dbeafe; }
+        .score-box:nth-child(2) { background: #fff7ed; border-color: #ffedd5; }
+        .score-box:nth-child(3) { background: #fefce8; border-color: #fef08a; }
+        .score-value { font-size: clamp(18px, 5vw, 24px); color: #0f4c81; }
+        .new-record { margin: -6px 0 16px; padding: 8px 12px; border-radius: 14px; color: #a16207; background: #fef9c3; font-weight: 900; animation: badgePop 0.7s ease; }
+        .btn { font-size: 21px; padding: 15px 18px; border: 2px solid rgba(255,255,255,0.5); border-radius: 18px; }
+        .btn-green { background: linear-gradient(135deg, #22c55e, #059669); box-shadow: 0 6px 0 #047857, 0 10px 22px rgba(5,150,105,0.22); }
         .hidden { display: none !important; }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -214,6 +300,21 @@
             #mobile-controls { bottom: 10px; padding-inline: 12px; }
             .touch-btn { width: 54px; height: 54px; border-radius: 18px; }
             .hud-controls { left: 10px; bottom: 76px; }
+            .hero-card { padding: 12px 24px; border-radius: 26px; }
+            .hero-character { display: none; }
+            .north-pole-tag { padding: 4px 10px; font-size: 10px; }
+            .mission-row { margin-bottom: 8px; }
+            .mission-chip { padding: 5px; font-size: 11px; }
+            .mission-chip span { display: inline; font-size: 15px; margin-right: 3px; }
+            .menu-card { padding: 12px 24px; border-radius: 26px; }
+            .result-icon { display: none; }
+            .menu-card h1 { margin-top: 4px; font-size: 2rem; }
+            .menu-card h2 { margin: 2px 0 8px; }
+            .score-grid { margin-bottom: 8px; }
+            .score-box { padding: 7px 4px; }
+            .btn-group { gap: 8px; }
+            .pause-icon { font-size: 38px; }
+            .pause-card p { margin-bottom: 12px; }
         }
 
         @media (hover: none), (pointer: coarse) {
@@ -229,6 +330,22 @@
             .badge-container { gap: 6px; }
             .badge { padding: 8px 11px; font-size: 15px; gap: 5px; }
             #feedback-toast { top: 72px; font-size: 17px; }
+            .hero-card { border-radius: 28px; border-width: 3px; }
+            .mission-chip { font-size: 11px; }
+            .score-display-full { margin-bottom: 14px; }
+            .menu-card { border-radius: 28px; border-width: 3px; }
+            .score-label { font-size: 11px; }
+            .btn { font-size: 18px; padding: 13px 14px; }
+        }
+
+        @media (max-height: 640px) and (orientation: portrait) {
+            .hero-card { padding-block: 17px; }
+            .hero-character { font-size: 42px; margin-top: 5px; }
+            .hero-subtitle { margin-bottom: 11px; }
+            .mission-row { margin-bottom: 11px; }
+            .controls-hint { margin-top: 10px; padding: 8px 12px; }
+            .result-icon { font-size: 42px; }
+            .menu-card h2 { margin-bottom: 10px; }
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -269,50 +386,69 @@
 
     <div id="pause-screen" class="hidden">
         <div class="pause-card">
-            <h2>Game Paused ❄️</h2>
+            <div class="pause-icon">☕</div>
+            <h2>Warm Cocoa Break</h2>
+            <p>Santa and Rudolph are ready when you are.</p>
             <div class="btn-group">
-                <button class="btn btn-green" id="resume-btn">Keep Running</button>
-                <button class="btn btn-gray" id="pause-menu-btn">Main Menu</button>
+                <button class="btn btn-green" id="resume-btn">▶ Keep Flying</button>
+                <button class="btn btn-gray" id="pause-menu-btn">⌂ Back to Lodge</button>
             </div>
         </div>
     </div>
 
     <div id="start-screen">
         <div class="start-content">
-            <h1>Rooftop Rush</h1>
-            <h2>🎅 Help Santa Deliver Gifts!</h2>
-            <div class="score-display-full">
-                <span class="score-label-full">TOTAL SAVED GIFTS</span>
-                <span class="score-value-full" id="start-wallet-display">0</span>
-            </div>
-            <div class="btn-group">
-                <button class="btn btn-green" id="start-btn">PLAY NOW</button>
-            </div>
-            <div class="controls-hint">
-                <span class="desktop-hint"><span class="key-icon">WASD</span> Move • <span class="key-icon">SPACE</span> Jump • <span class="key-icon">↓</span> Duck</span>
-                <span class="mobile-hint">Swipe or use the buttons • ↑ Jump • ↓ Duck</span>
+            <div class="hero-card">
+                <div class="north-pole-tag">❄ NORTH POLE EXPRESS</div>
+                <div class="hero-character">🎅🦌</div>
+                <h1><span class="title-small">SANTA'S</span>Rooftop Rush</h1>
+                <h2 class="hero-subtitle">Dash across snowy rooftops and save Christmas!</h2>
+                <div class="mission-row" aria-label="Game goals">
+                    <div class="mission-chip"><span>🎁</span>Collect</div>
+                    <div class="mission-chip"><span>☃️</span>Jump</div>
+                    <div class="mission-chip"><span>🚁</span>Duck</div>
+                </div>
+                <div class="score-display-full">
+                    <span aria-hidden="true">🎒</span>
+                    <span class="score-label-full">SAVED GIFTS</span>
+                    <span class="score-value-full" id="start-wallet-display">0</span>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-green" id="start-btn">▶ Start the Adventure</button>
+                </div>
+                <div class="controls-hint">
+                    <span class="desktop-hint"><span class="key-icon">A D</span> Move &nbsp; <span class="key-icon">SPACE</span> Jump &nbsp; <span class="key-icon">↓</span> Duck</span>
+                    <span class="mobile-hint">Swipe or tap the big buttons to move</span>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="game-over-screen" class="hidden">
         <div class="menu-card">
-            <h1>Ouch!</h1>
-            <h2>Run Ended</h2>
+            <div class="result-tag">NORTH POLE RUN REPORT</div>
+            <div class="result-icon">🛷</div>
+            <h1>Great Adventure!</h1>
+            <h2>Rudolph is ready for another run.</h2>
             <div class="score-grid">
                 <div class="score-box">
-                    <span class="score-label">Distance</span>
+                    <span class="score-label">🚩 Distance</span>
                     <span class="score-value" id="final-dist">0m</span>
                 </div>
                 <div class="score-box">
-                    <span class="score-label">Available Gifts</span>
+                    <span class="score-label">🎁 Gift Bag</span>
                     <span class="score-value wallet-highlight" id="final-wallet">0</span>
                 </div>
+                <div class="score-box">
+                    <span class="score-label">⭐ Best Run</span>
+                    <span class="score-value" id="best-dist">0m</span>
+                </div>
             </div>
+            <div class="new-record hidden" id="new-record">🏆 New rooftop record!</div>
             <div class="btn-group">
-                <button class="btn btn-orange" id="continue-btn">Continue</button>
-                <button class="btn btn-blue" id="restart-btn">Restart Run</button>
-                <button class="btn btn-gray" id="menu-btn">Main Menu</button>
+                <button class="btn btn-orange" id="continue-btn">✨ Continue Run</button>
+                <button class="btn btn-blue" id="restart-btn">↻ Try Again</button>
+                <button class="btn btn-gray" id="menu-btn">⌂ Back to Lodge</button>
             </div>
         </div>
     </div>
@@ -347,6 +483,7 @@
         
         // Persist wallet in localStorage
         let totalWallet = parseInt(localStorage.getItem('santaRunnerGifts')) || 0;
+        let bestDistance = parseInt(localStorage.getItem('santaRunnerBest')) || 0;
         let reviveCount = 0;
         
         let groundSegments = [], obstacles = [], collectables = [], particles = [], visualEffects = [];
@@ -362,6 +499,8 @@
         const gameOverScreen = document.getElementById('game-over-screen');
         const finalDistEl = document.getElementById('final-dist');
         const finalWalletEl = document.getElementById('final-wallet');
+        const bestDistEl = document.getElementById('best-dist');
+        const newRecordEl = document.getElementById('new-record');
         const continueBtn = document.getElementById('continue-btn');
         const restartBtn = document.getElementById('restart-btn');
         const menuBtn = document.getElementById('menu-btn');
@@ -1117,10 +1256,18 @@
             hudEl.classList.add('hidden');
             pauseBtn.classList.add('hidden');
             mobileControls.classList.add('hidden');
-            finalDistEl.innerText = Math.floor(distance) + "m";
+            const runDistance = Math.floor(distance);
+            const isNewRecord = runDistance > bestDistance;
+            if (isNewRecord) {
+                bestDistance = runDistance;
+                localStorage.setItem('santaRunnerBest', bestDistance);
+            }
+            finalDistEl.innerText = runDistance + "m";
+            bestDistEl.innerText = bestDistance + "m";
+            newRecordEl.classList.toggle('hidden', !isNewRecord);
             updateWalletUI();
             const cost = 10 * (reviveCount + 1);
-            continueBtn.innerHTML = `Continue <span style="font-size: 0.8em; opacity: 0.9">(${cost} 🎁)</span>`;
+            continueBtn.innerHTML = `✨ Continue Run <span style="font-size: 0.72em; opacity: 0.9">• ${cost} 🎁</span>`;
             continueBtn.disabled = totalWallet < cost;
         }
 
