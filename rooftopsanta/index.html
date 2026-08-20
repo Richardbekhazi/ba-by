@@ -939,32 +939,23 @@
             const rand = Math.random();
 
             let obstacle;
-            const matMetal = new THREE.MeshStandardMaterial({ color: 0x64748b });
 
-            if (rand < 0.4) {
-                // Soft snowbank: a clear, low jump obstacle that does not block the view.
+            if (rand < 0.6) {
+                // Large classic chimney: the main jump obstacle.
                 const group = new THREE.Group();
-                const snowMat = new THREE.MeshStandardMaterial({ color: 0xf8fdff, roughness: 0.95 });
-                const shadowMat = new THREE.MeshStandardMaterial({ color: 0xbde7f2, roughness: 0.9 });
-                const base = new THREE.Mesh(new THREE.SphereGeometry(1.35, 16, 10), shadowMat);
-                base.scale.set(1.25, 0.55, 0.85); base.position.y = 0.35; base.castShadow = true;
-                const moundLeft = new THREE.Mesh(new THREE.SphereGeometry(0.9, 16, 10), snowMat);
-                moundLeft.scale.set(1.15, 0.7, 0.9); moundLeft.position.set(-0.65, 0.55, 0); moundLeft.castShadow = true;
-                const moundRight = moundLeft.clone();
-                moundRight.scale.set(0.9, 0.55, 0.85); moundRight.position.set(0.75, 0.45, 0.08);
-                group.add(base, moundLeft, moundRight);
-                group.position.set(laneX, -0.25, zPos);
-                group.userData = { type: 'snowbank' };
-                obstacle = group;
-            } else if (rand < 0.7) {
-                // Antenna
-                const group = new THREE.Group();
-                const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 2, 8), matMetal);
-                pole.position.y = 1; group.add(pole);
-                const dish = new THREE.Mesh(new THREE.ConeGeometry(1.2, 0.5, 16, 1, true), matMetal);
-                dish.position.set(0, 1.8, 0.2); dish.rotation.x = -0.5; group.add(dish);
+                const brickMat = new THREE.MeshStandardMaterial({ color: COLORS.brick, roughness: 0.85 });
+                const snowMat = new THREE.MeshStandardMaterial({ color: COLORS.snow, roughness: 0.95 });
+                const base = new THREE.Mesh(new THREE.BoxGeometry(2.2, 3.5, 2.2), brickMat);
+                base.position.y = 1.75; base.castShadow = true;
+                const rim = new THREE.Mesh(new THREE.BoxGeometry(2.55, 0.42, 2.55), brickMat);
+                rim.position.y = 3.5; rim.castShadow = true;
+                const cap = new THREE.Mesh(new THREE.BoxGeometry(2.65, 0.3, 2.65), snowMat);
+                cap.position.y = 3.82;
+                const opening = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.12, 1.55), new THREE.MeshStandardMaterial({ color: 0x172033, roughness: 1 }));
+                opening.position.y = 3.99;
+                group.add(base, rim, cap, opening);
                 group.position.set(laneX, -0.5, zPos);
-                group.userData = { type: 'antenna' };
+                group.userData = { type: 'chimney' };
                 obstacle = group;
             } else {
                 // Friendly delivery drone: bright silhouette, four rotors and a face panel.
@@ -1379,8 +1370,7 @@
                     if (Math.abs(ob.position.x - player.position.x) < 0.8) {
                         let collision = true;
                         
-                            if (ob.userData.type === 'snowbank' && player.position.y > 1.15) collision = false;
-                            if (ob.userData.type === 'antenna' && player.position.y > 1.8) collision = false;
+                            if (ob.userData.type === 'chimney' && player.position.y > 4.0) collision = false;
 
                         if (ob.userData.type === 'drone') {
                                 collision = !isRolling;
