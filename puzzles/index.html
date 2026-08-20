@@ -441,11 +441,44 @@
             .level-header { margin-bottom: 14px; }
             .level-header h1 { font-size: 2.1rem; }
             .subtitle { margin-top: 2px; font-size: 1rem; }
-            .play-area { gap: 18px; }
-            .pieces-row { min-height: 90px; padding: 8px; gap: 6px; }
-            .piece-wrapper, .piece { width: clamp(60px, 20vw, 80px); height: clamp(60px, 20vw, 80px); }
+            .play-area { gap: 14px; }
+            .board {
+                width: auto;
+                grid-template-columns: repeat(var(--board-cols, 3), var(--slot-size, 80px));
+                padding: 8px;
+                gap: 5px;
+                border-width: 8px;
+            }
+            .slot { width: var(--slot-size, 80px); }
+            .pieces-row {
+                display: grid;
+                grid-template-columns: repeat(var(--piece-cols, 3), var(--piece-size, 64px));
+                width: auto;
+                min-height: 0;
+                padding: 8px;
+                gap: 5px;
+            }
+            .piece-wrapper, .piece { width: var(--piece-size, 64px); height: var(--piece-size, 64px); }
             .piece .emoji-display { font-size: 2.5rem; }
             .victory-card { max-width: calc(100% - 24px); padding: 30px 20px; border-radius: 32px; }
+
+            .game-container[data-count="4"] { --board-cols: 4; --piece-cols: 4; --slot-size: 55px; --piece-size: 55px; }
+            .game-container[data-count="5"],
+            .game-container[data-count="6"] { --board-cols: 3; --piece-cols: 3; --slot-size: 62px; --piece-size: 52px; }
+            .game-container[data-count="7"],
+            .game-container[data-count="8"],
+            .game-container[data-count="9"] { --board-cols: 3; --piece-cols: 3; --slot-size: 48px; --piece-size: 44px; }
+        }
+
+        @media (max-width: 600px) and (max-height: 520px) {
+            .game-container { padding-top: 56px; }
+            .level-header { margin-bottom: 8px; }
+            .level-header h1 { font-size: 1.65rem; }
+            .subtitle { font-size: 0.85rem; }
+            .play-area { gap: 8px; }
+            .game-container[data-count="7"],
+            .game-container[data-count="8"],
+            .game-container[data-count="9"] { --slot-size: 45px; --piece-size: 41px; }
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -453,11 +486,17 @@
             .level-header { margin-bottom: 6px; }
             .level-header h1 { font-size: 1.8rem; }
             .subtitle { margin-top: 0; font-size: 0.95rem; }
-            .play-area { gap: 10px; }
-            .slot { max-width: 72px; }
-            .board { width: auto; padding: 8px; gap: 8px; border-width: 8px; }
-            .pieces-row { min-height: 88px; padding: 7px; gap: 8px; }
-            .piece-wrapper, .piece { width: 72px; height: 72px; }
+            .play-area { flex-direction: row; justify-content: center; gap: 10px; }
+            .board { width: auto; grid-template-columns: repeat(var(--board-cols, 3), var(--slot-size, 64px)); padding: 7px; gap: 5px; border-width: 7px; }
+            .slot { width: var(--slot-size, 64px); }
+            .pieces-row { display: grid; width: auto; grid-template-columns: repeat(var(--piece-cols, 3), var(--piece-size, 58px)); min-height: 0; padding: 7px; gap: 5px; }
+            .piece-wrapper, .piece { width: var(--piece-size, 58px); height: var(--piece-size, 58px); }
+            .game-container[data-count="4"] { --board-cols: 2; --piece-cols: 2; --slot-size: 64px; --piece-size: 58px; }
+            .game-container[data-count="5"],
+            .game-container[data-count="6"] { --board-cols: 3; --piece-cols: 3; --slot-size: 58px; --piece-size: 52px; }
+            .game-container[data-count="7"],
+            .game-container[data-count="8"],
+            .game-container[data-count="9"] { --board-cols: 3; --piece-cols: 3; --slot-size: 48px; --piece-size: 44px; }
         }
 
     </style>
@@ -564,10 +603,12 @@
         let currentLevelIdx = 0;
         let currentDifficulty = 3; 
         let piecesPlaced = 0;
-        let dragSrcEl = null;
         let activePiece = null;
-        let initialPos = { x: 0, y: 0 };
+        let activeWrapper = null;
+        let activePointerId = null;
         let currentPos = { x: 0, y: 0 };
+        let pointerStart = { x: 0, y: 0 };
+        let dragDistance = 0;
         let hintTimeout = null;
         let offset = { x: 0, y: 0 };
 
@@ -578,6 +619,7 @@
             subtitle: document.getElementById('level-subtitle'),
             victory: document.getElementById('victory-screen'),
             nextBtn: document.getElementById('next-level-btn'),
+            game: document.querySelector('.game-container'),
             body: document.body
         };
 
@@ -585,14 +627,19 @@
         function init() {
             loadLevel(currentLevelIdx);
             
-            // Global Touch/Mouse Listeners for custom Drag
-            document.addEventListener('touchstart', dragStart, { passive: false });
-            document.addEventListener('touchmove', drag, { passive: false });
-            document.addEventListener('touchend', dragEnd);
-            
-            document.addEventListener('mousedown', dragStart);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', dragEnd);
+            // Pointer Events handle touch, pen and mouse through one reliable path.
+            document.addEventListener('pointerdown', dragStart, { passive: false });
+            document.addEventListener('pointermove', drag, { passive: false });
+            document.addEventListener('pointerup', dragEnd, { passive: false });
+            document.addEventListener('pointercancel', cancelActiveDrag);
+            document.addEventListener('lostpointercapture', event => {
+                if (activePiece && event.pointerId === activePointerId) cancelActiveDrag();
+            });
+            window.addEventListener('blur', cancelActiveDrag);
+            window.addEventListener('orientationchange', cancelActiveDrag);
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) cancelActiveDrag();
+            });
 
             els.nextBtn.addEventListener('click', nextLevel);
             
@@ -601,6 +648,7 @@
         }
 
         function loadLevel(idx) {
+            cancelActiveDrag();
             const level = LEVELS[idx];
             els.title.textContent = level.name;
             els.body.style.background = level.bg;
@@ -620,6 +668,7 @@
 
             // 1. Create Slots (Targets) - Use currentDifficulty number of items
             let itemsToUse = level.items.slice(0, currentDifficulty);
+            els.game.dataset.count = itemsToUse.length;
 
             itemsToUse.forEach(item => {
                 const slot = document.createElement('div');
@@ -639,7 +688,6 @@
             const shuffledItems = [...itemsToUse].sort(() => Math.random() - 0.5);
             shuffledItems.forEach(item => {
                 const pieceWrapper = document.createElement('div');
-                pieceWrapper.className = 'piece-wrapper';
                 pieceWrapper.className = 'piece-wrapper';
                 
                 const piece = document.createElement('div');
@@ -669,13 +717,20 @@
             const target = e.target.closest('.piece');
             if (!target || target.classList.contains('placed')) return;
 
+            if (activePiece) cancelActiveDrag();
+
             resetHint();
             e.preventDefault();
             activePiece = target;
+            activeWrapper = target.parentElement;
+            activePointerId = e.pointerId;
+            activePiece.setPointerCapture?.(activePointerId);
             
-            // Get input coordinates
-            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            const clientX = e.clientX;
+            const clientY = e.clientY;
+            pointerStart.x = clientX;
+            pointerStart.y = clientY;
+            dragDistance = 0;
 
             // Calculate offset relative to piece center to snap to finger
             const rect = activePiece.getBoundingClientRect();
@@ -696,14 +751,15 @@
         }
 
         function drag(e) {
-            if (!activePiece) return;
+            if (!activePiece || e.pointerId !== activePointerId) return;
             e.preventDefault();
 
-            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            const clientX = e.clientX;
+            const clientY = e.clientY;
 
             currentPos.x = clientX - offset.x;
             currentPos.y = clientY - offset.y;
+            dragDistance = Math.max(dragDistance, Math.hypot(clientX - pointerStart.x, clientY - pointerStart.y));
 
             activePiece.style.left = currentPos.x + 'px';
             activePiece.style.top = currentPos.y + 'px';
@@ -712,37 +768,58 @@
         }
 
         function dragEnd(e) {
-            if (!activePiece) return;
+            if (!activePiece || e.pointerId !== activePointerId) return;
+            e.preventDefault();
 
-            const dropped = checkDrop();
-            
-            if (!dropped) {
-                // Return to original wrapper
-                activePiece.classList.remove('dragging');
-                activePiece.style.position = '';
-                activePiece.style.left = '';
-                activePiece.style.top = '';
-                activePiece.style.transform = '';
-                
-                // Find empty wrapper
-                const wrappers = Array.from(els.pieces.children);
-                // Simple logic: just find a wrapper that has no children
-                const emptyWrapper = wrappers.find(w => w.children.length === 0);
-                
-                if(emptyWrapper) {
-                    emptyWrapper.appendChild(activePiece);
-                } else {
-                    // Fallback: if somehow logic fails, recreate wrapper
-                    const pieceWrapper = document.createElement('div');
-                    pieceWrapper.className = 'piece-wrapper';
-                    pieceWrapper.appendChild(activePiece);
-                    els.pieces.appendChild(pieceWrapper);
+            let dropped = checkDrop();
+            if (!dropped && dragDistance < 10) {
+                const matchingSlot = document.querySelector(`.slot[data-id="${activePiece.dataset.id}"]`);
+                if (matchingSlot && !matchingSlot.querySelector('.piece.placed')) {
+                    snapToSlot(activePiece, matchingSlot);
+                    dropped = true;
                 }
             }
+            
+            if (!dropped) {
+                restoreActivePiece();
+            }
 
+            finishActiveDrag();
+        }
+
+        function restoreActivePiece() {
+            if (!activePiece) return;
+            activePiece.classList.remove('dragging');
+            activePiece.style.position = '';
+            activePiece.style.left = '';
+            activePiece.style.top = '';
+            activePiece.style.transform = '';
+
+            if (activeWrapper?.isConnected) {
+                activeWrapper.appendChild(activePiece);
+            } else {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'piece-wrapper';
+                wrapper.appendChild(activePiece);
+                els.pieces.appendChild(wrapper);
+            }
+        }
+
+        function finishActiveDrag() {
+            if (activePiece && activePointerId !== null && activePiece.hasPointerCapture?.(activePointerId)) {
+                activePiece.releasePointerCapture(activePointerId);
+            }
             activePiece = null;
+            activeWrapper = null;
+            activePointerId = null;
             document.querySelectorAll('.slot').forEach(s => s.classList.remove('hovered'));
             resetHint();
+        }
+
+        function cancelActiveDrag() {
+            if (!activePiece) return;
+            restoreActivePiece();
+            finishActiveDrag();
         }
 
         // --- COLLISION LOGIC ---
@@ -753,7 +830,8 @@
 
             document.querySelectorAll('.slot').forEach(slot => {
                 const rect = slot.getBoundingClientRect();
-                if (pX > rect.left && pX < rect.right && pY > rect.top && pY < rect.bottom) {
+                const tolerance = 16;
+                if (pX > rect.left - tolerance && pX < rect.right + tolerance && pY > rect.top - tolerance && pY < rect.bottom + tolerance) {
                     slot.classList.add('hovered');
                 } else {
                     slot.classList.remove('hovered');
@@ -770,9 +848,10 @@
             document.querySelectorAll('.slot').forEach(slot => {
                 if (success) return; // Already placed
                 const rect = slot.getBoundingClientRect();
+                const tolerance = 16;
                 
                 // If inside slot AND id matches
-                if (pX > rect.left && pX < rect.right && pY > rect.top && pY < rect.bottom) {
+                if (pX > rect.left - tolerance && pX < rect.right + tolerance && pY > rect.top - tolerance && pY < rect.bottom + tolerance) {
                     if (slot.dataset.id === activePiece.dataset.id) {
                         snapToSlot(activePiece, slot);
                         success = true;
