@@ -328,7 +328,7 @@
         
         // --- State ---
         let scene, camera, renderer;
-        let player, reindeer;
+        let player, reindeer, santa;
         let playerLane = 1; 
         let targetX = 0; 
         let verticalVelocity = 0;
@@ -622,18 +622,18 @@
             const reindeerGroup = new THREE.Group();
             
             // Body
-            const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.4, 2.6), matStandard(COLORS.reindeer));
-            body.position.y = 0.7; body.castShadow = true; reindeerGroup.add(body);
+            const body = new THREE.Mesh(new THREE.SphereGeometry(0.9, 18, 12), matStandard(COLORS.reindeer));
+            body.scale.set(0.78, 0.72, 1.55); body.position.y = 0.75; body.castShadow = true; reindeerGroup.add(body);
             // Tail
-            const tail = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), matStandard(0xffffff));
-            tail.position.set(0, 1.2, 1.3); reindeerGroup.add(tail);
+            const tail = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 8), matStandard(0xfffdf5));
+            tail.scale.set(0.8, 1.1, 0.7); tail.position.set(0, 1.18, 1.38); reindeerGroup.add(tail);
             // Neck & Head
-            const neck = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 1), matStandard(COLORS.reindeer));
-            neck.position.set(0, 1.5, -1.1); neck.rotation.x = -0.3; reindeerGroup.add(neck);
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.9, 1.4), matStandard(COLORS.reindeer));
-            head.position.set(0, 2.2, -1.7); head.castShadow = true; reindeerGroup.add(head);
+            const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.5, 1.45, 14), matStandard(COLORS.reindeer));
+            neck.position.set(0, 1.48, -1.05); neck.rotation.x = -0.42; reindeerGroup.add(neck);
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.58, 18, 12), matStandard(COLORS.reindeer));
+            head.scale.set(0.78, 0.82, 1.2); head.position.set(0, 2.15, -1.72); head.castShadow = true; reindeerGroup.add(head);
             // Ears
-            const earGeo = new THREE.BoxGeometry(0.1, 0.4, 0.2);
+            const earGeo = new THREE.ConeGeometry(0.16, 0.48, 10);
             const earL = new THREE.Mesh(earGeo, matStandard(COLORS.reindeer)); earL.position.set(0.5, 2.5, -1.5); earL.rotation.z = 0.5; reindeerGroup.add(earL);
             const earR = new THREE.Mesh(earGeo, matStandard(COLORS.reindeer)); earR.position.set(-0.5, 2.5, -1.5); earR.rotation.z = -0.5; reindeerGroup.add(earR);
             // Nose
@@ -646,8 +646,8 @@
             const createLeg = (x, z) => {
                 const g = new THREE.Group();
                 g.position.set(x, 0.6, z);
-                const upper = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.8, 0.35), legMat); upper.position.y = -0.2;
-                const hoof = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), hoofMat); hoof.position.y = -0.7;
+                const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.18, 0.82, 10), legMat); upper.position.y = -0.28;
+                const hoof = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 7), hoofMat); hoof.scale.set(1, 0.7, 1.25); hoof.position.y = -0.72;
                 g.add(upper, hoof);
                 return g;
             };
@@ -657,11 +657,11 @@
             const antlerMat = matStandard(COLORS.antler);
             const createAntler = (side) => {
                 const g = new THREE.Group();
-                const main = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.2, 0.1), antlerMat);
+                const main = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.075, 1.2, 8), antlerMat);
                 main.position.y = 0.6; main.rotation.z = side * 0.4; g.add(main);
-                const prong1 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.5, 0.1), antlerMat);
+                const prong1 = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 0.5, 8), antlerMat);
                 prong1.position.set(side*0.3, 0.4, 0.2); prong1.rotation.x = 0.5; g.add(prong1);
-                const prong2 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.4, 0.1), antlerMat);
+                const prong2 = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.4, 8), antlerMat);
                 prong2.position.set(side*0.4, 0.8, -0.1); prong2.rotation.z = side*0.5; g.add(prong2);
                 return g;
             }
@@ -670,49 +670,58 @@
             player.add(reindeerGroup);
             reindeer = reindeerGroup;
 
-            // --- SANTA ---
+            // --- SANTA: rounded, colorful and readable from behind ---
             const santaGroup = new THREE.Group();
-            santaGroup.position.set(0, 1.6, 0.3);
-            // Body
-            const torso = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.3, 1), matStandard(COLORS.santaRed));
-            torso.position.y = 0.65; torso.castShadow = true; santaGroup.add(torso);
-            // Trim
-            const trim = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.31, 1.05), matStandard(0xffffff));
-            trim.position.y = 0.65; santaGroup.add(trim);
-            // Belt
-            const belt = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.25, 1.05), matStandard(0x111111));
-            belt.position.y = 0.5; santaGroup.add(belt);
-            const buckle = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 1.1), matStandard(COLORS.gold));
-            buckle.position.y = 0.5; santaGroup.add(buckle);
-            // Head
-            const headS = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), matStandard(COLORS.skin));
-            headS.position.y = 1.5; santaGroup.add(headS);
-            // Beard
-            const beard = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.7, 0.4), matStandard(0xffffff));
-            beard.position.set(0, 1.3, -0.4); santaGroup.add(beard);
-            // Hat
+            santaGroup.position.set(0, 1.55, 0.35);
+            const redMat = matStandard(COLORS.santaRed, 0.55);
+            const whiteMat = matStandard(0xfffdf5, 0.85);
+            const blackMat = matStandard(0x172033, 0.5);
+            const skinMat = matStandard(COLORS.skin, 0.75);
+
+            const coat = new THREE.Mesh(new THREE.SphereGeometry(0.82, 20, 14), redMat);
+            coat.scale.set(1, 1.05, 0.78); coat.position.y = 0.75; coat.castShadow = true;
+            const coatTrim = new THREE.Mesh(new THREE.TorusGeometry(0.69, 0.11, 8, 24), whiteMat);
+            coatTrim.rotation.x = Math.PI / 2; coatTrim.scale.z = 0.78; coatTrim.position.y = 0.16;
+            const belt = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.1, 8, 24), blackMat);
+            belt.rotation.x = Math.PI / 2; belt.scale.z = 0.78; belt.position.y = 0.62;
+            const buckle = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.055, 6, 12), matStandard(COLORS.gold, 0.35));
+            buckle.position.set(0, 0.62, 0.65);
+            santaGroup.add(coat, coatTrim, belt, buckle);
+
+            const headS = new THREE.Mesh(new THREE.SphereGeometry(0.5, 20, 14), skinMat);
+            headS.position.y = 1.58; headS.castShadow = true;
+            const hair = new THREE.Mesh(new THREE.SphereGeometry(0.53, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.62), whiteMat);
+            hair.position.set(0, 1.65, 0.08); hair.rotation.x = -0.15;
+            const beard = new THREE.Mesh(new THREE.SphereGeometry(0.5, 18, 12), whiteMat);
+            beard.scale.set(1, 1.15, 0.38); beard.position.set(0, 1.38, -0.36);
+            santaGroup.add(headS, hair, beard);
+
             const hatGroup = new THREE.Group();
-            hatGroup.position.y = 2.0;
-            const hatRim = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 0.2, 12), matStandard(0xffffff));
+            hatGroup.position.y = 1.98;
+            hatGroup.rotation.z = -0.12;
+            const hatRim = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.12, 8, 24), whiteMat);
+            hatRim.rotation.x = Math.PI / 2;
             hatGroup.add(hatRim);
-            const hatCone = new THREE.Mesh(new THREE.ConeGeometry(0.5, 0.9, 12), matStandard(COLORS.santaRed));
-            hatCone.position.set(0, 0.5, -0.1); hatCone.rotation.x = -0.2; hatGroup.add(hatCone);
-            const pom = new THREE.Mesh(new THREE.SphereGeometry(0.2), matStandard(0xffffff));
-            pom.position.set(0, 0.95, -0.3); hatGroup.add(pom);
+            const hatCone = new THREE.Mesh(new THREE.ConeGeometry(0.46, 0.95, 20), redMat);
+            hatCone.position.set(0.08, 0.48, 0); hatCone.rotation.z = -0.18; hatGroup.add(hatCone);
+            const pom = new THREE.Mesh(new THREE.SphereGeometry(0.18, 14, 10), whiteMat);
+            pom.position.set(0.25, 0.92, 0); hatGroup.add(pom);
             santaGroup.add(hatGroup);
-            // Arms & Mittens
-            const armGeo = new THREE.BoxGeometry(0.35, 0.9, 0.35);
-            const armL = new THREE.Mesh(armGeo, matStandard(COLORS.santaRed)); armL.position.set(0.75, 0.8, 0); armL.rotation.z = -0.2; santaGroup.add(armL);
-            const armR = new THREE.Mesh(armGeo, matStandard(COLORS.santaRed)); armR.position.set(-0.75, 0.8, 0); armR.rotation.z = 0.2; santaGroup.add(armR);
-            const mitGeo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-            const mitL = new THREE.Mesh(mitGeo, matStandard(0x166534)); mitL.position.set(0.85, 0.3, 0); santaGroup.add(mitL);
-            const mitR = new THREE.Mesh(mitGeo, matStandard(0x166534)); mitR.position.set(-0.85, 0.3, 0); santaGroup.add(mitR);
-            // Legs
-            const bootGeo = new THREE.BoxGeometry(0.4, 0.6, 0.5);
-            const bootL = new THREE.Mesh(bootGeo, matStandard(0x111111)); bootL.position.set(0.3, 0.3, 0.3); santaGroup.add(bootL);
-            const bootR = new THREE.Mesh(bootGeo, matStandard(0x111111)); bootR.position.set(-0.3, 0.3, 0.3); santaGroup.add(bootR);
+
+            const armGeo = new THREE.CylinderGeometry(0.18, 0.22, 0.78, 12);
+            const armL = new THREE.Mesh(armGeo, redMat); armL.position.set(0.72, 0.78, 0); armL.rotation.z = -0.35;
+            const armR = new THREE.Mesh(armGeo, redMat); armR.position.set(-0.72, 0.78, 0); armR.rotation.z = 0.35;
+            const mitL = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 8), whiteMat); mitL.position.set(0.85, 0.42, 0);
+            const mitR = mitL.clone(); mitR.position.x = -0.85;
+            santaGroup.add(armL, armR, mitL, mitR);
+
+            const scarf = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.55, 0.08), matStandard(0x16a34a));
+            scarf.position.set(0.4, 1.25, 0.52); scarf.rotation.z = -0.3;
+            santaGroup.add(scarf);
+            santaGroup.userData = { hat: hatGroup, scarf, armL, armR };
 
             player.add(santaGroup);
+            santa = santaGroup;
             scene.add(player);
         }
 
@@ -811,18 +820,38 @@
                 group.userData = { type: 'antenna' };
                 obstacle = group;
             } else {
-                // Drone (High Flying - 4.5)
+                // Friendly delivery drone: bright silhouette, four rotors and a face panel.
                 const group = new THREE.Group();
-                const body = new THREE.Mesh(new THREE.SphereGeometry(0.6), new THREE.MeshStandardMaterial({color: COLORS.droneMetal}));
-                group.add(body);
-                const propGeo = new THREE.BoxGeometry(2.2, 0.1, 0.2);
-                const propMat = new THREE.MeshStandardMaterial({color: 0x111111});
-                const p1 = new THREE.Mesh(propGeo, propMat); p1.position.y = 0.4; group.add(p1);
-                const p2 = new THREE.Mesh(propGeo, propMat); p2.position.y = 0.4; p2.rotation.y = Math.PI/2; group.add(p2);
-                const light = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshBasicMaterial({color: 0xff0000}));
-                light.position.y = -0.5; group.add(light);
-                group.position.set(laneX, 4.5, zPos); 
-                group.userData = { type: 'drone' };
+                const droneBodyMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.25, roughness: 0.35 });
+                const droneDarkMat = new THREE.MeshStandardMaterial({ color: 0x1e3a5f, metalness: 0.45, roughness: 0.3 });
+                const body = new THREE.Mesh(new THREE.SphereGeometry(0.72, 20, 14), droneBodyMat);
+                body.scale.set(1.15, 0.62, 0.85); body.castShadow = true; group.add(body);
+                const face = new THREE.Mesh(new THREE.SphereGeometry(0.48, 16, 10), new THREE.MeshStandardMaterial({ color: 0xe0f7ff, roughness: 0.25 }));
+                face.scale.set(1.15, 0.55, 0.18); face.position.set(0, 0.02, 0.62); group.add(face);
+                [-0.2, 0.2].forEach(x => {
+                    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 8), new THREE.MeshBasicMaterial({ color: 0x075985 }));
+                    eye.position.set(x, 0.08, 0.72); group.add(eye);
+                });
+                const smile = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.025, 6, 12, Math.PI), new THREE.MeshBasicMaterial({ color: 0x075985 }));
+                smile.position.set(0, -0.06, 0.72); smile.rotation.z = Math.PI; group.add(smile);
+
+                const rotors = [];
+                [[-1, -0.55], [1, -0.55], [-1, 0.55], [1, 0.55]].forEach(([x, z]) => {
+                    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 1, 8), droneDarkMat);
+                    arm.position.set(x * 0.55, 0, z * 0.55); arm.rotation.z = Math.PI / 2; arm.rotation.y = Math.atan2(z, x); group.add(arm);
+                    const rotor = new THREE.Group();
+                    rotor.position.set(x, 0.2, z);
+                    const guard = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.045, 8, 20), droneBodyMat);
+                    guard.rotation.x = Math.PI / 2;
+                    const bladeA = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.035, 0.08), droneDarkMat);
+                    const bladeB = bladeA.clone(); bladeB.rotation.y = Math.PI / 2;
+                    const hub = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), droneBodyMat);
+                    rotor.add(guard, bladeA, bladeB, hub); group.add(rotor); rotors.push(rotor);
+                });
+                const light = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 8), new THREE.MeshBasicMaterial({ color: 0xff4d6d }));
+                light.position.y = -0.48; group.add(light);
+                group.position.set(laneX, 4.25, zPos);
+                group.userData = { type: 'drone', rotors, baseY: 4.25, floatOffset: Math.random() * Math.PI * 2 };
                 obstacle = group;
             }
             scene.add(obstacle);
@@ -1147,6 +1176,14 @@
             player.scale.z += (targetScaleXZ - player.scale.z) * 0.28;
             const jumpTilt = isJumping ? THREE.MathUtils.clamp(-verticalVelocity * 0.22, -0.1, 0.1) : 0;
             player.rotation.x += (jumpTilt - player.rotation.x) * 0.2;
+            if (santa) {
+                const motionTime = performance.now() * 0.01;
+                santa.rotation.z = Math.sin(motionTime) * (isRolling ? 0.025 : 0.04);
+                santa.userData.hat.rotation.z = -0.12 + Math.sin(motionTime * 0.7) * 0.035;
+                santa.userData.scarf.rotation.z = -0.3 - Math.sin(motionTime * 1.3) * 0.12;
+                santa.userData.armL.rotation.x = Math.sin(motionTime) * 0.08;
+                santa.userData.armR.rotation.x = -Math.sin(motionTime) * 0.08;
+            }
 
             groundSegments.forEach((g) => { g.position.z += gameSpeed; });
             if (groundSegments[0].position.z > 15) {
@@ -1160,8 +1197,10 @@
                 ob.position.z += gameSpeed;
                 
                 if (ob.userData.type === 'drone') {
-                   ob.children[1].rotation.y += 0.3;
-                   ob.children[2].rotation.y += 0.3;
+                         ob.userData.rotors.forEach((rotor, index) => {
+                              rotor.rotation.y += index % 2 === 0 ? 0.42 : -0.42;
+                         });
+                         ob.position.y = ob.userData.baseY + Math.sin(performance.now() * 0.004 + ob.userData.floatOffset) * 0.18;
                 }
 
                 if (ob.position.z > -1 && ob.position.z < 1) {
