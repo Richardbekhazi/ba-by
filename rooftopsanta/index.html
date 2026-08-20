@@ -484,6 +484,8 @@
         let gameSpeed = SPEED_INITIAL; 
         let distance = 0;
         let lastMilestone = 0;
+        let weatherCycle = -1;
+        let currentWeather = 'clear';
         let lives = 3;
         let invulnerableFrames = 0;
         
@@ -525,8 +527,20 @@
         // --- Generated Audio (no external files required) ---
         let audioCtx, masterGain, musicGain, sfxGain, musicTimer;
         let musicStep = 0;
+        let currentMusicTheme = null;
         let soundEnabled = localStorage.getItem('santaRunnerSound') !== 'off';
-        const MELODY = [72, 76, 79, 76, 74, 77, 81, 77, 72, 76, 79, 84, 81, 79, 77, 74];
+        const MUSIC_THEMES = {
+            day: {
+                tempo: 330,
+                melody: [72, 76, 79, null, 76, 81, 79, null, 74, 77, 81, null, 79, 76, 72, null],
+                bass: [48, 48, 53, 53], type: 'triangle'
+            },
+            night: {
+                tempo: 470,
+                melody: [69, null, 72, 76, null, 74, 72, null, 67, null, 71, 74, null, 72, 69, null],
+                bass: [45, 41, 43, 40], type: 'sine'
+            }
+        };
 
         function initAudio() {
             if (!audioCtx) {
@@ -535,7 +549,7 @@
                 musicGain = audioCtx.createGain();
                 sfxGain = audioCtx.createGain();
                 masterGain.gain.value = soundEnabled ? 0.75 : 0;
-                musicGain.gain.value = 0.16;
+                musicGain.gain.value = 0.11;
                 sfxGain.gain.value = 0.5;
                 musicGain.connect(masterGain);
                 sfxGain.connect(masterGain);
@@ -564,19 +578,28 @@
 
         function playMusicNote() {
             if (!gameActive || gamePaused || !soundEnabled || !audioCtx) return;
-            const note = MELODY[musicStep % MELODY.length];
-            synthTone(midiToHz(note), 0.2, 0.5, musicGain, 'triangle');
-            if (musicStep % 4 === 0) synthTone(midiToHz(note - 24), 0.4, 0.24, musicGain, 'sine');
-            if (musicStep % 8 === 0) synthTone(midiToHz(note - 12), 0.32, 0.12, musicGain, 'triangle', 0.02);
+            const theme = MUSIC_THEMES[currentMusicTheme || 'day'];
+            const note = theme.melody[musicStep % theme.melody.length];
+            if (note !== null) {
+                synthTone(midiToHz(note), currentMusicTheme === 'night' ? 0.42 : 0.26, 0.34, musicGain, theme.type);
+                if (musicStep % 4 === 0) synthTone(midiToHz(note + 12), 0.22, 0.08, musicGain, 'sine', 0.03);
+            }
+            if (musicStep % 4 === 0) {
+                const bass = theme.bass[Math.floor(musicStep / 4) % theme.bass.length];
+                synthTone(midiToHz(bass), currentMusicTheme === 'night' ? 0.75 : 0.52, 0.16, musicGain, 'sine');
+            }
             musicStep++;
         }
 
-        function startMusic() {
+        function getMusicTheme() { return Math.floor(distance / 1000) % 2 === 0 ? 'day' : 'night'; }
+
+        function startMusic(themeName = getMusicTheme()) {
             initAudio();
             stopMusic();
+            currentMusicTheme = themeName;
             musicStep = 0;
             playMusicNote();
-            musicTimer = setInterval(playMusicNote, 235);
+            musicTimer = setInterval(playMusicNote, MUSIC_THEMES[themeName].tempo);
         }
 
         function stopMusic() {
@@ -608,6 +631,8 @@
                 [392, 523, 659, 784].forEach((frequency, index) => synthTone(frequency, 0.25, 0.22, sfxGain, 'triangle', index * 0.09));
             } else if (name === 'milestone') {
                 [523, 659, 784].forEach((frequency, index) => synthTone(frequency, 0.3, 0.2, sfxGain, 'triangle', index * 0.1));
+            } else if (name === 'heart') {
+                [523, 659, 784, 1047].forEach((frequency, index) => synthTone(frequency, 0.35, 0.24, sfxGain, 'sine', index * 0.1));
             }
         }
 
@@ -928,6 +953,7 @@
             if (zPos < -20) {
                 maybeSpawnObstacle(zPos);
                 maybeSpawnGift(zPos);
+                maybeSpawnHeart(zPos);
             }
         }
 
@@ -940,7 +966,7 @@
 
             let obstacle;
 
-            if (rand < 0.6) {
+            if (rand < 0.35) {
                 // Large classic chimney: the main jump obstacle.
                 const group = new THREE.Group();
                 const brickMat = new THREE.MeshStandardMaterial({ color: COLORS.brick, roughness: 0.85 });
@@ -956,6 +982,53 @@
                 group.add(base, rim, cap, opening);
                 group.position.set(laneX, -0.5, zPos);
                 group.userData = { type: 'chimney' };
+                obstacle = group;
+            } else if (rand < 0.58) {
+                // Snowman guard: jump over his hat.
+                const group = new THREE.Group();
+                const whiteMat = new THREE.MeshStandardMaterial({ color: 0xf8fdff, roughness: 0.9 });
+                const darkMat = new THREE.MeshStandardMaterial({ color: 0x172033, roughness: 0.8 });
+                const bottom = new THREE.Mesh(new THREE.SphereGeometry(0.86, 16, 12), whiteMat);
+                bottom.position.y = 0.75; bottom.scale.y = 0.9; bottom.castShadow = true;
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.58, 16, 12), whiteMat);
+                head.position.y = 1.82; head.castShadow = true;
+                const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.65, 0.12, 16), darkMat);
+                hatBrim.position.y = 2.35;
+                const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.65, 16), darkMat);
+                hatTop.position.y = 2.68;
+                const carrot = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.55, 10), new THREE.MeshStandardMaterial({ color: 0xf97316 }));
+                carrot.position.set(0, 1.86, 0.58); carrot.rotation.x = Math.PI / 2;
+                [-0.2, 0.2].forEach(x => {
+                    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 6), darkMat);
+                    eye.position.set(x, 2.02, 0.51); group.add(eye);
+                });
+                group.add(bottom, head, hatBrim, hatTop, carrot);
+                group.position.set(laneX, -0.3, zPos);
+                group.userData = { type: 'snowman', floatOffset: Math.random() * Math.PI * 2 };
+                obstacle = group;
+            } else if (rand < 0.78) {
+                // Wind-up toy robot: a smaller moving jump enemy.
+                const group = new THREE.Group();
+                const bodyMat = new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.25, roughness: 0.45 });
+                const trimMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, metalness: 0.5, roughness: 0.3 });
+                const darkMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
+                const body = new THREE.Mesh(new THREE.BoxGeometry(1.25, 1.15, 0.9), bodyMat);
+                body.position.y = 0.95; body.castShadow = true;
+                const head = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.72, 0.82), trimMat);
+                head.position.y = 1.88; head.castShadow = true;
+                [-0.22, 0.22].forEach(x => {
+                    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+                    eye.position.set(x, 1.95, 0.43); group.add(eye);
+                });
+                const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.42, 8), darkMat);
+                antenna.position.y = 2.45;
+                const antennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), bodyMat);
+                antennaTip.position.y = 2.68;
+                const legL = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.55, 0.32), darkMat);
+                const legR = legL.clone(); legL.position.set(-0.36, 0.25, 0); legR.position.set(0.36, 0.25, 0);
+                group.add(body, head, antenna, antennaTip, legL, legR);
+                group.position.set(laneX, -0.25, zPos);
+                group.userData = { type: 'robot', startX: laneX, floatOffset: Math.random() * Math.PI * 2 };
                 obstacle = group;
             } else {
                 // Friendly delivery drone: bright silhouette, four rotors and a face panel.
@@ -1020,6 +1093,27 @@
                 scene.add(gift);
                 collectables.push(gift);
             }
+        }
+
+        function maybeSpawnHeart(zPos) {
+            // About one chance per 1,500m, and only while a life is missing.
+            if (lives >= 3 || Math.random() > 0.008) return;
+            const freeLanes = LANES.filter(laneX => !obstacles.some(o => Math.abs(o.position.z - zPos) < 3 && Math.abs(o.position.x - laneX) < 2));
+            if (!freeLanes.length) return;
+
+            const heartShape = new THREE.Shape();
+            heartShape.moveTo(0, 0.35);
+            heartShape.bezierCurveTo(0.75, 1.2, 1.8, 0.7, 1.45, -0.25);
+            heartShape.bezierCurveTo(1.2, -0.9, 0.45, -1.35, 0, -1.75);
+            heartShape.bezierCurveTo(-0.45, -1.35, -1.2, -0.9, -1.45, -0.25);
+            heartShape.bezierCurveTo(-1.8, 0.7, -0.75, 1.2, 0, 0.35);
+            const material = new THREE.MeshStandardMaterial({ color: 0xff1744, emissive: 0xff003c, emissiveIntensity: 1, roughness: 0.25 });
+            const heart = new THREE.Mesh(new THREE.ExtrudeGeometry(heartShape, { depth: 0.28, bevelEnabled: true, bevelSize: 0.09, bevelThickness: 0.08, bevelSegments: 2 }), material);
+            heart.scale.setScalar(0.72);
+            heart.position.set(freeLanes[Math.floor(Math.random() * freeLanes.length)], 2.2, zPos);
+            heart.userData = { type: 'heart', color: 0xff2d55, startY: 2.2, floatOffset: Math.random() * Math.PI };
+            scene.add(heart);
+            collectables.push(heart);
         }
 
         function createGiftBurst(position, color) {
@@ -1103,7 +1197,7 @@
                 velocities.push((Math.random() * 0.2) + 0.1);
             }
             geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            const mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.6, map: glowTexture, transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending });
+            const mat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.6, map: glowTexture, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
             const points = new THREE.Points(geo, mat);
             points.userData = { velocities: velocities };
             scene.add(points);
@@ -1114,18 +1208,46 @@
             const points = particles[0];
             const positions = points.geometry.attributes.position.array;
             const vels = points.userData.velocities;
+            const weatherSettings = {
+                clear: { opacity: 0, fall: 0.15, drift: 0 },
+                flurries: { opacity: 0.3, fall: 0.55, drift: 0.03 },
+                snow: { opacity: 0.82, fall: 1, drift: 0.03 },
+                wind: { opacity: 0.42, fall: 0.75, drift: 0.16 }
+            }[currentWeather];
+            points.material.opacity += (weatherSettings.opacity - points.material.opacity) * Math.min(1, 0.025 * frameScale);
             for(let i=0; i<vels.length; i++) {
                 let idx = i * 3;
-                positions[idx+1] -= vels[i] * frameScale; positions[idx] -= 0.03 * frameScale;
+                positions[idx+1] -= vels[i] * weatherSettings.fall * frameScale;
+                positions[idx] -= weatherSettings.drift * frameScale;
                 if (positions[idx+1] < 0) { positions[idx+1] = 60; positions[idx] = (Math.random() - 0.5) * 120; }
             }
             points.geometry.attributes.position.needsUpdate = true;
+        }
+
+        function updateWeather() {
+            const nextCycle = Math.floor(distance / 650);
+            if (nextCycle === weatherCycle) return;
+            weatherCycle = nextCycle;
+            if (nextCycle === 0) {
+                currentWeather = 'clear';
+                return;
+            }
+            const choices = ['clear', 'flurries', 'snow', 'wind'].filter(weather => weather !== currentWeather);
+            currentWeather = choices[Math.floor(Math.random() * choices.length)];
+            const labels = { clear: 'Clear skies ahead ☀️', flurries: 'Light flurries ❄️', snow: 'Snowfall incoming ☃️', wind: 'Hold tight — winter wind! 💨' };
+            showFeedback(labels[currentWeather]);
         }
 
         function updateDayNight() {
             const cycle = Math.floor(distance / 1000);
             const isDay = cycle % 2 === 0;
             const lerpSpeed = 0.01;
+
+            const nextTheme = isDay ? 'day' : 'night';
+            if (currentMusicTheme !== nextTheme && gameActive && !gamePaused && soundEnabled) {
+                startMusic(nextTheme);
+                showFeedback(isDay ? 'Good morning! New music ☀️' : 'Moonlight melody 🌙');
+            }
 
             const targetSky = isDay ? new THREE.Color(COLORS.skyDay) : new THREE.Color(COLORS.skyNight);
             scene.background.lerp(targetSky, lerpSpeed);
@@ -1164,6 +1286,9 @@
             gamePaused = false;
             distance = 0;
             lastMilestone = 0;
+            weatherCycle = -1;
+            currentWeather = 'clear';
+            if (particles[0]) particles[0].material.opacity = 0;
             lives = 3;
             invulnerableFrames = 0;
             updateLivesUI();
@@ -1299,6 +1424,7 @@
                 showFeedback(`${milestone * 500}m! Great running! ⭐`);
             }
             updateDayNight();
+            updateWeather();
             if (invulnerableFrames > 0) {
                 invulnerableFrames -= frameScale;
                 player.visible = Math.floor(invulnerableFrames / 6) % 2 === 0;
@@ -1365,6 +1491,11 @@
                               rotor.rotation.y += (index % 2 === 0 ? 0.42 : -0.42) * frameScale;
                          });
                          ob.position.y = ob.userData.baseY + Math.sin(performance.now() * 0.004 + ob.userData.floatOffset) * 0.18;
+                } else if (ob.userData.type === 'snowman') {
+                         ob.rotation.z = Math.sin(performance.now() * 0.003 + ob.userData.floatOffset) * 0.045;
+                } else if (ob.userData.type === 'robot') {
+                         ob.position.x = ob.userData.startX + Math.sin(performance.now() * 0.004 + ob.userData.floatOffset) * 0.24;
+                         ob.rotation.y += 0.025 * frameScale;
                 }
 
                 if (ob.position.z > -1 && ob.position.z < 1) {
@@ -1372,6 +1503,8 @@
                         let collision = true;
                         
                             if (ob.userData.type === 'chimney' && player.position.y > 4.0) collision = false;
+                            if (ob.userData.type === 'snowman' && player.position.y > 3.0) collision = false;
+                            if (ob.userData.type === 'robot' && player.position.y > 2.35) collision = false;
 
                         if (ob.userData.type === 'drone') {
                             collision = isJumping && player.position.y >= 1.0;
@@ -1390,15 +1523,23 @@
                 c.position.y = c.userData.startY + Math.sin(Date.now() * 0.005 + c.userData.floatOffset) * 0.3;
                 if (c.position.z > -1.5 && c.position.z < 1.5) {
                     if (Math.abs(c.position.x - player.position.x) < 1.8 && Math.abs(c.position.y - player.position.y) < 2.5) {
+                        if (c.userData.type === 'heart' && lives >= 3) continue;
                         createGiftBurst(c.position, c.userData.color);
                         disposeGroup(c); scene.remove(c); collectables.splice(i, 1);
-                        totalWallet++; localStorage.setItem('santaRunnerGifts', totalWallet);
-                        updateWalletUI();
-                        playSfx('gift');
-                        showFeedback('Gift collected! +1 🎁');
-                        giftBadgeEl.classList.remove('pop');
-                        void giftBadgeEl.offsetWidth;
-                        giftBadgeEl.classList.add('pop');
+                        if (c.userData.type === 'heart') {
+                            lives = Math.min(3, lives + 1);
+                            updateLivesUI();
+                            playSfx('heart');
+                            showFeedback('Rare heart found! +1 ❤️');
+                        } else {
+                            totalWallet++; localStorage.setItem('santaRunnerGifts', totalWallet);
+                            updateWalletUI();
+                            playSfx('gift');
+                            showFeedback('Gift collected! +1 🎁');
+                            giftBadgeEl.classList.remove('pop');
+                            void giftBadgeEl.offsetWidth;
+                            giftBadgeEl.classList.add('pop');
+                        }
                     }
                 }
                 if (c.position.z > 15) { disposeGroup(c); scene.remove(c); collectables.splice(i, 1); }
