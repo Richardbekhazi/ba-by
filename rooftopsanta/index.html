@@ -467,9 +467,9 @@
         const MIN_CONTINUE_SECONDS = 30;
         const TIME_PHASE_DISTANCE = 750;
         const TIME_PHASES = [
-            { name: 'morning', sky: 0xffb38a, hemi: 2.1, directional: 2.4, light: 0xffd3a3, sun: 0.95, moon: 0.08 },
-            { name: 'day', sky: 0x87ceeb, hemi: 2.5, directional: 3.0, light: 0xffffff, sun: 1, moon: 0 },
-            { name: 'dusk', sky: 0x8b5fbf, hemi: 1.8, directional: 2.1, light: 0xffa36c, sun: 0.62, moon: 0.28 },
+            { name: 'morning', sky: 0xffb38a, hemi: 2.1, directional: 2.4, light: 0xffd3a3, sun: 0.82, moon: 0.08 },
+            { name: 'day', sky: 0x87ceeb, hemi: 2.5, directional: 3.0, light: 0xffffff, sun: 0.9, moon: 0 },
+            { name: 'dusk', sky: 0x8b5fbf, hemi: 1.8, directional: 2.1, light: 0xffa36c, sun: 0.48, moon: 0.28 },
             { name: 'night', sky: 0x0b1026, hemi: 1.35, directional: 1.9, light: 0xc7d2fe, sun: 0, moon: 1 }
         ];
         
@@ -761,46 +761,46 @@
             // Layered sun with a soft corona and rounded rays.
             sun = new THREE.Group();
             const sunMat = new THREE.MeshBasicMaterial({ color: 0xffed8a, fog: false, transparent: true });
-            const sunCore = new THREE.Mesh(new THREE.SphereGeometry(5.2, 32, 24), sunMat);
+            const sunCore = new THREE.Mesh(new THREE.SphereGeometry(3.8, 32, 24), sunMat);
             sun.add(sunCore);
             scene.add(sun);
 
-            const sunSpriteMat = new THREE.SpriteMaterial({ map: glowTexture, color: 0xffb21c, transparent: true, opacity: 0.62, blending: THREE.AdditiveBlending, depthWrite: false });
+            const sunSpriteMat = new THREE.SpriteMaterial({ map: glowTexture, color: 0xffc84a, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false });
             const sunGlow = new THREE.Sprite(sunSpriteMat);
-            sunGlow.scale.set(35, 35, 1);
+            sunGlow.scale.set(18, 18, 1);
             sun.add(sunGlow);
             const rayMat = new THREE.MeshBasicMaterial({ color: 0xffdf6b, transparent: true, opacity: 0.68, fog: false });
             const sunRays = new THREE.Group();
             for (let i = 0; i < 12; i++) {
-                const ray = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 2.2, 10), rayMat);
+                const ray = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 1.5, 10), rayMat);
                 const angle = i * Math.PI / 6;
-                ray.position.set(Math.cos(angle) * 7.2, Math.sin(angle) * 7.2, 0);
+                ray.position.set(Math.cos(angle) * 5.4, Math.sin(angle) * 5.4, 0);
                 ray.rotation.z = angle - Math.PI / 2;
                 sunRays.add(ray);
             }
             sun.add(sunRays);
             sun.userData = { core: sunCore, glow: sunGlow, rays: sunRays };
-            sun.position.set(-38, 22, -80);
+            sun.position.set(window.innerWidth / window.innerHeight < 0.8 ? -24 : -34, 20, -105);
 
-            // Smooth, clean crescent moon.
+            // Small clean crescent that stays distant at the edge of the sky.
             moon = new THREE.Group();
             const moonShape = new THREE.Shape();
-            moonShape.moveTo(5, 8);
-            moonShape.bezierCurveTo(-4, 7, -8, 3, -8, -1);
-            moonShape.bezierCurveTo(-8, -6, -3, -9, 4, -8);
-            moonShape.bezierCurveTo(0, -5, -2, -2, -2, 1);
-            moonShape.bezierCurveTo(-2, 4, 1, 7, 5, 8);
-            const moonMat = new THREE.MeshBasicMaterial({ color: COLORS.moon, fog: false, transparent: true, opacity: 0, side: THREE.DoubleSide });
+            moonShape.moveTo(2.5, 4);
+            moonShape.bezierCurveTo(-2, 3.6, -4.2, 1.5, -4.2, -0.6);
+            moonShape.bezierCurveTo(-4.2, -3.2, -1.5, -4.6, 2.2, -4);
+            moonShape.bezierCurveTo(0, -2.5, -1.1, -1, -1.1, 0.5);
+            moonShape.bezierCurveTo(-1.1, 2.1, 0.4, 3.5, 2.5, 4);
+            const moonMat = new THREE.MeshBasicMaterial({ color: 0xfff9d9, fog: false, transparent: true, opacity: 0, side: THREE.DoubleSide });
             const moonCore = new THREE.Mesh(new THREE.ShapeGeometry(moonShape), moonMat);
             moon.add(moonCore);
             scene.add(moon);
 
             const moonSpriteMat = new THREE.SpriteMaterial({ map: glowTexture, color: 0xffffee, transparent: true, opacity: 0, blending: THREE.AdditiveBlending });
             const moonGlow = new THREE.Sprite(moonSpriteMat);
-            moonGlow.scale.set(30, 30, 1);
+            moonGlow.scale.set(15, 15, 1);
             moon.add(moonGlow);
             moon.userData = { core: moonCore, glow: moonGlow };
-            moon.position.set(38, -4, -80);
+            moon.position.set(window.innerWidth / window.innerHeight < 0.8 ? 24 : 50, 23, -120);
             
             // Stars
             const starGeo = new THREE.BufferGeometry();
@@ -1362,16 +1362,10 @@
             const sunOpacity = THREE.MathUtils.lerp(from.sun, to.sun, smoothBlend);
             const moonOpacity = THREE.MathUtils.lerp(from.moon, to.moon, smoothBlend);
             sun.userData.core.material.opacity += (sunOpacity - sun.userData.core.material.opacity) * lerpSpeed;
-            sun.userData.glow.material.opacity += (sunOpacity * 0.62 - sun.userData.glow.material.opacity) * lerpSpeed;
-            sun.userData.rays.children[0].material.opacity += (sunOpacity * 0.68 - sun.userData.rays.children[0].material.opacity) * lerpSpeed;
+            sun.userData.glow.material.opacity += (sunOpacity * 0.2 - sun.userData.glow.material.opacity) * lerpSpeed;
+            sun.userData.rays.children[0].material.opacity += (sunOpacity * 0.48 - sun.userData.rays.children[0].material.opacity) * lerpSpeed;
             moon.userData.core.material.opacity += (moonOpacity - moon.userData.core.material.opacity) * lerpSpeed;
-            moon.userData.glow.material.opacity += (moonOpacity * 0.48 - moon.userData.glow.material.opacity) * lerpSpeed;
-
-            const fullCycleProgress = (distance % (TIME_PHASE_DISTANCE * TIME_PHASES.length)) / (TIME_PHASE_DISTANCE * TIME_PHASES.length);
-            const sunAngle = Math.PI - fullCycleProgress * Math.PI * 2;
-            const moonAngle = sunAngle + Math.PI;
-            sun.position.set(Math.cos(sunAngle) * 36, 4 + Math.sin(sunAngle) * 8, -80);
-            moon.position.set(Math.cos(moonAngle) * 36, 4 + Math.sin(moonAngle) * 8, -80);
+            moon.userData.glow.material.opacity += (moonOpacity * 0.18 - moon.userData.glow.material.opacity) * lerpSpeed;
             sun.rotation.z += 0.0006;
 
             const starTarget = Math.max(0, (moonOpacity - 0.12) / 0.88);
@@ -1409,12 +1403,12 @@
             if (aurora) aurora.children.forEach(ribbon => ribbon.material.opacity = 0);
             if (sun) {
                 sun.userData.core.material.opacity = TIME_PHASES[0].sun;
-                sun.userData.glow.material.opacity = TIME_PHASES[0].sun * 0.62;
-                sun.userData.rays.children[0].material.opacity = TIME_PHASES[0].sun * 0.68;
+                sun.userData.glow.material.opacity = TIME_PHASES[0].sun * 0.2;
+                sun.userData.rays.children[0].material.opacity = TIME_PHASES[0].sun * 0.48;
             }
             if (moon) {
                 moon.userData.core.material.opacity = TIME_PHASES[0].moon;
-                moon.userData.glow.material.opacity = TIME_PHASES[0].moon * 0.48;
+                moon.userData.glow.material.opacity = TIME_PHASES[0].moon * 0.18;
             }
             lives = 3;
             invulnerableFrames = 0;
@@ -1688,6 +1682,9 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth <= 768 ? 1.5 : 2));
+            const narrowSky = camera.aspect < 0.8;
+            if (sun) sun.position.x = narrowSky ? -24 : -34;
+            if (moon) moon.position.x = narrowSky ? 24 : 50;
         }
         function handleInput(action) {
             if (!gameActive || gamePaused) return;
