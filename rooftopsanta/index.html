@@ -321,8 +321,8 @@
         // --- Configuration ---
         const LANE_WIDTH = 4;
         const LANES = [-LANE_WIDTH, 0, LANE_WIDTH];
-        const GRAVITY = 0.025;
-        const JUMP_FORCE = 0.65;
+        const GRAVITY = 0.024;
+        const JUMP_FORCE = 0.5;
         const SPEED_INITIAL = 0.5;
         const SPEED_MAX = 1.4;
         
@@ -335,6 +335,7 @@
         let isJumping = false; 
         let isRolling = false; 
         let rollTimer = 0;
+        let landingSquash = 0;
         
         let gameActive = false; 
         let gamePaused = false;
@@ -782,22 +783,22 @@
             const rand = Math.random();
 
             let obstacle;
-            const matBrick = new THREE.MeshStandardMaterial({ color: COLORS.brick });
             const matMetal = new THREE.MeshStandardMaterial({ color: 0x64748b });
 
             if (rand < 0.4) {
-                // Chimney (Detailed)
+                // Soft snowbank: a clear, low jump obstacle that does not block the view.
                 const group = new THREE.Group();
-                const base = new THREE.Mesh(new THREE.BoxGeometry(2.2, 3.5, 2.2), matBrick);
-                base.position.y = 1.75; base.castShadow = true; group.add(base);
-                const rim = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.4, 2.5), matBrick);
-                rim.position.y = 3.5; group.add(rim);
-                const cap = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.3, 2.4), new THREE.MeshStandardMaterial({color: COLORS.snow}));
-                cap.position.y = 3.8; group.add(cap);
-                const hole = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 1.5), new THREE.MeshStandardMaterial({color: 0x111111}));
-                hole.position.y = 3.96; group.add(hole);
-                group.position.set(laneX, -0.5, zPos);
-                group.userData = { type: 'chimney' };
+                const snowMat = new THREE.MeshStandardMaterial({ color: 0xf8fdff, roughness: 0.95 });
+                const shadowMat = new THREE.MeshStandardMaterial({ color: 0xbde7f2, roughness: 0.9 });
+                const base = new THREE.Mesh(new THREE.SphereGeometry(1.35, 16, 10), shadowMat);
+                base.scale.set(1.25, 0.55, 0.85); base.position.y = 0.35; base.castShadow = true;
+                const moundLeft = new THREE.Mesh(new THREE.SphereGeometry(0.9, 16, 10), snowMat);
+                moundLeft.scale.set(1.15, 0.7, 0.9); moundLeft.position.set(-0.65, 0.55, 0); moundLeft.castShadow = true;
+                const moundRight = moundLeft.clone();
+                moundRight.scale.set(0.9, 0.55, 0.85); moundRight.position.set(0.75, 0.45, 0.08);
+                group.add(base, moundLeft, moundRight);
+                group.position.set(laneX, -0.25, zPos);
+                group.userData = { type: 'snowbank' };
                 obstacle = group;
             } else if (rand < 0.7) {
                 // Antenna
@@ -1004,7 +1005,13 @@
             playerLane = 1;
             targetX = 0;
             player.position.set(0, 0, 0);
-            player.rotation.z = 0;
+            player.rotation.set(0, 0, 0);
+            player.scale.set(1, 1, 1);
+            verticalVelocity = 0;
+            isJumping = false;
+            isRolling = false;
+            rollTimer = 0;
+            landingSquash = 0;
             obstacles.forEach(o => { disposeGroup(o); scene.remove(o); });
             collectables.forEach(c => { disposeGroup(c); scene.remove(c); });
             groundSegments.forEach(g => { disposeGroup(g); scene.remove(g); });
@@ -1055,8 +1062,9 @@
                     }
                 }
                 playerLane = 1; targetX = 0;
-                player.position.set(0, 0, 0); player.rotation.z = 0;
+                player.position.set(0, 0, 0); player.rotation.set(0, 0, 0);
                 verticalVelocity = 0; isJumping = false; isRolling = false;
+                rollTimer = 0; landingSquash = 0;
                 lives = Math.max(lives, 1);
                 invulnerableFrames = 100;
                 updateLivesUI();
@@ -1106,19 +1114,20 @@
                 player.visible = true;
             }
 
-            player.position.x += (targetX - player.position.x) * 0.15;
-            player.rotation.z = (player.position.x - targetX) * -0.05; 
+            player.position.x += (targetX - player.position.x) * 0.18;
+            const laneLean = (player.position.x - targetX) * -0.05;
+            player.rotation.z += (laneLean - player.rotation.z) * 0.2;
             
             if (!isJumping) {
-                 const time = Date.now() * 0.015;
-                 player.position.y = Math.sin(time) * 0.15;
+                 const time = performance.now() * 0.012;
+                 const groundY = Math.sin(time) * 0.1 + (isRolling ? -0.22 : 0);
+                 player.position.y += (groundY - player.position.y) * 0.3;
             } else {
                 player.position.y += verticalVelocity;
                 verticalVelocity -= GRAVITY;
                 if (player.position.y <= 0) {
                     player.position.y = 0; isJumping = false; verticalVelocity = 0;
-                    player.scale.set(1.2, 0.8, 1.2);
-                    setTimeout(() => player.scale.set(1,1,1), 100);
+                    landingSquash = 9;
                     playSfx('land');
                 }
             }
@@ -1126,9 +1135,18 @@
             if (isRolling) {
                 rollTimer--;
                 if (rollTimer <= 0) {
-                    isRolling = false; player.scale.y = 1; if(!isJumping) player.position.y = 0;
+                    isRolling = false;
                 }
             }
+            if (landingSquash > 0) landingSquash--;
+
+            const targetScaleY = isRolling ? 0.56 : (landingSquash > 0 ? 0.84 : (isJumping ? 1.04 : 1));
+            const targetScaleXZ = isRolling ? 1.08 : (landingSquash > 0 ? 1.1 : 1);
+            player.scale.y += (targetScaleY - player.scale.y) * 0.28;
+            player.scale.x += (targetScaleXZ - player.scale.x) * 0.28;
+            player.scale.z += (targetScaleXZ - player.scale.z) * 0.28;
+            const jumpTilt = isJumping ? THREE.MathUtils.clamp(-verticalVelocity * 0.22, -0.1, 0.1) : 0;
+            player.rotation.x += (jumpTilt - player.rotation.x) * 0.2;
 
             groundSegments.forEach((g) => { g.position.z += gameSpeed; });
             if (groundSegments[0].position.z > 15) {
@@ -1150,12 +1168,11 @@
                     if (Math.abs(ob.position.x - player.position.x) < 0.8) {
                         let collision = true;
                         
-                        if (ob.userData.type === 'antenna' && player.position.y > 2) collision = false;
-                        if (ob.userData.type === 'chimney' && player.position.y > 4.0) collision = false;
+                            if (ob.userData.type === 'snowbank' && player.position.y > 1.15) collision = false;
+                            if (ob.userData.type === 'antenna' && player.position.y > 1.8) collision = false;
 
-                        // DRONE COLLISION: Only kill if JUMPING (y >= 1.0)
                         if (ob.userData.type === 'drone') {
-                             if (player.position.y < 1.0) collision = false;
+                                collision = !isRolling;
                         }
 
                         if (collision) takeHit(ob);
@@ -1204,8 +1221,19 @@
             switch(action) {
                 case 'left': if (playerLane > 0) { playerLane--; targetX = LANES[playerLane]; playSfx('move'); } break;
                 case 'right': if (playerLane < 2) { playerLane++; targetX = LANES[playerLane]; playSfx('move'); } break;
-                case 'up': if (!isJumping) { isJumping = true; verticalVelocity = JUMP_FORCE; playSfx('jump'); } break;
-                case 'down': if (!isJumping && !isRolling) { isRolling = true; rollTimer = 40; player.scale.y = 0.5; player.position.y = -0.25; playSfx('duck'); } break;
+                case 'up':
+                    if (!isJumping) {
+                        isRolling = false; rollTimer = 0; landingSquash = 0;
+                        isJumping = true; verticalVelocity = JUMP_FORCE; playSfx('jump');
+                    }
+                    break;
+                case 'down':
+                    if (isJumping) {
+                        verticalVelocity = Math.min(verticalVelocity, -0.38);
+                    } else if (!isRolling) {
+                        isRolling = true; rollTimer = 34; landingSquash = 0; playSfx('duck');
+                    }
+                    break;
             }
         }
         function handleKeyDown(e) {
