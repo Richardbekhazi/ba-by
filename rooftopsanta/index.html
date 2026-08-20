@@ -1373,7 +1373,7 @@
                             if (ob.userData.type === 'chimney' && player.position.y > 4.0) collision = false;
 
                         if (ob.userData.type === 'drone') {
-                                collision = !isRolling;
+                            collision = isJumping && player.position.y >= 1.0;
                         }
 
                         if (collision) takeHit(ob);
