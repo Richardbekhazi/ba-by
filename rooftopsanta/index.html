@@ -284,6 +284,8 @@
         .score-box:nth-child(3) { background: #fefce8; border-color: #fef08a; }
         .score-value { font-size: clamp(18px, 5vw, 24px); color: #0f4c81; }
         .new-record { margin: -6px 0 16px; padding: 8px 12px; border-radius: 14px; color: #a16207; background: #fef9c3; font-weight: 900; animation: badgePop 0.7s ease; }
+        .continue-status { margin: -6px 0 14px; color: #64748b; font-size: 13px; font-weight: 800; }
+        .continue-status.locked { color: #be123c; background: #fff1f2; border-radius: 12px; padding: 8px 10px; }
         .btn { font-size: 21px; padding: 15px 18px; border: 2px solid rgba(255,255,255,0.5); border-radius: 18px; }
         .btn-green { background: linear-gradient(135deg, #22c55e, #059669); box-shadow: 0 6px 0 #047857, 0 10px 22px rgba(5,150,105,0.22); }
         .hidden { display: none !important; }
@@ -445,6 +447,7 @@
                 </div>
             </div>
             <div class="new-record hidden" id="new-record">🏆 New rooftop record!</div>
+            <div class="continue-status" id="continue-status"></div>
             <div class="btn-group">
                 <button class="btn btn-orange" id="continue-btn">✨ Continue Run</button>
                 <button class="btn btn-blue" id="restart-btn">↻ Try Again</button>
@@ -461,6 +464,7 @@
         const JUMP_FORCE = 0.5;
         const SPEED_INITIAL = 0.5;
         const SPEED_MAX = 1.4;
+        const MIN_CONTINUE_SECONDS = 20;
         
         // --- State ---
         let scene, camera, renderer;
@@ -472,6 +476,8 @@
         let isRolling = false; 
         let rollTimer = 0;
         let landingSquash = 0;
+        let segmentRunTime = 0;
+        let lastFrameTime = performance.now();
         
         let gameActive = false; 
         let gamePaused = false;
@@ -501,6 +507,7 @@
         const finalWalletEl = document.getElementById('final-wallet');
         const bestDistEl = document.getElementById('best-dist');
         const newRecordEl = document.getElementById('new-record');
+        const continueStatusEl = document.getElementById('continue-status');
         const continueBtn = document.getElementById('continue-btn');
         const restartBtn = document.getElementById('restart-btn');
         const menuBtn = document.getElementById('menu-btn');
@@ -657,7 +664,7 @@
 
             renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth <= 768 ? 1.5 : 2));
             renderer.outputEncoding = THREE.sRGBEncoding;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             renderer.toneMappingExposure = 1.15;
@@ -668,7 +675,8 @@
             hemiLight = new THREE.HemisphereLight(0x4c5c7a, 0x1a202c, 1.5); scene.add(hemiLight);
             dirLight = new THREE.DirectionalLight(0xffffff, 3.0);
             dirLight.position.set(30, 50, -20); dirLight.castShadow = true;
-            dirLight.shadow.mapSize.width = 2048; dirLight.shadow.mapSize.height = 2048;
+            const shadowSize = window.innerWidth <= 768 ? 1024 : 2048;
+            dirLight.shadow.mapSize.width = shadowSize; dirLight.shadow.mapSize.height = shadowSize;
             scene.add(dirLight);
             const ambient = new THREE.AmbientLight(0x1e3a8a, 0.3); scene.add(ambient);
 
@@ -1037,15 +1045,15 @@
             visualEffects.push({ group, life: 38 });
         }
 
-        function updateVisualEffects() {
+        function updateVisualEffects(frameScale = 1) {
             for (let i = visualEffects.length - 1; i >= 0; i--) {
                 const effect = visualEffects[i];
-                effect.life--;
+                effect.life -= frameScale;
                 effect.group.children.forEach(sparkle => {
-                    sparkle.position.add(sparkle.userData.velocity);
-                    sparkle.userData.velocity.y -= 0.012;
-                    sparkle.rotation.x += 0.2;
-                    sparkle.rotation.y += 0.25;
+                    sparkle.position.addScaledVector(sparkle.userData.velocity, frameScale);
+                    sparkle.userData.velocity.y -= 0.012 * frameScale;
+                    sparkle.rotation.x += 0.2 * frameScale;
+                    sparkle.rotation.y += 0.25 * frameScale;
                     sparkle.material.opacity = Math.max(0, effect.life / 38);
                 });
                 if (effect.life <= 0) {
@@ -1111,13 +1119,13 @@
             particles.push(points);
         }
 
-        function updateSnow() {
+        function updateSnow(frameScale = 1) {
             const points = particles[0];
             const positions = points.geometry.attributes.position.array;
             const vels = points.userData.velocities;
             for(let i=0; i<vels.length; i++) {
                 let idx = i * 3;
-                positions[idx+1] -= vels[i]; positions[idx] -= 0.03; 
+                positions[idx+1] -= vels[i] * frameScale; positions[idx] -= 0.03 * frameScale;
                 if (positions[idx+1] < 0) { positions[idx+1] = 60; positions[idx] = (Math.random() - 0.5) * 120; }
             }
             points.geometry.attributes.position.needsUpdate = true;
@@ -1180,6 +1188,8 @@
             isRolling = false;
             rollTimer = 0;
             landingSquash = 0;
+            segmentRunTime = 0;
+            lastFrameTime = performance.now();
             obstacles.forEach(o => { disposeGroup(o); scene.remove(o); });
             collectables.forEach(c => { disposeGroup(c); scene.remove(c); });
             groundSegments.forEach(g => { disposeGroup(g); scene.remove(g); });
@@ -1216,6 +1226,7 @@
 
         function continueGame() {
             const cost = 10 * (reviveCount + 1);
+            if (segmentRunTime < MIN_CONTINUE_SECONDS || totalWallet < cost) return;
             if (totalWallet >= cost) {
                 totalWallet -= cost;
                 localStorage.setItem('santaRunnerGifts', totalWallet);
@@ -1233,6 +1244,8 @@
                 player.position.set(0, 0, 0); player.rotation.set(0, 0, 0);
                 verticalVelocity = 0; isJumping = false; isRolling = false;
                 rollTimer = 0; landingSquash = 0;
+                segmentRunTime = 0;
+                lastFrameTime = performance.now();
                 lives = Math.max(lives, 1);
                 invulnerableFrames = 100;
                 updateLivesUI();
@@ -1268,13 +1281,24 @@
             updateWalletUI();
             const cost = 10 * (reviveCount + 1);
             continueBtn.innerHTML = `✨ Continue Run <span style="font-size: 0.72em; opacity: 0.9">• ${cost} 🎁</span>`;
-            continueBtn.disabled = totalWallet < cost;
+            const protectedFromQuickSpend = segmentRunTime < MIN_CONTINUE_SECONDS;
+            continueBtn.disabled = protectedFromQuickSpend || totalWallet < cost;
+            continueStatusEl.classList.toggle('locked', protectedFromQuickSpend);
+            if (protectedFromQuickSpend) {
+                continueStatusEl.textContent = `🔒 Gift protection: play at least ${MIN_CONTINUE_SECONDS} seconds before using saved gifts.`;
+            } else if (totalWallet < cost) {
+                continueStatusEl.textContent = `Collect ${cost - totalWallet} more gifts to continue.`;
+            } else {
+                continueStatusEl.textContent = `Adventure unlocked — continue for ${cost} gifts.`;
+            }
         }
 
-        function updatePhysics() {
+        function updatePhysics(frameScale, deltaSeconds) {
             if (!gameActive || gamePaused) return;
-            if (gameSpeed < SPEED_MAX) gameSpeed += 0.00015;
-            distance += gameSpeed;
+            segmentRunTime += deltaSeconds;
+            if (gameSpeed < SPEED_MAX) gameSpeed = Math.min(SPEED_MAX, gameSpeed + 0.00015 * frameScale);
+            const travel = gameSpeed * frameScale;
+            distance += travel;
             distCountEl.innerText = Math.floor(distance);
             const milestone = Math.floor(distance / 500);
             if (milestone > lastMilestone) {
@@ -1284,23 +1308,23 @@
             }
             updateDayNight();
             if (invulnerableFrames > 0) {
-                invulnerableFrames--;
+                invulnerableFrames -= frameScale;
                 player.visible = Math.floor(invulnerableFrames / 6) % 2 === 0;
             } else {
                 player.visible = true;
             }
 
-            player.position.x += (targetX - player.position.x) * 0.18;
+            player.position.x += (targetX - player.position.x) * (1 - Math.pow(0.82, frameScale));
             const laneLean = (player.position.x - targetX) * -0.05;
-            player.rotation.z += (laneLean - player.rotation.z) * 0.2;
+            player.rotation.z += (laneLean - player.rotation.z) * (1 - Math.pow(0.8, frameScale));
             
             if (!isJumping) {
                  const time = performance.now() * 0.012;
                  const groundY = Math.sin(time) * 0.1 + (isRolling ? -0.22 : 0);
-                 player.position.y += (groundY - player.position.y) * 0.3;
+                 player.position.y += (groundY - player.position.y) * (1 - Math.pow(0.7, frameScale));
             } else {
-                player.position.y += verticalVelocity;
-                verticalVelocity -= GRAVITY;
+                player.position.y += verticalVelocity * frameScale;
+                verticalVelocity -= GRAVITY * frameScale;
                 if (player.position.y <= 0) {
                     player.position.y = 0; isJumping = false; verticalVelocity = 0;
                     landingSquash = 9;
@@ -1309,20 +1333,21 @@
             }
 
             if (isRolling) {
-                rollTimer--;
+                rollTimer -= frameScale;
                 if (rollTimer <= 0) {
                     isRolling = false;
                 }
             }
-            if (landingSquash > 0) landingSquash--;
+            if (landingSquash > 0) landingSquash -= frameScale;
 
             const targetScaleY = isRolling ? 0.56 : (landingSquash > 0 ? 0.84 : (isJumping ? 1.04 : 1));
             const targetScaleXZ = isRolling ? 1.08 : (landingSquash > 0 ? 1.1 : 1);
-            player.scale.y += (targetScaleY - player.scale.y) * 0.28;
-            player.scale.x += (targetScaleXZ - player.scale.x) * 0.28;
-            player.scale.z += (targetScaleXZ - player.scale.z) * 0.28;
+            const scaleEase = 1 - Math.pow(0.72, frameScale);
+            player.scale.y += (targetScaleY - player.scale.y) * scaleEase;
+            player.scale.x += (targetScaleXZ - player.scale.x) * scaleEase;
+            player.scale.z += (targetScaleXZ - player.scale.z) * scaleEase;
             const jumpTilt = isJumping ? THREE.MathUtils.clamp(-verticalVelocity * 0.22, -0.1, 0.1) : 0;
-            player.rotation.x += (jumpTilt - player.rotation.x) * 0.2;
+            player.rotation.x += (jumpTilt - player.rotation.x) * (1 - Math.pow(0.8, frameScale));
             if (santa) {
                 const motionTime = performance.now() * 0.01;
                 santa.rotation.z = Math.sin(motionTime) * (isRolling ? 0.025 : 0.04);
@@ -1332,7 +1357,7 @@
                 santa.userData.armR.rotation.x = -Math.sin(motionTime) * 0.08;
             }
 
-            groundSegments.forEach((g) => { g.position.z += gameSpeed; });
+            groundSegments.forEach((g) => { g.position.z += travel; });
             if (groundSegments[0].position.z > 15) {
                 const oldSeg = groundSegments.shift(); disposeGroup(oldSeg); scene.remove(oldSeg);
                 let minZ = 0; groundSegments.forEach(g => { if(g.position.z < minZ) minZ = g.position.z });
@@ -1341,11 +1366,11 @@
 
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let ob = obstacles[i];
-                ob.position.z += gameSpeed;
+                ob.position.z += travel;
                 
                 if (ob.userData.type === 'drone') {
                          ob.userData.rotors.forEach((rotor, index) => {
-                              rotor.rotation.y += index % 2 === 0 ? 0.42 : -0.42;
+                              rotor.rotation.y += (index % 2 === 0 ? 0.42 : -0.42) * frameScale;
                          });
                          ob.position.y = ob.userData.baseY + Math.sin(performance.now() * 0.004 + ob.userData.floatOffset) * 0.18;
                 }
@@ -1369,8 +1394,8 @@
 
             for (let i = collectables.length - 1; i >= 0; i--) {
                 let c = collectables[i];
-                c.position.z += gameSpeed;
-                c.rotation.y += 0.05;
+                c.position.z += travel;
+                c.rotation.y += 0.05 * frameScale;
                 c.position.y = c.userData.startY + Math.sin(Date.now() * 0.005 + c.userData.floatOffset) * 0.3;
                 if (c.position.z > -1.5 && c.position.z < 1.5) {
                     if (Math.abs(c.position.x - player.position.x) < 1.8 && Math.abs(c.position.y - player.position.y) < 2.5) {
@@ -1387,20 +1412,23 @@
                 }
                 if (c.position.z > 15) { disposeGroup(c); scene.remove(c); collectables.splice(i, 1); }
             }
-            updateSnow();
-            updateVisualEffects();
+            updateSnow(frameScale);
+            updateVisualEffects(frameScale);
         }
 
-        function animate() {
+        function animate(now = performance.now()) {
             animationId = requestAnimationFrame(animate);
-            updatePhysics();
+            const deltaSeconds = Math.max(0, Math.min((now - lastFrameTime) / 1000, 0.05));
+            const frameScale = deltaSeconds * 60;
+            lastFrameTime = now;
+            updatePhysics(frameScale, deltaSeconds);
             renderer.render(scene, camera);
         }
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth <= 768 ? 1.5 : 2));
         }
         function handleInput(action) {
             if (!gameActive || gamePaused) return;
