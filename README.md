@@ -77,6 +77,29 @@ To add a new game:
 - The board and piece tray resize for the screen and difficulty, with a side-by-side layout on short landscape screens.
 - On very small screens, the page can scroll so all pieces remain reachable.
 
+### Gentle toddler activities
+
+Four additional games use original vector illustrations, large touch controls,
+English/French instructions, a mute button, and spoken help. There are no timers,
+scores, adverts, purchases, or losing screens.
+
+- **Animal Wash** (`/animal-wash/`): rub or tap to remove mud, rinse the bubbles,
+  and meet a puppy, piglet, or bunny. Space/Enter also cleans spots.
+- **Little Car Garage** (`/car-garage/`): wash a car, bus, or truck, choose its
+  paint color, honk, and take a short pretend drive.
+- **My Tiny Garden** (`/tiny-garden/`): choose flower, strawberry, or sunflower
+  seeds, then water, add sunshine, and harvest. Actions have gentle visual prompts.
+- **Magic Finger Painting** (`/finger-paint/`): draw, stamp stars or flowers,
+  erase, and switch optional outlines. Undo also recovers a cleared painting.
+  Arrow keys move the drawing cursor; Space/Enter paints at that point.
+
+Shared styles and interaction/audio helpers live in `assets/css/toddler-play.css`
+and `assets/js/toddler-play.js`. Each activity has its own module in `assets/js/`.
+Art survives viewport changes while the page remains open; paintings are not
+uploaded or saved across visits. Sound starts only after interaction and uses
+browser-generated tones and optional device speech synthesis. Supervised,
+short play sessions are recommended for ages 2-3.
+
 ---
 
 ## 👨‍💻 Author

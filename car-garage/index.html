@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Wash, paint, and take a happy toy car for a drive. Big touch controls and no racing or losing for toddlers.">
+    <title>Little Car Garage - ba-by.ca</title>
+    <link rel="stylesheet" href="/assets/css/toddler-play.css">
+    <script type="module" src="/assets/js/car-garage.js"></script>
+</head>
+<body data-game="garage">
+    <nav class="topbar" aria-label="Game settings">
+        <a class="home" href="/" aria-label="Back to games">🏠</a>
+        <div class="settings">
+            <button type="button" data-language="en" aria-label="English" aria-pressed="true">EN</button>
+            <button type="button" data-language="fr" aria-label="Français" aria-pressed="false">FR</button>
+            <button type="button" id="sound" aria-label="Sound on" aria-pressed="true">🔊</button>
+            <button type="button" id="help" aria-label="Hear instructions">💬</button>
+        </div>
+    </nav>
+    <main class="game">
+        <header class="heading"><h1 id="title">Little Car Garage</h1><p id="instruction">Wash, paint, and go!</p></header>
+        <div id="stage" class="stage rub-area" tabindex="0" role="button" aria-label="Wash the toy car"></div>
+        <div id="palette" class="palette" aria-label="Car colors"></div>
+        <div id="controls" class="toolbar" aria-label="Garage tools"></div>
+        <p id="message" class="message" role="status" aria-live="polite"></p>
+        <noscript>Please enable JavaScript to play.</noscript>
+    </main>
+</body>
+</html>
