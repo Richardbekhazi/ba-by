@@ -24,7 +24,7 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            touch-action: none; /* Prevent scrolling while dragging */
+            touch-action: pan-y;
         }
 
         body {
@@ -34,7 +34,8 @@
             background: radial-gradient(circle, #FFF9F0 0%, #FFE0B2 100%) fixed;
             height: 100vh;
             height: 100dvh;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
@@ -73,7 +74,10 @@
 
         /* --- GAME CONTAINER --- */
         .game-container {
+            --grid-cols: 3;
+            --piece-size: 100px;
             flex: 1;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -120,7 +124,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 50px;
+            gap: 14px;
             position: relative;
             animation: fadeIn 0.8s ease-out 0.2s both;
         }
@@ -138,7 +142,7 @@
             padding: 30px;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.08), 0 15px 0 #bc9a6c, 0 20px 40px rgba(0,0,0,0.1);
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(var(--grid-cols), var(--piece-size));
             justify-content: center;
             align-items: center;
             gap: 30px;
@@ -146,12 +150,12 @@
             background-image: 
                 radial-gradient(circle at 20% 80%, rgba(255,255,255,0.4) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(255,255,255,0.3) 0%, transparent 50%);
-            width: 100%;
+            width: max-content;
             min-width: 0;
-            border-width: clamp(8px, 3vw, 15px);
+            border-width: 8px;
             border-radius: clamp(20px, 7vw, 40px);
-            padding: clamp(8px, 3vw, 30px);
-            gap: clamp(6px, 2vw, 30px);
+            padding: 8px;
+            gap: 5px;
         }
 
         .slot {
@@ -228,7 +232,7 @@
 
         /* Emoji Display */
         .emoji-display {
-            font-size: 3.5rem;
+            font-size: calc(var(--piece-size) * 0.65);
             line-height: 1;
             display: flex;
             align-items: center;
@@ -255,23 +259,23 @@
 
         /* Pieces Row (Draggables) */
         .pieces-row {
-            display: flex;
+            display: grid;
             justify-content: center;
-            flex-wrap: wrap;
-            width: 100%;
-            padding: 20px;
-            gap: 15px;
+            grid-template-columns: repeat(var(--grid-cols), var(--piece-size));
+            width: max-content;
+            padding: 8px;
+            gap: 5px;
             background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.2) 100%);
             border-radius: 30px;
             box-shadow: inset 0 4px 12px rgba(0,0,0,0.05);
             border: 3px solid rgba(255,255,255,0.6);
-            min-height: 130px;
+            min-height: 0;
             align-items: center;
         }
 
         .piece {
-            width: clamp(72px, 25vw, 100px);
-            height: clamp(72px, 25vw, 100px);
+            width: var(--piece-size);
+            height: var(--piece-size);
             cursor: grab;
             touch-action: none;
             position: relative;
@@ -285,7 +289,7 @@
             border-radius: 25px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.12), inset 0 -2px 8px rgba(0,0,0,0.04);
             border: 2px solid rgba(255,255,255,0.8);
-            padding: 8px;
+            padding: 4px;
         }
 
         .piece:hover:not(.placed) {
@@ -303,7 +307,7 @@
         }
 
         .piece .emoji-display {
-            font-size: 3.2rem;
+            font-size: calc(var(--piece-size) * 0.65);
         }
 
         .piece:active:not(.placed) {
@@ -314,8 +318,6 @@
             position: fixed; /* Popped out of layout */
             pointer-events: none; /* Let events pass through to check for slots */
             z-index: 1000;
-            width: 140px !important; 
-            height: 140px !important;
             background: white;
             border-radius: 30px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.25);
@@ -432,8 +434,8 @@
         }
 
         .piece-wrapper {
-            width: clamp(72px, 25vw, 100px);
-            height: clamp(72px, 25vw, 100px);
+            width: var(--piece-size);
+            height: var(--piece-size);
         }
 
         @media (max-width: 600px) {
@@ -442,32 +444,7 @@
             .level-header h1 { font-size: 2.1rem; }
             .subtitle { margin-top: 2px; font-size: 1rem; }
             .play-area { gap: 14px; }
-            .board {
-                width: auto;
-                grid-template-columns: repeat(var(--board-cols, 3), var(--slot-size, 80px));
-                padding: 8px;
-                gap: 5px;
-                border-width: 8px;
-            }
-            .slot { width: var(--slot-size, 80px); }
-            .pieces-row {
-                display: grid;
-                grid-template-columns: repeat(var(--piece-cols, 3), var(--piece-size, 64px));
-                width: auto;
-                min-height: 0;
-                padding: 8px;
-                gap: 5px;
-            }
-            .piece-wrapper, .piece { width: var(--piece-size, 64px); height: var(--piece-size, 64px); }
-            .piece .emoji-display { font-size: 2.5rem; }
             .victory-card { max-width: calc(100% - 24px); padding: 30px 20px; border-radius: 32px; }
-
-            .game-container[data-count="4"] { --board-cols: 4; --piece-cols: 4; --slot-size: 55px; --piece-size: 55px; }
-            .game-container[data-count="5"],
-            .game-container[data-count="6"] { --board-cols: 3; --piece-cols: 3; --slot-size: 62px; --piece-size: 52px; }
-            .game-container[data-count="7"],
-            .game-container[data-count="8"],
-            .game-container[data-count="9"] { --board-cols: 3; --piece-cols: 3; --slot-size: 48px; --piece-size: 44px; }
         }
 
         @media (max-width: 600px) and (max-height: 520px) {
@@ -476,27 +453,14 @@
             .level-header h1 { font-size: 1.65rem; }
             .subtitle { font-size: 0.85rem; }
             .play-area { gap: 8px; }
-            .game-container[data-count="7"],
-            .game-container[data-count="8"],
-            .game-container[data-count="9"] { --slot-size: 45px; --piece-size: 41px; }
         }
 
-        @media (orientation: landscape) and (max-height: 500px) {
+        @media (orientation: landscape) and (max-height: 600px) {
             .game-container { max-width: none; padding: 8px 12px 8px 76px; justify-content: flex-start; }
             .level-header { margin-bottom: 6px; }
             .level-header h1 { font-size: 1.8rem; }
             .subtitle { margin-top: 0; font-size: 0.95rem; }
             .play-area { flex-direction: row; justify-content: center; gap: 10px; }
-            .board { width: auto; grid-template-columns: repeat(var(--board-cols, 3), var(--slot-size, 64px)); padding: 7px; gap: 5px; border-width: 7px; }
-            .slot { width: var(--slot-size, 64px); }
-            .pieces-row { display: grid; width: auto; grid-template-columns: repeat(var(--piece-cols, 3), var(--piece-size, 58px)); min-height: 0; padding: 7px; gap: 5px; }
-            .piece-wrapper, .piece { width: var(--piece-size, 58px); height: var(--piece-size, 58px); }
-            .game-container[data-count="4"] { --board-cols: 2; --piece-cols: 2; --slot-size: 64px; --piece-size: 58px; }
-            .game-container[data-count="5"],
-            .game-container[data-count="6"] { --board-cols: 3; --piece-cols: 3; --slot-size: 58px; --piece-size: 52px; }
-            .game-container[data-count="7"],
-            .game-container[data-count="8"],
-            .game-container[data-count="9"] { --board-cols: 3; --piece-cols: 3; --slot-size: 48px; --piece-size: 44px; }
         }
 
     </style>
@@ -607,8 +571,6 @@
         let activeWrapper = null;
         let activePointerId = null;
         let currentPos = { x: 0, y: 0 };
-        let pointerStart = { x: 0, y: 0 };
-        let dragDistance = 0;
         let hintTimeout = null;
         let offset = { x: 0, y: 0 };
 
@@ -637,6 +599,10 @@
             });
             window.addEventListener('blur', cancelActiveDrag);
             window.addEventListener('orientationchange', cancelActiveDrag);
+            window.addEventListener('resize', () => {
+                cancelActiveDrag();
+                fitLayout();
+            });
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) cancelActiveDrag();
             });
@@ -706,6 +672,34 @@
                 pieceWrapper.appendChild(piece);
                 els.pieces.appendChild(pieceWrapper);
             });
+            fitLayout();
+            document.fonts.ready.then(fitLayout);
+        }
+
+        function fitLayout() {
+            const count = Number(els.game.dataset.count);
+            const columns = count === 4 ? 2 : Math.min(count, 3);
+            const rows = Math.ceil(count / columns);
+            const gameStyle = getComputedStyle(els.game);
+            const header = document.querySelector('.level-header');
+            const headerStyle = getComputedStyle(header);
+            const playStyle = getComputedStyle(document.getElementById('play-area'));
+            const horizontal = playStyle.flexDirection === 'row';
+            const availableWidth = els.game.clientWidth - parseFloat(gameStyle.paddingLeft) - parseFloat(gameStyle.paddingRight);
+            // Reserve room for the board's shadow as well as its frame.
+            const availableHeight = window.innerHeight - parseFloat(gameStyle.paddingTop) - parseFloat(gameStyle.paddingBottom)
+                - header.offsetHeight - parseFloat(headerStyle.marginBottom) - 20;
+            const gap = parseFloat(playStyle.gap);
+            const rowGaps = (rows - 1) * 5;
+            const columnGaps = (columns - 1) * 5;
+            const widthSize = horizontal
+                ? (availableWidth - 54 - gap - columnGaps * 2) / (columns * 2)
+                : (availableWidth - 32 - columnGaps) / columns;
+            const heightSize = horizontal
+                ? (availableHeight - 32 - rowGaps) / rows
+                : (availableHeight - 54 - gap - rowGaps * 2) / (rows * 2);
+            els.game.style.setProperty('--grid-cols', columns);
+            els.game.style.setProperty('--piece-size', Math.max(44, Math.floor(Math.min(100, widthSize, heightSize))) + 'px');
         }
 
         function createSVG(path, color) {
@@ -724,16 +718,13 @@
             activePiece = target;
             activeWrapper = target.parentElement;
             activePointerId = e.pointerId;
-            activePiece.setPointerCapture?.(activePointerId);
             
             const clientX = e.clientX;
             const clientY = e.clientY;
-            pointerStart.x = clientX;
-            pointerStart.y = clientY;
-            dragDistance = 0;
 
             // Calculate offset relative to piece center to snap to finger
             const rect = activePiece.getBoundingClientRect();
+            activePiece.style.setProperty('--piece-size', rect.width + 'px');
             offset.x = clientX - (rect.left + rect.width / 2);
             offset.y = clientY - (rect.top + rect.height / 2);
 
@@ -748,6 +739,7 @@
             activePiece.style.transform = 'translate(-50%, -50%) scale(1.1)'; // Centering transform
             // Move to body so it floats over everything
             document.body.appendChild(activePiece);
+            activePiece.setPointerCapture?.(activePointerId);
         }
 
         function drag(e) {
@@ -759,7 +751,6 @@
 
             currentPos.x = clientX - offset.x;
             currentPos.y = clientY - offset.y;
-            dragDistance = Math.max(dragDistance, Math.hypot(clientX - pointerStart.x, clientY - pointerStart.y));
 
             activePiece.style.left = currentPos.x + 'px';
             activePiece.style.top = currentPos.y + 'px';
@@ -771,14 +762,7 @@
             if (!activePiece || e.pointerId !== activePointerId) return;
             e.preventDefault();
 
-            let dropped = checkDrop();
-            if (!dropped && dragDistance < 10) {
-                const matchingSlot = document.querySelector(`.slot[data-id="${activePiece.dataset.id}"]`);
-                if (matchingSlot && !matchingSlot.querySelector('.piece.placed')) {
-                    snapToSlot(activePiece, matchingSlot);
-                    dropped = true;
-                }
-            }
+            const dropped = checkDrop();
             
             if (!dropped) {
                 restoreActivePiece();
@@ -794,6 +778,7 @@
             activePiece.style.left = '';
             activePiece.style.top = '';
             activePiece.style.transform = '';
+            activePiece.style.removeProperty('--piece-size');
 
             if (activeWrapper?.isConnected) {
                 activeWrapper.appendChild(activePiece);
@@ -867,6 +852,7 @@
             piece.style.transform = '';
             piece.style.left = '';
             piece.style.top = '';
+            piece.style.removeProperty('--piece-size');
             
             slot.appendChild(piece); // Move DOM element into slot
             

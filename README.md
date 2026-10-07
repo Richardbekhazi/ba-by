@@ -71,6 +71,12 @@ To add a new game:
 - Works on all devices (tablet, phone, PC)
 - Easy to extend with new games
 
+### Puzzle controls and mobile layout
+
+- Drag each piece to its matching outline; tapping or double-clicking does not automatically solve it.
+- The board and piece tray resize for the screen and difficulty, with a side-by-side layout on short landscape screens.
+- On very small screens, the page can scroll so all pieces remain reachable.
+
 ---
 
 ## 👨‍💻 Author
