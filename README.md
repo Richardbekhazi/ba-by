@@ -84,13 +84,20 @@ English/French instructions, a mute button, and spoken help. There are no timers
 scores, adverts, purchases, or losing screens.
 
 - **Animal Wash** (`/animal-wash/`): rub or tap to remove mud, rinse the bubbles,
-  and meet a puppy, piglet, or bunny. Space/Enter also cleans spots.
+  and meet a puppy, piglet, or bunny. Tickle the animals, splash in the bath,
+  pop a floating bubble party, and try silly hats without resetting the bath.
+  Space/Enter cleans spots or pops an active party bubble.
 - **Little Car Garage** (`/car-garage/`): wash a car, bus, or truck, choose its
-  paint color, honk, and take a short pretend drive.
+  paint color, honk, and explore a continuous pretend drive. Tap a bunny,
+  balloons, or a puddle; switch between meadow, beach, and evening roads.
+  The Garage button returns home whenever the child is ready.
 - **My Tiny Garden** (`/tiny-garden/`): choose flower, strawberry, or sunflower
-  seeds, then water, add sunshine, and harvest. Actions have gentle visual prompts.
+  seeds in independent pots, then water, add sunshine, and harvest. Tap each
+  pot to help it grow, collect a little basket, and greet rotating animal visitors.
 - **Magic Finger Painting** (`/finger-paint/`): draw, stamp stars or flowers,
-  erase, and switch optional outlines. Undo also recovers a cleared painting.
+  erase, and switch optional outlines. Rainbow strokes, hearts, glitter,
+  and a non-destructive stamp dance add playful surprises.
+  Undo also recovers a cleared painting.
   Arrow keys move the drawing cursor; Space/Enter paints at that point.
 
 Shared styles and interaction/audio helpers live in `assets/css/toddler-play.css`

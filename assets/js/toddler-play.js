@@ -7,6 +7,7 @@ let soundEnabled = true;
 let audio;
 let updateLanguage;
 let lastSound = -Infinity;
+const reactionTimers = new WeakMap();
 const ui = {
     home: ['Back to games', 'Retour aux jeux'],
     soundOn: ['Sound on', 'Son actif'],
@@ -41,13 +42,14 @@ export function button(icon, label, action, parent = controls) {
     el.innerHTML = `<span class="tool-icon" aria-hidden="true">${icon}</span><span class="tool-label"></span>`;
     el.querySelector('.tool-label').textContent = text(label);
     el.setAttribute('aria-label', text(label));
+    el.dataset.focusKey = label[0];
     el.addEventListener('click', () => {
         unlockAudio();
         const focused = document.activeElement === el;
-        const index = Array.from(parent.children).indexOf(el);
+        const focusKey = el.dataset.focusKey;
         action(el);
         if (focused && !el.isConnected) {
-            const replacement = parent.children[index];
+            const replacement = Array.from(parent.children).find(child => child.dataset.focusKey === focusKey);
             if (replacement && !replacement.disabled) replacement.focus({ preventScroll: true });
         }
     });
@@ -83,12 +85,44 @@ export function node(tag, attrs, parent) {
     parent.appendChild(el);
     return el;
 }
+export function react(element, animation = 'wiggle') {
+    if (!element) throw new Error('The play character is missing from the scene.');
+    const timers = reactionTimers.get(element) || new Map();
+    reactionTimers.set(element, timers);
+    clearTimeout(timers.get(animation));
+    element.classList.remove(animation);
+    void element.getBoundingClientRect();
+    element.classList.add(animation);
+    timers.set(animation, setTimeout(() => {
+        element.classList.remove(animation);
+        timers.delete(animation);
+        if (!timers.size) reactionTimers.delete(element);
+    }, 750));
+}
+export function playEffect(x, y, symbol = '\u2605') {
+    if (stage.querySelectorAll('.play-effect').length >= 16) return;
+    const el = document.createElement('span');
+    el.className = 'play-effect';
+    el.setAttribute('aria-hidden', 'true');
+    el.textContent = symbol;
+    el.style.left = Math.max(5, Math.min(95, x / 6)) + '%';
+    el.style.top = Math.max(8, Math.min(90, y / 3.8)) + '%';
+    stage.appendChild(el);
+    setTimeout(() => el.remove(), 1400);
+}
+export function sceneButton(icon, label, x, y, action) {
+    const el = button(icon, label, action, stage);
+    el.className = 'scene-button';
+    el.style.left = `clamp(28px, ${x / 6}%, calc(100% - 28px))`;
+    el.style.top = `clamp(28px, ${y / 3.8}%, calc(100% - 28px))`;
+    return el;
+}
 export const face = (x, y) => `<g fill="#344359"><circle cx="${x - 22}" cy="${y}" r="6"/><circle cx="${x + 22}" cy="${y}" r="6"/><path d="M${x - 13} ${y + 23} Q${x} ${y + 38} ${x + 13} ${y + 23}" fill="none" stroke="#344359" stroke-width="5" stroke-linecap="round"/></g><g fill="#f39b9c" opacity=".65"><ellipse cx="${x - 38}" cy="${y + 15}" rx="12" ry="7"/><ellipse cx="${x + 38}" cy="${y + 15}" rx="12" ry="7"/></g>`;
 export const sky = `<rect width="600" height="380" fill="#dff3f6"/><g fill="#fff" opacity=".85"><path d="M35 90 Q15 65 40 58 Q40 30 70 39 Q94 23 111 48 Q145 45 144 72 Q150 92 120 92Z"/><path d="M450 88 Q435 65 461 60 Q465 35 490 44 Q513 30 530 52 Q563 46 565 73 Q568 90 540 91Z"/></g>`;
 export function celebrate(x = 300, y = 150) {
     chime(true);
     const root = stage.querySelector('svg');
-    if (!root) return;
+    if (!root || root.querySelectorAll('.sparkle').length >= 40) return;
     for (let i = 0; i < 10; i++) {
         const el = node('text', { x: x - 90 + i * 20, y: y + Math.sin(i) * 35, fill: colors[i % colors.length].value, 'font-size': 28, class: 'sparkle' }, root);
         el.textContent = '\u2605';
@@ -111,6 +145,7 @@ export function rub(element, action, keyboardAction) {
         action(p.x, p.y);
     };
     element.addEventListener('pointerdown', event => {
+        if (event.target.closest('button')) return;
         if (pointer !== null || !event.isPrimary || event.button !== 0) return;
         event.preventDefault();
         unlockAudio();
@@ -181,21 +216,37 @@ export function unlockAudio() {
     audio.resume().catch(soundUnavailable);
 }
 export function chime(success = false) {
+    playNotes(success ? [523, 659, 784] : [440]);
+}
+export function soundEffect(kind) {
+    const sounds = {
+        pop: { notes: [880], wave: 'sine', bend: .4 },
+        splash: { notes: [380, 520, 330], wave: 'sine', bend: .7 },
+        giggle: { notes: [660, 880, 740], wave: 'sine', bend: 1.2 },
+        horn: { notes: [294, 370], wave: 'triangle', bend: 1 },
+        flutter: { notes: [880, 660, 990], wave: 'sine', bend: 1.1 }
+    };
+    const sound = sounds[kind];
+    if (!sound) throw new Error(`Unknown play sound: ${kind}`);
+    playNotes(sound.notes, sound.wave, sound.bend);
+}
+function playNotes(notes, wave = 'sine', bend = 1) {
     if (!soundEnabled || !audio || document.hidden || performance.now() - lastSound < 120) return;
     lastSound = performance.now();
     audio.resume().then(() => {
         if (!soundEnabled || document.hidden || audio.state !== 'running') return;
-        const notes = success ? [523, 659, 784] : [440];
         notes.forEach((frequency, i) => {
             const osc = audio.createOscillator();
             const gain = audio.createGain();
             const start = audio.currentTime + i * .12;
-            osc.type = 'sine';
-            osc.frequency.value = frequency;
+            osc.type = wave;
+            osc.frequency.setValueAtTime(frequency, start);
+            osc.frequency.exponentialRampToValueAtTime(frequency * bend, start + .18);
             gain.gain.setValueAtTime(0, start);
             gain.gain.linearRampToValueAtTime(.055, start + .02);
             gain.gain.exponentialRampToValueAtTime(.001, start + .2);
             osc.connect(gain).connect(audio.destination);
+            osc.onended = () => { osc.disconnect(); gain.disconnect(); };
             osc.start(start);
             osc.stop(start + .22);
         });

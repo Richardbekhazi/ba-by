@@ -1,4 +1,4 @@
-import { controls, text, setTitle, instruction, message, button, colors, swatches, chime, unlockAudio, init } from './toddler-play.js';
+import { controls, text, setTitle, instruction, message, button, colors, swatches, chime, unlockAudio, init, playEffect } from './toddler-play.js';
 
 const paper = document.getElementById('paper');
 const outline = document.getElementById('outline');
@@ -9,7 +9,8 @@ base.height = paper.height;
 const baseCtx = base.getContext('2d');
 if (!ctx || !baseCtx) throw new Error('This browser does not support the drawing canvas.');
 let color = colors[0].value;
-let tool = 'brush';
+let tool = 'rainbow';
+let rainbowHue = 0;
 let picture = 0;
 let pointer = null;
 let current = null;
@@ -17,6 +18,8 @@ let commands = [];
 let lastPoint;
 let keyPoint = { x: 300, y: 190 };
 let brushSize = 26;
+const isStamp = value => ['star', 'flower', 'heart', 'glitter'].includes(value);
+const stampIcons = { star: '\u2b50', flower: '\ud83c\udf38', heart: '\ud83d\udc97', glitter: '\u2728' };
 const pictures = [
     '',
     '<path d="M300 310V185M300 253Q235 210 212 238Q220 280 300 253M300 276Q356 224 383 251Q368 291 300 276"/><g>' + Array.from({ length: 8 }, (_, i) => `<ellipse cx="300" cy="113" rx="28" ry="40" transform="rotate(${i * 45} 300 170)"/>`).join('') + '</g><circle cx="300" cy="170" r="34"/>',
@@ -38,7 +41,26 @@ function drawCommand(context, command) {
     context.lineWidth = command.size;
     context.lineCap = 'round';
     context.lineJoin = 'round';
-    if (command.tool === 'star' || command.tool === 'flower') {
+    if (command.tool === 'rainbow') {
+        command.points.forEach((p, i) => {
+            context.fillStyle = `hsl(${p.hue}, 85%, 65%)`;
+            if (i === 0) {
+                context.beginPath();
+                context.arc(p.x, p.y, command.size / 2, 0, Math.PI * 2);
+                context.fill();
+            } else {
+                const previous = command.points[i - 1];
+                const gradient = context.createLinearGradient(previous.x, previous.y, p.x, p.y);
+                gradient.addColorStop(0, `hsl(${previous.hue}, 85%, 65%)`);
+                gradient.addColorStop(1, `hsl(${p.hue}, 85%, 65%)`);
+                context.strokeStyle = gradient;
+                context.beginPath();
+                context.moveTo(previous.x, previous.y);
+                context.lineTo(p.x, p.y);
+                context.stroke();
+            }
+        });
+    } else if (isStamp(command.tool)) {
         command.points.forEach(p => {
             context.save();
             context.translate(p.x, p.y);
@@ -53,6 +75,19 @@ function drawCommand(context, command) {
                 }
                 context.closePath();
                 context.fill();
+            } else if (command.tool === 'heart') {
+                context.beginPath();
+                context.moveTo(0, 26);
+                context.bezierCurveTo(-52, -5, -20, -40, 0, -15);
+                context.bezierCurveTo(20, -40, 52, -5, 0, 26);
+                context.fill();
+            } else if (command.tool === 'glitter') {
+                for (let i = 0; i < 7; i++) {
+                    context.fillStyle = colors[i % colors.length].value;
+                    context.beginPath();
+                    context.arc(Math.cos(i * 2.4) * i * 4, Math.sin(i * 2.4) * i * 4, 3 + i % 3, 0, Math.PI * 2);
+                    context.fill();
+                }
             } else {
                 for (let i = 0; i < 6; i++) {
                     const angle = i * Math.PI / 3;
@@ -97,7 +132,12 @@ function position(event) {
     };
 }
 function newCommand(p) {
-    return { tool, color, size: tool === 'eraser' ? 48 : brushSize, points: [p] };
+    const first = { ...p, hue: rainbowHue };
+    rainbowHue = (rainbowHue + 18) % 360;
+    return { tool, color, size: tool === 'eraser' ? 48 : brushSize, points: [first] };
+}
+function stampReaction(p) {
+    if (isStamp(tool)) playEffect(p.x, p.y, stampIcons[tool]);
 }
 paper.addEventListener('pointerdown', event => {
     if (pointer !== null || !event.isPrimary || event.button !== 0) return;
@@ -107,6 +147,7 @@ paper.addEventListener('pointerdown', event => {
     paper.setPointerCapture(pointer);
     lastPoint = position(event);
     current = newCommand(lastPoint);
+    stampReaction(lastPoint);
     repaint();
     chime();
 });
@@ -115,8 +156,11 @@ paper.addEventListener('pointermove', event => {
     event.preventDefault();
     const p = position(event);
     const distance = Math.hypot(p.x - lastPoint.x, p.y - lastPoint.y);
-    if (distance < (tool === 'star' || tool === 'flower' ? 38 : 2)) return;
+    if (distance < (isStamp(tool) ? 38 : 2)) return;
+    p.hue = rainbowHue;
+    rainbowHue = (rainbowHue + 6) % 360;
     current.points.push(p);
+    stampReaction(p);
     lastPoint = p;
     if (current.points.length >= 1000) {
         commit(current);
@@ -159,6 +203,7 @@ paper.addEventListener('keydown', event => {
         event.preventDefault();
         unlockAudio();
         commit(newCommand({ ...keyPoint }));
+        stampReaction(keyPoint);
         repaint();
         chime();
         updateUI();
@@ -173,19 +218,32 @@ function selectTool(next) {
 }
 function updateUI() {
     setTitle(['Magic Finger Painting', 'Peinture magique']);
-    instruction(tool === 'star' || tool === 'flower' ? ['Tap your paper to stamp little shapes!', 'Touche le papier pour faire des tampons !']
+    instruction(isStamp(tool) ? ['Tap or slide for bouncy little stamps!', 'Touche ou glisse pour des tampons rigolos !']
+        : tool === 'rainbow' ? ['Slide your finger to make a rainbow!', 'Glisse ton doigt pour faire un arc-en-ciel !']
         : tool === 'eraser' ? ['Rub to erase. Your colors are waiting!', 'Frotte pour effacer. Tes couleurs t\'attendent !']
             : ['Pick a color. Paint with your finger!', 'Choisis une couleur. Peins avec ton doigt !']);
     paper.setAttribute('aria-label', text(['Drawing paper. Arrow keys move; space paints.', 'Papier \u00e0 dessin. Les fl\u00e8ches d\u00e9placent ; espace peint.']));
     controls.replaceChildren();
     [
+        ['\ud83c\udf08', ['Rainbow', 'Arc-en-ciel'], 'rainbow'],
         ['\ud83d\udd8c\ufe0f', ['Brush', 'Pinceau'], 'brush'],
         ['\u2b50', ['Stars', '\u00c9toiles'], 'star'],
         ['\ud83c\udf38', ['Flowers', 'Fleurs'], 'flower'],
+        ['\ud83d\udc97', ['Hearts', 'Coeurs'], 'heart'],
+        ['\u2728', ['Glitter', 'Paillettes'], 'glitter'],
         ['\ud83e\uddfd', ['Eraser', 'Gomme'], 'eraser']
     ].forEach(([icon, label, value]) => {
         const el = button(icon, label, () => selectTool(value));
         el.setAttribute('aria-pressed', String(tool === value));
+    });
+    button('\ud83c\udfb6', ['Dance!', 'Danse !'], () => {
+        finishStroke();
+        const stamps = commands.filter(command => isStamp(command.tool)).flatMap(command =>
+            command.points.map(p => ({ ...p, icon: stampIcons[command.tool] }))).slice(-12);
+        if (stamps.length) stamps.forEach(p => playEffect(p.x, p.y, p.icon));
+        else for (let i = 0; i < 8; i++) playEffect(60 + i * 65, 150 + (i % 3) * 50, ['\u2b50', '\ud83c\udf38', '\ud83d\udc97'][i % 3]);
+        chime(true);
+        message(['A little dance! Your picture stays safe.', 'Une petite danse ! Ton dessin reste intact.']);
     });
     button(brushSize === 26 ? '\u25cf' : '\u2b24', ['Brush size', 'Taille'], () => {
         finishStroke();
@@ -217,7 +275,7 @@ function updateUI() {
     swatches(color, selected => {
         finishStroke();
         color = selected.value;
-        if (tool === 'eraser') tool = 'brush';
+        if (tool === 'eraser' || tool === 'rainbow') tool = 'brush';
         updateUI();
         message(selected.name, true);
     });

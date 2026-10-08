@@ -67,10 +67,14 @@ h1 { font-size: clamp(1.65rem, 5vw, 2.5rem); margin: 0 0 4px; color: var(--accen
 .toolbar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
 .tool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 8px 14px; min-width: 76px; }
 .tool-icon { font-size: 29px; line-height: 1.2; pointer-events: none; }
-.tool-label { font-size: .9rem; }
+.tool-label { font-size: .9rem; max-width: 100%; overflow-wrap: anywhere; }
+body[data-game="painting"] .toolbar, body[data-game="wash"] .toolbar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+body[data-game="painting"] .toolbar .tool, body[data-game="wash"] .toolbar .tool { min-width: 0; padding-inline: 5px; }
 .primary { background: var(--accent); color: white; }
 .primary[aria-pressed="true"] { background: var(--accent); color: white; }
 .palette { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 12px 0 0; }
+.palette.road-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.road-picker .tool { min-width: 0; padding-inline: 5px; }
 .swatch { width: 50px; height: 50px; border-radius: 50%; background: var(--swatch); padding: 0; border: 4px solid #fff; }
 .swatch[aria-pressed="true"] { background: var(--swatch); border-color: var(--ink); box-shadow: inset 0 0 0 3px white; }
 .message { text-align: center; font-weight: 800; min-height: 1.5em; margin: 14px 0 0; color: var(--accent); }
@@ -83,7 +87,8 @@ h1 { font-size: clamp(1.65rem, 5vw, 2.5rem); margin: 0 0 4px; color: var(--accen
 .sparkle { pointer-events: none; animation: sparkle 1s ease-out forwards; }
 .water { pointer-events: none; opacity: 0; }
 .rinsing .water { animation: water .7s ease-out; }
-.driving #car-art { animation: drive 3s ease-in-out; transform-box: view-box; transform-origin: center; }
+.driving #car-art { animation: cruising 1.8s ease-in-out infinite; transform-box: view-box; transform-origin: center; }
+.driving #car-art.hop { animation: hop .7s ease-in-out; }
 .driving .garage-backdrop { display: none; }
 .drive-backdrop { display: none; }
 .driving .drive-backdrop { display: inline; }
@@ -92,10 +97,29 @@ h1 { font-size: clamp(1.65rem, 5vw, 2.5rem); margin: 0 0 4px; color: var(--accen
 .painting-stage { background: white; }
 .painting-stage canvas { position: absolute; inset: 0; }
 .painting-stage svg { position: absolute; inset: 0; pointer-events: none; }
+.play-effect { position: absolute; pointer-events: none; font-size: clamp(22px, 5vw, 38px); z-index: 4; animation: play-pop 1.3s ease-out forwards; }
+.scene-button { position: absolute; transform: translate(-50%, -50%); padding: 3px; min-width: 48px; min-height: 48px; border-radius: 50%; background: #ffffffcf; z-index: 3; }
+.scene-button .tool-label { display: none; }
+.scene-button:active { transform: translate(-50%, -50%) scale(.92); }
+.scene-button .tool-icon { font-size: 28px; }
+.wiggle { animation: wiggle .65s ease-in-out; transform-box: fill-box; transform-origin: center bottom; }
+.hop { animation: hop .7s ease-in-out; transform-box: fill-box; transform-origin: center bottom; }
+.floating-toy { animation: bob 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.driving .road-lines { animation: road-roll 1.6s linear infinite; }
+.driving .road-scenery { animation: scenery-roll 12s linear infinite; }
+.stage .rainbow-arch { fill: none; stroke-width: 9; opacity: .65; }
+.rain-drops { animation: gentle-rain 1s ease-in-out infinite; }
+@keyframes gentle-rain { from { transform: translateY(-12px); opacity: .4; } to { transform: translateY(35px); opacity: .9; } }
+@keyframes cruising { 0%, 100% { transform: translateY(0) rotate(-.5deg); } 50% { transform: translateY(-5px) rotate(.5deg); } }
+@keyframes road-roll { to { stroke-dashoffset: -140; } }
+@keyframes scenery-roll { 50% { transform: translateX(-45px); } }
+@keyframes play-pop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.4) rotate(-15deg); } 20% { opacity: 1; transform: translate(-50%, -65%) scale(1.2) rotate(10deg); } 100% { opacity: 0; transform: translate(-50%, -150%) scale(.7); } }
+@keyframes wiggle { 20%, 60% { transform: rotate(-6deg); } 40%, 80% { transform: rotate(6deg); } }
+@keyframes hop { 40% { transform: translateY(-22px) scale(1.04); } 70% { transform: translateY(2px) scale(.98); } }
+@keyframes bob { 50% { transform: translateY(-7px) rotate(5deg); } }
 @keyframes bubble-rise { to { transform: translateY(-35px); opacity: 0; } }
 @keyframes sparkle { to { transform: translateY(-25px) scale(1.15); opacity: 0; } }
 @keyframes water { 20%, 70% { opacity: .8; } 100% { opacity: 0; } }
-@keyframes drive { 0% { transform: translateX(0); } 45% { transform: translateX(650px); } 46% { transform: translateX(-650px); } 100% { transform: translateX(0); } }
 @keyframes grow { from { transform: scale(.8); } to { transform: scale(1); } }
 @keyframes flutter { to { transform: translate(18px, -12px) rotate(8deg); } }
 @media (max-width: 420px) {
