@@ -1,4 +1,4 @@
-import { stage, controls, palette, text, setTitle, instruction, message, button, svg, node, face, sky, mud, cleanMud, cleanNext, rub, bubble, celebrate, chime, init, react, playEffect, soundEffect } from './toddler-play.js';
+import { stage, controls, palette, text, setTitle, instruction, message, button, svg, node, face, sky, mud, cleanMud, cleanNext, rub, bubble, celebrate, chime, init, react, playEffect, soundEffect } from './toddler-play.js?v=20261008-mobile1';
 
 const friends = [
     { name: ['Puppy', 'Petit chien'], color: '#dba16d', ears: 'dog' },

@@ -107,6 +107,13 @@ uploaded or saved across visits. Sound starts only after interaction and uses
 browser-generated tones and optional device speech synthesis. Supervised,
 short play sessions are recommended for ages 2-3.
 
+The four toddler pages use `assets/js/toddler-loader.js` to show loading errors
+and a reload option rather than leaving an empty scene. Their stylesheet, loader,
+game modules, and shared module imports carry a matching release query parameter
+to prevent older cached helpers from breaking newer games. When deploying changes
+to these assets, update the release identifier in all four HTML pages, the loader,
+and all four game-module imports together.
+
 ---
 
 ## 👨‍💻 Author

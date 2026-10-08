@@ -1,4 +1,4 @@
-import { controls, text, setTitle, instruction, message, button, colors, swatches, chime, unlockAudio, init, playEffect } from './toddler-play.js';
+import { controls, text, setTitle, instruction, message, button, colors, swatches, chime, unlockAudio, init, playEffect } from './toddler-play.js?v=20261008-mobile1';
 
 const paper = document.getElementById('paper');
 const outline = document.getElementById('outline');
