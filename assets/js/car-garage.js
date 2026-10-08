@@ -1,4 +1,4 @@
-import { stage, controls, palette, text, setTitle, instruction, message, button, svg, face, sky, swatches, mud, cleanMud, cleanNext, rub, bubble, celebrate, chime, init, sceneButton, playEffect, react, soundEffect } from './toddler-play.js?v=20261008-mobile1';
+import { stage, controls, palette, text, setTitle, instruction, message, button, svg, face, sky, swatches, mud, cleanMud, cleanNext, rub, bubble, celebrate, chime, init, sceneButton, playEffect, react, soundEffect } from './toddler-play.js?v=20261008-review1';
 
 const vehicles = [
     { icon: '\ud83d\ude97', label: ['Car', 'Voiture'] },

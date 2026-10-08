@@ -173,6 +173,7 @@ export function rub(element, action, keyboardAction) {
         if (document.hidden && pointer !== null) finish({ pointerId: pointer });
     });
     element.addEventListener('keydown', event => {
+        if (event.target.closest('button')) return;
         if (event.key === ' ' || event.key === 'Enter') {
             event.preventDefault();
             unlockAudio();
@@ -276,7 +277,8 @@ function syncSettings() {
     };
     const [controlLabel, paletteLabel] = labels[document.body.dataset.game];
     controls.setAttribute('aria-label', text(controlLabel));
-    palette.setAttribute('aria-label', text(paletteLabel));
+    palette.setAttribute('aria-label', text(document.body.dataset.game === 'garage' && palette.classList.contains('road-picker')
+        ? ['Choose a road', 'Choisir une route'] : paletteLabel));
     document.getElementById('steps')?.setAttribute('aria-label', text(['Growing steps', '\u00c9tapes de croissance']));
     document.querySelector('.home').setAttribute('aria-label', text(ui.home));
     document.getElementById('help').setAttribute('aria-label', text(ui.help));

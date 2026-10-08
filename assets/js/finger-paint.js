@@ -1,4 +1,4 @@
-import { controls, text, setTitle, instruction, message, button, colors, swatches, chime, unlockAudio, init, playEffect } from './toddler-play.js?v=20261008-mobile1';
+import { controls, text, setTitle, instruction, message, button, colors, swatches, chime, unlockAudio, init, playEffect } from './toddler-play.js?v=20261008-review1';
 
 const paper = document.getElementById('paper');
 const outline = document.getElementById('outline');
@@ -7,7 +7,11 @@ const base = document.createElement('canvas');
 base.width = paper.width;
 base.height = paper.height;
 const baseCtx = base.getContext('2d');
-if (!ctx || !baseCtx) throw new Error('This browser does not support the drawing canvas.');
+const settled = document.createElement('canvas');
+settled.width = paper.width;
+settled.height = paper.height;
+const settledCtx = settled.getContext('2d');
+if (!ctx || !baseCtx || !settledCtx) throw new Error('This browser does not support the drawing canvas.');
 let color = colors[0].value;
 let tool = 'rainbow';
 let rainbowHue = 0;
@@ -116,12 +120,12 @@ function drawCommand(context, command) {
 }
 function repaint() {
     ctx.clearRect(0, 0, paper.width, paper.height);
-    ctx.drawImage(base, 0, 0);
-    commands.forEach(command => drawCommand(ctx, command));
+    ctx.drawImage(settled, 0, 0);
     if (current) drawCommand(ctx, current);
 }
 function commit(command) {
     commands.push(command);
+    drawCommand(settledCtx, command);
     if (commands.length > 50) drawCommand(baseCtx, commands.shift());
 }
 function position(event) {
@@ -260,6 +264,9 @@ function updateUI() {
     const undo = button('\u21a9\ufe0f', ['Undo', 'Annuler'], () => {
         finishStroke();
         commands.pop();
+        settledCtx.clearRect(0, 0, settled.width, settled.height);
+        settledCtx.drawImage(base, 0, 0);
+        commands.forEach(command => drawCommand(settledCtx, command));
         repaint();
         updateUI();
         message(['Back one little step!', 'Un petit pas en arri\u00e8re !']);

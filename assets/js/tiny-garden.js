@@ -1,4 +1,4 @@
-import { stage, controls, palette, text, setTitle, instruction, message, button, svg, face, sky, celebrate, chime, init, sceneButton, playEffect, react, soundEffect } from './toddler-play.js?v=20261008-mobile1';
+import { stage, controls, palette, text, setTitle, instruction, message, button, svg, face, sky, celebrate, chime, init, sceneButton, playEffect, react, soundEffect } from './toddler-play.js?v=20261008-review1';
 
 const seeds = [
     { icon: '\ud83c\udf3c', name: ['Flowers', 'Fleurs'], kind: 'flower', color: '#f7cf57' },

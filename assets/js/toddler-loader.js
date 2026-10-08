@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    const release = '20261008-mobile1';
+    const release = '20261008-review1';
     const games = {
         wash: 'animal-wash',
         garage: 'car-garage',

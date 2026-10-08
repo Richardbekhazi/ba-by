@@ -107,6 +107,13 @@ uploaded or saved across visits. Sound starts only after interaction and uses
 browser-generated tones and optional device speech synthesis. Supervised,
 short play sessions are recommended for ages 2-3.
 
+Scenes keep their artwork proportions in portrait and landscape so overlaid
+touch buttons stay aligned with the characters and pots. Garage scene buttons
+also support Enter/Space without triggering a different road action, and road
+choices retain their accessible label when sound is toggled.
+Painting caches finished strokes instead of redrawing the full undo history on
+every finger movement, while preserving clear recovery and the 50-step history.
+
 The four toddler pages use `assets/js/toddler-loader.js` to show loading errors
 and a reload option rather than leaving an empty scene. Their stylesheet, loader,
 game modules, and shared module imports carry a matching release query parameter
