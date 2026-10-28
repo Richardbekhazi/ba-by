@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Éclate les formes">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -295,6 +295,8 @@
             text-align: center;
             background: rgba(255,255,255,0.8);
             padding: 20px 40px;
+            width: max-content;
+            max-width: 88vw;
             border-radius: 30px;
             pointer-events: none;
             animation: pulse 2s infinite;
@@ -305,7 +307,16 @@
             100% { transform: translate(-50%, -50%) scale(1); }
         }
 
+        .shapes-lang {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 120;
+        }
+
     </style>
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 </head>
 <body>
 
@@ -316,7 +327,8 @@
     <div class="bg-decoration" style="width:150px; height:150px; left:70%; animation-delay: -5s;"></div>
     <div class="bg-decoration" style="width:80px; height:80px; left:40%; animation-delay: -10s;"></div>
 
-    <a href="/" class="home-btn" title="Back to Games">🏠</a>
+    <a href="/" class="home-btn" title="Back to Games" aria-label="Back to Games" data-fr-title="Retour aux jeux" data-fr-aria-label="Retour aux jeux">🏠</a>
+    <div class="shapes-lang" data-lang-toggle></div>
     
     <!-- Total Score -->
     <div id="total-score">
@@ -329,14 +341,14 @@
     </div>
 
     <div id="game-area">
-        <div id="start-prompt">Tap to Pop! 🎈</div>
+        <div id="start-prompt" data-fr="Touche pour éclater ! 🎈">Tap to Pop! 🎈</div>
         
         <div class="ui-layer">
             <div id="current-shape-name"></div>
         </div>
 
         <div id="unlock-msg">
-            <div id="unlock-title">🎉 New Shape!</div>
+            <div id="unlock-title" data-fr="🎉 Nouvelle forme !">🎉 New Shape!</div>
             <div id="unlock-name" style="font-family: 'Nunito'; font-weight:800; font-size:1.5rem; color:#636e72">Diamond</div>
         </div>
     </div>
@@ -350,29 +362,29 @@
 
         const SHAPES = [
             // --- BASIC (Starting 5) ---
-            { id: 'circle', name: 'Circle', count: 0, weight: 1, color: '#FF6B6B', path: '<circle cx="50" cy="50" r="45" />' },
-            { id: 'square', name: 'Square', count: 0, weight: 1, color: '#4ECDC4', path: '<rect x="10" y="10" width="80" height="80" rx="10" />' },
-            { id: 'triangle', name: 'Triangle', count: 0, weight: 1, color: '#FFE66D', path: '<path d="M50 10 L90 85 L10 85 Z" stroke-linejoin="round" stroke-width="10"/>' },
-            { id: 'star', name: 'Star', count: 0, weight: 1, color: '#A29BFE', path: '<path d="M50 5 L63 35 L95 35 L70 55 L80 85 L50 70 L20 85 L30 55 L5 35 L37 35 Z" stroke-linejoin="round"/>' },
-            { id: 'heart', name: 'Heart', count: 0, weight: 1, color: '#FF9FF3', path: '<path d="M50 85 C50 85 10 55 10 30 A20 20 0 0 1 50 30 A20 20 0 0 1 90 30 C90 55 50 85 50 85 Z" />' },
+            { id: 'circle', name: 'Circle', fr: 'Cercle', count: 0, weight: 1, color: '#FF6B6B', path: '<circle cx="50" cy="50" r="45" />' },
+            { id: 'square', name: 'Square', fr: 'Carré', count: 0, weight: 1, color: '#4ECDC4', path: '<rect x="10" y="10" width="80" height="80" rx="10" />' },
+            { id: 'triangle', name: 'Triangle', fr: 'Triangle', count: 0, weight: 1, color: '#FFE66D', path: '<path d="M50 10 L90 85 L10 85 Z" stroke-linejoin="round" stroke-width="10"/>' },
+            { id: 'star', name: 'Star', fr: 'Étoile', count: 0, weight: 1, color: '#A29BFE', path: '<path d="M50 5 L63 35 L95 35 L70 55 L80 85 L50 70 L20 85 L30 55 L5 35 L37 35 Z" stroke-linejoin="round"/>' },
+            { id: 'heart', name: 'Heart', fr: 'Cœur', count: 0, weight: 1, color: '#FF9FF3', path: '<path d="M50 85 C50 85 10 55 10 30 A20 20 0 0 1 50 30 A20 20 0 0 1 90 30 C90 55 50 85 50 85 Z" />' },
             
             // --- UNLOCKABLE (Every 10 pops) ---
-            { id: 'diamond', name: 'Diamond', count: 0, weight: 1, color: '#54a0ff', path: '<polygon points="50,5 90,50 50,95 10,50" />' },
-            { id: 'oval', name: 'Oval', count: 0, weight: 1, color: '#00cec9', path: '<ellipse cx="50" cy="50" rx="45" ry="30" />' },
-            { id: 'pentagon', name: 'Pentagon', count: 0, weight: 1, color: '#fab1a0', path: '<polygon points="50,5 95,38 78,92 22,92 5,38" />' },
-            { id: 'hexagon', name: 'Hexagon', count: 0, weight: 1, color: '#6c5ce7', path: '<polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" />' },
+            { id: 'diamond', name: 'Diamond', fr: 'Losange', count: 0, weight: 1, color: '#54a0ff', path: '<polygon points="50,5 90,50 50,95 10,50" />' },
+            { id: 'oval', name: 'Oval', fr: 'Ovale', count: 0, weight: 1, color: '#00cec9', path: '<ellipse cx="50" cy="50" rx="45" ry="30" />' },
+            { id: 'pentagon', name: 'Pentagon', fr: 'Pentagone', count: 0, weight: 1, color: '#fab1a0', path: '<polygon points="50,5 95,38 78,92 22,92 5,38" />' },
+            { id: 'hexagon', name: 'Hexagon', fr: 'Hexagone', count: 0, weight: 1, color: '#6c5ce7', path: '<polygon points="50,5 95,27.5 95,72.5 50,95 5,72.5 5,27.5" />' },
             // NEW MOON SHAPE
-            { id: 'moon', name: 'Moon', count: 0, weight: 1, color: '#fdcb6e', path: '<path d="M70 8 C42 12 22 34 22 58 C22 80 42 94 66 90 C52 80 44 65 44 49 C44 31 54 17 70 8 Z" />' },
-            { id: 'cross', name: 'Cross', count: 0, weight: 1, color: '#ff7675', path: '<path d="M35 10 H65 V35 H90 V65 H65 V90 H35 V65 H10 V35 H35 Z" />' },
-            { id: 'kite', name: 'Kite', count: 0, weight: 1, color: '#a29bfe', path: '<polygon points="50,5 90,40 50,95 10,40" />' },
-            { id: 'arrow', name: 'Arrow', count: 0, weight: 1, color: '#00b894', path: '<polygon points="50,10 90,50 70,50 70,90 30,90 30,50 10,50" />' },
-            { id: 'cloud', name: 'Cloud', count: 0, weight: 1, color: '#74b9ff', path: '<path d="M25,60 a20,20 0 0,1 0,-40 a20,20 0 0,1 50,0 a20,20 0 0,1 0,40 z" />' },
-            { id: 'lightning', name: 'Lightning', count: 0, weight: 1, color: '#fdcb6e', path: '<polygon points="60,5 20,50 45,50 30,95 80,45 55,45" />' },
-            { id: 'ring', name: 'Ring', count: 0, weight: 1, color: '#e17055', path: '<path d="M50 10 A40 40 0 1 0 50 90 A40 40 0 1 0 50 10 M50 30 A20 20 0 1 1 50 70 A20 20 0 1 1 50 30" fill-rule="evenodd"/>' },
-            { id: 'rectangle', name: 'Rectangle', count: 0, weight: 1, color: '#0984e3', path: '<rect x="15" y="25" width="70" height="50" rx="5" />' },
-            { id: 'trapezoid', name: 'Trapezoid', count: 0, weight: 1, color: '#d63031', path: '<polygon points="30,20 70,20 90,80 10,80" />' },
-            { id: 'octagon', name: 'Octagon', count: 0, weight: 1, color: '#636e72', path: '<polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" />' },
-            { id: 'flower', name: 'Flower', count: 0, weight: 1, color: '#e84393', path: '<path d="M50 30 A 20 20 0 0 1 70 50 A 20 20 0 0 1 50 70 A 20 20 0 0 1 30 50 A 20 20 0 0 1 50 30 M 50 10 A 20 20 0 0 1 50 30" />' }
+            { id: 'moon', name: 'Moon', fr: 'Lune', count: 0, weight: 1, color: '#fdcb6e', path: '<path d="M70 8 C42 12 22 34 22 58 C22 80 42 94 66 90 C52 80 44 65 44 49 C44 31 54 17 70 8 Z" />' },
+            { id: 'cross', name: 'Cross', fr: 'Croix', count: 0, weight: 1, color: '#ff7675', path: '<path d="M35 10 H65 V35 H90 V65 H65 V90 H35 V65 H10 V35 H35 Z" />' },
+            { id: 'kite', name: 'Kite', fr: 'Cerf-volant', count: 0, weight: 1, color: '#a29bfe', path: '<polygon points="50,5 90,40 50,95 10,40" />' },
+            { id: 'arrow', name: 'Arrow', fr: 'Flèche', count: 0, weight: 1, color: '#00b894', path: '<polygon points="50,10 90,50 70,50 70,90 30,90 30,50 10,50" />' },
+            { id: 'cloud', name: 'Cloud', fr: 'Nuage', count: 0, weight: 1, color: '#74b9ff', path: '<path d="M25,60 a20,20 0 0,1 0,-40 a20,20 0 0,1 50,0 a20,20 0 0,1 0,40 z" />' },
+            { id: 'lightning', name: 'Lightning', fr: 'Éclair', count: 0, weight: 1, color: '#fdcb6e', path: '<polygon points="60,5 20,50 45,50 30,95 80,45 55,45" />' },
+            { id: 'ring', name: 'Ring', fr: 'Anneau', count: 0, weight: 1, color: '#e17055', path: '<path d="M50 10 A40 40 0 1 0 50 90 A40 40 0 1 0 50 10 M50 30 A20 20 0 1 1 50 70 A20 20 0 1 1 50 30" fill-rule="evenodd"/>' },
+            { id: 'rectangle', name: 'Rectangle', fr: 'Rectangle', count: 0, weight: 1, color: '#0984e3', path: '<rect x="15" y="25" width="70" height="50" rx="5" />' },
+            { id: 'trapezoid', name: 'Trapezoid', fr: 'Trapèze', count: 0, weight: 1, color: '#d63031', path: '<polygon points="30,20 70,20 90,80 10,80" />' },
+            { id: 'octagon', name: 'Octagon', fr: 'Octogone', count: 0, weight: 1, color: '#636e72', path: '<polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" />' },
+            { id: 'flower', name: 'Flower', fr: 'Fleur', count: 0, weight: 1, color: '#e84393', path: '<path d="M50 30 A 20 20 0 0 1 70 50 A 20 20 0 0 1 50 70 A 20 20 0 0 1 30 50 A 20 20 0 0 1 50 30 M 50 10 A 20 20 0 0 1 50 30" />' }
         ];
 
         const COLORS = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A29BFE', '#FF9FF3', '#54a0ff'];
@@ -418,15 +430,11 @@
             oscillator.stop(audioCtx.currentTime + 0.2);
         }
 
-        function speak(text) {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            const voices = window.speechSynthesis.getVoices();
-            const preferred = voices.find(v => v.name.includes('Google US English')) || voices[0];
-            if(preferred) utterance.voice = preferred;
-            utterance.rate = 1.1;
-            utterance.pitch = 1.2;
-            window.speechSynthesis.speak(utterance);
+        const lang = window.BabyLang;
+        const nameOf = shape => lang.t(shape.name, shape.fr);
+
+        function speak(en, fr) {
+            lang.speak(en, fr, { rate: 1.1, pitch: 1.2 });
         }
 
         // --- Game Logic ---
@@ -577,8 +585,8 @@
             } else {
                 // Normal Pop
                 playPopSound();
-                speak(shapeData.name);
-                showName(shapeData.name, color);
+                speak(shapeData.name, shapeData.fr);
+                showName(nameOf(shapeData), color);
             }
 
             // Particles
@@ -592,13 +600,13 @@
 
         function triggerUnlockEvent(shape) {
             // Special Audio
-            speak("New Shape! " + shape.name);
+            speak("New Shape! " + shape.name, "Nouvelle forme ! " + shape.fr);
             
             // Add Visual Counter
             addCounter(shape);
 
             // Show Notification
-            els.unlockName.textContent = shape.name;
+            els.unlockName.textContent = nameOf(shape);
             els.unlockName.style.color = shape.color;
             els.unlockMsg.style.borderColor = shape.color;
             els.unlockMsg.classList.add('show');

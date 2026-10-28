@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Make colorful finger paintings with big brushes, stamps, and gentle picture outlines. A creative, pressure-free toddler game.">
+    <meta name="description" content="Make musical finger paintings with sparkle, neon, and bubble brushes, mirror magic, dancing stickers, and secret pictures. A creative, pressure-free toddler game.">
     <title>Magic Finger Painting - ba-by.ca</title>
-    <link rel="stylesheet" href="/assets/css/toddler-play.css?v=20261008-review1">
-    <script defer src="/assets/js/toddler-loader.js?v=20261008-review1"></script>
+    <link rel="stylesheet" href="/assets/css/toddler-play.css?v=20261028-lang">
+    <link rel="stylesheet" href="/assets/css/finger-paint.css?v=20261028-lang">
+    <script defer src="/assets/js/toddler-loader.js?v=20261028-lang"></script>
 </head>
 <body data-game="painting">
     <nav class="topbar" aria-label="Game settings">
@@ -24,14 +25,29 @@
             <button type="button" style="min-height:48px;padding:12px" onclick="var url = new window.URL(location.href); url.searchParams.set('reload', Date.now()); location.replace(url.href);">Reload game / Recharger</button>
         </div>
         <header class="heading"><h1 id="title">Magic Finger Painting</h1><p id="instruction">Pick a color. Paint with your finger!</p></header>
-        <div id="stage" class="stage painting-stage">
+        <div id="stage" class="stage painting-stage" data-paper="white">
+            <svg id="secret" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true"></svg>
             <canvas id="paper" width="1200" height="760" tabindex="0" role="img" aria-label="Drawing paper. Use arrow keys to move and space to paint."></canvas>
+            <canvas id="sparkles" width="1200" height="760" aria-hidden="true"></canvas>
             <svg id="outline" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <svg id="stickers" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true"></svg>
         </div>
         <div id="palette" class="palette" aria-label="Paint colors"></div>
         <div id="controls" class="toolbar" aria-label="Painting tools"></div>
+        <div id="actions" class="toolbar paint-actions" aria-label="Magic and actions"></div>
         <p id="message" class="message" role="status" aria-live="polite"></p>
         <noscript>Please enable JavaScript to play.</noscript>
     </main>
+    <dialog id="gallery" class="gallery" aria-labelledby="gallery-title">
+        <div class="gallery-card">
+            <h2 id="gallery-title">What a masterpiece!</h2>
+            <div class="frame"><img id="gallery-art" alt="Your painting in a golden frame"></div>
+            <div class="gallery-actions">
+                <button type="button" id="keep-painting" class="tool primary">Keep painting</button>
+                <button type="button" id="save-art" class="tool">Save picture</button>
+            </div>
+            <p id="gallery-note" class="gallery-note">The picture stays on this device. Nothing is uploaded.</p>
+        </div>
+    </dialog>
 </body>
 </html>

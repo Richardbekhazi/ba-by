@@ -71,9 +71,22 @@ To add a new game:
 - Works on all devices (tablet, phone, PC)
 - Easy to extend with new games
 
+### English / French
+
+Every page loads `assets/js/site-lang.js`, which remembers the chosen language
+(`localStorage` key `baby-lang`, defaulting to the browser language) across the
+whole site. The homepage and most games show an EN / FR toggle; the arcade games
+follow the language picked on the homepage. To translate static text, add a
+`data-fr="..."` attribute (or `data-fr-aria-label` / `data-fr-title`); for text
+built in JavaScript use `BabyLang.t(english, french)` and `BabyLang.speak(english, french)`.
+Games with their own toggles (ABC, Colors, Numbers, Key Letter and the toddler
+activities) save their choice to the same shared setting.
+
 ### Puzzle controls and mobile layout
 
 - Drag each piece to its matching outline; tapping or double-clicking does not automatically solve it.
+- Picking up a piece says its name (in English or French); dropping it on the wrong outline gives a gentle wobble and "Try again".
+- Progress dots show the current level, and the level and difficulty are remembered between visits.
 - The board and piece tray resize for the screen and difficulty, with a side-by-side layout on short landscape screens.
 - On very small screens, the page can scroll so all pieces remain reachable.
 

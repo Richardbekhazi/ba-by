@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="ba-by.ca - Jeux pour bébés">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Fun, safe, and educational games for babies and toddlers. Learn ABCs, colors, shapes, numbers, animals, and more — made with love!">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
     <title>ba-by.ca - Ultimate Baby Games</title>
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
@@ -358,9 +359,24 @@
         /* 📱 RESPONSIVE */
         @media (max-width: 600px) {
             h1 { font-size: 2.5rem; }
-            .grid { grid-template-columns: 1fr; gap: 30px; }
-            .card-wrap { height: 240px; }
+            .container { padding: 12px; }
+            header { margin-top: 4.5rem; margin-bottom: 1.5rem; }
+            .logo-box { padding: 1.2rem 1.6rem; }
+            .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 4px; }
+            .card-wrap { height: 200px; }
+            .card { border-radius: 28px; padding: 8px; }
+            .icon-box { font-size: 3.4rem; margin-bottom: 6px; }
+            .card h2 { font-size: 1.1rem; line-height: 1.2; }
+            .play-btn { margin-top: 10px; padding: 8px 14px; font-size: 0.85rem; }
             .sun-container { width: 150px; height: 150px; }
+        }
+
+        /* 🌐 LANGUAGE TOGGLE */
+        .home-lang {
+            position: fixed;
+            top: max(14px, env(safe-area-inset-top));
+            left: max(14px, env(safe-area-inset-left));
+            z-index: 200;
         }
 
         /* LOADING OVERLAY */
@@ -383,7 +399,7 @@
 
     <!-- ⏳ LOADING SCREEN -->
     <div id="loader">
-        <div class="loader-icon">🍼 Loading...</div>
+        <div class="loader-icon">🍼 Loading... / Chargement...</div>
     </div>
 
     <!-- 🌌 PARTICLES CANVAS -->
@@ -405,13 +421,15 @@
         <div class="cloud c2"></div>
     </div>
 
+    <div data-lang-toggle class="home-lang"></div>
+
     <div class="container">
         <!-- 🎈 HEADER -->
         <header>
             <div class="logo-box">
                 <div class="logo-icon">🐣</div>
                 <h1>ba-by.ca</h1>
-                <div class="subtitle">Games made with ❤️ for little hands</div>
+                <div class="subtitle" data-fr="Des jeux faits avec ❤️ pour les petites mains">Games made with ❤️ for little hands</div>
             </div>
         </header>
 
@@ -423,8 +441,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">🅰️</div>
-                        <h2>ABC Time</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="ABC">ABC Time</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -434,8 +452,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">🎨</div>
-                        <h2>Colors</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Couleurs">Colors</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -445,8 +463,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">🎶</div>
-                        <h2>Sounds</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Sons">Sounds</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -456,8 +474,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">🧩</div>
-                        <h2>Puzzles</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Casse-tête">Puzzles</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -467,8 +485,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">🐈‍⬛</div>
-                        <h2>Jump!</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Saute !">Jump!</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -478,8 +496,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">🦁</div>
-                        <h2>Animals Sounds</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Cris des animaux">Animals Sounds</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -489,8 +507,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">💎</div>
-                        <h2>Shapes</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Formes">Shapes</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -500,8 +518,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">1️⃣</div>
-                        <h2>Numbers</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Chiffres">Numbers</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -511,8 +529,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">🎅</div>
-                        <h2>Rooftop Santa</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Père Noël sur les toits">Rooftop Santa</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -522,8 +540,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">⌨️</div>
-                        <h2>Key Letter</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Lettres au clavier">Key Letter</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -533,8 +551,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">🫧</div>
-                        <h2>Bubbles</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Bulles">Bubbles</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -544,8 +562,8 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="icon-box">🕹️</div>
-                        <h2>Tetris</h2>
-                        <div class="play-btn">Play Now!</div>
+                        <h2 data-fr="Tetris">Tetris</h2>
+                        <div class="play-btn" data-fr="On joue !">Play Now!</div>
                     </div>
                 </div>
             </a>
@@ -553,39 +571,39 @@
             <a href="/animal-wash/" class="card-wrap">
                 <div class="card"><div class="card-content">
                     <div class="icon-box">🛁</div>
-                    <h2>Animal Wash</h2>
-                    <div class="play-btn">Play Now!</div>
+                    <h2 data-fr="Bain des animaux">Animal Wash</h2>
+                    <div class="play-btn" data-fr="On joue !">Play Now!</div>
                 </div></div>
             </a>
 
             <a href="/car-garage/" class="card-wrap">
                 <div class="card"><div class="card-content">
                     <div class="icon-box">🚗</div>
-                    <h2>Little Car Garage</h2>
-                    <div class="play-btn">Play Now!</div>
+                    <h2 data-fr="Petit garage">Little Car Garage</h2>
+                    <div class="play-btn" data-fr="On joue !">Play Now!</div>
                 </div></div>
             </a>
 
             <a href="/tiny-garden/" class="card-wrap">
                 <div class="card"><div class="card-content">
                     <div class="icon-box">🌱</div>
-                    <h2>My Tiny Garden</h2>
-                    <div class="play-btn">Play Now!</div>
+                    <h2 data-fr="Mon petit jardin">My Tiny Garden</h2>
+                    <div class="play-btn" data-fr="On joue !">Play Now!</div>
                 </div></div>
             </a>
 
             <a href="/finger-paint/" class="card-wrap">
                 <div class="card"><div class="card-content">
                     <div class="icon-box">🖌️</div>
-                    <h2>Finger Painting</h2>
-                    <div class="play-btn">Play Now!</div>
+                    <h2 data-fr="Peinture aux doigts">Finger Painting</h2>
+                    <div class="play-btn" data-fr="On joue !">Play Now!</div>
                 </div></div>
             </a>
 
         </main>
 
         <footer>
-            <small>Tap anywhere for magic sparkles! ✨</small>
+            <small data-fr="Touche n'importe où pour des étincelles magiques ! ✨">Tap anywhere for magic sparkles! ✨</small>
         </footer>
     </div>
 

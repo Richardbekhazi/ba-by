@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Plant seeds, water them, bring out the sun, and grow a cheerful toddler garden. No timers or losing.">
+    <meta name="description" content="Plant seeds, water them with a watering can, pull up carrots, and meet a bee, a bird, and a hungry bunny. No timers or losing.">
     <title>My Tiny Garden - ba-by.ca</title>
-    <link rel="stylesheet" href="/assets/css/toddler-play.css?v=20261008-review1">
-    <script defer src="/assets/js/toddler-loader.js?v=20261008-review1"></script>
+    <link rel="stylesheet" href="/assets/css/toddler-play.css?v=20261028-lang">
+    <link rel="stylesheet" href="/assets/css/tiny-garden.css?v=20261028-lang">
+    <script defer src="/assets/js/toddler-loader.js?v=20261028-lang"></script>
 </head>
 <body data-game="garden">
     <nav class="topbar" aria-label="Game settings">
@@ -23,9 +24,8 @@
             <p id="loading-detail">Opening your game... / Le jeu arrive...</p>
             <button type="button" style="min-height:48px;padding:12px" onclick="var url = new window.URL(location.href); url.searchParams.set('reload', Date.now()); location.replace(url.href);">Reload game / Recharger</button>
         </div>
-        <header class="heading"><h1 id="title">My Tiny Garden</h1><p id="instruction">Choose a seed to plant!</p></header>
+        <header class="heading"><h1 id="title">My Tiny Garden</h1><p id="instruction">Tap the soil to plant a seed!</p></header>
         <div id="stage" class="stage" role="img" aria-label="Your little garden"></div>
-        <ol id="steps" class="steps" aria-label="Growing steps"></ol>
         <div id="controls" class="toolbar" aria-label="Garden tools"></div>
         <div id="palette" class="palette" aria-label="Seeds"></div>
         <p id="message" class="message" role="status" aria-live="polite"></p>

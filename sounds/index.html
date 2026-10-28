@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Boîte à musique - ba-by.ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -182,21 +182,22 @@
             .tap-hint { margin-top: 10px; }
         }
     </style>
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 </head>
 <body>
 
     <canvas id="particles"></canvas>
-    <a href="/" class="home-btn">🏠</a>
+    <a href="/" class="home-btn" aria-label="Back to games" data-fr-aria-label="Retour aux jeux">🏠</a>
 
     <div class="app-container">
-        <h1>Music Box 🎵</h1>
+        <h1 data-fr="Boîte à musique 🎵">Music Box 🎵</h1>
         <div class="sound-grid" id="grid"></div>
     </div>
 
     <div class="overlay" id="overlay">
         <div id="big-emoji">🎹</div>
         <h2 id="big-name" style="font-family: 'Fredoka One'; font-size: 3rem; color: var(--secondary);">Piano</h2>
-        <div class="tap-hint">Tap to go back</div>
+        <div class="tap-hint" data-fr="Touche pour revenir">Tap to go back</div>
     </div>
 
     <script>
@@ -204,21 +205,21 @@
     const SOUND_BASE = 'play/';
 
     const SOUNDS = [
-        { name: 'Piano', emoji: '🎹', color: '#E1F5FE', file: 'piano.mp3' },
-        { name: 'Drums', emoji: '🥁', color: '#FCE4EC', file: 'drum.mp3' },
-        { name: 'Bell', emoji: '🔔', color: '#FFF9C4', file: 'bell.mp3' },
-        { name: 'Guitar', emoji: '🎸', color: '#E8F5E9', file: 'guitar.mp3' },
-        { name: 'Trumpet', emoji: '🎺', color: '#FFF3E0', file: 'trumpet.mp3' },
-        { name: 'Violin', emoji: '🎻', color: '#F3E5F5', file: 'violin.mp3' },
-        { name: 'Xylophone', emoji: '🎹', color: '#E0F2F1', file: 'xylophone.mp3' },
-        { name: 'Saxophone', emoji: '🎷', color: '#FFFDE7', file: 'saxophone.mp3' },
-        { name: 'Harp', emoji: '🪕', color: '#F3E5F5', file: 'harp.mp3', icon: 'icons/harp.png' },
-        { name: 'Flute', emoji: '🪈', color: '#E0F7FA', file: 'flute.mp3' },
-        { name: 'Cello', emoji: '🎻', color: '#EFEBE9', file: 'cello.mp3' },
-        { name: 'Clarinet', emoji: '🎷', color: '#E0F2F1', file: 'clarinet.mp3', icon: 'icons/clarinet.png' },
-        { name: 'Trombone', emoji: '🎺', color: '#FFF3E0', file: 'trombone.mp3' },
-        { name: 'Tuba', emoji: '📯', color: '#FFF9C4', file: 'tuba.mp3' },
-        { name: 'Triangle', emoji: '🎵', color: '#F1F8E9', file: 'triangle.mp3', icon: 'icons/triangle.png' }
+        { name: 'Piano', fr: 'Piano', emoji: '🎹', color: '#E1F5FE', file: 'piano.mp3' },
+        { name: 'Drums', fr: 'Tambour', emoji: '🥁', color: '#FCE4EC', file: 'drum.mp3' },
+        { name: 'Bell', fr: 'Cloche', emoji: '🔔', color: '#FFF9C4', file: 'bell.mp3' },
+        { name: 'Guitar', fr: 'Guitare', emoji: '🎸', color: '#E8F5E9', file: 'guitar.mp3' },
+        { name: 'Trumpet', fr: 'Trompette', emoji: '🎺', color: '#FFF3E0', file: 'trumpet.mp3' },
+        { name: 'Violin', fr: 'Violon', emoji: '🎻', color: '#F3E5F5', file: 'violin.mp3' },
+        { name: 'Xylophone', fr: 'Xylophone', emoji: '🎹', color: '#E0F2F1', file: 'xylophone.mp3' },
+        { name: 'Saxophone', fr: 'Saxophone', emoji: '🎷', color: '#FFFDE7', file: 'saxophone.mp3' },
+        { name: 'Harp', fr: 'Harpe', emoji: '🪕', color: '#F3E5F5', file: 'harp.mp3', icon: 'icons/harp.png' },
+        { name: 'Flute', fr: 'Flûte', emoji: '🪈', color: '#E0F7FA', file: 'flute.mp3' },
+        { name: 'Cello', fr: 'Violoncelle', emoji: '🎻', color: '#EFEBE9', file: 'cello.mp3' },
+        { name: 'Clarinet', fr: 'Clarinette', emoji: '🎷', color: '#E0F2F1', file: 'clarinet.mp3', icon: 'icons/clarinet.png' },
+        { name: 'Trombone', fr: 'Trombone', emoji: '🎺', color: '#FFF3E0', file: 'trombone.mp3' },
+        { name: 'Tuba', fr: 'Tuba', emoji: '📯', color: '#FFF9C4', file: 'tuba.mp3' },
+        { name: 'Triangle', fr: 'Triangle', emoji: '🎵', color: '#F1F8E9', file: 'triangle.mp3', icon: 'icons/triangle.png' }
     ];
 
         const grid = document.getElementById('grid');
@@ -229,6 +230,8 @@
         const ctx = canvas.getContext('2d');
 
         let currentAudio = null;
+        const lang = window.BabyLang;
+        const nameOf = item => lang.t(item.name, item.fr);
 
         function init() {
             SOUNDS.forEach(item => {
@@ -237,20 +240,31 @@
                 card.style.backgroundColor = item.color;
                 
                 const visual = item.icon 
-                    ? `<img src="${item.icon}" class="sound-icon" alt="${item.name}">`
+                    ? `<img src="${item.icon}" class="sound-icon" alt="${nameOf(item)}">`
                     : `<div class="sound-emoji">${item.emoji}</div>`;
 
                 card.innerHTML = `
                     ${visual}
-                    <div class="sound-name">${item.name}</div>
+                    <div class="sound-name">${nameOf(item)}</div>
                 `;
                 card.onclick = (e) => playSound(item, e);
+                card.dataset.index = SOUNDS.indexOf(item);
                 grid.appendChild(card);
             });
 
             window.addEventListener('resize', resizeCanvas);
             resizeCanvas();
             animate();
+
+            lang.mountToggle();
+            lang.onChange(() => {
+                grid.querySelectorAll('.sound-card').forEach(card => {
+                    const item = SOUNDS[card.dataset.index];
+                    card.querySelector('.sound-name').textContent = nameOf(item);
+                    const img = card.querySelector('img');
+                    if (img) img.alt = nameOf(item);
+                });
+            });
         }
 
         function playSound(item, e) {
@@ -260,7 +274,7 @@
             } else {
                 bigEmoji.textContent = item.emoji;
             }
-            bigName.textContent = item.name;
+            bigName.textContent = nameOf(item);
             overlay.classList.add('active');
             
             // Audio
@@ -270,10 +284,7 @@
             }
             
             // Speak the name first, then play the instrument sound after a small delay
-            const msg = new SpeechSynthesisUtterance(item.name);
-            msg.rate = 1.0;
-            msg.pitch = 1.2;
-            window.speechSynthesis.speak(msg);
+            const msg = lang.speak(item.name, item.fr, { pitch: 1.2 }) || {};
 
             currentAudio = new Audio(SOUND_BASE + item.file);
             currentAudio.loop = true;

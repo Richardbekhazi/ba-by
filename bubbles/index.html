@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Héros des bulles">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -304,6 +304,7 @@
         .shake { animation: shake 0.4s ease-in-out; }
 
     </style>
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 </head>
 <body id="gameBody">
 
@@ -329,20 +330,20 @@
 
     <canvas id="gameCanvas"></canvas>
     
-    <div id="boss-warning">⚠️ BOSS! ⚠️</div>
-    <div id="start-hint" style="position:absolute; bottom:20%; width:100%; text-align:center; font-family:'Fredoka One'; font-size:2rem; color:rgba(0,0,0,0.3); pointer-events:none; animation:pulse 2s infinite">Drag to Move!</div>
+    <div id="boss-warning" data-fr="⚠️ GROS MÉCHANT ! ⚠️">⚠️ BOSS! ⚠️</div>
+    <div id="start-hint" style="position:absolute; bottom:20%; width:100%; text-align:center; font-family:'Fredoka One'; font-size:2rem; color:rgba(0,0,0,0.3); pointer-events:none; animation:pulse 2s infinite" data-fr="Glisse pour bouger !">Drag to Move!</div>
 
     <!-- Level Up Screen -->
     <div id="upgrade-overlay" class="overlay">
-        <div class="overlay-title">Level Up! 🎉</div>
+        <div class="overlay-title" data-fr="Niveau supérieur ! 🎉">Level Up! 🎉</div>
         <div class="cards-container" id="cards-wrapper"></div>
     </div>
 
     <!-- Game Over Screen -->
     <div id="game-over-overlay" class="overlay">
-        <div class="overlay-title" style="color:#ff7675">Oh no! 🤕</div>
-        <div style="font-size:1.5rem; color:#636e72; margin-bottom:30px; font-weight:700">You reached Level <span id="final-level">1</span></div>
-        <button class="restart-btn" onclick="restartGame()">Try Again</button>
+        <div class="overlay-title" style="color:#ff7675" data-fr="Oh non ! 🤕">Oh no! 🤕</div>
+        <div style="font-size:1.5rem; color:#636e72; margin-bottom:30px; font-weight:700"><span data-fr="Tu as atteint le niveau">You reached Level</span> <span id="final-level">1</span></div>
+        <button class="restart-btn" onclick="restartGame()" data-fr="Rejouer">Try Again</button>
     </div>
 
     <script>
@@ -409,15 +410,15 @@
         let spawnTimer = 0;
 
         const UPGRADES = [
-            { id: 'multishot', name: 'More Bubbles', img: 'beer_t.png', desc: 'Shoot +1 bubble!', type: 'stat', key: 'bulletCount', val: 1 },
-            { id: 'rate', name: 'Fast Fire', img: 'arrow_s_t.png', desc: 'Shoot faster!', type: 'stat', key: 'fireRate', val: -10, limit: 10 },
-            { id: 'size', name: 'Big Bubbles', img: 'bag_t.png', desc: 'Big & Strong bubbles!', type: 'stat', key: 'bulletSize', val: 5, dmg: 1 },
-            { id: 'pierce', name: 'Tough Bubble', img: 'anvil_t.png', desc: 'Pierce & Damage Up!', type: 'stat', key: 'pierce', val: 1, dmg: 0.5 },
-            { id: 'orbiter', name: 'Moon Shield', img: 'armor_t.png', desc: 'Protective moon!', type: 'special' },
-            { id: 'speed', name: 'Speedy Star', img: 'baner_t.png', desc: 'Move faster!', type: 'stat', key: 'speed', val: 1 },
-            { id: 'heal', name: 'Yummy Heart', img: 'book_t.png', desc: 'Heal 50 HP!', type: 'heal', val: 50 },
-            { id: 'maxhp', name: 'Big Heart', img: 'heart_t.png', desc: 'Max HP +50!', type: 'maxhp', val: 50 },
-            { id: 'luck', name: 'Lucky Charm', img: 'trinket_t.png', desc: 'Find more gems!', type: 'stat', key: 'luck', val: 1 }
+            { id: 'multishot', name: 'More Bubbles', nameFr: 'Plus de bulles', descFr: '+1 bulle !', img: 'beer_t.png', desc: 'Shoot +1 bubble!', type: 'stat', key: 'bulletCount', val: 1 },
+            { id: 'rate', name: 'Fast Fire', nameFr: 'Tir rapide', descFr: 'Tire plus vite !', img: 'arrow_s_t.png', desc: 'Shoot faster!', type: 'stat', key: 'fireRate', val: -10, limit: 10 },
+            { id: 'size', name: 'Big Bubbles', nameFr: 'Grosses bulles', descFr: 'Bulles grosses et fortes !', img: 'bag_t.png', desc: 'Big & Strong bubbles!', type: 'stat', key: 'bulletSize', val: 5, dmg: 1 },
+            { id: 'pierce', name: 'Tough Bubble', nameFr: 'Bulle solide', descFr: 'Traverse et frappe plus fort !', img: 'anvil_t.png', desc: 'Pierce & Damage Up!', type: 'stat', key: 'pierce', val: 1, dmg: 0.5 },
+            { id: 'orbiter', name: 'Moon Shield', nameFr: 'Bouclier lune', descFr: 'Une lune protectrice !', img: 'armor_t.png', desc: 'Protective moon!', type: 'special' },
+            { id: 'speed', name: 'Speedy Star', nameFr: 'Étoile rapide', descFr: 'Bouge plus vite !', img: 'baner_t.png', desc: 'Move faster!', type: 'stat', key: 'speed', val: 1 },
+            { id: 'heal', name: 'Yummy Heart', nameFr: 'Cœur miam', descFr: 'Soigne 50 PV !', img: 'book_t.png', desc: 'Heal 50 HP!', type: 'heal', val: 50 },
+            { id: 'maxhp', name: 'Big Heart', nameFr: 'Gros cœur', descFr: 'PV max +50 !', img: 'heart_t.png', desc: 'Max HP +50!', type: 'maxhp', val: 50 },
+            { id: 'luck', name: 'Lucky Charm', nameFr: 'Porte-bonheur', descFr: 'Trouve plus de gemmes !', img: 'trinket_t.png', desc: 'Find more gems!', type: 'stat', key: 'luck', val: 1 }
         ];
 
         // --- Audio ---
@@ -907,8 +908,8 @@
                 card.className = 'card';
                 card.innerHTML = `
                     <img src="${ASSET_PATH + opt.img}" class="card-icon-img">
-                    <div class="card-name">${opt.name}</div>
-                    <div class="card-desc">${opt.desc}</div>
+                    <div class="card-name">${BabyLang.t(opt.name, opt.nameFr)}</div>
+                    <div class="card-desc">${BabyLang.t(opt.desc, opt.descFr)}</div>
                 `;
                 card.onclick = () => applyUpgrade(opt);
                 container.appendChild(card);

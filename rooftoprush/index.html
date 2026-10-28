@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Course sur les toits - ba-by.ca">
 <head>
   <meta charset="UTF-8">
   <title>Rooftop Rush - ba-by.ca</title>
@@ -152,10 +152,11 @@
       .item-emoji { font-size: 1.8rem; }
     }
   </style>
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 </head>
 <body>
 
-  <a href="/" class="home-btn">🏠</a>
+  <a href="/" class="home-btn" aria-label="Back to games" data-fr-aria-label="Retour aux jeux">🏠</a>
   <div class="coin-count">⭐ <span id="total-coins">0</span></div>
   
   <div id="ui">
@@ -163,13 +164,13 @@
   </div>
 
   <div id="menu">
-    <h1 style="font-size: 4rem; color: white; text-shadow: 4px 4px 0 #FF9F43;">Rooftop Rush</h1>
-    <div style="font-size: 2rem; color: #DAA520; margin-bottom: 20px; background: white; padding: 10px 30px; border-radius: 30px; box-shadow: 0 4px 0 #cbd5e1;">Your ⭐: <span id="menu-coins">0</span></div>
-    <button class="btn-play" onclick="startGame()">PLAY!</button>
+    <h1 style="font-size: 4rem; color: white; text-shadow: 4px 4px 0 #FF9F43;" data-fr="Course sur les toits">Rooftop Rush</h1>
+    <div style="font-size: 2rem; color: #DAA520; margin-bottom: 20px; background: white; padding: 10px 30px; border-radius: 30px; box-shadow: 0 4px 0 #cbd5e1;"><span data-fr="Tes ⭐ :">Your ⭐:</span> <span id="menu-coins">0</span></div>
+    <button class="btn-play" onclick="startGame()" data-fr="JOUER !">PLAY!</button>
     <div class="shop-container">
       <div class="shop-item active" id="item-cat" onclick="selectSkin('🐱', 0)">
         <span class="item-emoji">🐱</span>
-        <span class="item-price">Owned</span>
+        <span class="item-price" data-fr="À toi">Owned</span>
       </div>
       <div class="shop-item locked" id="item-dog" onclick="buySkin('🐶', 25, 'item-dog')">
         <span class="item-emoji">🐶</span>
@@ -208,10 +209,10 @@
         <span class="item-price">⭐ 250</span>
       </div>
     </div>
-    <p style="color: white; margin-top: 20px;">Collect stars to unlock friends!</p>
+    <p style="color: white; margin-top: 20px;" data-fr="Ramasse des étoiles pour débloquer des amis !">Collect stars to unlock friends!</p>
   </div>
 
-  <div id="tap-hint">Tap to Jump! 🐱</div>
+  <div id="tap-hint" data-fr="Touche pour sauter ! 🐱">Tap to Jump! 🐱</div>
 
   <canvas id="gameCanvas"></canvas>
 
@@ -278,7 +279,7 @@
         const el = document.getElementById(idMap[skin]);
         if (el) {
           el.classList.remove('locked');
-          if(el.querySelector('.item-price')) el.querySelector('.item-price').innerText = 'Owned';
+          if(el.querySelector('.item-price')) el.querySelector('.item-price').innerText = BabyLang.t('Owned', 'À toi');
         }
       });
       document.querySelectorAll('.shop-item').forEach(el => el.classList.remove('active'));

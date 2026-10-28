@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    const release = '20261008-review1';
+    const release = '20261028-lang';
     const games = {
         wash: 'animal-wash',
         garage: 'car-garage',

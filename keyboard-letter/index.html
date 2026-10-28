@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Apprends les lettres avec Richy">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -324,6 +324,7 @@
             #small-letter { font-size: 2.5rem; }
         }
     </style>
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 </head>
 <body>
 
@@ -346,7 +347,7 @@
             </div>
 
             <div class="letters">
-                <div id="big-letter">Hi!</div>
+                <div id="big-letter" data-fr="Salut !">Hi!</div>
                 <div id="small-letter"></div>
             </div>
 
@@ -445,7 +446,7 @@
             isMuted: false,
             voice: null,
             foundLetters: new Set(),
-            lang: localStorage.getItem('baby_lang') || 'en'
+            lang: window.BabyLang.lang
         };
 
         // --- DOM Elements ---
@@ -643,7 +644,7 @@
             
             els.status.classList.remove('visible');
             els.status.innerHTML = "";
-            els.big.textContent = "Hi!";
+            els.big.textContent = state.lang === 'fr' ? "Salut !" : "Hi!";
             els.small.textContent = "";
             els.small.classList.remove('visible');
             els.replayContainer.classList.remove('visible');
@@ -673,7 +674,7 @@
 
         window.setLanguage = function(l) {
             state.lang = l;
-            localStorage.setItem('baby_lang', l);
+            window.BabyLang.set(l);
             updateLangUI();
             const msg = l === 'fr' ? "Français" : "English";
             speak(msg, true);

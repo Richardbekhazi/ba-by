@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="A gentle toddler animal wash. Rub away mud, make bubbles, and rinse happy animals. No timers or losing.">
+    <meta name="description" content="A gentle toddler bath game. Scrub muddy animal friends with a sponge, rinse with the shower, and dry them with a towel. Pop bubbles and squeak the duck. No timers or losing.">
     <title>Wash the Animals - ba-by.ca</title>
-    <link rel="stylesheet" href="/assets/css/toddler-play.css?v=20261008-review1">
-    <script defer src="/assets/js/toddler-loader.js?v=20261008-review1"></script>
+    <link rel="stylesheet" href="/assets/css/toddler-play.css?v=20261028-lang">
+    <link rel="stylesheet" href="/assets/css/animal-wash.css?v=20261028-lang">
+    <script defer src="/assets/js/toddler-loader.js?v=20261028-lang"></script>
 </head>
 <body data-game="wash">
     <nav class="topbar" aria-label="Game settings">
@@ -23,7 +24,7 @@
             <p id="loading-detail">Opening your game... / Le jeu arrive...</p>
             <button type="button" style="min-height:48px;padding:12px" onclick="var url = new window.URL(location.href); url.searchParams.set('reload', Date.now()); location.replace(url.href);">Reload game / Recharger</button>
         </div>
-        <header class="heading"><h1 id="title">Wash the Animals</h1><p id="instruction">Rub the muddy spots!</p></header>
+        <header class="heading"><h1 id="title">Wash the Animals</h1><p id="instruction">Use the sponge. Rub off the mud!</p></header>
         <div id="stage" class="stage rub-area" tabindex="0" role="button" aria-label="Rub the muddy animal"></div>
         <div id="controls" class="toolbar" aria-label="Washing tools"></div>
         <div id="palette" class="palette"></div>

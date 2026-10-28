@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Couleurs gélatine">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -224,6 +224,7 @@
         }
 
     </style>
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 </head>
 <body>
 
@@ -236,8 +237,8 @@
     </div>
 
     <div class="header">
-        <h1>Jelly Colors 🎨</h1>
-        <p>Tap the blobs!</p>
+        <h1 data-fr="Couleurs gélatine 🎨">Jelly Colors 🎨</h1>
+        <p data-fr="Touche les taches !">Tap the blobs!</p>
     </div>
 
     <div class="grid-container">
@@ -308,8 +309,9 @@
         // --- Audio Context ---
         let currentLang = 'en';
 
-        function setLanguage(lang) {
+        function setLanguage(lang, quiet) {
             currentLang = lang;
+            window.BabyLang.set(lang);
             document.getElementById('btn-en').classList.toggle('active', lang === 'en');
             document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
             
@@ -320,7 +322,7 @@
             document.querySelectorAll('.color-pad').forEach((btn, index) => {
                 btn.querySelector('.pad-label').textContent = lang === 'en' ? COLORS[index].name : COLORS[index].fr;
             });
-            speak(msg, lang === 'en' ? 'en-US' : 'fr-FR');
+            if (!quiet) speak(msg, lang === 'en' ? 'en-US' : 'fr-FR');
         }
 
         let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -508,6 +510,7 @@
 
         setupCanvas();
         init();
+        setLanguage(window.BabyLang.lang, true);
 
     </script>
 </body>

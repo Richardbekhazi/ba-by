@@ -354,6 +354,7 @@
             .emoji-text { font-size: 0.6rem; }
         }
     </style>
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 </head>
 <body>
 
@@ -495,7 +496,7 @@
         const CHOICES_PER_LEVEL = [3, 4, 5, 6];
         const UNLOCK_THRESHOLD = [10, 20, 30];
 
-        let lang = localStorage.getItem('abc-lang') || 'en';
+        let lang = window.BabyLang.lang;
         let maxUnlocked = parseInt(localStorage.getItem('abc-max-difficulty') || '0');
         let currentLevel = parseInt(localStorage.getItem('abc-current-difficulty') || '0');
         let correctCount = parseInt(localStorage.getItem('abc-correct-answers') || '0');
@@ -573,6 +574,7 @@
 
         function setLang(l) {
             lang = l;
+            window.BabyLang.set(l);
             save();
             syncLanguageUI();
             renderLevelSelect();

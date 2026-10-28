@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Le Père Noël sur les toits">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -351,6 +351,7 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 </head>
 <body>
 
@@ -358,7 +359,7 @@
 
     <div id="ui-layer">
         <!-- Home Button: Links back to ba-by.ca (root) -->
-        <a href="/" class="home-btn" title="Back to Games">🏠</a>
+        <a href="/" class="home-btn" title="Back to Games" data-fr-title="Retour aux jeux">🏠</a>
 
         <div id="hud" class="hud-top hidden">
             <div class="badge-container">
@@ -372,28 +373,28 @@
             <button class="round-btn" id="sound-btn" aria-label="Mute sound" title="Sound on">🔊</button>
             <button class="round-btn hidden" id="pause-btn" aria-label="Pause game" title="Pause">⏸️</button>
         </div>
-        <div id="feedback-toast" aria-live="polite">Gift collected! +1 🎁</div>
+        <div id="feedback-toast" aria-live="polite"></div>
     </div>
 
     <div id="mobile-controls" class="hidden" aria-label="Touch controls">
         <div class="control-cluster">
-            <button class="touch-btn" data-action="left" aria-label="Move left">←</button>
-            <button class="touch-btn" data-action="right" aria-label="Move right">→</button>
+            <button class="touch-btn" data-action="left" aria-label="Move left" data-fr-aria-label="Aller à gauche">←</button>
+            <button class="touch-btn" data-action="right" aria-label="Move right" data-fr-aria-label="Aller à droite">→</button>
         </div>
         <div class="control-cluster">
-            <button class="touch-btn" data-action="down" aria-label="Duck">↓</button>
-            <button class="touch-btn" data-action="up" aria-label="Jump">↑</button>
+            <button class="touch-btn" data-action="down" aria-label="Duck" data-fr-aria-label="Se baisser">↓</button>
+            <button class="touch-btn" data-action="up" aria-label="Jump" data-fr-aria-label="Sauter">↑</button>
         </div>
     </div>
 
     <div id="pause-screen" class="hidden">
         <div class="pause-card">
             <div class="pause-icon">☕</div>
-            <h2>Warm Cocoa Break</h2>
-            <p>Santa and Rudolph are ready when you are.</p>
+            <h2 data-fr="Pause chocolat chaud">Warm Cocoa Break</h2>
+            <p data-fr="Le Père Noël et Rudolph t’attendent.">Santa and Rudolph are ready when you are.</p>
             <div class="btn-group">
-                <button class="btn btn-green" id="resume-btn">▶ Keep Flying</button>
-                <button class="btn btn-gray" id="pause-menu-btn">⌂ Back to Lodge</button>
+                <button class="btn btn-green" id="resume-btn" data-fr="▶ On continue">▶ Keep Flying</button>
+                <button class="btn btn-gray" id="pause-menu-btn" data-fr="⌂ Retour au chalet">⌂ Back to Lodge</button>
             </div>
         </div>
     </div>
@@ -401,26 +402,26 @@
     <div id="start-screen">
         <div class="start-content">
             <div class="hero-card">
-                <div class="north-pole-tag">❄ NORTH POLE EXPRESS</div>
+                <div class="north-pole-tag" data-fr="❄ EXPRESS DU PÔLE NORD">❄ NORTH POLE EXPRESS</div>
                 <div class="hero-character">🎅🦌</div>
-                <h1><span class="title-small">SANTA'S</span>Rooftop Rush</h1>
-                <h2 class="hero-subtitle">Dash across snowy rooftops and save Christmas!</h2>
+                <h1><span class="title-small" data-fr="LE PÈRE NOËL">SANTA'S</span><span data-fr="sur les toits">Rooftop Rush</span></h1>
+                <h2 class="hero-subtitle" data-fr="Cours sur les toits enneigés et sauve Noël !">Dash across snowy rooftops and save Christmas!</h2>
                 <div class="mission-row" aria-label="Game goals">
-                    <div class="mission-chip"><span>🎁</span>Collect</div>
-                    <div class="mission-chip"><span>☃️</span>Jump</div>
-                    <div class="mission-chip"><span>🚁</span>Duck</div>
+                    <div class="mission-chip"><span>🎁</span><span data-fr="Ramasse">Collect</span></div>
+                    <div class="mission-chip"><span>☃️</span><span data-fr="Saute">Jump</span></div>
+                    <div class="mission-chip"><span>🚁</span><span data-fr="Baisse-toi">Duck</span></div>
                 </div>
                 <div class="score-display-full">
                     <span aria-hidden="true">🎒</span>
-                    <span class="score-label-full">SAVED GIFTS</span>
+                    <span class="score-label-full" data-fr="CADEAUX SAUVÉS">SAVED GIFTS</span>
                     <span class="score-value-full" id="start-wallet-display">0</span>
                 </div>
                 <div class="btn-group">
-                    <button class="btn btn-green" id="start-btn">▶ Start the Adventure</button>
+                    <button class="btn btn-green" id="start-btn" data-fr="▶ Commencer l’aventure">▶ Start the Adventure</button>
                 </div>
                 <div class="controls-hint">
-                    <span class="desktop-hint"><span class="key-icon">A D</span> Move &nbsp; <span class="key-icon">SPACE</span> Jump &nbsp; <span class="key-icon">↓</span> Duck</span>
-                    <span class="mobile-hint">Swipe or tap the big buttons to move</span>
+                    <span class="desktop-hint"><span class="key-icon">A D</span> <span data-fr="Bouger">Move</span> &nbsp; <span class="key-icon">SPACE</span> <span data-fr="Sauter">Jump</span> &nbsp; <span class="key-icon">↓</span> <span data-fr="Se baisser">Duck</span></span>
+                    <span class="mobile-hint" data-fr="Glisse ou touche les gros boutons pour bouger">Swipe or tap the big buttons to move</span>
                 </div>
             </div>
         </div>
@@ -428,35 +429,37 @@
 
     <div id="game-over-screen" class="hidden">
         <div class="menu-card">
-            <div class="result-tag">NORTH POLE RUN REPORT</div>
+            <div class="result-tag" data-fr="RAPPORT DE COURSE DU PÔLE NORD">NORTH POLE RUN REPORT</div>
             <div class="result-icon">🛷</div>
-            <h1>Great Adventure!</h1>
-            <h2>Rudolph is ready for another run.</h2>
+            <h1 data-fr="Belle aventure !">Great Adventure!</h1>
+            <h2 data-fr="Rudolph est prêt pour une autre course.">Rudolph is ready for another run.</h2>
             <div class="score-grid">
                 <div class="score-box">
                     <span class="score-label">🚩 Distance</span>
                     <span class="score-value" id="final-dist">0m</span>
                 </div>
                 <div class="score-box">
-                    <span class="score-label">🎁 Gift Bag</span>
+                    <span class="score-label" data-fr="🎁 Sac de cadeaux">🎁 Gift Bag</span>
                     <span class="score-value wallet-highlight" id="final-wallet">0</span>
                 </div>
                 <div class="score-box">
-                    <span class="score-label">⭐ Best Run</span>
+                    <span class="score-label" data-fr="⭐ Meilleure course">⭐ Best Run</span>
                     <span class="score-value" id="best-dist">0m</span>
                 </div>
             </div>
-            <div class="new-record hidden" id="new-record">🏆 New rooftop record!</div>
+            <div class="new-record hidden" id="new-record" data-fr="🏆 Nouveau record !">🏆 New rooftop record!</div>
             <div class="continue-status" id="continue-status"></div>
             <div class="btn-group">
-                <button class="btn btn-orange" id="continue-btn">✨ Continue Run</button>
-                <button class="btn btn-blue" id="restart-btn">↻ Try Again</button>
-                <button class="btn btn-gray" id="menu-btn">⌂ Back to Lodge</button>
+                <button class="btn btn-orange" id="continue-btn" data-fr="✨ Continuer">✨ Continue Run</button>
+                <button class="btn btn-blue" id="restart-btn" data-fr="↻ Rejouer">↻ Try Again</button>
+                <button class="btn btn-gray" id="menu-btn" data-fr="⌂ Retour au chalet">⌂ Back to Lodge</button>
             </div>
         </div>
     </div>
 
     <script>
+        const T = (en, fr) => window.BabyLang.t(en, fr);
+
         // --- Configuration ---
         const LANE_WIDTH = 4;
         const LANES = [-LANE_WIDTH, 0, LANE_WIDTH];
@@ -653,8 +656,8 @@
 
         function updateSoundButton() {
             soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-            soundBtn.title = soundEnabled ? 'Sound on' : 'Sound off';
-            soundBtn.setAttribute('aria-label', soundEnabled ? 'Mute sound' : 'Turn sound on');
+            soundBtn.title = soundEnabled ? T('Sound on', 'Son actif') : T('Sound off', 'Son coupé');
+            soundBtn.setAttribute('aria-label', soundEnabled ? T('Mute sound', 'Couper le son') : T('Turn sound on', 'Activer le son'));
         }
 
         function toggleSound() {
@@ -1247,7 +1250,7 @@
             }
 
             playSfx('hit');
-            showFeedback(`${lives} ${lives === 1 ? 'heart' : 'hearts'} left — keep going! ❤️`);
+            showFeedback(T(`${lives} ${lives === 1 ? 'heart' : 'hearts'} left — keep going! ❤️`, `Encore ${lives} ${lives === 1 ? 'cœur' : 'cœurs'} — continue ! ❤️`));
             invulnerableFrames = 100;
             obstacle.position.z = 16;
         }
@@ -1321,9 +1324,9 @@
             choices = choices.filter(weather => weather !== currentWeather);
             currentWeather = choices[Math.floor(Math.random() * choices.length)];
             const labels = {
-                clear: 'Clear skies ahead ☀️', flurries: 'Light flurries ❄️', snow: 'Snowfall incoming ☃️',
-                wind: 'Hold tight — winter wind! 💨', sparkles: 'Magic fills the sky ✨',
-                blizzard: 'North Pole blizzard! 🌨️', aurora: 'Aurora over the rooftops! 🌌'
+                clear: T('Clear skies ahead ☀️', 'Ciel dégagé ☀️'), flurries: T('Light flurries ❄️', 'Quelques flocons ❄️'), snow: T('Snowfall incoming ☃️', 'La neige arrive ☃️'),
+                wind: T('Hold tight — winter wind! 💨', 'Tiens bon — vent d’hiver ! 💨'), sparkles: T('Magic fills the sky ✨', 'De la magie dans le ciel ✨'),
+                blizzard: T('North Pole blizzard! 🌨️', 'Tempête du pôle Nord ! 🌨️'), aurora: T('Aurora over the rooftops! 🌌', 'Aurore sur les toits ! 🌌')
             };
             showFeedback(labels[currentWeather]);
         }
@@ -1345,7 +1348,7 @@
                 startMusic(nextTheme);
             }
             if (previousPhase !== currentTimePhase) {
-                const labels = { morning: 'Christmas morning glow 🌅', day: 'Bright winter day ☀️', dusk: 'Rooftop sunset 🌇', night: 'Moonlight run 🌙' };
+                const labels = { morning: T('Christmas morning glow 🌅', 'Matin de Noël 🌅'), day: T('Bright winter day ☀️', 'Belle journée d’hiver ☀️'), dusk: T('Rooftop sunset 🌇', 'Coucher de soleil 🌇'), night: T('Moonlight run 🌙', 'Course au clair de lune 🌙') };
                 showFeedback(labels[currentTimePhase]);
             }
 
@@ -1443,7 +1446,7 @@
             obstacles = []; collectables = []; groundSegments = [];
             for (let i = 0; i < 15; i++) spawnGroundSegment(-i * 12);
             startMusic();
-            showFeedback('Ready… Go! 🎅');
+            showFeedback(T('Ready… Go! 🎅', 'Prêt… Partez ! 🎅'));
             if (!animationId) animate();
         }
 
@@ -1503,7 +1506,7 @@
                 mobileControls.classList.remove('hidden');
                 playSfx('revive');
                 startMusic();
-                showFeedback('Back in the race! ✨');
+                showFeedback(T('Back in the race! ✨', 'De retour dans la course ! ✨'));
             }
         }
 
@@ -1527,17 +1530,17 @@
             newRecordEl.classList.toggle('hidden', !isNewRecord);
             updateWalletUI();
             const cost = 10 * (reviveCount + 1);
-            continueBtn.innerHTML = `✨ Continue Run <span style="font-size: 0.72em; opacity: 0.9">• ${cost} 🎁</span>`;
+            continueBtn.innerHTML = `${T('✨ Continue Run', '✨ Continuer')} <span style="font-size: 0.72em; opacity: 0.9">• ${cost} 🎁</span>`;
             const protectedFromQuickSpend = segmentRunTime < MIN_CONTINUE_SECONDS;
             continueBtn.disabled = protectedFromQuickSpend || totalWallet < cost;
             continueBtn.classList.toggle('hidden', protectedFromQuickSpend);
             continueStatusEl.classList.toggle('locked', protectedFromQuickSpend);
             if (protectedFromQuickSpend) {
-                continueStatusEl.textContent = `🔒 Gift protection: play at least ${MIN_CONTINUE_SECONDS} seconds before using saved gifts.`;
+                continueStatusEl.textContent = T(`🔒 Gift protection: play at least ${MIN_CONTINUE_SECONDS} seconds before using saved gifts.`, `🔒 Protection des cadeaux : joue au moins ${MIN_CONTINUE_SECONDS} secondes avant d’utiliser tes cadeaux.`);
             } else if (totalWallet < cost) {
-                continueStatusEl.textContent = `Collect ${cost - totalWallet} more gifts to continue.`;
+                continueStatusEl.textContent = T(`Collect ${cost - totalWallet} more gifts to continue.`, `Ramasse encore ${cost - totalWallet} cadeaux pour continuer.`);
             } else {
-                continueStatusEl.textContent = `Adventure unlocked — continue for ${cost} gifts.`;
+                continueStatusEl.textContent = T(`Adventure unlocked — continue for ${cost} gifts.`, `Aventure débloquée — continue pour ${cost} cadeaux.`);
             }
         }
 
@@ -1552,7 +1555,7 @@
             if (milestone > lastMilestone) {
                 lastMilestone = milestone;
                 playSfx('milestone');
-                showFeedback(`${milestone * 500}m! Great running! ⭐`);
+                showFeedback(T(`${milestone * 500}m! Great running! ⭐`, `${milestone * 500} m ! Super course ! ⭐`));
             }
             updateDayNight();
             updateWeather();
@@ -1661,12 +1664,12 @@
                             lives = Math.min(3, lives + 1);
                             updateLivesUI();
                             playSfx('heart');
-                            showFeedback('Rare heart found! +1 ❤️');
+                            showFeedback(T('Rare heart found! +1 ❤️', 'Cœur rare trouvé ! +1 ❤️'));
                         } else {
                             totalWallet++; localStorage.setItem('santaRunnerGifts', totalWallet);
                             updateWalletUI();
                             playSfx('gift');
-                            showFeedback('Gift collected! +1 🎁');
+                            showFeedback(T('Gift collected! +1 🎁', 'Cadeau ramassé ! +1 🎁'));
                             giftBadgeEl.classList.remove('pop');
                             void giftBadgeEl.offsetWidth;
                             giftBadgeEl.classList.add('pop');

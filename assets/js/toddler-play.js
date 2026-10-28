@@ -2,7 +2,11 @@ export const stage = document.getElementById('stage');
 export const controls = document.getElementById('controls');
 export const palette = document.getElementById('palette');
 export const NS = 'http://www.w3.org/2000/svg';
-export let language = 'en';
+const LANGUAGE_KEY = 'baby-lang';
+function savedLanguage() {
+    try { return localStorage.getItem(LANGUAGE_KEY) === 'fr' ? 'fr' : 'en'; } catch (error) { return 'en'; }
+}
+export let language = savedLanguage();
 let soundEnabled = true;
 let audio;
 let updateLanguage;
@@ -225,11 +229,23 @@ export function soundEffect(kind) {
         splash: { notes: [380, 520, 330], wave: 'sine', bend: .7 },
         giggle: { notes: [660, 880, 740], wave: 'sine', bend: 1.2 },
         horn: { notes: [294, 370], wave: 'triangle', bend: 1 },
-        flutter: { notes: [880, 660, 990], wave: 'sine', bend: 1.1 }
+        flutter: { notes: [880, 660, 990], wave: 'sine', bend: 1.1 },
+        squeak: { notes: [1200, 1500], wave: 'triangle', bend: 1.3 },
+        boing: { notes: [220, 330], wave: 'sine', bend: 2.2 },
+        whoosh: { notes: [300, 200], wave: 'triangle', bend: .5 },
+        sparkle: { notes: [1320, 1760, 1568, 2093], wave: 'sine', bend: 1 },
+        drip: { notes: [1050], wave: 'sine', bend: .55 },
+        vroom: { notes: [110, 140, 175], wave: 'triangle', bend: 1.25 },
+        munch: { notes: [330, 262, 330], wave: 'square', bend: .8 }
     };
     const sound = sounds[kind];
     if (!sound) throw new Error(`Unknown play sound: ${kind}`);
     playNotes(sound.notes, sound.wave, sound.bend);
+}
+export const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Plays a short melody of frequencies; shares the 120ms throttle with other sounds.
+export function tone(notes, wave = 'sine', bend = 1) {
+    playNotes(notes, wave, bend);
 }
 function playNotes(notes, wave = 'sine', bend = 1) {
     if (!soundEnabled || !audio || document.hidden || performance.now() - lastSound < 120) return;
@@ -292,6 +308,7 @@ export function init(renderLanguage) {
     updateLanguage = renderLanguage;
     document.querySelectorAll('[data-language]').forEach(el => el.addEventListener('click', () => {
         language = el.dataset.language;
+        try { localStorage.setItem(LANGUAGE_KEY, language); } catch (error) { /* language stays for this visit */ }
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         syncSettings();
         updateLanguage();

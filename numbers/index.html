@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Fête 1-2-3">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -121,6 +121,7 @@
             .dots-row { gap: 3px; }
             .lang-btn { font-size: 0.8rem; padding: 6px 12px; }
             h1 { font-size: 2.2rem; }
+            .header { padding-top: 66px; }
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -134,19 +135,20 @@
             .dot { width: 4px; height: 4px; }
         }
     </style>
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 </head>
 <body>
 
     <canvas id="physics-canvas"></canvas>
-    <a href="/" class="home-btn" title="Back">🏠</a>
+    <a href="/" class="home-btn" title="Back" data-fr-title="Retour">🏠</a>
 
     <div class="header">
-        <h1>1-2-3 Party 🎈</h1>
-        <p>Tap a number!</p>
+        <h1 data-fr="Fête 1-2-3 🎈">1-2-3 Party 🎈</h1>
+        <p data-fr="Touche un chiffre !">Tap a number!</p>
 
         <div class="lang-container">
             <button class="lang-btn active" onclick="setLanguage('en')">🇬🇧 English</button>
-            <button class="lang-btn" onclick="setLanguage('fr')">🇫🇷 French</button>
+            <button class="lang-btn" onclick="setLanguage('fr')">🇫🇷 Français</button>
             <button class="lang-btn" onclick="setLanguage('tl')">🇵🇭 Tagalog</button>
             <button class="lang-btn" onclick="setLanguage('ar')">🇸🇦 Arabic</button>
             <button class="lang-btn" onclick="setLanguage('ilo')">🏝️ Ilokano</button>
@@ -196,6 +198,7 @@
             langButtons.forEach(btn => btn.classList.remove('active'));
             const activeBtn = Array.from(langButtons).find(b => b.getAttribute('onclick').includes(langCode));
             if(activeBtn) activeBtn.classList.add('active');
+            if (langCode === 'en' || langCode === 'fr') window.BabyLang.set(langCode);
         }
 
         // --- INIT GRID ---
@@ -357,6 +360,7 @@
             speechSynthesis.onvoiceschanged = () => {};
         }
         initGrid(); animate();
+        setLanguage(window.BabyLang.lang);
     </script>
 </body>
 </html>

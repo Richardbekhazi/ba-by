@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Bébé Casse-tête">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 
     <style>
         :root {
@@ -326,6 +327,35 @@
             transition: none !important;
         }
 
+        .piece.wobble {
+            animation: wobble 0.45s ease-in-out;
+        }
+
+        @keyframes wobble {
+            0%, 100% { transform: translateX(0) rotate(0); }
+            20% { transform: translateX(-8px) rotate(-6deg); }
+            40% { transform: translateX(8px) rotate(6deg); }
+            60% { transform: translateX(-5px) rotate(-3deg); }
+            80% { transform: translateX(5px) rotate(3deg); }
+        }
+
+        /* Level progress dots */
+        .level-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .level-dots span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(141, 110, 99, 0.25);
+            transition: transform 0.3s, background 0.3s;
+        }
+        .level-dots span.done { background: var(--success); }
+        .level-dots span.current { background: var(--primary); transform: scale(1.35); }
+
         .piece.placed {
             position: absolute; /* Stick to slot */
             top: 0; left: 0;
@@ -348,7 +378,7 @@
 
         /* --- VICTORY SCREEN --- */
         #victory-screen {
-            position: absolute;
+            position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 240, 200, 0.95) 100%);
             display: flex;
@@ -439,7 +469,7 @@
         }
 
         @media (max-width: 600px) {
-            .game-container { padding: 70px 12px 12px; justify-content: flex-start; }
+            .game-container { padding: 70px 12px 12px; justify-content: flex-start; justify-content: safe center; }
             .level-header { margin-bottom: 14px; }
             .level-header h1 { font-size: 2.1rem; }
             .subtitle { margin-top: 2px; font-size: 1rem; }
@@ -468,12 +498,13 @@
 <body>
 
     <canvas id="particles"></canvas>
-    <a href="/" class="home-btn" title="Back to Games">🏠</a>
+    <a href="/" class="home-btn" title="Back to Games" aria-label="Back to Games" data-fr-title="Retour aux jeux" data-fr-aria-label="Retour aux jeux">🏠</a>
 
     <div class="game-container">
         <div class="level-header">
             <h1 id="level-title">Shapes</h1>
-            <div class="subtitle" id="level-subtitle">Drag to match!</div>
+            <div class="subtitle" id="level-subtitle" data-fr="Glisse pour assortir !">Drag to match!</div>
+            <div class="level-dots" id="level-dots" aria-hidden="true"></div>
         </div>
 
         <div class="play-area" id="play-area">
@@ -488,9 +519,9 @@
 
     <div id="victory-screen">
         <div class="victory-card">
-            <h1 style="color: #FFD700; font-size: 4rem;">Yay!</h1>
-            <p class="subtitle" style="font-size: 1.5rem;">Good Job!</p>
-            <button class="next-btn" id="next-level-btn">Next Level ➜</button>
+            <h1 style="color: #FFD700; font-size: 4rem;" data-fr="Bravo !">Yay!</h1>
+            <p class="subtitle" style="font-size: 1.5rem;" data-fr="Beau travail !">Good Job!</p>
+            <button class="next-btn" id="next-level-btn" data-fr="Niveau suivant ➜">Next Level ➜</button>
         </div>
     </div>
 
@@ -503,69 +534,80 @@
         // Using emojis for visual appeal
         const LEVELS = [
             {
-                name: "Shapes",
+                name: "Shapes", nameFr: "Formes",
                 bg: "linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)",
                 items: [
-                    { id: 'circle', name: 'Circle', color: '#FF6B6B', path: '<circle cx="50" cy="50" r="40"/>' },
-                    { id: 'square', name: 'Square', color: '#4ECDC4', path: '<rect x="15" y="15" width="70" height="70" rx="10"/>' },
-                    { id: 'triangle', name: 'Triangle', color: '#FFE66D', path: '<path d="M50 15 L85 80 L15 80 Z" stroke-linejoin="round" stroke-width="10"/>' },
-                    { id: 'star', name: 'Star', color: '#A29BFE', path: '<path d="M50 10 L61 40 L93 40 L67 60 L77 90 L50 72 L23 90 L33 60 L7 40 L39 40 Z"/>' },
-                    { id: 'heart', name: 'Heart', color: '#FF9FF3', path: '<path d="M50 85 C50 85 15 60 15 35 A18 18 0 0 1 50 35 A18 18 0 0 1 85 35 C85 60 50 85 50 85 Z"/>' },
-                    { id: 'diamond', name: 'Diamond', color: '#54a0ff', path: '<polygon points="50,10 85,50 50,90 15,50"/>' },
-                    { id: 'pentagon', name: 'Pentagon', color: '#fab1a0', path: '<polygon points="50,10 90,40 75,85 25,85 10,40"/>' },
-                    { id: 'moon', name: 'Moon', color: '#fdcb6e', path: '<path d="M70 8 C42 12 22 34 22 58 C22 80 42 94 66 90 C52 80 44 65 44 49 C44 31 54 17 70 8 Z"/>' },
-                    { id: 'hexagon', name: 'Hexagon', color: '#6c5ce7', path: '<polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>' }
+                    { id: 'circle', name: 'Circle', fr: 'Cercle', color: '#FF6B6B', path: '<circle cx="50" cy="50" r="40"/>' },
+                    { id: 'square', name: 'Square', fr: 'Carré', color: '#4ECDC4', path: '<rect x="15" y="15" width="70" height="70" rx="10"/>' },
+                    { id: 'triangle', name: 'Triangle', fr: 'Triangle', color: '#FFE66D', path: '<path d="M50 15 L85 80 L15 80 Z" stroke-linejoin="round" stroke-width="10"/>' },
+                    { id: 'star', name: 'Star', fr: 'Étoile', color: '#A29BFE', path: '<path d="M50 10 L61 40 L93 40 L67 60 L77 90 L50 72 L23 90 L33 60 L7 40 L39 40 Z"/>' },
+                    { id: 'heart', name: 'Heart', fr: 'Cœur', color: '#FF9FF3', path: '<path d="M50 85 C50 85 15 60 15 35 A18 18 0 0 1 50 35 A18 18 0 0 1 85 35 C85 60 50 85 50 85 Z"/>' },
+                    { id: 'diamond', name: 'Diamond', fr: 'Losange', color: '#54a0ff', path: '<polygon points="50,10 85,50 50,90 15,50"/>' },
+                    { id: 'pentagon', name: 'Pentagon', fr: 'Pentagone', color: '#fab1a0', path: '<polygon points="50,10 90,40 75,85 25,85 10,40"/>' },
+                    { id: 'moon', name: 'Moon', fr: 'Lune', color: '#fdcb6e', path: '<path d="M70 8 C42 12 22 34 22 58 C22 80 42 94 66 90 C52 80 44 65 44 49 C44 31 54 17 70 8 Z"/>' },
+                    { id: 'hexagon', name: 'Hexagon', fr: 'Hexagone', color: '#6c5ce7', path: '<polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>' }
                 ]
             },
             {
-                name: "Fruits",
+                name: "Fruits", nameFr: "Fruits",
                 bg: "linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%)",
                 items: [
-                    { id: 'apple', name: 'Apple', emoji: '🍎' },
-                    { id: 'banana', name: 'Banana', emoji: '🍌' },
-                    { id: 'grape', name: 'Grapes', emoji: '🍇' },
-                    { id: 'orange', name: 'Orange', emoji: '🍊' },
-                    { id: 'pear', name: 'Pear', emoji: '🍐' },
-                    { id: 'cherry', name: 'Cherry', emoji: '🍒' },
-                    { id: 'strawberry', name: 'Strawberry', emoji: '🍓' },
-                    { id: 'watermelon', name: 'Watermelon', emoji: '🍉' },
-                    { id: 'pineapple', name: 'Pineapple', emoji: '🍍' }
+                    { id: 'apple', name: 'Apple', fr: 'Pomme', emoji: '🍎' },
+                    { id: 'banana', name: 'Banana', fr: 'Banane', emoji: '🍌' },
+                    { id: 'grape', name: 'Grapes', fr: 'Raisins', emoji: '🍇' },
+                    { id: 'orange', name: 'Orange', fr: 'Orange', emoji: '🍊' },
+                    { id: 'pear', name: 'Pear', fr: 'Poire', emoji: '🍐' },
+                    { id: 'cherry', name: 'Cherry', fr: 'Cerise', emoji: '🍒' },
+                    { id: 'strawberry', name: 'Strawberry', fr: 'Fraise', emoji: '🍓' },
+                    { id: 'watermelon', name: 'Watermelon', fr: 'Pastèque', emoji: '🍉' },
+                    { id: 'pineapple', name: 'Pineapple', fr: 'Ananas', emoji: '🍍' }
                 ]
             },
             {
-                name: "Animals",
+                name: "Animals", nameFr: "Animaux",
                 bg: "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
                 items: [
-                    { id: 'cat', name: 'Cat', emoji: '🐱' },
-                    { id: 'fish', name: 'Fish', emoji: '🐠' },
-                    { id: 'bear', name: 'Bear', emoji: '🐻' },
-                    { id: 'bird', name: 'Bird', emoji: '🐦' },
-                    { id: 'pig', name: 'Pig', emoji: '🐷' },
-                    { id: 'duck', name: 'Duck', emoji: '🦆' },
-                    { id: 'frog', name: 'Frog', emoji: '🐸' },
-                    { id: 'crab', name: 'Crab', emoji: '🦀' },
-                    { id: 'turtle', name: 'Turtle', emoji: '🐢' }
+                    { id: 'cat', name: 'Cat', fr: 'Chat', emoji: '🐱' },
+                    { id: 'fish', name: 'Fish', fr: 'Poisson', emoji: '🐠' },
+                    { id: 'bear', name: 'Bear', fr: 'Ours', emoji: '🐻' },
+                    { id: 'bird', name: 'Bird', fr: 'Oiseau', emoji: '🐦' },
+                    { id: 'pig', name: 'Pig', fr: 'Cochon', emoji: '🐷' },
+                    { id: 'duck', name: 'Duck', fr: 'Canard', emoji: '🦆' },
+                    { id: 'frog', name: 'Frog', fr: 'Grenouille', emoji: '🐸' },
+                    { id: 'crab', name: 'Crab', fr: 'Crabe', emoji: '🦀' },
+                    { id: 'turtle', name: 'Turtle', fr: 'Tortue', emoji: '🐢' }
                 ]
             },
             {
-                name: "Transport",
+                name: "Transport", nameFr: "Transports",
                 bg: "linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%)",
                 items: [
-                    { id: 'car', name: 'Car', emoji: '🚗' },
-                    { id: 'boat', name: 'Boat', emoji: '⛵' },
-                    { id: 'rocket', name: 'Rocket', emoji: '🚀' },
-                    { id: 'plane', name: 'Plane', emoji: '✈️' },
-                    { id: 'truck', name: 'Truck', emoji: '🚚' },
-                    { id: 'bike', name: 'Bike', emoji: '🚴' },
-                    { id: 'bus', name: 'Bus', emoji: '🚌' },
-                    { id: 'train', name: 'Train', emoji: '🚂' },
-                    { id: 'helicopter', name: 'Helicopter', emoji: '🚁' }
+                    { id: 'car', name: 'Car', fr: 'Auto', emoji: '🚗' },
+                    { id: 'boat', name: 'Boat', fr: 'Bateau', emoji: '⛵' },
+                    { id: 'rocket', name: 'Rocket', fr: 'Fusée', emoji: '🚀' },
+                    { id: 'plane', name: 'Plane', fr: 'Avion', emoji: '✈️' },
+                    { id: 'truck', name: 'Truck', fr: 'Camion', emoji: '🚚' },
+                    { id: 'bike', name: 'Bike', fr: 'Vélo', emoji: '🚴' },
+                    { id: 'bus', name: 'Bus', fr: 'Autobus', emoji: '🚌' },
+                    { id: 'train', name: 'Train', fr: 'Train', emoji: '🚂' },
+                    { id: 'helicopter', name: 'Helicopter', fr: 'Hélicoptère', emoji: '🚁' }
                 ]
             }
         ];
 
+        const PROGRESS_KEY = 'puzzles-progress';
+        const lang = window.BabyLang;
+        const itemName = item => lang.t(item.name, item.fr || item.name);
+
         let currentLevelIdx = 0;
-        let currentDifficulty = 3; 
+        let currentDifficulty = 3;
+        try {
+            const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+            if (saved && LEVELS[saved.level] && saved.difficulty >= 3 && saved.difficulty <= 9) {
+                currentLevelIdx = saved.level;
+                currentDifficulty = saved.difficulty;
+            }
+        } catch (error) { /* start fresh */ }
         let piecesPlaced = 0;
         let activePiece = null;
         let activeWrapper = null;
@@ -581,6 +623,7 @@
             subtitle: document.getElementById('level-subtitle'),
             victory: document.getElementById('victory-screen'),
             nextBtn: document.getElementById('next-level-btn'),
+            dots: document.getElementById('level-dots'),
             game: document.querySelector('.game-container'),
             body: document.body
         };
@@ -608,7 +651,10 @@
             });
 
             els.nextBtn.addEventListener('click', nextLevel);
-            
+
+            lang.mountToggle();
+            lang.onChange(updateLanguage);
+
             setupParticles();
             setupVoice();
         }
@@ -616,8 +662,9 @@
         function loadLevel(idx) {
             cancelActiveDrag();
             const level = LEVELS[idx];
-            els.title.textContent = level.name;
+            els.title.textContent = lang.t(level.name, level.nameFr);
             els.body.style.background = level.bg;
+            renderDots();
             resetHint();
             els.slots.innerHTML = '';
             els.pieces.innerHTML = '';
@@ -659,7 +706,8 @@
                 const piece = document.createElement('div');
                 piece.className = 'piece';
                 piece.dataset.id = item.id;
-                piece.dataset.name = item.name;
+                piece.setAttribute('role', 'img');
+                piece.setAttribute('aria-label', itemName(item));
                 // Use emoji if available, otherwise use SVG
                 if (item.emoji) {
                     piece.innerHTML = `<span class="emoji-display">${item.emoji}</span>`;
@@ -699,7 +747,27 @@
                 ? (availableHeight - 32 - rowGaps) / rows
                 : (availableHeight - 54 - gap - rowGaps * 2) / (rows * 2);
             els.game.style.setProperty('--grid-cols', columns);
-            els.game.style.setProperty('--piece-size', Math.max(44, Math.floor(Math.min(100, widthSize, heightSize))) + 'px');
+            els.game.style.setProperty('--piece-size', Math.max(44, Math.floor(Math.min(count <= 4 ? 140 : 120, widthSize, heightSize))) + 'px');
+        }
+
+        function renderDots() {
+            els.dots.innerHTML = LEVELS.map((_, i) => {
+                const state = i === currentLevelIdx ? 'current' : i < currentLevelIdx ? 'done' : '';
+                return `<span class="${state}"></span>`;
+            }).join('');
+        }
+
+        function findItem(id) {
+            return LEVELS[currentLevelIdx].items.find(item => item.id === id);
+        }
+
+        function updateLanguage() {
+            const level = LEVELS[currentLevelIdx];
+            els.title.textContent = lang.t(level.name, level.nameFr);
+            document.querySelectorAll('.piece').forEach(piece => {
+                const item = findItem(piece.dataset.id);
+                if (item) piece.setAttribute('aria-label', itemName(item));
+            });
         }
 
         function createSVG(path, color) {
@@ -740,6 +808,9 @@
             // Move to body so it floats over everything
             document.body.appendChild(activePiece);
             activePiece.setPointerCapture?.(activePointerId);
+
+            const item = findItem(activePiece.dataset.id);
+            if (item) speak(item.name, item.fr || item.name);
         }
 
         function drag(e) {
@@ -762,10 +833,20 @@
             if (!activePiece || e.pointerId !== activePointerId) return;
             e.preventDefault();
 
-            const dropped = checkDrop();
-            
-            if (!dropped) {
+            const result = checkDrop();
+
+            if (result !== 'placed') {
+                const piece = activePiece;
                 restoreActivePiece();
+                if (result === 'wrong') {
+                    // Gentle wobble so the child knows to try another spot.
+                    piece.classList.remove('wobble');
+                    void piece.offsetWidth;
+                    piece.classList.add('wobble');
+                    piece.addEventListener('animationend', () => piece.classList.remove('wobble'), { once: true });
+                    playTone(220, 0.15);
+                    speak('Try again!', 'Essaie encore !');
+                }
             }
 
             finishActiveDrag();
@@ -828,22 +909,24 @@
             const pieceRect = activePiece.getBoundingClientRect();
             const pX = pieceRect.left + pieceRect.width/2;
             const pY = pieceRect.top + pieceRect.height/2;
-            let success = false;
+            let result = 'missed';
 
             document.querySelectorAll('.slot').forEach(slot => {
-                if (success) return; // Already placed
+                if (result === 'placed') return; // Already placed
                 const rect = slot.getBoundingClientRect();
                 const tolerance = 16;
-                
+
                 // If inside slot AND id matches
                 if (pX > rect.left - tolerance && pX < rect.right + tolerance && pY > rect.top - tolerance && pY < rect.bottom + tolerance) {
                     if (slot.dataset.id === activePiece.dataset.id) {
                         snapToSlot(activePiece, slot);
-                        success = true;
+                        result = 'placed';
+                    } else if (!slot.querySelector('.piece.placed')) {
+                        result = 'wrong';
                     }
                 }
             });
-            return success;
+            return result;
         }
 
         function snapToSlot(piece, slot) {
@@ -859,7 +942,10 @@
             // Celebration
             const rect = slot.getBoundingClientRect();
             createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
-            speak(piece.dataset.name);
+            playTone(660, 0.12);
+            setTimeout(() => playTone(880, 0.15), 110);
+            const item = findItem(piece.dataset.id);
+            if (item) speak(item.name, item.fr || item.name);
             
             resetHint();
             piecesPlaced++;
@@ -886,18 +972,33 @@
         // --- AUDIO ---
         function setupVoice() {
             // Init speech synthesis
-            window.speechSynthesis.getVoices();
+            if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
         }
-        function speak(text) {
-            const u = new SpeechSynthesisUtterance(text);
-            u.rate = 1.0; u.pitch = 1.2;
-            window.speechSynthesis.speak(u);
+        function speak(en, fr) {
+            lang.speak(en, fr, { pitch: 1.2 });
+        }
+
+        let audioCtx = null;
+        function playTone(freq, duration) {
+            try {
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain).connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (error) { /* audio is optional */ }
         }
 
         // --- GAME FLOW ---
         function triggerVictory() {
             els.victory.classList.add('visible');
-            speak("You did it! Amazing!");
+            speak("You did it! Amazing!", "Tu as réussi ! Bravo !");
+            els.nextBtn.focus({ preventScroll: true });
         }
 
         function nextLevel() {
@@ -905,6 +1006,9 @@
             if (currentLevelIdx === 0) {
                 currentDifficulty = Math.min(currentDifficulty + 1, 9);
             }
+            try {
+                localStorage.setItem(PROGRESS_KEY, JSON.stringify({ level: currentLevelIdx, difficulty: currentDifficulty }));
+            } catch (error) { /* progress is optional */ }
             loadLevel(currentLevelIdx);
         }
 
