@@ -86,7 +86,15 @@ activities) save their choice to the same shared setting.
 
 - Drag each piece to its matching outline; tapping or double-clicking does not automatically solve it.
 - Picking up a piece says its name (in English or French); dropping it on the wrong outline gives a gentle wobble and "Try again".
-- Progress dots show the current level, and the level and difficulty are remembered between visits.
+- There are 12 levels. A level is one puzzle of each theme with the same number of pieces
+  (3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9). Levels 1-6 use Shapes, Fruits, Animals and Transport; clearing
+  level 6 unlocks a fifth theme, Yummy Food, so levels 7-12 have 5 puzzles. Play flows automatically from
+  puzzle to puzzle; the "Level N" badge shows the level and the dots show which of its puzzles the child
+  is on. After level 12 is cleared, play continues on level 12.
+- The start screen offers "Continue" (the furthest puzzle reached, saved in `localStorage` key
+  `puzzles-progress`) and "Start from the beginning". On a first visit it shows a single "Play!" button.
+- "Choose your level" opens the 12 levels; only fully cleared levels can be picked, the rest show a lock.
+  The button itself stays locked until level 1 is cleared.
 - The board and piece tray resize for the screen and difficulty, with a side-by-side layout on short landscape screens.
 - On very small screens, the page can scroll so all pieces remain reachable.
 

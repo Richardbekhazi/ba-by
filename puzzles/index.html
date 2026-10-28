@@ -178,6 +178,241 @@
         .level-dots span.done { background: var(--accent-dark); }
         .level-dots span.current { width: 34px; background: var(--accent); }
 
+        .level-progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .level-progress .level-dots { margin-top: 0; }
+        .level-num {
+            font-family: 'Fredoka One', cursive;
+            font-size: 0.95rem;
+            color: #fff;
+            background: var(--accent);
+            padding: 3px 12px;
+            border-radius: 999px;
+            box-shadow: 0 3px 0 var(--accent-dark);
+        }
+
+        /* ▶️ START SCREEN */
+        .start-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 90;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            justify-content: safe center;
+            padding: 84px 20px 32px;
+            overflow-y: auto;
+            text-align: center;
+            background: linear-gradient(160deg, #FFF4EC 0%, #FFE3F1 50%, #DDEFFF 100%);
+            transition: opacity 0.35s, visibility 0.35s;
+        }
+        .start-screen:not(.visible) {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .start-icons {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            font-size: 52px;
+            line-height: 1;
+            margin-bottom: 14px;
+        }
+        .start-icons span { display: inline-block; animation: bob 2.6s ease-in-out infinite; }
+        .start-icons span:nth-child(2) { animation-delay: -0.6s; }
+        .start-icons span:nth-child(3) { animation-delay: -1.2s; }
+        .start-icons span:nth-child(4) { animation-delay: -1.8s; }
+        .start-screen h1 { color: #FF7A7A; font-size: 3.4rem; }
+        .start-screen .subtitle { color: #E05555; }
+        .start-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: min(380px, 100%);
+            margin-top: 30px;
+        }
+        .start-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            border: 0;
+            border-radius: 999px;
+            padding: 18px 24px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #fff;
+            background: #4CC26A;
+            box-shadow: 0 7px 0 #2F9E4C, 0 14px 24px rgba(0,0,0,0.12);
+            transition: transform 0.15s, box-shadow 0.15s;
+            animation: cardIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .start-btn[hidden] { display: none; }
+        .start-btn + .start-btn { animation-delay: 0.1s; }
+        .start-btn.secondary {
+            background: #fff;
+            color: #E05555;
+            font-size: 1.25rem;
+            box-shadow: 0 7px 0 #FFC9C2, 0 14px 24px rgba(0,0,0,0.08);
+        }
+        .start-btn:hover { transform: translateY(-3px) scale(1.02); }
+        .start-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 #2F9E4C; }
+        .start-btn.secondary:active { box-shadow: 0 1px 0 #FFC9C2; }
+        .start-btn:focus-visible { outline: 4px solid #FF7A7A; outline-offset: 4px; }
+        .start-btn small {
+            font-size: 0.85rem;
+            background: rgba(255,255,255,0.25);
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+        .start-btn.choose {
+            background: #fff;
+            color: #2B7FCC;
+            font-size: 1.15rem;
+            box-shadow: 0 7px 0 #BFDFFF, 0 14px 24px rgba(0,0,0,0.08);
+        }
+        .start-btn.choose:active { box-shadow: 0 1px 0 #BFDFFF; }
+        .start-btn.choose.locked { color: #9AA3B2; box-shadow: 0 7px 0 #DDE2EA, 0 14px 24px rgba(0,0,0,0.06); }
+        .start-btn.choose.locked::after { content: '🔒'; font-size: 1rem; }
+        .start-btn.wobble { animation: wobble 0.45s ease-in-out; }
+        .start-btn + .start-btn + .start-btn { animation-delay: 0.2s; }
+
+        /* 🔢 LEVEL PICKER */
+        .start-main {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .start-main[hidden], .level-picker[hidden] { display: none; }
+        .level-picker {
+            width: min(880px, 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .level-picker h2 {
+            font-family: 'Fredoka One', cursive;
+            color: #2B7FCC;
+            font-size: 2.2rem;
+            margin: 0 0 18px;
+            text-shadow: 0 3px 0 #fff;
+        }
+        .level-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 18px;
+            width: 100%;
+            padding: 6px 4px 14px;
+        }
+        .level-note {
+            margin: -10px 0 18px;
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: var(--accent-dark);
+        }
+        .level-tile {
+            --c: #FF7A7A;
+            --cd: #E05555;
+            position: relative;
+            width: 128px;
+            aspect-ratio: 1;
+            border: 0;
+            border-radius: 26%;
+            background: var(--c);
+            color: #fff;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.7rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 var(--cd), 0 10px 16px rgba(0,0,0,0.10);
+            transition: transform 0.15s;
+            animation: cardIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .level-tile .tile-num { font-size: 2.6rem; line-height: 1; }
+        .level-tile .tile-icon { font-size: 0.85rem; line-height: 1; letter-spacing: 1px; }
+        .level-tile .tile-pieces {
+            font-size: 0.8rem;
+            background: rgba(255,255,255,0.28);
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+        .level-tile.locked .tile-pieces { background: rgba(0,0,0,0.05); }
+        .level-tile:hover { transform: translateY(-3px) scale(1.05); }
+        .level-tile:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--cd); }
+        .level-tile:focus-visible { outline: 4px solid var(--cd); outline-offset: 3px; }
+        .level-tile.locked {
+            background: #E8ECF2;
+            color: #A7B0BE;
+            box-shadow: 0 6px 0 #D2D8E1;
+        }
+        .level-tile.locked .tile-icon { filter: grayscale(1); opacity: 0.5; }
+        .level-tile .tile-lock {
+            position: absolute;
+            top: -8px;
+            right: -6px;
+            font-size: 1.05rem;
+            background: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+        }
+        .level-tile.wobble { animation: wobble 0.45s ease-in-out; }
+        .level-picker .start-btn { width: min(320px, 100%); margin-top: 10px; }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @media (max-width: 600px) {
+            .start-screen h1 { font-size: 2.6rem; }
+            .start-icons { font-size: 42px; gap: 10px; }
+            .start-btn { font-size: 1.3rem; padding: 16px 20px; }
+            .start-btn.secondary { font-size: 1.1rem; }
+        }
+        @media (max-width: 600px) {
+            .level-picker h2 { font-size: 1.8rem; }
+            .level-grid { gap: 14px; }
+            .level-tile { width: calc((100% - 28px) / 3); max-width: 108px; }
+            .level-tile .tile-num { font-size: 2.1rem; }
+            .start-btn.choose { font-size: 1.05rem; }
+        }
+        @media (orientation: landscape) and (max-height: 600px) {
+            .start-screen { padding: 12px 20px 16px 84px; }
+            .start-buttons { flex-wrap: wrap; justify-content: center; gap: 12px 14px; }
+            .start-buttons .start-btn { flex: 1 1 40%; }
+            .start-buttons #continue-btn { flex-basis: 100%; }
+            .level-picker { padding-right: 72px; }
+            .level-picker h2 { font-size: 1.5rem; margin-bottom: 8px; }
+            .level-grid { gap: 12px; }
+            .level-tile { width: 92px; }
+            .level-tile .tile-num { font-size: 1.8rem; }
+            .level-tile .tile-icon { display: none; }
+            .start-icons { font-size: 34px; margin-bottom: 4px; }
+            .start-screen h1 { font-size: 2rem; }
+            .start-buttons { flex-direction: row; width: min(640px, 100%); margin-top: 16px; }
+            .start-btn { font-size: 1.15rem; padding: 14px 16px; }
+            .start-btn.secondary { font-size: 1rem; }
+        }
+
         /* --- PLAY AREA --- */
         .play-area {
             width: 100%;
@@ -538,11 +773,37 @@
     <canvas id="particles"></canvas>
     <a href="/" class="home-btn" title="Back to Games" aria-label="Back to Games" data-fr-title="Retour aux jeux" data-fr-aria-label="Retour aux jeux">🏠</a>
 
+    <div class="start-screen visible" id="start-screen">
+        <div class="start-main" id="start-main">
+        <div class="start-icons" aria-hidden="true"><span>⭐</span><span>🍎</span><span>🐱</span><span>🚗</span></div>
+        <h1 data-fr="Casse-tête">Puzzles</h1>
+        <p class="subtitle" data-fr="Trouve la bonne place !">Find the right spot!</p>
+        <div class="start-buttons">
+            <button type="button" class="start-btn" id="continue-btn" hidden>
+                <span data-fr="▶ Continuer">▶ Continue</span> <small id="continue-level"></small>
+            </button>
+            <button type="button" class="start-btn" id="restart-btn" data-fr="▶ Jouer !">▶ Play!</button>
+            <button type="button" class="start-btn choose" id="choose-btn">
+                <span data-fr="🔢 Choisis ton niveau">🔢 Choose your level</span>
+            </button>
+        </div>
+        </div>
+
+        <div class="level-picker" id="level-picker" hidden>
+            <h2 data-fr="Choisis ton niveau">Choose your level</h2>
+            <div class="level-grid" id="level-grid"></div>
+            <button type="button" class="start-btn secondary" id="picker-back" data-fr="⬅ Retour">⬅ Back</button>
+        </div>
+    </div>
+
     <div class="game-container">
         <div class="level-header">
             <h1 id="level-title">Shapes</h1>
             <div class="subtitle" id="level-subtitle" data-fr="Glisse pour assortir !">Drag to match!</div>
-            <div class="level-dots" id="level-dots" aria-hidden="true"></div>
+            <div class="level-progress">
+                <span class="level-num" id="level-num"></span>
+                <div class="level-dots" id="level-dots" aria-hidden="true"></div>
+            </div>
         </div>
 
         <div class="play-area" id="play-area">
@@ -561,7 +822,8 @@
             <div class="victory-stars" aria-hidden="true"><span>⭐</span><span>⭐</span><span>⭐</span></div>
             <h1 data-fr="Bravo !">Yay!</h1>
             <p class="subtitle" data-fr="Beau travail !">Good Job!</p>
-            <button class="next-btn" id="next-level-btn" data-fr="Niveau suivant ➜">Next Level ➜</button>
+            <p class="level-note" id="level-note" hidden></p>
+            <button class="next-btn" id="next-level-btn">Next puzzle ➜</button>
         </div>
     </div>
 
@@ -632,22 +894,67 @@
                     { id: 'train', name: 'Train', fr: 'Train', emoji: '🚂' },
                     { id: 'helicopter', name: 'Helicopter', fr: 'Hélicoptère', emoji: '🚁' }
                 ]
+            },
+            {
+                name: "Yummy Food", accent: ["#8C6CF0", "#6A4BD1", "#ECE5FF"], nameFr: "Miam-miam",
+                bg: "linear-gradient(160deg, #F7F3FF 0%, #D9CCFF 100%)",
+                items: [
+                    { id: 'cake', name: 'Cake', fr: 'Gâteau', emoji: '🎂' },
+                    { id: 'icecream', name: 'Ice cream', fr: 'Crème glacée', emoji: '🍦' },
+                    { id: 'donut', name: 'Donut', fr: 'Beigne', emoji: '🍩' },
+                    { id: 'cookie', name: 'Cookie', fr: 'Biscuit', emoji: '🍪' },
+                    { id: 'cupcake', name: 'Cupcake', fr: 'Petit gâteau', emoji: '🧁' },
+                    { id: 'pizza', name: 'Pizza', fr: 'Pizza', emoji: '🍕' },
+                    { id: 'croissant', name: 'Croissant', fr: 'Croissant', emoji: '🥐' },
+                    { id: 'popcorn', name: 'Popcorn', fr: 'Maïs soufflé', emoji: '🍿' },
+                    { id: 'lollipop', name: 'Lollipop', fr: 'Sucette', emoji: '🍭' }
+                ]
             }
         ];
 
         const PROGRESS_KEY = 'puzzles-progress';
         const lang = window.BabyLang;
+        const NBSP = '\u00a0';
         const itemName = item => lang.t(item.name, item.fr || item.name);
 
+        // A level is one puzzle of each theme with the same number of pieces.
+        // Levels 1-6 use the first 4 themes; clearing level 6 unlocks the 5th theme,
+        // so levels 7-12 have 5 puzzles. "Steps" count single puzzles across all levels.
+        const LEVEL_PIECES = [3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9];
+        const LEVEL_COUNT = LEVEL_PIECES.length;
+        const BONUS_LEVEL = 6; // index of level 7, the first level with the 5th theme
+        const themesIn = level => (level >= BONUS_LEVEL ? LEVELS.length : LEVELS.length - 1);
+        const STEPS = [];
+        const LEVEL_START = [];
+        LEVEL_PIECES.forEach((_, level) => {
+            LEVEL_START.push(STEPS.length);
+            for (let theme = 0; theme < themesIn(level); theme++) STEPS.push({ level, theme });
+        });
+        const TOTAL_STEPS = STEPS.length;
+        let stepNumber = 0;
+        let bestStep = 0;
         let currentLevelIdx = 0;
         let currentDifficulty = 3;
         try {
             const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
-            if (saved && LEVELS[saved.level] && saved.difficulty >= 3 && saved.difficulty <= 9) {
-                currentLevelIdx = saved.level;
-                currentDifficulty = saved.difficulty;
+            if (saved && Number.isInteger(saved.best)) {
+                bestStep = Math.min(Math.max(0, saved.best), TOTAL_STEPS);
+            } else if (saved && saved.level >= 0 && saved.level < 4 && saved.difficulty >= 3 && saved.difficulty <= 9) {
+                // Older saves stored the theme and piece count; resume at the first level with that many pieces.
+                bestStep = LEVEL_START[LEVEL_PIECES.indexOf(saved.difficulty)] + saved.level;
             }
         } catch (error) { /* start fresh */ }
+
+        const levelOf = step => STEPS[Math.min(step, TOTAL_STEPS - 1)].level;
+        const clearedLevels = () => LEVEL_START.filter((start, level) => start + themesIn(level) <= bestStep).length;
+        // After the last level is cleared, Continue replays the last level.
+        const resumeStep = () => (bestStep >= TOTAL_STEPS ? LEVEL_START[LEVEL_COUNT - 1] : bestStep);
+
+        function setStep(step) {
+            stepNumber = step;
+            currentLevelIdx = STEPS[step].theme;
+            currentDifficulty = LEVEL_PIECES[STEPS[step].level];
+        }
         let piecesPlaced = 0;
         let activePiece = null;
         let activeWrapper = null;
@@ -663,6 +970,17 @@
             subtitle: document.getElementById('level-subtitle'),
             victory: document.getElementById('victory-screen'),
             nextBtn: document.getElementById('next-level-btn'),
+            levelNote: document.getElementById('level-note'),
+            start: document.getElementById('start-screen'),
+            continueBtn: document.getElementById('continue-btn'),
+            continueLevel: document.getElementById('continue-level'),
+            restartBtn: document.getElementById('restart-btn'),
+            chooseBtn: document.getElementById('choose-btn'),
+            startMain: document.getElementById('start-main'),
+            picker: document.getElementById('level-picker'),
+            levelGrid: document.getElementById('level-grid'),
+            pickerBack: document.getElementById('picker-back'),
+            levelNum: document.getElementById('level-num'),
             dots: document.getElementById('level-dots'),
             game: document.querySelector('.game-container'),
             body: document.body
@@ -670,7 +988,7 @@
 
         // --- INIT ---
         function init() {
-            loadLevel(currentLevelIdx);
+            showStart();
             
             // Pointer Events handle touch, pen and mouse through one reliable path.
             document.addEventListener('pointerdown', dragStart, { passive: false });
@@ -691,6 +1009,21 @@
             });
 
             els.nextBtn.addEventListener('click', nextLevel);
+            els.continueBtn.addEventListener('click', () => startAt(resumeStep()));
+            els.restartBtn.addEventListener('click', () => startAt(0));
+            els.chooseBtn.addEventListener('click', openPicker);
+            els.pickerBack.addEventListener('click', closePicker);
+            els.levelGrid.addEventListener('click', event => {
+                const tile = event.target.closest('.level-tile');
+                if (!tile) return;
+                const level = Number(tile.dataset.level);
+                if (level < clearedLevels()) {
+                    startAt(LEVEL_START[level]);
+                } else {
+                    wobble(tile);
+                    speak('Clear this level first!', `Termine ce niveau d'abord${NBSP}!`);
+                }
+            });
 
             lang.mountToggle();
             lang.onChange(updateLanguage);
@@ -770,6 +1103,7 @@
 
         function fitLayout() {
             const count = Number(els.game.dataset.count);
+            if (!count) return;
             const columns = count === 4 ? 2 : Math.min(count, 3);
             const rows = Math.ceil(count / columns);
             const gameStyle = getComputedStyle(els.game);
@@ -803,8 +1137,89 @@
             els.game.style.setProperty('--piece-size', Math.max(44, Math.floor(Math.min(count <= 4 ? 140 : 120, widthSize, heightSize))) + 'px');
         }
 
+        const levelLabel = level => lang.t(`Level ${level + 1}`, `Niveau ${level + 1}`);
+
+        function showStart() {
+            const hasProgress = bestStep > 0;
+            els.continueBtn.hidden = !hasProgress;
+            els.continueLevel.textContent = levelLabel(levelOf(resumeStep()));
+            // With saved progress the second button starts over; otherwise it is the only "Play" button.
+            els.restartBtn.classList.toggle('secondary', hasProgress);
+            els.restartBtn.dataset.en = hasProgress ? '⭐ Start from the beginning' : '▶ Play!';
+            els.restartBtn.dataset.fr = hasProgress ? '⭐ Recommencer au début' : `▶ Jouer${NBSP}!`;
+            const canChoose = clearedLevels() > 0;
+            els.chooseBtn.classList.toggle('locked', !canChoose);
+            els.chooseBtn.setAttribute('aria-disabled', String(!canChoose));
+            closePicker();
+            lang.apply(els.start);
+            els.start.classList.add('visible');
+            (hasProgress ? els.continueBtn : els.restartBtn).focus({ preventScroll: true });
+        }
+
+        const THEME_ICONS = ['⭐', '🍎', '🐱', '🚗', '🧁'];
+        const LEVEL_COLORS = [
+            ['#FF7A7A', '#E05555'], ['#FF9F2E', '#E07F10'], ['#F5C518', '#D4A20A'], ['#4CC26A', '#2F9E4C'],
+            ['#2EC4B6', '#1E9C90'], ['#4DA3F2', '#2B7FCC'], ['#8C6CF0', '#6A4BD1'], ['#F06CB4', '#D04A93'],
+            ['#FF7A7A', '#E05555'], ['#FF9F2E', '#E07F10'], ['#4CC26A', '#2F9E4C'], ['#8C6CF0', '#6A4BD1']
+        ];
+
+        function wobble(el) {
+            el.classList.remove('wobble');
+            void el.offsetWidth;
+            el.classList.add('wobble');
+            el.addEventListener('animationend', () => el.classList.remove('wobble'), { once: true });
+            playTone(220, 0.15);
+        }
+
+        function renderPicker() {
+            const cleared = clearedLevels();
+            let html = '';
+            for (let n = 0; n < LEVEL_COUNT; n++) {
+                const open = n < cleared;
+                const pieces = LEVEL_PIECES[n];
+                const [color, dark] = LEVEL_COLORS[n];
+                const detail = lang.t(`${pieces} pieces`, `${pieces} pièces`);
+                const label = `${levelLabel(n)}, ${detail}${open ? '' : ', ' + lang.t('locked', 'verrouillé')}`;
+                html += `<button type="button" class="level-tile${open ? '' : ' locked'}" data-level="${n}"
+                        aria-label="${label}" style="--c: ${color}; --cd: ${dark}; animation-delay: ${n * 0.03}s">
+                    <span class="tile-num">${n + 1}</span>
+                    <span class="tile-icon" aria-hidden="true">${THEME_ICONS.slice(0, themesIn(n)).join('')}</span>
+                    <span class="tile-pieces" aria-hidden="true">${pieces} 🧩</span>
+                    ${open ? '' : '<span class="tile-lock" aria-hidden="true">🔒</span>'}
+                </button>`;
+            }
+            els.levelGrid.innerHTML = html;
+        }
+
+        function openPicker() {
+            if (clearedLevels() === 0) {
+                wobble(els.chooseBtn);
+                speak('Finish a level first!', `Termine un niveau d'abord${NBSP}!`);
+                return;
+            }
+            renderPicker();
+            els.startMain.hidden = true;
+            els.picker.hidden = false;
+            els.start.scrollTop = 0;
+            const latest = els.levelGrid.querySelector(`[data-level="${clearedLevels() - 1}"]`);
+            if (latest) latest.focus({ preventScroll: true });
+        }
+
+        function closePicker() {
+            els.picker.hidden = true;
+            els.startMain.hidden = false;
+        }
+
+        function startAt(number) {
+            speak("Let's play!", `On joue${NBSP}!`);
+            els.start.classList.remove('visible');
+            setStep(number);
+            loadLevel(currentLevelIdx);
+        }
+
         function renderDots() {
-            els.dots.innerHTML = LEVELS.map((_, i) => {
+            els.levelNum.textContent = levelLabel(levelOf(stepNumber));
+            els.dots.innerHTML = THEME_ICONS.slice(0, themesIn(levelOf(stepNumber))).map((_, i) => {
                 const state = i === currentLevelIdx ? 'current' : i < currentLevelIdx ? 'done' : '';
                 return `<span class="${state}"></span>`;
             }).join('');
@@ -815,6 +1230,10 @@
         }
 
         function updateLanguage() {
+            els.continueLevel.textContent = levelLabel(levelOf(resumeStep()));
+            if (!els.picker.hidden) renderPicker();
+            els.levelNum.textContent = levelLabel(levelOf(stepNumber));
+            els.nextBtn.textContent = nextLabel();
             const level = LEVELS[currentLevelIdx];
             els.title.textContent = lang.t(level.name, level.nameFr);
             document.querySelectorAll('.piece').forEach(piece => {
@@ -1014,6 +1433,7 @@
         }
 
         function showHint() {
+            if (els.start.classList.contains('visible')) return;
             if (activePiece || piecesPlaced === document.querySelectorAll('.slot').length) return;
             const firstUnplaced = document.querySelector('.pieces-row .piece');
             if (!firstUnplaced) return;
@@ -1048,20 +1468,45 @@
         }
 
         // --- GAME FLOW ---
+        const finishesLevel = () => currentLevelIdx === themesIn(levelOf(stepNumber)) - 1;
+        const nextLabel = () => (finishesLevel()
+            ? lang.t('Next level ➜', 'Niveau suivant ➜')
+            : lang.t('Next puzzle ➜', 'Casse-tête suivant ➜'));
+
         function triggerVictory() {
+            const level = levelOf(stepNumber);
+            els.nextBtn.textContent = nextLabel();
+            const bonus = LEVELS[LEVELS.length - 1];
+            const unlocksBonus = finishesLevel() && level === BONUS_LEVEL - 1;
+            if (finishesLevel()) {
+                els.levelNote.textContent = unlocksBonus
+                    ? lang.t(`🎉 Level ${level + 1} cleared! New puzzles: ${bonus.name} 🧁`,
+                        `🎉 Niveau ${level + 1} réussi${NBSP}! Nouveaux casse-tête${NBSP}: ${bonus.nameFr} 🧁`)
+                    : lang.t(`🎉 Level ${level + 1} cleared!`, `🎉 Niveau ${level + 1} réussi${NBSP}!`);
+                els.levelNote.hidden = false;
+            } else {
+                els.levelNote.hidden = true;
+            }
             els.victory.classList.add('visible');
-            speak("You did it! Amazing!", "Tu as réussi ! Bravo !");
+            if (unlocksBonus) {
+                speak(`Level ${level + 1} cleared! New puzzles: ${bonus.name}!`,
+                    `Niveau ${level + 1} réussi${NBSP}! Nouveaux casse-tête${NBSP}: ${bonus.nameFr}${NBSP}!`);
+            } else if (finishesLevel()) {
+                speak(`Level ${level + 1} cleared! Amazing!`, `Niveau ${level + 1} réussi${NBSP}! Bravo${NBSP}!`);
+            } else {
+                speak("You did it! Amazing!", `Tu as réussi${NBSP}! Bravo${NBSP}!`);
+            }
             els.nextBtn.focus({ preventScroll: true });
         }
 
         function nextLevel() {
-            currentLevelIdx = (currentLevelIdx + 1) % LEVELS.length;
-            if (currentLevelIdx === 0) {
-                currentDifficulty = Math.min(currentDifficulty + 1, 9);
-            }
+            const next = stepNumber + 1;
+            bestStep = Math.min(Math.max(bestStep, next), TOTAL_STEPS);
             try {
-                localStorage.setItem(PROGRESS_KEY, JSON.stringify({ level: currentLevelIdx, difficulty: currentDifficulty }));
+                localStorage.setItem(PROGRESS_KEY, JSON.stringify({ best: bestStep }));
             } catch (error) { /* progress is optional */ }
+            // After the last level, keep playing the last level.
+            setStep(next >= TOTAL_STEPS ? LEVEL_START[LEVEL_COUNT - 1] : next);
             loadLevel(currentLevelIdx);
         }
 
