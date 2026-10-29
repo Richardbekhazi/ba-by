@@ -145,28 +145,35 @@
         .streak.show { opacity: 1; }
         .streak.bump { animation: pop 0.35s; }
 
+        /* Small notes tuck under the buttons in the corner, never over Santa. */
         .toast {
             position: fixed;
-            left: 50%;
-            top: 30%;
-            transform: translate(-50%, -10px) scale(0.85);
-            max-width: calc(100vw - 32px);
-            padding: 10px 20px;
-            border-radius: 22px;
-            background: #fff;
-            border: 4px solid var(--c, var(--red));
-            box-shadow: 0 6px 0 var(--cd, var(--red-dark)), 0 14px 30px rgba(0,0,0,0.18);
-            font-family: 'Fredoka One', cursive;
-            font-size: clamp(1.1rem, 4.6vw, 1.5rem);
-            text-align: center;
+            top: calc(var(--safe-top) + 60px);
+            left: var(--safe-left);
+            max-width: min(300px, calc(100vw - 24px));
+            transform: translateY(-6px);
+            padding: 7px 14px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.92);
+            border: 3px solid var(--c, var(--green));
+            box-shadow: 0 4px 0 rgba(46,51,80,0.15);
+            font-weight: 900;
+            font-size: 0.92rem;
+            line-height: 1.25;
             opacity: 0;
-            transition: opacity 0.2s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 58;
+            transition: opacity 0.2s, transform 0.2s;
+            z-index: 61;
             pointer-events: none;
         }
-        .toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
-        .toast.hint { --c: var(--green); --cd: var(--green-dark); top: 22%; }
-        .toast.gold { --c: var(--gold); --cd: var(--gold-dark); }
+        .toast.show { opacity: 1; transform: none; }
+        .toast.gold { --c: var(--gold); }
+        .vignette {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            background: radial-gradient(ellipse 75% 70% at 50% 45%, transparent 55%, rgba(15,25,60,0.28));
+        }
 
         #floats { position: fixed; inset: 0; pointer-events: none; z-index: 57; overflow: hidden; }
         .float {
@@ -387,6 +394,7 @@
             .stats { width: 100%; justify-content: center; margin-left: 0; order: 5; }
             .stat { min-height: 36px; font-size: 1rem; padding: 4px 11px 4px 8px; }
             .power { top: calc(var(--safe-top) + 108px); }
+            .toast { top: calc(var(--safe-top) + 2px); left: auto; right: var(--safe-right); max-width: calc(100vw - 196px); font-size: 0.8rem; padding: 5px 10px; }
             .streak { top: calc(var(--safe-top) + 152px); left: 0; right: 0; text-align: center; font-size: 1.4rem; }
             .how { grid-template-columns: repeat(2, 1fr); }
             .summary { grid-template-columns: repeat(2, 1fr); }
@@ -421,9 +429,10 @@
 <body data-state="menu">
 
     <div id="game"></div>
+    <div class="vignette" aria-hidden="true"></div>
 
     <div class="topbar">
-        <a href="/" class="round-btn" title="Back to Games" data-fr-title="Retour aux jeux" aria-label="Back to Games" data-fr-aria-label="Retour aux jeux"><svg class="nav-icon" width="32" height="32" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="31" y="7" width="6" height="11" rx="2" fill="#E04B4B"/><rect x="10" y="21" width="28" height="21" rx="6" fill="#FFC93C"/><path d="M7 24 L24 9 L41 24" fill="none" stroke="#FF5A5F" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5 42 V33 a4.5 4.5 0 0 1 9 0 V42 Z" fill="#8C6CF0"/><rect x="29" y="27" width="6" height="6" rx="2" fill="#7CCBFF"/><rect x="13" y="27" width="5" height="5" rx="2" fill="#fff" opacity="0.7"/></svg></a>
+        <a href="/" class="round-btn" title="Back to Games" data-fr-title="Retour aux jeux" aria-label="Back to Games" data-fr-aria-label="Retour aux jeux"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#FF7A45"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#E85A28" opacity="0.55"/><path d="M24 12.5 L35.5 22 V33.5 a2.5 2.5 0 0 1 -2.5 2.5 H28 V29 a4 4 0 0 0 -8 0 V36 H15 a2.5 2.5 0 0 1 -2.5 -2.5 V22 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg></a>
         <button class="round-btn" id="pause-btn" type="button" aria-label="Pause" data-fr-aria-label="Pause">⏸️</button>
         <button class="round-btn" id="sound-btn" type="button" aria-label="Sound on or off" data-fr-aria-label="Son activé ou désactivé">🔊</button>
         <div class="stats" aria-live="off">
@@ -540,15 +549,15 @@
         const FLY_Y = 5.4;
         const SACK_MAX = 12;
         const MODES = {
-            cozy:   { speed0: 0.40, speedMax: 0.90, accel: 0.00008, busy: 0.55, gapsFrom: 700, hearts: 0.35 },
-            speedy: { speed0: 0.55, speedMax: 1.35, accel: 0.00016, busy: 0.85, gapsFrom: 260, hearts: 0.15 }
+            cozy:   { speed0: 0.40, speedMax: 0.90, accel: 0.00008, busy: 0.42, gapsFrom: 700, hearts: 0.35 },
+            speedy: { speed0: 0.55, speedMax: 1.30, accel: 0.00014, busy: 0.62, gapsFrom: 260, hearts: 0.15 }
         };
         const TIME_PHASE_DISTANCE = 750;
         const TIME_PHASES = [
-            { name: 'morning', sky: 0xf7b49a, hemi: 0.72, directional: 0.72, light: 0xffe2c4, sun: 0.45, moon: 0 },
-            { name: 'day', sky: 0x86ccf2, hemi: 0.8, directional: 0.8, light: 0xffffff, sun: 0.55, moon: 0 },
-            { name: 'dusk', sky: 0x9b6fd0, hemi: 0.62, directional: 0.62, light: 0xffb585, sun: 0.2, moon: 0 },
-            { name: 'night', sky: 0x16204a, hemi: 0.5, directional: 0.5, light: 0xc7d2fe, sun: 0, moon: 0.72 }
+            { name: 'morning', top: 0x7d9be0, sky: 0xf7b49a, hemi: 0.72, directional: 0.72, light: 0xffe2c4, sun: 0.45, moon: 0 },
+            { name: 'day', top: 0x3f8fe6, sky: 0x86ccf2, hemi: 0.8, directional: 0.8, light: 0xffffff, sun: 0.55, moon: 0 },
+            { name: 'dusk', top: 0x3a2b80, sky: 0x9b6fd0, hemi: 0.62, directional: 0.62, light: 0xffb585, sun: 0.2, moon: 0 },
+            { name: 'night', top: 0x040716, sky: 0x16204a, hemi: 0.5, directional: 0.5, light: 0xc7d2fe, sun: 0, moon: 0.72 }
         ];
 
         // ---------- State ----------
@@ -587,12 +596,78 @@
         const dirLight = new THREE.DirectionalLight(0xffffff, 0.72);
         dirLight.position.set(20, 40, 10);
         dirLight.castShadow = true;
-        dirLight.shadow.mapSize.set(innerWidth <= 768 ? 1024 : 2048, innerWidth <= 768 ? 1024 : 2048);
+        dirLight.shadow.mapSize.set(1024, 1024);
         Object.assign(dirLight.shadow.camera, { left: -16, right: 16, top: 22, bottom: -22, near: 1, far: 90 });
         dirLight.shadow.camera.updateProjectionMatrix();
         dirLight.target.position.set(0, 0, -6);
         scene.add(dirLight, dirLight.target);
         scene.add(new THREE.AmbientLight(0x8090c0, 0.18));
+        // A cool light from behind outlines Santa, Rudolph and the obstacles.
+        const rimLight = new THREE.DirectionalLight(0xa9c8ff, 0.35);
+        rimLight.position.set(-12, 10, -25);
+        scene.add(rimLight);
+
+        // Gradient sky dome that follows the camera.
+        const skyUniforms = { top: { value: new THREE.Color(TIME_PHASES[0].top) }, bottom: { value: new THREE.Color(TIME_PHASES[0].sky) } };
+        const skyDome = new THREE.Mesh(new THREE.SphereGeometry(160, 32, 16), new THREE.ShaderMaterial({
+            uniforms: skyUniforms,
+            side: THREE.BackSide,
+            depthWrite: false,
+            vertexShader: 'varying vec3 vDir; void main() { vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+            fragmentShader: 'uniform vec3 top; uniform vec3 bottom; varying vec3 vDir; void main() { float h = clamp(vDir.y * 1.8 + 0.08, 0.0, 1.0); gl_FragColor = vec4(mix(bottom, top, pow(h, 0.75)), 1.0); }'
+        }));
+        skyDome.renderOrder = -1;
+        scene.add(skyDome);
+
+        // Hand-painted canvas textures: bricks, roof tiles and sparkly snow.
+        function canvasTexture(w, h, paint, rx, ry) {
+            const c = document.createElement('canvas'); c.width = w; c.height = h;
+            paint(c.getContext('2d'), w, h);
+            const t = new THREE.CanvasTexture(c);
+            t.wrapS = t.wrapT = THREE.RepeatWrapping;
+            t.repeat.set(rx, ry);
+            t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+            return t;
+        }
+        const brickTex = canvasTexture(128, 128, (x, w, h) => {
+            x.fillStyle = '#e6d3c2'; x.fillRect(0, 0, w, h);
+            for (let row = 0; row < 8; row++) {
+                for (let col = -1; col < 4; col++) {
+                    const bx = col * 32 + (row % 2 ? 16 : 0);
+                    x.fillStyle = `hsl(${8 + Math.random() * 8}, ${48 + Math.random() * 12}%, ${40 + Math.random() * 9}%)`;
+                    x.fillRect(bx + 2, row * 16 + 2, 28, 12);
+                }
+            }
+        }, 2, 2);
+        const tilePaint = (x, w, h) => {
+            x.fillStyle = '#ffffff'; x.fillRect(0, 0, w, h);
+            for (let row = 0; row < 4; row++) {
+                for (let col = -1; col < 9; col++) {
+                    const cx = col * 16 + (row % 2 ? 8 : 0) + 8, cy = row * 16 + 4;
+                    x.fillStyle = `rgba(0,0,0,${0.02 + Math.random() * 0.07})`;
+                    x.strokeStyle = 'rgba(0,0,0,0.22)';
+                    x.lineWidth = 1.5;
+                    x.beginPath(); x.arc(cx, cy, 8, 0, Math.PI); x.fill(); x.stroke();
+                }
+            }
+        };
+        const roofTileTex = canvasTexture(128, 64, tilePaint, 6, 1);
+        const houseTileTex = canvasTexture(128, 64, tilePaint, 3, 2);
+        const snowTex = canvasTexture(256, 256, (x, w, h) => {
+            x.fillStyle = '#f7faff'; x.fillRect(0, 0, w, h);
+            for (let i = 0; i < 50; i++) {
+                const g = x.createRadialGradient(0, 0, 0, 0, 0, 1);
+                const px = Math.random() * w, py = Math.random() * h, r = 12 + Math.random() * 30;
+                x.save(); x.translate(px, py); x.scale(r, r);
+                g.addColorStop(0, 'rgba(160,190,230,0.14)'); g.addColorStop(1, 'rgba(160,190,230,0)');
+                x.fillStyle = g; x.beginPath(); x.arc(0, 0, 1, 0, Math.PI * 2); x.fill();
+                x.restore();
+            }
+            for (let i = 0; i < 260; i++) {
+                x.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.95)' : 'rgba(190,215,245,0.6)';
+                x.fillRect(Math.random() * w, Math.random() * h, 1.5, 1.5);
+            }
+        }, 5, 3);
 
         // ---------- Shared textures, materials & geometry ----------
         function makeGlowTexture() {
@@ -632,11 +707,11 @@
 
         const std = (color, o) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.8 }, o));
         const M = {
-            snow: std(0xf1f6ff, { roughness: 0.95 }),
+            snow: std(0xffffff, { roughness: 0.95, map: snowTex }),
             track: std(0x9dbbe2, { roughness: 1 }),
-            roof: std(0x34406a),
-            brick: std(0xb5523b, { roughness: 0.9 }),
-            brickDark: std(0x8f3d2c, { roughness: 0.9 }),
+            roof: std(0x5a6a9a, { map: roofTileTex }),
+            brick: std(0xffffff, { roughness: 0.9, map: brickTex }),
+            brickDark: std(0xc99a88, { roughness: 0.9, map: brickTex }),
             dark: std(0x172033),
             white: std(0xf8fdff, { roughness: 0.9 }),
             carrot: std(0xf97316),
@@ -654,7 +729,7 @@
             bulbs: [0xff4d6d, 0xffd54a, 0x4ade80, 0x60a5fa, 0xc084fc].map(c => new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.5 })),
             gifts: [0xef4444, 0x22c55e, 0x3b82f6, 0xf59e0b, 0xa855f7].map(c => new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.18, roughness: 0.45 })),
             walls: [0xf4a6a6, 0x9ec9f5, 0xfff1c9, 0xb8e6c1, 0xd9c2f0].map(c => std(c, { flatShading: true })),
-            houseRoofs: [0xc0392b, 0x2f6f9f, 0x7a4fa0, 0x2e7d4f].map(c => std(c, { flatShading: true }))
+            houseRoofs: [0xc0392b, 0x2f6f9f, 0x7a4fa0, 0x2e7d4f].map(c => std(c, { flatShading: true, map: houseTileTex }))
         };
         const GIFT_COLORS = ['#ef4444', '#22c55e', '#3b82f6', '#f59e0b', '#a855f7'];
 
@@ -771,7 +846,7 @@
         scene.add(aurora);
 
         // Falling snow
-        const SNOW = 1800;
+        const SNOW = 1100;
         const snowGeo = new THREE.BufferGeometry();
         const snowPos = new Float32Array(SNOW * 3);
         const snowVel = new Float32Array(SNOW);
@@ -865,7 +940,7 @@
             const sackTie = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.06, 6, 14), mat(0xffd54a, 0.5));
             sackTie.rotation.x = Math.PI / 2; sackTie.position.y = 0.62;
             sack.add(sackBody, sackTie);
-            sack.position.set(0, 0.95, 0.75);
+            sack.position.set(0.62, 0.45, 0.45);
             santa.add(coat, trim, belt, headS, hair, beard, hat, armL, armR, mitL, mitR, scarf, sack);
             santa.userData = { hat, scarf, armL, armR };
             player.add(santa);
@@ -951,16 +1026,26 @@
             });
         }
 
-        function spawnSegment(z) {
+        const segmentPool = { true: [], false: [] };
+        function buildSegment(gap) {
             const group = new THREE.Group();
-            group.position.z = z;
+            group.userData.gap = gap;
+            addRoof(group, gap);
+            addScenery(group);
+            return group;
+        }
+        function releaseSegment(seg) {
+            scene.remove(seg);
+            segmentPool[seg.userData.gap].push(seg);
+        }
+
+        function spawnSegment(z) {
             const mcfg = MODES[run.mode || mode];
             const ahead = (run.distance || 0) - z;
             const gap = state === 'play' && spawnIndex > 6 && ahead > mcfg.gapsFrom && segsSinceGap > 5 && Math.random() < 0.1 + difficulty(ahead) * 0.08;
-            group.userData.gap = gap;
             segsSinceGap = gap ? 0 : segsSinceGap + 1;
-            addRoof(group, gap);
-            addScenery(group);
+            const group = segmentPool[gap].pop() || buildSegment(gap);
+            group.position.z = z;
             scene.add(group);
             segments.push(group);
             if (state === 'play') fillSegment(group, ahead);
@@ -970,8 +1055,25 @@
         function difficulty(ahead) { return clamp(ahead / 1800, 0, 1); }
 
         // ---------- Things on the roofs ----------
+        const giftPools = [[], [], [], [], []];
+        function takeGift(ci) {
+            const g = giftPools[ci].pop() || makeGift(ci);
+            g.scale.setScalar(1);
+            g.rotation.set(0, 0, 0);
+            return g;
+        }
+        function releaseGift(g) {
+            if (g.parent) g.parent.remove(g);
+            giftPools[g.userData.ci].push(g);
+        }
+        function releaseCollectable(c) {
+            if (c.userData.type === 'gift') releaseGift(c);
+            else scene.remove(c);
+        }
+
         function makeGift(colorIndex) {
             const g = new THREE.Group();
+            g.userData.ci = colorIndex;
             const box = new THREE.Mesh(G.giftBox, M.gifts[colorIndex]); box.castShadow = true;
             const rv = new THREE.Mesh(G.ribbonV, M.ribbon), rh = new THREE.Mesh(G.ribbonH, M.ribbon);
             const bl = new THREE.Mesh(G.bow, M.ribbon); bl.position.set(-0.2, 0.7, 0); bl.scale.set(1.3, 0.8, 1); bl.rotation.y = 0.3;
@@ -982,9 +1084,9 @@
 
         function addGift(x, y, z) {
             const ci = (Math.random() * M.gifts.length) | 0;
-            const g = makeGift(ci);
+            const g = takeGift(ci);
             g.position.set(x, y, z);
-            g.userData = { type: 'gift', baseY: y, off: Math.random() * 6, color: GIFT_COLORS[ci] };
+            g.userData = { type: 'gift', ci, baseY: y, off: Math.random() * 6, color: GIFT_COLORS[ci] };
             scene.add(g);
             collectables.push(g);
             return g;
@@ -1018,10 +1120,9 @@
             collectables.push(g);
         }
 
-        function addObstacle(type, lane, z, opts) {
+        function buildObstacle(type, lane) {
             const g = new THREE.Group();
-            const x = lane === null ? 0 : LANES[lane];
-            const u = { type, lane, width: 1.15, depth: 1.15, clear: 3.0 };
+            const u = { type, width: 1.15, depth: 1.15, clear: 3.0 };
             if (type === 'chimney' || type === 'wish') {
                 const base = new THREE.Mesh(G.chimney, type === 'wish' ? M.brick : M.brickDark); base.position.y = 1.3; base.castShadow = true;
                 const rim = new THREE.Mesh(G.chimneyRim, M.brick); rim.position.y = 2.75; rim.castShadow = true;
@@ -1061,7 +1162,6 @@
                 g.add(body, belly, head, face, beak, fl, fr, ftL, ftR);
                 [-0.22, 0.22].forEach(ex => { const e = new THREE.Mesh(G.eye, M.dark); e.position.set(ex, 2.02, 0.58); g.add(e); });
                 u.clear = 2.4; u.width = 0.9; u.depth = 0.8;
-                u.walk = 0.5 + Math.random() * 0.4; u.off = Math.random() * Math.PI * 2;
             } else if (type === 'garland') {
                 // A string of lights between two poles: slide under it (or jump really high).
                 const wide = lane === null;
@@ -1093,11 +1193,29 @@
                 }
                 u.width = wide ? 7 : 2.0; u.depth = 0.5; u.clear = 4.0; u.slide = true;
             }
-            g.position.set(x, 0, z);
-            g.userData = Object.assign(u, opts);
+            g.userData = { base: u };
+            return g;
+        }
+
+        const obstaclePool = {};
+        function addObstacle(type, lane, z, opts) {
+            const key = type + (lane === null ? '-wide' : '');
+            const g = (obstaclePool[key] && obstaclePool[key].pop()) || buildObstacle(type, lane);
+            const base = g.userData.base;
+            g.userData = Object.assign({ base, key, lane }, base, opts);
+            if (type === 'penguin') { g.userData.walk = 0.5 + Math.random() * 0.4; g.userData.off = Math.random() * Math.PI * 2; }
+            if (base.beacon) base.beacon.visible = true;
+            g.position.set(lane === null ? 0 : LANES[lane], 0, z);
+            g.rotation.set(0, 0, 0);
             scene.add(g);
             obstacles.push(g);
             return g;
+        }
+        function releaseObstacle(ob) {
+            const u = ob.userData;
+            if (u.drop) { releaseGift(u.drop.gift); u.drop = null; }
+            scene.remove(ob);
+            (obstaclePool[u.key] = obstaclePool[u.key] || []).push(ob);
         }
 
         function otherLane(not) {
@@ -1126,6 +1244,14 @@
                 return;
             }
             segsSinceWish++;
+            // After anything to dodge, the next roof is usually calm so the rhythm stays smooth.
+            if (run.calm > 0) {
+                run.calm--;
+                if (Math.random() < 0.7) {
+                    if (Math.random() < 0.5) addGiftLine((Math.random() * 3) | 0, z + 4, 3);
+                    return;
+                }
+            }
             if (run.lives < run.maxLives && Math.random() < cfg.hearts * 0.08) {
                 addHeart(LANES[(Math.random() * 3) | 0], z);
                 return;
@@ -1134,6 +1260,7 @@
                 segsSinceWish = 0;
                 const lane = (Math.random() * 3) | 0;
                 addObstacle('wish', lane, z - 3);
+                run.calm = 1;
                 if (run.sack < 3 || Math.random() < 0.35) addGiftLine(otherLane([lane]), z + 5, 3);
                 return;
             }
@@ -1145,6 +1272,7 @@
             }
             const roll = Math.random();
             const lane = (Math.random() * 3) | 0;
+            run.calm = 1;
             if (roll < 0.3) {
                 addObstacle(Math.random() < 0.5 ? 'snowman' : 'chimney', lane, z);
                 addGiftLine(otherLane([lane]), z + 4, 3);
@@ -1165,58 +1293,69 @@
             }
         }
 
-        // ---------- Effects ----------
+        // ---------- Effects (pooled, shared materials: no allocations while playing) ----------
+        const sparkMats = {};
+        const sparkMat = c => sparkMats[c] || (sparkMats[c] = new THREE.MeshBasicMaterial({ color: c }));
+        const puffMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8, depthWrite: false });
+        const sparkPool = [], puffPool = [];
+        const MAX_PARTS = 200;
+        function spawnPart(kind, pos, mat) {
+            if (effects.length >= MAX_PARTS) return null;
+            const pool = kind === 'spark' ? sparkPool : puffPool;
+            const m = pool.pop() || new THREE.Mesh(kind === 'spark' ? G.spark : G.puff, mat);
+            m.material = mat;
+            m.position.copy(pos);
+            m.userData.kind = kind;
+            m.userData.v = m.userData.v || new THREE.Vector3();
+            scene.add(m);
+            effects.push(m);
+            return m;
+        }
         function burst(pos, colors, n, power) {
-            const group = new THREE.Group();
-            group.position.copy(pos);
-            const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, vertexColors: false });
-            const mats = colors.map(c => { const m = mat.clone(); m.color.set(c); return m; });
-            mat.dispose();
             for (let i = 0; i < n; i++) {
-                const s = new THREE.Mesh(G.spark, mats[i % mats.length]);
-                s.userData.v = new THREE.Vector3((Math.random() - 0.5) * 0.3 * power, (0.1 + Math.random() * 0.25) * power, (Math.random() - 0.5) * 0.26 * power);
-                group.add(s);
+                const m = spawnPart('spark', pos, sparkMat(colors[i % colors.length]));
+                if (!m) return;
+                const u = m.userData;
+                u.v.set((Math.random() - 0.5) * 0.3 * power, (0.1 + Math.random() * 0.25) * power, (Math.random() - 0.5) * 0.26 * power);
+                u.life = u.max = 32 + Math.random() * 10;
+                u.s = 0.7 + Math.random() * 0.6;
             }
-            scene.add(group);
-            effects.push({ kind: 'burst', group, mats, life: 40, max: 40 });
         }
-
-        function puff(pos, count, color) {
-            const group = new THREE.Group();
-            group.position.copy(pos);
-            const mat = new THREE.MeshBasicMaterial({ color: color || 0xffffff, transparent: true, opacity: 0.85, depthWrite: false });
+        function puff(pos, count) {
             for (let i = 0; i < count; i++) {
-                const s = new THREE.Mesh(G.puff, mat);
-                s.position.set((Math.random() - 0.5) * 1.2, Math.random() * 0.4, (Math.random() - 0.5) * 1.2);
-                s.userData.v = new THREE.Vector3((Math.random() - 0.5) * 0.04, 0.05 + Math.random() * 0.05, (Math.random() - 0.5) * 0.04);
-                s.scale.setScalar(0.4 + Math.random() * 0.4);
-                group.add(s);
+                const m = spawnPart('puff', pos, puffMat);
+                if (!m) return;
+                const u = m.userData;
+                m.position.x += (Math.random() - 0.5) * 1.2;
+                m.position.z += (Math.random() - 0.5) * 1.2;
+                u.v.set((Math.random() - 0.5) * 0.04, 0.05 + Math.random() * 0.05, (Math.random() - 0.5) * 0.04);
+                u.life = u.max = 44;
+                u.s = 0.4 + Math.random() * 0.4;
             }
-            scene.add(group);
-            effects.push({ kind: 'puff', group, mats: [mat], life: 50, max: 50 });
         }
-
+        function releasePart(m) {
+            scene.remove(m);
+            (m.userData.kind === 'spark' ? sparkPool : puffPool).push(m);
+        }
         function updateEffects(k, travel) {
             for (let i = effects.length - 1; i >= 0; i--) {
-                const fx = effects[i];
-                fx.life -= k;
-                fx.group.position.z += travel;
-                const t = fx.life / fx.max;
-                fx.group.children.forEach(s => {
-                    s.position.addScaledVector(s.userData.v, k);
-                    if (fx.kind === 'burst') { s.userData.v.y -= 0.012 * k; s.rotation.x += 0.2 * k; s.rotation.y += 0.25 * k; }
-                    else s.scale.multiplyScalar(1 + 0.025 * k);
-                });
-                fx.mats.forEach(m => { m.opacity = Math.max(0, t) * (fx.kind === 'puff' ? 0.85 : 1); });
-                if (fx.life <= 0) {
-                    scene.remove(fx.group);
-                    fx.mats.forEach(m => m.dispose());
-                    effects.splice(i, 1);
+                const m = effects[i], u = m.userData;
+                u.life -= k;
+                if (u.life <= 0) { releasePart(m); effects.splice(i, 1); continue; }
+                m.position.z += travel;
+                m.position.addScaledVector(u.v, k);
+                const t = u.life / u.max;
+                if (u.kind === 'spark') {
+                    u.v.y -= 0.012 * k;
+                    m.rotation.x += 0.2 * k; m.rotation.y += 0.25 * k;
+                    m.scale.setScalar(u.s * Math.min(1, t * 1.5));
+                } else {
+                    m.scale.setScalar(u.s * (1.7 - t * 0.7) * Math.min(1, t * 3));
                 }
             }
         }
 
-        const tmpV = new THREE.Vector3();
+        const tmpV = new THREE.Vector3(), tmpTrail = new THREE.Vector3();
         function floatText(obj3dOrVec, text, color) {
             const v = obj3dOrVec.isVector3 ? tmpV.copy(obj3dOrVec) : obj3dOrVec.getWorldPosition(tmpV);
             v.project(camera);
@@ -1373,8 +1512,10 @@
         }
 
         function clearWorld() {
-            [...segments, ...obstacles, ...collectables].forEach(o => scene.remove(o));
-            effects.forEach(fx => { scene.remove(fx.group); fx.mats.forEach(m => m.dispose()); });
+            segments.forEach(releaseSegment);
+            obstacles.forEach(releaseObstacle);
+            collectables.forEach(releaseCollectable);
+            effects.forEach(releasePart);
             segments = []; obstacles = []; collectables = []; effects = [];
             spawnIndex = 0; segsSinceWish = 0; segsSinceGap = 0;
             for (let i = 0; i < SEG_COUNT; i++) spawnSegment(-i * SEG_LEN + SEG_LEN);
@@ -1395,7 +1536,7 @@
             Object.assign(run, {
                 mode, speed: cfg.speed0, distance: 0, score: 0, delivered: 0, sack: 0, collected: 0,
                 lives: 3, maxLives: 3, invuln: 0, streak: 0, streakTimer: 0, power: null, shield: false,
-                slow: 1, milestone: 0, endTimer: 0, time: 0, fullWarned: false
+                slow: 1, milestone: 0, endTimer: 0, time: 0, fullWarned: false, calm: 0
             });
             resetPlayer();
             currentWeather = 'clear'; weatherCycle = -1; currentTimePhase = 'morning';
@@ -1406,7 +1547,6 @@
             $('power').classList.remove('show');
             $('streak').classList.remove('show');
             startMusic('day');
-            toast(T('Ready… Go! 🎅', 'Prêt… Partez ! 🎅'), 'gold');
         }
 
         function pause() {
@@ -1499,7 +1639,6 @@
                 run.invuln = 70;
                 burst(player.position.clone().setY(2), ['#9be7ff', '#ffffff', '#c4b5fd'], 24, 1.3);
                 sfx('shield');
-                toast(T('The snow globe saved you! 🔮', 'La boule à neige t’a protégé ! 🔮'), 'hint');
                 return;
             }
             run.lives--;
@@ -1511,7 +1650,6 @@
             if (navigator.vibrate && window.matchMedia('(pointer: coarse)').matches) { try { navigator.vibrate([50, 30, 50]); } catch (e) { /* ignore */ } }
             updateHud();
             if (run.lives <= 0) { endRun(); return; }
-            toast(run.lives === 1 ? T('Careful! Last heart! ❤️', 'Attention ! Dernier cœur ! ❤️') : T('Oops! Keep going! ❤️', 'Oups ! Continue ! ❤️'));
         }
 
         function deliver(ob) {
@@ -1527,7 +1665,7 @@
             totalDelivered++;
             store.set('santa-total-delivered', String(totalDelivered));
             // A present arcs from Santa's sack down the chimney.
-            const gift = makeGift((Math.random() * M.gifts.length) | 0);
+            const gift = takeGift((Math.random() * M.gifts.length) | 0);
             gift.scale.setScalar(0.7);
             ob.add(gift);
             gift.position.set(P.x - ob.position.x, P.y + 2.6, -ob.position.z);
@@ -1542,14 +1680,12 @@
                 el.classList.add('show');
                 bump('streak', 'bump');
             }
-            if (run.delivered === 1) toast(T('Ho ho ho! Present delivered! 🎁', 'Ho ho ho ! Cadeau livré ! 🎁'), 'gold');
-            else if (run.delivered % 10 === 0) toast(T(`${run.delivered} presents delivered! 🌟`, `${run.delivered} cadeaux livrés ! 🌟`), 'gold');
             updateHud();
         }
 
         function collect(c) {
             const u = c.userData;
-            scene.remove(c);
+            releaseCollectable(c);
             if (u.type === 'gift') {
                 if (run.sack >= SACK_MAX) {
                     run.score += 10;
@@ -1564,13 +1700,12 @@
                 run.score += 10;
                 sfx('gift');
                 bump('sack-stat', 'pop');
-                burst(c.position, [u.color, '#ffd700', '#ffffff'], 10, 0.8);
+                burst(c.position, [u.color, '#ffd700', '#ffffff'], 6, 0.8);
             } else if (u.type === 'heart') {
                 run.lives = Math.min(run.maxLives, run.lives + 1);
                 sfx('heart');
                 bump('hearts', 'pop');
                 burst(c.position, ['#ff4d6d', '#ffffff', '#ffb3c1'], 18, 1);
-                toast(T('Extra heart! ❤️', 'Un cœur en plus ! ❤️'), 'hint');
             } else if (u.type === 'power') {
                 activatePower(u.power);
                 burst(c.position, ['#ffd54a', '#9be7ff', '#ffffff'], 20, 1.1);
@@ -1583,17 +1718,14 @@
             if (kind === 'shield') {
                 run.shield = true;
                 shieldMesh.visible = true;
-                toast(T('Snow globe shield! Blocks one bump 🔮', 'Boule à neige ! Protège une fois 🔮'), 'hint', 2000);
                 return;
             }
             run.power = { kind, t: POWERS[kind].time, max: POWERS[kind].time };
             $('power-icon').textContent = POWERS[kind].emoji;
             $('power').classList.add('show');
-            if (kind === 'magnet') toast(T('Present magnet! 🧲', 'Aimant à cadeaux ! 🧲'), 'hint');
             if (kind === 'sleigh') {
                 P.flying = true; P.jumping = false; P.sliding = false; P.falling = 0;
                 sfx('fly');
-                toast(T('Fly, Rudolph, fly! 🛷✨', 'Vole, Rudolph, vole ! 🛷✨'), 'gold', 1800);
                 // A trail of presents up in the sky.
                 for (let i = 0; i < 30; i++) addGift(Math.sin(i * 0.33) * 4, FLY_Y + 1.2, -12 - i * 4.4);
             }
@@ -1631,15 +1763,15 @@
             const touch = window.matchMedia('(pointer: coarse)').matches;
             const jump = touch ? T('Swipe up to jump', 'Glisse vers le haut pour sauter') : T('Press ↑ to jump', 'Appuie sur ↑ pour sauter');
             const texts = {
-                wish: T('⭐ Jump over the star chimney to drop a present!', '⭐ Saute sur la cheminée étoilée pour livrer un cadeau !'),
-                garland: touch ? T('💡 Swipe down to slide under the lights!', '💡 Glisse vers le bas pour passer sous les lumières !') : T('💡 Press ↓ to slide under the lights!', '💡 Appuie sur ↓ pour glisser sous les lumières !'),
-                snowman: `⛄ ${jump}!`,
-                chimney: `🧱 ${jump}!`,
-                penguin: T('🐧 A waddling penguin! Jump over it!', '🐧 Un pingouin ! Saute par-dessus !'),
-                gap: T('🏠 Jump across the gap!', '🏠 Saute au-dessus du vide !'),
-                power: T('🫧 Grab the bubble for a surprise!', '🫧 Attrape la bulle pour une surprise !')
+                wish: T('⭐ Jump over star chimneys to deliver!', '⭐ Saute sur les cheminées étoilées !'),
+                garland: touch ? T('💡 Swipe down to slide', '💡 Glisse vers le bas') : T('💡 Press ↓ to slide', '💡 Appuie sur ↓ pour glisser'),
+                snowman: `⛄ ${jump}`,
+                chimney: `🧱 ${jump}`,
+                penguin: `🐧 ${jump}`,
+                gap: `🏠 ${jump}`,
+                power: T('🫧 Grab the bubble!', '🫧 Attrape la bulle !')
             };
-            if (texts[type]) toast(texts[type], 'hint', 2400);
+            if (texts[type]) toast(texts[type], 'hint', 2600);
         }
 
         // ---------- Simulation ----------
@@ -1676,7 +1808,6 @@
             if (milestone > run.milestone) {
                 run.milestone = milestone;
                 sfx('milestone');
-                toast(T(`${milestone * 500}m! Super sleigh-ing! ⭐`, `${milestone * 500} m ! Super course ! ⭐`), 'gold');
             }
             checkObstacles();
             checkCollectables(k);
@@ -1687,7 +1818,7 @@
         function moveWorld(travel, k) {
             for (const s of segments) s.position.z += travel;
             if (segments.length && segments[0].position.z > SEG_LEN * 1.6) {
-                scene.remove(segments.shift());
+                releaseSegment(segments.shift());
                 let minZ = Infinity;
                 for (const s of segments) minZ = Math.min(minZ, s.position.z);
                 spawnSegment(minZ - SEG_LEN);
@@ -1708,6 +1839,7 @@
                 } else if (u.type === 'snowman') {
                     ob.rotation.z = Math.sin(clock * 0.05 + ob.position.z) * 0.04;
                 }
+                if (u.beacon && u.beacon.visible && ob.position.z > 2) u.beacon.visible = false;
                 if (u.beacon && u.beacon.visible) {
                     u.beacon.position.y = 4.7 + Math.sin(clock * 0.08 + ob.position.z) * 0.25;
                     u.beacon.children[1].material.rotation = Math.sin(clock * 0.05) * 0.2;
@@ -1719,13 +1851,13 @@
                     g.position.set(u.drop.from.x * (1 - t), u.drop.from.y + (3.4 - u.drop.from.y) * t + Math.sin(t * Math.PI) * 1.8, u.drop.from.z * (1 - t));
                     g.rotation.y += 0.25 * k;
                     if (t >= 1) {
-                        ob.remove(g);
+                        releaseGift(g);
                         u.drop = null;
                         puff(ob.position.clone().setY(3.4), 7);
                         burst(ob.position.clone().setY(3.6), ['#ffd54a', '#ff6b8b', '#4ade80', '#60a5fa'], 22, 1.2);
                     }
                 }
-                if (ob.position.z > 22 || ob.position.y < -20) { scene.remove(ob); obstacles.splice(i, 1); }
+                if (ob.position.z > 22 || ob.position.y < -20) { releaseObstacle(ob); obstacles.splice(i, 1); }
             }
             const magnet = run.power && run.power.kind === 'magnet' && state === 'play';
             for (let i = collectables.length - 1; i >= 0; i--) {
@@ -1741,7 +1873,7 @@
                 } else if (!u.pulled) {
                     c.position.y = u.baseY + Math.sin(clock * 0.08 + u.off) * 0.25;
                 }
-                if (c.position.z > 20) { scene.remove(c); collectables.splice(i, 1); }
+                if (c.position.z > 20) { releaseCollectable(c); collectables.splice(i, 1); }
             }
         }
 
@@ -1781,7 +1913,7 @@
 
         function updatePlayer(k) {
             const ease = n => 1 - Math.pow(n, k);
-            P.x += (P.targetX - P.x) * ease(0.8);
+            P.x += (P.targetX - P.x) * ease(0.7);
             if (P.flying) {
                 P.y += (FLY_Y - P.y) * ease(0.94);
                 P.vy = 0;
@@ -1794,7 +1926,6 @@
                     P.vy = 0.62;
                     run.slow = 1;
                     sfx('boost');
-                    toast(T('Rudolph to the rescue! 🦌✨', 'Rudolph à la rescousse ! 🦌✨'), 'hint');
                     burst(player.position.clone().setY(1), ['#ff3b3b', '#ffd54a', '#ffffff'], 16, 1);
                 }
             } else if (P.jumping) {
@@ -1846,11 +1977,15 @@
             santa.userData.scarf.rotation.z = -0.3 - Math.sin(mt * 1.3) * 0.14;
             santa.userData.armL.rotation.x = Math.sin(mt) * 0.1;
             santa.userData.armR.rotation.x = -Math.sin(mt) * 0.1;
-            const sackSize = Math.min(1.2, 0.55 + (run.sack || 0) * 0.055);
+            const sackSize = Math.min(0.9, 0.45 + (run.sack || 0) * 0.04);
             sack.scale.setScalar(sack.scale.x + (sackSize - sack.scale.x) * ease(0.85));
             noseMat.emissiveIntensity = 2 + (P.falling > 0 || P.flying ? 2 + Math.sin(clock * 0.5) * 1.5 : 0);
             if (shieldMesh.visible) { shieldMesh.rotation.y += 0.02 * k; shieldMesh.scale.setScalar(1 + Math.sin(clock * 0.1) * 0.03); }
-            if (P.flying && Math.random() < 0.5 * k) burst(new THREE.Vector3(P.x + (Math.random() - 0.5), P.y + 0.6, 1.5), ['#ffd54a', '#ffffff'], 2, 0.4);
+            P.trail = (P.trail || 0) - k;
+            if (P.flying && P.trail <= 0) {
+                P.trail = 5;
+                burst(tmpTrail.set(P.x + (Math.random() - 0.5), P.y + 0.6, 1.5), ['#ffd54a', '#ffffff'], 2, 0.4);
+            }
         }
 
         // ---------- Sky & weather ----------
@@ -1875,14 +2010,14 @@
             currentTimePhase = from.name;
             const e = 1 - Math.pow(0.965, k);
             if (state === 'play' && prev !== currentTimePhase) {
-                const labels = { morning: T('Christmas morning 🌅', 'Matin de Noël 🌅'), day: T('Bright winter day ☀️', 'Belle journée d’hiver ☀️'), dusk: T('Rooftop sunset 🌇', 'Coucher de soleil 🌇'), night: T('Moonlight delivery 🌙', 'Livraison au clair de lune 🌙') };
-                toast(labels[currentTimePhase], 'gold');
                 const theme = currentTimePhase === 'dusk' || currentTimePhase === 'night' ? 'night' : 'day';
                 if (theme !== musicTheme && soundOn) startMusic(theme);
             }
             tmpColor.set(from.sky).lerp(tmpColor2.set(to.sky), blend);
             scene.background.lerp(tmpColor, e);
             scene.fog.color.lerp(tmpColor, e);
+            skyUniforms.bottom.value.lerp(tmpColor, e);
+            skyUniforms.top.value.lerp(tmpColor.set(from.top).lerp(tmpColor2.set(to.top), blend), e);
             hemiLight.intensity += (THREE.MathUtils.lerp(from.hemi, to.hemi, blend) - hemiLight.intensity) * e;
             dirLight.intensity += (THREE.MathUtils.lerp(from.directional, to.directional, blend) - dirLight.intensity) * e;
             dirLight.color.lerp(tmpColor.set(from.light).lerp(tmpColor2.set(to.light), blend), e);
@@ -1942,6 +2077,7 @@
             const fov = camBase.fov + ((run.speed || 0.4) - 0.5) * 9 + (P.flying ? 6 : 0);
             if (Math.abs(fov - camera.fov) > 0.01) { camera.fov += (fov - camera.fov) * e(0.95); camera.updateProjectionMatrix(); }
             camera.lookAt(P.x * 0.3, 2 + P.y * 0.42, -8);
+            skyDome.position.copy(camera.position);
             if (shake > 0 && !reduceMotion) {
                 camera.position.x += (Math.random() - 0.5) * shake;
                 camera.position.y += (Math.random() - 0.5) * shake;
@@ -2055,10 +2191,27 @@
         window.addEventListener('resize', resize);
         BabyLang.onChange(renderRecords);
 
+        function prewarm() {
+            const warm = [];
+            ['chimney', 'wish', 'snowman', 'penguin', 'garland'].forEach(t => warm.push(addObstacle(t, 1, -20)));
+            warm.push(addObstacle('garland', null, -24));
+            for (let ci = 0; ci < M.gifts.length; ci++) giftPools[ci].push(makeGift(ci));
+            const gifts = giftPools.map(pool => pool[pool.length - 1]);
+            gifts.forEach((g, i) => { g.position.set(i - 2, 1, -18); scene.add(g); });
+            addPower('magnet', 0, -16); addPower('sleigh', 2, -16); addPower('shield', -2, -16); addHeart(4, -16);
+            burst(new THREE.Vector3(0, 1, -15), ['#ffd54a'], 1, 1);
+            puff(new THREE.Vector3(0, 1, -15), 1);
+            renderer.compile(scene, camera);
+            gifts.forEach(g => scene.remove(g));
+            warm.forEach(ob => { obstacles.splice(obstacles.indexOf(ob), 1); releaseObstacle(ob); });
+            collectables.splice(0).forEach(releaseCollectable);
+        }
+
         // ---------- Boot ----------
         run.mode = mode; run.distance = 0; run.speed = 0.3; run.sack = 0; run.lives = 3; run.maxLives = 3;
         resize();
         resetPlayer();
+        prewarm();
         clearWorld();
         renderRecords();
         updateSoundBtn();
