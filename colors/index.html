@@ -1,18 +1,19 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-title-fr="Couleurs gélatine">
+<html lang="en" data-title-fr="Couleurs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Jelly Colors</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
-    <!-- Friendly Fonts -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
 
     <style>
         :root {
-            --bg-color: #e0f7fa;
+            --tint: #FFE3EC;
+            --text: #3D3551;
         }
 
         * {
@@ -24,494 +25,787 @@
 
         body {
             margin: 0;
-            padding: 0;
-            font-family: 'Fredoka One', cursive;
-            background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
-            transition: background 1s ease;
+            font-family: 'Nunito', sans-serif;
+            color: var(--text);
+            background: linear-gradient(160deg, #FFF6FB 0%, var(--tint) 100%);
+            transition: background 0.6s ease;
             height: 100vh;
             height: 100dvh;
-            overflow: hidden;
-            background-attachment: fixed;
-            display: flex;
-            flex-direction: column;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
-        /* ✨ PARTICLES CANVAS */
+        /* 🎈 FLOATING BUBBLES */
+        .sky {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.6) 2px, transparent 2.5px);
+            background-size: 28px 28px;
+        }
+        .sky span {
+            position: absolute;
+            bottom: -120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--tint) 60%, transparent 72%);
+            opacity: 0.8;
+            animation: floatUp linear infinite;
+        }
+        .sky span:nth-child(1) { left: 6%;  width: 70px;  height: 70px;  animation-duration: 18s; }
+        .sky span:nth-child(2) { left: 24%; width: 34px;  height: 34px;  animation-duration: 13s; animation-delay: -6s; }
+        .sky span:nth-child(3) { left: 44%; width: 90px;  height: 90px;  animation-duration: 24s; animation-delay: -12s; }
+        .sky span:nth-child(4) { left: 64%; width: 46px;  height: 46px;  animation-duration: 16s; animation-delay: -3s; }
+        .sky span:nth-child(5) { left: 82%; width: 100px; height: 100px; animation-duration: 27s; animation-delay: -18s; }
+        @keyframes floatUp {
+            from { transform: translateY(0); }
+            to { transform: translateY(-130vh) translateX(-12px); }
+        }
+
         #particles {
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
             z-index: 50;
         }
 
-        /* 🏠 HOME BUTTON */
-        .home-btn {
+        /* 🏠 ROUND TOP BUTTONS */
+        .round-btn {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
-            background: #fff;
+            top: max(14px, env(safe-area-inset-top));
+            width: 52px;
+            height: 52px;
+            border: 0;
             border-radius: 50%;
+            background: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
             text-decoration: none;
-            box-shadow: 0 4px 0 #cbd5e1;
-            border: 2px solid #e2e8f0;
-            z-index: 100;
-            transition: transform 0.1s;
-        }
-        .home-btn:active { transform: translateY(4px); box-shadow: none; }
-
-        /* 🌐 LANGUAGE SWITCHER */
-        .lang-switcher {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 8px;
-            z-index: 100;
-        }
-        .lang-btn {
-            background: #fff;
-            border: 2px solid #e2e8f0;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-family: 'Nunito', sans-serif;
-            font-weight: 800;
             cursor: pointer;
-            box-shadow: 0 4px 0 #cbd5e1;
-            transition: all 0.1s;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08);
+            z-index: 100;
+            transition: transform 0.15s;
         }
-        .lang-btn.active {
-            background: #ff6b6b;
-            color: white;
-            border-color: #ff6b6b;
-            box-shadow: 0 4px 0 #ee5253;
-        }
-        .lang-btn:active { transform: translateY(2px); box-shadow: none; }
+        .round-btn:hover { transform: scale(1.08) rotate(-6deg); }
+        .round-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
+        .home-btn { left: max(14px, env(safe-area-inset-left)); }
+        .back-btn { left: calc(max(14px, env(safe-area-inset-left)) + 62px); }
+        .back-btn[hidden] { display: none; }
 
-        /* HEADER */
-        .header {
-            text-align: center;
-            padding: 20px 10px 30px 10px;
-            z-index: 10;
-            margin-top: 60px; /* Space for fixed home button */
-            flex-shrink: 0;
+        /* ▶️ START SCREEN */
+        .screen {
             position: relative;
-            background: transparent;
-        }
-        h1 {
-            color: #2d3436;
-            margin: 0;
-            font-size: 2rem;
-            letter-spacing: 1px;
-        }
-        p {
-            font-family: 'Nunito', sans-serif;
-            color: #636e72;
-            margin: 5px 0 0 0;
-            font-weight: 800;
-        }
-
-        /* 🎹 PAD GRID CONTAINER */
-        .grid-container {
-            flex: 1;
-            min-height: 0;
-            overflow-y: auto; /* Scrollable for many colors */
-            -webkit-overflow-scrolling: touch;
-            padding: 0 20px 60px 20px;
-            width: 100%;
-        }
-
-        .pad-grid {
-            display: grid;
-            /* Adaptive grid: big buttons, smaller min for phones */
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        /* BLOB PAD */
-        .color-pad {
-            position: relative;
-            background: transparent;
-            border: none;
-            cursor: pointer;
+            z-index: 1;
+            min-height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            aspect-ratio: 1;
-            transition: transform 0.1s;
-            -webkit-tap-highlight-color: transparent;
+            justify-content: safe center;
+            padding: 80px 16px 28px;
+            text-align: center;
+        }
+        .screen[hidden] { display: none; }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3.2rem;
+            line-height: 1.05;
+            margin: 0;
+            color: #FF5A8A;
+            text-shadow: 0 4px 0 #fff, 0 8px 18px rgba(0,0,0,0.12);
+        }
+        .subtitle {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 18px;
+            border-radius: 999px;
+            background: #fff;
+            color: #D9467A;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.06);
         }
 
-        .color-pad:active, .color-pad.active {
-            transform: scale(0.95);
+        .start-jellies {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 14px;
         }
+        .start-jellies .jelly-art { width: 64px; height: 64px; animation: bob 2.6s ease-in-out infinite; }
+        .start-jellies .jelly-art:nth-child(2) { animation-delay: -0.5s; }
+        .start-jellies .jelly-art:nth-child(3) { animation-delay: -1s; }
+        .start-jellies .jelly-art:nth-child(4) { animation-delay: -1.5s; }
+        .start-jellies .jelly-art:nth-child(5) { animation-delay: -2s; }
 
-        /* The SVG Blob Background */
-        .pad-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .start-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: min(380px, 100%);
+            margin-top: 30px;
+        }
+        .big-btn {
             width: 100%;
-            height: 100%;
-            z-index: 1;
-            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.1));
-            transition: filter 0.2s, transform 0.3s ease-in-out;
-            animation: breathe 4s ease-in-out infinite;
+            border: 0;
+            border-radius: 999px;
+            padding: 18px 24px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.45rem;
+            color: #fff;
+            cursor: pointer;
+            background: var(--c);
+            box-shadow: 0 7px 0 var(--cd), 0 14px 24px rgba(0,0,0,0.12);
+            transition: transform 0.15s, box-shadow 0.15s;
+            animation: popUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
-        
-        /* Staggered breathing for variety */
-        .color-pad:nth-child(odd) .pad-bg { animation-delay: -1s; }
-        .color-pad:nth-child(3n) .pad-bg { animation-delay: -2s; }
+        .big-btn + .big-btn { animation-delay: 0.1s; }
+        .big-btn:hover { transform: translateY(-3px) scale(1.02); }
+        .big-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 var(--cd); }
+        .big-btn:focus-visible { outline: 4px solid var(--cd); outline-offset: 4px; }
 
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05) rotate(2deg); }
+        @keyframes popUp {
+            from { opacity: 0; transform: translateY(24px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-
-        .color-pad:active .pad-bg, .color-pad.active .pad-bg {
-            animation: none;
-            transform: scale(0.9);
-            filter: drop-shadow(0 2px 0 rgba(0,0,0,0.1));
-        }
-
-        @media (max-height: 500px) {
-            .header { margin-top: 8px; padding: 8px 10px 10px; }
-            .header p { display: none; }
-            .grid-container { padding-bottom: 20px; }
+        @keyframes bob {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-6px) rotate(3deg); }
         }
 
-        /* The Label inside the pad */
-        .pad-label {
+        /* 🟢 JELLY FRIENDS */
+        .jelly {
             position: relative;
-            font-size: 1.8rem;
-            color: white;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
-            pointer-events: none;
-            z-index: 2;
-            text-transform: capitalize;
+            border: 0;
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font: inherit;
+            color: inherit;
+            animation: popUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .jelly:focus-visible { outline: 4px solid #fff; outline-offset: 4px; border-radius: 24px; }
+        .jelly-art {
+            width: var(--size, 110px);
+            height: var(--size, 110px);
+            overflow: visible;
+            filter: drop-shadow(0 8px 0 rgba(0,0,0,0.08)) drop-shadow(0 12px 16px rgba(0,0,0,0.10));
+            transform-origin: 50% 90%;
+        }
+        .jelly .jelly-art { animation: idle 3.4s ease-in-out infinite; }
+        .jelly:nth-child(2n) .jelly-art { animation-delay: -1.1s; }
+        .jelly:nth-child(3n) .jelly-art { animation-delay: -2.2s; }
+        @keyframes idle {
+            0%, 100% { transform: scale(1, 1); }
+            50% { transform: scale(1.04, 0.96); }
+        }
+        .jelly.squish .jelly-art { animation: squish 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes squish {
+            0% { transform: scale(1, 1); }
+            25% { transform: scale(1.22, 0.78); }
+            55% { transform: scale(0.88, 1.15) translateY(-10px); }
+            80% { transform: scale(1.05, 0.96); }
+            100% { transform: scale(1, 1); }
+        }
+        .jelly.wobble .jelly-art { animation: wobble 0.45s ease-in-out; }
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0); }
+            20% { transform: rotate(-12deg); }
+            40% { transform: rotate(10deg); }
+            60% { transform: rotate(-6deg); }
+            80% { transform: rotate(4deg); }
+        }
+        .jelly .face-happy { display: none; }
+        .jelly.happy .face-happy { display: inline; }
+        .jelly.happy .face-normal { display: none; }
+        .jelly .face-normal .eye { animation: blink 4.5s infinite; transform-box: fill-box; transform-origin: center; }
+        .jelly:nth-child(2n) .face-normal .eye { animation-delay: -2s; }
+        @keyframes blink {
+            0%, 92%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
         }
 
-        /* Dark text for light colors */
-        .color-pad.dark-text .pad-label {
-            color: #2d3436;
-            text-shadow: none;
+        .jelly-name {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.15rem;
+            padding: 3px 14px;
+            border-radius: 999px;
+            background: #fff;
+            color: var(--cd);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.06);
         }
-
-        /* Ripple effect container */
-        .ripple {
+        .jelly-hint {
             position: absolute;
+            top: -4px;
+            right: -2px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            transform: scale(0);
-            animation: rippleAnim 0.6s linear;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        }
+
+        /* 🎨 EXPLORE MODE */
+        .explore-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+            gap: 18px 10px;
+            width: min(900px, 100%);
+            margin-top: 22px;
+            justify-items: center;
+        }
+
+        /* 🔍 FIND MODE */
+        .prompt {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px 10px 22px;
+            border-radius: 999px;
+            background: #fff;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.06), 0 12px 24px rgba(0,0,0,0.08);
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.6rem;
+            animation: popUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        .prompt-emoji { font-size: 2.2rem; line-height: 1; }
+        .prompt-word {
+            padding: 2px 14px;
+            border-radius: 999px;
+            color: #fff;
+            background: var(--c);
+            box-shadow: 0 4px 0 var(--cd);
+        }
+        .prompt-word.light { color: var(--text); }
+        .say-again {
+            width: 48px;
+            height: 48px;
+            border: 0;
+            border-radius: 50%;
+            background: #FFF0F5;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        .say-again:active { transform: scale(0.92); }
+
+        .find-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .level-badge {
+            font-family: 'Fredoka One', cursive;
+            color: #fff;
+            background: #FF5A8A;
+            padding: 3px 12px;
+            border-radius: 999px;
+            box-shadow: 0 3px 0 #D9467A;
+        }
+        .stars { display: flex; gap: 4px; font-size: 1.4rem; }
+        .stars span { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .stars span.off { filter: grayscale(1); opacity: 0.3; }
+        .stars span.pop { transform: scale(1.5) rotate(20deg); }
+
+        .find-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 22px 18px;
+            width: min(820px, 100%);
+            margin-top: 26px;
+        }
+        .find-grid .jelly { --size: 150px; }
+
+        .cheer {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            z-index: 120;
+            transform: translate(-50%, -50%) scale(0);
+            padding: 22px 34px;
+            border-radius: 36px;
+            background: #fff;
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.2rem;
+            color: #FF5A8A;
+            box-shadow: 0 10px 0 #FF5A8A, 0 24px 50px rgba(0,0,0,0.18);
             pointer-events: none;
-            z-index: 3;
+            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .cheer.show { transform: translate(-50%, -50%) scale(1); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .sky span, .jelly .jelly-art, .start-jellies .jelly-art { animation: none !important; }
         }
 
-        @keyframes rippleAnim {
-            to { transform: scale(3); opacity: 0; }
+        @media (max-width: 600px) {
+            h1 { font-size: 2.4rem; }
+            .subtitle { font-size: 0.95rem; }
+            .explore-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 6px; }
+            .explore-grid .jelly { --size: 92px; }
+            .jelly-name { font-size: 0.95rem; padding: 2px 10px; }
+            .jelly-hint { width: 32px; height: 32px; font-size: 18px; }
+            .prompt { font-size: 1.25rem; gap: 8px; padding: 8px 10px 8px 16px; }
+            .prompt-emoji { font-size: 1.8rem; }
+            .find-grid { gap: 16px 12px; }
+            .find-grid .jelly { --size: 120px; }
+            .find-grid.many .jelly { --size: 96px; }
+            .start-jellies .jelly-art { width: 50px; height: 50px; }
+            .big-btn { font-size: 1.25rem; padding: 16px 20px; }
         }
 
+        @media (orientation: landscape) and (max-height: 600px) {
+            .screen { padding: 12px 16px 16px 84px; }
+            h1 { font-size: 1.9rem; text-shadow: 0 3px 0 #fff; }
+            .subtitle { margin-top: 4px; font-size: 0.85rem; padding: 3px 12px; }
+            .start-jellies { margin-bottom: 4px; }
+            .start-jellies .jelly-art { width: 44px; height: 44px; }
+            .start-buttons { flex-direction: row; width: min(640px, 100%); margin-top: 18px; }
+            .big-btn { font-size: 1.1rem; padding: 14px 16px; }
+            .explore-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px 6px; margin-top: 10px; }
+            .explore-grid .jelly { --size: 72px; }
+            .jelly-name { font-size: 0.85rem; padding: 1px 8px; }
+            .jelly-hint { width: 28px; height: 28px; font-size: 15px; }
+            .prompt { font-size: 1.1rem; padding: 6px 8px 6px 14px; }
+            .prompt-emoji { font-size: 1.5rem; }
+            .say-again { width: 40px; height: 40px; font-size: 18px; }
+            .find-progress { margin-top: 6px; }
+            .find-grid { margin-top: 10px; gap: 10px 14px; }
+            .find-grid .jelly { --size: 100px; }
+            .find-grid.many .jelly { --size: 84px; }
+        }
     </style>
-    <script src="/assets/js/site-lang.js?v=20261028"></script>
 </head>
 <body>
-
+    <div class="sky" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
     <canvas id="particles"></canvas>
-    <a href="/" class="home-btn" title="Back to Games">🏠</a>
 
-    <div class="lang-switcher">
-        <button class="lang-btn active" id="btn-en" onclick="setLanguage('en')">EN</button>
-        <button class="lang-btn" id="btn-fr" onclick="setLanguage('fr')">FR</button>
-    </div>
+    <a href="/" class="round-btn home-btn" aria-label="Back to games" title="Back to games" data-fr-aria-label="Retour aux jeux" data-fr-title="Retour aux jeux">🏠</a>
+    <button type="button" class="round-btn back-btn" id="back-btn" hidden aria-label="Back to start" title="Back to start" data-fr-aria-label="Retour au début" data-fr-title="Retour au début">⬅</button>
 
-    <div class="header">
-        <h1 data-fr="Couleurs gélatine 🎨">Jelly Colors 🎨</h1>
-        <p data-fr="Touche les taches !">Tap the blobs!</p>
-    </div>
-
-    <div class="grid-container">
-        <div class="pad-grid" id="grid">
-            <!-- Pads injected via JS -->
+    <!-- START -->
+    <section class="screen" id="start-screen">
+        <div class="start-jellies" id="start-jellies" aria-hidden="true"></div>
+        <h1 data-fr="Couleurs">Colors</h1>
+        <p class="subtitle" data-fr="Jouons avec les couleurs !">Let's play with colors!</p>
+        <div class="start-buttons">
+            <button type="button" class="big-btn" id="explore-btn" style="--c: #4CC26A; --cd: #2F9E4C" data-fr="🎨 Joue avec les couleurs">🎨 Play with colors</button>
+            <button type="button" class="big-btn" id="find-btn" style="--c: #4DA3F2; --cd: #2B7FCC" data-fr="🔍 Trouve la couleur">🔍 Find the color</button>
         </div>
-    </div>
+    </section>
+
+    <!-- EXPLORE -->
+    <section class="screen" id="explore-screen" hidden>
+        <h1 data-fr="Touche une gelée !">Tap a jelly!</h1>
+        <div class="explore-grid" id="explore-grid"></div>
+    </section>
+
+    <!-- FIND THE COLOR -->
+    <section class="screen" id="find-screen" hidden>
+        <div class="prompt" id="prompt">
+            <span id="prompt-text"></span>
+            <span class="prompt-emoji" id="prompt-emoji" aria-hidden="true"></span>
+            <button type="button" class="say-again" id="say-again" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button>
+        </div>
+        <div class="find-progress">
+            <span class="level-badge" id="find-level"></span>
+            <div class="stars" id="stars" aria-hidden="true"></div>
+        </div>
+        <div class="find-grid" id="find-grid"></div>
+    </section>
+
+    <div class="cheer" id="cheer" aria-live="polite"></div>
 
     <script>
-        /**
-         * JELLY COLORS v2
-         * - Organic Blob Shapes
-         * - 24 Colors
-         * - Musical Scale Mapping
-         */
+        const lang = window.BabyLang;
+        const NBSP = ' ';
 
-        // Musical Notes (C Major Scale over 3 Octaves)
-        // C3 to B5
-        const NOTES = [
-            130.81, 146.83, 164.81, 174.61, 196.00, 220.00, 246.94, // Octave 3
-            261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, // Octave 4
-            523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, // Octave 5
-            1046.50, 1174.66, 1318.51 // Octave 6 Start
-        ];
-
+        // Basic toddler colours, each with a friendly example and a pentatonic note.
         const COLORS = [
-            { name: 'Red', fr: 'Rouge', hex: '#FF5252' },
-            { name: 'Orange', fr: 'Orange', hex: '#FF9800' },
-            { name: 'Yellow', fr: 'Jaune', hex: '#FFEB3B', darkText: true },
-            { name: 'Lime', fr: 'Citron Vert', hex: '#CDDC39', darkText: true },
-            { name: 'Green', fr: 'Vert', hex: '#4CAF50' },
-            { name: 'Teal', fr: 'Sarcelle', hex: '#009688' },
-            
-            { name: 'Cyan', fr: 'Cyan', hex: '#00BCD4' },
-            { name: 'Sky', fr: 'Ciel', hex: '#81D4FA', darkText: true },
-            { name: 'Blue', fr: 'Bleu', hex: '#2196F3' },
-            { name: 'Navy', fr: 'Bleu Marine', hex: '#3F51B5' },
-            { name: 'Indigo', fr: 'Indigo', hex: '#303F9F' },
-            { name: 'Violet', fr: 'Violet', hex: '#673AB7' },
-            
-            { name: 'Purple', fr: 'Pourpre', hex: '#9C27B0' },
-            { name: 'Magenta', fr: 'Magenta', hex: '#E91E63' },
-            { name: 'Pink', fr: 'Rose', hex: '#F48FB1' },
-            { name: 'Rose', fr: 'Rose Vif', hex: '#FF4081' },
-            { name: 'Coral', fr: 'Corail', hex: '#FF7043' },
-            { name: 'Brown', fr: 'Marron', hex: '#795548' },  
-                      
-            { name: 'Tan', fr: 'Tanné', hex: '#D7CCC8', darkText: true },
-            { name: 'Gold', fr: 'Or', hex: '#FFD700', darkText: true },
-            { name: 'Silver', fr: 'Argent', hex: '#BDBDBD', darkText: true },
-            { name: 'Gray', fr: 'Gris', hex: '#607D8B' },
-            { name: 'Black', fr: 'Noir', hex: '#212121' },
-            { name: 'White', fr: 'Blanc', hex: '#FFFFFF', darkText: true }
+            { id: 'red',    name: 'Red',    fr: 'Rouge',  frThe: 'le rouge',  hex: '#FF5A5F', dark: '#D93A40', emoji: '🍎', note: 261.63 },
+            { id: 'orange', name: 'Orange', fr: 'Orange', frThe: "l'orange",  hex: '#FF9A2E', dark: '#E07A10', emoji: '🥕', note: 293.66 },
+            { id: 'yellow', name: 'Yellow', fr: 'Jaune',  frThe: 'le jaune',  hex: '#FFD93B', dark: '#E0B400', emoji: '🐥', note: 329.63, light: true, label: '#B88A00' },
+            { id: 'green',  name: 'Green',  fr: 'Vert',   frThe: 'le vert',   hex: '#4CC26A', dark: '#2F9E4C', emoji: '🐸', note: 392.00 },
+            { id: 'blue',   name: 'Blue',   fr: 'Bleu',   frThe: 'le bleu',   hex: '#3D9BF0', dark: '#2077C9', emoji: '🐳', note: 440.00 },
+            { id: 'purple', name: 'Purple', fr: 'Violet', frThe: 'le violet', hex: '#9B6CF0', dark: '#764BD1', emoji: '🍇', note: 523.25 },
+            { id: 'pink',   name: 'Pink',   fr: 'Rose',   frThe: 'le rose',   hex: '#FF8FC4', dark: '#E2609F', emoji: '🐷', note: 587.33 },
+            { id: 'brown',  name: 'Brown',  fr: 'Brun',   frThe: 'le brun',   hex: '#A0703F', dark: '#7A5129', emoji: '🐻', note: 659.25 },
+            { id: 'black',  name: 'Black',  fr: 'Noir',   frThe: 'le noir',   hex: '#33303D', dark: '#15131B', emoji: '🐈‍⬛', note: 783.99 },
+            { id: 'white',  name: 'White',  fr: 'Blanc',  frThe: 'le blanc',  hex: '#FFFFFF', dark: '#C9CED8', emoji: '☁️', note: 880.00, light: true, label: '#7A8394' },
+            { id: 'gray',   name: 'Gray',   fr: 'Gris',   frThe: 'le gris',   hex: '#9AA3B2', dark: '#6F7889', emoji: '🐘', note: 1046.50 }
+        ];
+        const colorName = c => lang.t(c.name, c.fr);
+
+        // Round, slightly wobbly jelly body (viewBox 0 0 100 100).
+        const BODIES = [
+            'M50 8 C74 8 92 26 92 52 C92 76 76 92 50 92 C24 92 8 78 8 52 C8 28 26 8 50 8 Z',
+            'M52 6 C78 10 94 30 90 56 C87 80 70 94 46 92 C22 90 6 74 9 50 C12 26 28 4 52 6 Z',
+            'M48 7 C72 5 93 24 92 50 C91 77 74 93 50 93 C25 93 7 76 8 50 C9 25 26 9 48 7 Z'
         ];
 
-        // Organic Blob Paths (Normalized for 100x100 viewbox)
-        const BLOBS = [
-            "M43.6,-53.4C55.3,-41.2,62.8,-27.1,65.3,-12.1C67.8,2.9,65.2,18.7,56.7,31.5C48.2,44.3,33.8,54.1,18.4,59.3C3,64.5,-13.4,65.2,-28.4,59.3C-43.4,53.4,-57,41,-63.9,26.1C-70.8,11.2,-71,-6.2,-63.4,-20.9C-55.8,-35.6,-40.4,-47.6,-25.9,-58.1C-11.4,-68.6,2.2,-77.6,15.8,-76.8C29.4,-76,43,-65.4,43.6,-53.4Z",
-            "M45.7,-51.7C58.9,-40.8,69.1,-27.2,71.2,-12.6C73.3,2,67.3,17.6,58.3,31.3C49.3,45,37.3,56.8,23.3,62.1C9.3,67.4,-6.7,66.2,-21.2,59.9C-35.7,53.6,-48.7,42.2,-56.3,28.6C-63.9,15,-66.1,-0.8,-61.6,-14.8C-57.1,-28.8,-45.9,-41,-33.5,-52.1C-21.1,-63.2,-7.5,-73.2,3.3,-77.1C14.1,-81.1,28.2,-79,32.5,-62.6",
-            "M39.5,-47.7C51.2,-37.2,60.8,-25.1,64.8,-11.2C68.8,2.7,67.2,18.4,59.1,31.2C51,44,36.4,53.9,21.1,58.6C5.8,63.3,-10.2,62.8,-24.6,56.9C-39,51,-51.8,39.7,-58.3,26.1C-64.8,12.5,-65,-3.4,-59.4,-17.4C-53.8,-31.4,-42.4,-43.5,-29.9,-53.6C-17.4,-63.7,-3.8,-71.8,5.1,-77.9C14,-84,27.8,-60,39.5,-47.7Z",
-            "M41.7,-50.2C54.7,-41.6,66.3,-30.3,70.6,-16.9C74.9,-3.5,71.9,12,63.9,25.4C55.9,38.8,42.9,50.1,28.6,56.7C14.3,63.3,-1.3,65.2,-15.6,61.7C-29.9,58.2,-42.9,49.3,-52.6,37.6C-62.3,25.9,-68.7,11.4,-66.2,-1.7C-63.7,-14.8,-52.3,-26.5,-41.4,-35.6C-30.5,-44.7,-20.1,-51.2,-7.9,-51.2C4.3,-51.2,28.7,-58.8,41.7,-50.2Z",
-            "M35.8,-48.5C48.3,-37.8,61.8,-25.1,67.5,-10.1C73.2,4.9,71.2,22.3,61.9,36.7C52.6,51.1,35.9,62.5,18.2,67.6C0.5,72.7,-18.2,71.5,-34.3,63.9C-50.4,56.3,-63.9,42.3,-69.2,26.5C-74.5,10.7,-71.6,-6.9,-62.3,-21.4C-53,-35.9,-37.3,-47.2,-22.5,-55.1C-7.7,-63,-6,-73.6,5.8,-79.3C17.6,-85,35.3,-59.2,35.8,-48.5Z",
-            "M40.2,-52.1C53.4,-42.3,66.1,-28.9,69.5,-13.1C72.9,2.7,67.1,21.1,57.8,35.9C48.5,50.7,35.7,62,21.3,67.2C6.9,72.4,-8.8,71.5,-24.6,65.7C-40.4,59.9,-56.3,49.2,-64.1,35.3C-71.9,21.4,-71.6,4.3,-65.1,-10.8C-58.6,-25.9,-45.9,-38.6,-32.1,-48.9C-18.3,-59.2,-3.4,-67.1,10.3,-72.6C24,-78.1,27,-61.9,40.2,-52.1Z"
-        ];
-
-        const grid = document.getElementById('grid');
-        
-        // --- Audio Context ---
-        let currentLang = 'en';
-
-        function setLanguage(lang, quiet) {
-            currentLang = lang;
-            window.BabyLang.set(lang);
-            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-            document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
-            
-            // Feedback
-            const msg = lang === 'en' ? "English" : "Français";
-            
-            // Update all pad labels
-            document.querySelectorAll('.color-pad').forEach((btn, index) => {
-                btn.querySelector('.pad-label').textContent = lang === 'en' ? COLORS[index].name : COLORS[index].fr;
-            });
-            if (!quiet) speak(msg, lang === 'en' ? 'en-US' : 'fr-FR');
+        function jellyArt(color, index) {
+            const body = BODIES[index % BODIES.length];
+            const outline = color.id === 'white' ? 'stroke="#DCE1EA" stroke-width="3"' : '';
+            const eye = color.id === 'black' ? '#fff' : '#2D2A38';
+            return `<svg class="jelly-art" viewBox="0 0 100 100" aria-hidden="true">
+                <path d="${body}" fill="${color.hex}" ${outline}/>
+                <ellipse cx="34" cy="26" rx="12" ry="7" fill="#fff" opacity="0.45" transform="rotate(-25 34 26)"/>
+                <g class="face-normal">
+                    <ellipse class="eye" cx="38" cy="50" rx="5.5" ry="7" fill="${eye}"/>
+                    <ellipse class="eye" cx="62" cy="50" rx="5.5" ry="7" fill="${eye}"/>
+                    <circle cx="40" cy="47" r="2" fill="#fff" opacity="${color.id === 'black' ? 0 : 1}"/>
+                    <circle cx="64" cy="47" r="2" fill="#fff" opacity="${color.id === 'black' ? 0 : 1}"/>
+                    <path d="M42 64 Q50 71 58 64" stroke="${eye}" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                </g>
+                <g class="face-happy">
+                    <path d="M32 52 Q38 44 44 52" stroke="${eye}" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <path d="M56 52 Q62 44 68 52" stroke="${eye}" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <path d="M38 62 Q50 78 62 62 Z" fill="${eye}"/>
+                </g>
+                <circle cx="27" cy="62" r="6" fill="#FF7FA8" opacity="0.45"/>
+                <circle cx="73" cy="62" r="6" fill="#FF7FA8" opacity="0.45"/>
+            </svg>`;
         }
 
-        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const els = {
+            start: document.getElementById('start-screen'),
+            explore: document.getElementById('explore-screen'),
+            find: document.getElementById('find-screen'),
+            back: document.getElementById('back-btn'),
+            exploreGrid: document.getElementById('explore-grid'),
+            findGrid: document.getElementById('find-grid'),
+            promptText: document.getElementById('prompt-text'),
+            promptEmoji: document.getElementById('prompt-emoji'),
+            findLevel: document.getElementById('find-level'),
+            stars: document.getElementById('stars'),
+            cheer: document.getElementById('cheer')
+        };
 
-        function playTone(freq) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+        // --- SOUND ---
+        let audioCtx = null;
+        function note(freq, at = 0, dur = 0.35, vol = 0.2, type = 'sine') {
+            try {
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const start = audioCtx.currentTime + at;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, start);
+                gain.gain.setValueAtTime(0.0001, start);
+                gain.gain.exponentialRampToValueAtTime(vol, start + 0.015);
+                gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+                osc.connect(gain).connect(audioCtx.destination);
+                osc.start(start);
+                osc.stop(start + dur + 0.02);
+            } catch (error) { /* audio is optional */ }
+        }
+        // Jelly "boing": the colour's note bending up.
+        function squishSound(freq) {
+            try {
+                note(freq, 0, 0.35, 0.22);
+                const start = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq / 2, start);
+                osc.frequency.exponentialRampToValueAtTime(freq, start + 0.12);
+                gain.gain.setValueAtTime(0.12, start);
+                gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
+                osc.connect(gain).connect(audioCtx.destination);
+                osc.start(start);
+                osc.stop(start + 0.2);
+            } catch (error) { /* audio is optional */ }
+        }
+        const cheerSound = () => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => note(f, i * 0.08, 0.3, 0.16));
+        const oopsSound = () => note(196, 0, 0.18, 0.14, 'triangle');
 
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        const speak = (en, fr) => lang.speak(en, fr, { pitch: 1.2 });
 
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.4);
+        // --- SHARED JELLY BEHAVIOUR ---
+        function makeJelly(color, index, { showName, showHint }) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'jelly';
+            btn.dataset.id = color.id;
+            btn.style.setProperty('--cd', color.label || color.dark);
+            btn.style.animationDelay = `${index * 0.04}s`;
+            btn.setAttribute('aria-label', colorName(color));
+            btn.innerHTML = jellyArt(color, index)
+                + (showHint ? `<span class="jelly-hint" aria-hidden="true">${color.emoji}</span>` : '')
+                + (showName ? `<span class="jelly-name">${colorName(color)}</span>` : '');
+            return btn;
         }
 
-        function speak(text, lang = 'en-US') {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = lang;
-            const voices = window.speechSynthesis.getVoices();
-            const preferred = voices.find(v => v.lang.startsWith(lang.split('-')[0])) || voices[0];
-            if(preferred) utterance.voice = preferred;
-            utterance.rate = 1.0;
-            utterance.pitch = 1.2;
-            window.speechSynthesis.speak(utterance);
+        function bounce(btn, cls) {
+            btn.classList.remove('squish', 'wobble');
+            void btn.offsetWidth;
+            btn.classList.add(cls);
+            btn.addEventListener('animationend', () => btn.classList.remove(cls), { once: true });
         }
 
-        // --- Setup ---
-
-        function init() {
-            COLORS.forEach((color, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'color-pad';
-                if(color.darkText) btn.classList.add('dark-text');
-                
-                // Cycle through blob shapes
-                const blobPath = BLOBS[index % BLOBS.length];
-                const note = NOTES[index % NOTES.length];
-
-                // Create SVG Blob Background
-                // Scale path to fit roughly in 0 0 100 100 but centered
-                btn.innerHTML = `
-                    <svg class="pad-bg" viewBox="-80 -80 160 160">
-                        <path d="${blobPath}" fill="${color.hex}" />
-                    </svg>
-                    <div class="pad-label">${currentLang === 'en' ? color.name : color.fr}</div>
-                `;
-
-                // Interactions
-                const activate = (e) => {
-                    e.preventDefault(); 
-                    e.stopPropagation();
-                    triggerPad(btn, color, note, e);
-                };
-
-                btn.addEventListener('touchstart', activate, {passive: false});
-                btn.addEventListener('mousedown', activate);
-
-                grid.appendChild(btn);
-            });
+        function smile(btn, ms = 900) {
+            btn.classList.add('happy');
+            clearTimeout(btn._smile);
+            btn._smile = setTimeout(() => btn.classList.remove('happy'), ms);
         }
 
-        function triggerPad(btn, color, note, e) {
-            // Visual feedback
-            btn.classList.add('active');
-            setTimeout(() => btn.classList.remove('active'), 150);
+        function burstFrom(btn, color, count = 18) {
+            const art = btn.querySelector('.jelly-art').getBoundingClientRect();
+            createExplosion(art.left + art.width / 2, art.top + art.height / 2, color.id === 'white' ? '#DCE1EA' : color.hex, count);
+        }
 
-            // Audio
-            playTone(note);
-            if (currentLang === 'en') {
-                speak(color.name, 'en-US');
-            } else {
-                speak(color.fr, 'fr-FR');
+        function tint(color) {
+            document.documentElement.style.setProperty('--tint', color.id === 'white' ? '#EEF1F6' : color.hex + '55');
+        }
+
+        // --- SCREENS ---
+        function show(screen) {
+            [els.start, els.explore, els.find].forEach(s => { s.hidden = s !== screen; });
+            els.back.hidden = screen === els.start;
+            window.scrollTo(0, 0);
+            if (screen !== els.find) clearTimeout(nextRoundTimer);
+        }
+
+        function renderStart() {
+            document.getElementById('start-jellies').innerHTML =
+                ['red', 'yellow', 'green', 'blue', 'purple'].map((id, i) => jellyArt(COLORS.find(c => c.id === id), i)).join('');
+        }
+
+        // --- 🎨 EXPLORE ---
+        function renderExplore() {
+            els.exploreGrid.innerHTML = '';
+            COLORS.forEach((color, i) => els.exploreGrid.appendChild(makeJelly(color, i, { showName: true, showHint: true })));
+        }
+
+        els.exploreGrid.addEventListener('click', event => {
+            const btn = event.target.closest('.jelly');
+            if (!btn) return;
+            const color = COLORS.find(c => c.id === btn.dataset.id);
+            bounce(btn, 'squish');
+            smile(btn);
+            squishSound(color.note);
+            speak(color.name, color.fr);
+            burstFrom(btn, color);
+            tint(color);
+        });
+
+        // --- 🔍 FIND THE COLOR ---
+        const FIND_LEVELS = [2, 3, 4, 6];
+        const ROUNDS_PER_LEVEL = 5;
+        const FIND_KEY = 'colors-find-level';
+        let findLevel = 0;
+        let roundsWon = 0;
+        let target = null;
+        let lastTargetId = null;
+        let locked = false;
+        let nextRoundTimer = null;
+        try {
+            const saved = Number(localStorage.getItem(FIND_KEY));
+            if (saved >= 0 && saved < FIND_LEVELS.length) findLevel = saved;
+        } catch (error) { /* start at level 1 */ }
+
+        const shuffle = list => list.map(v => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map(p => p[1]);
+
+        function promptWords(color) {
+            return {
+                en: `Where is ${color.name.toLowerCase()}?`,
+                fr: `Où est ${color.frThe}${NBSP}?`
+            };
+        }
+
+        function renderPrompt() {
+            if (!target) return;
+            const light = target.light ? ' light' : '';
+            const style = `--c: ${target.hex}; --cd: ${target.dark}`;
+            const pill = word => `<span class="prompt-word${light}" style="${style}">${word}</span>`;
+            const article = target.frThe.slice(0, target.frThe.length - target.fr.length); // "le " or "l'"
+            els.promptText.innerHTML = lang.t(
+                `Where is ${pill(target.name.toLowerCase())}?`,
+                `Où est ${article}${pill(target.fr.toLowerCase())}${NBSP}?`
+            );
+            els.promptEmoji.textContent = target.emoji;
+            els.findLevel.textContent = lang.t(`Level ${findLevel + 1}`, `Niveau ${findLevel + 1}`);
+            els.stars.innerHTML = Array.from({ length: ROUNDS_PER_LEVEL }, (_, i) =>
+                `<span class="${i < roundsWon ? '' : 'off'}">⭐</span>`).join('');
+        }
+
+        function sayPrompt() {
+            const words = promptWords(target);
+            speak(words.en, words.fr);
+        }
+
+        function newRound() {
+            locked = false;
+            const count = FIND_LEVELS[findLevel];
+            const pool = shuffle(COLORS.filter(c => c.id !== lastTargetId));
+            target = pool[0];
+            lastTargetId = target.id;
+            const choices = shuffle([target, ...shuffle(COLORS.filter(c => c.id !== target.id)).slice(0, count - 1)]);
+            els.findGrid.classList.toggle('many', count > 4);
+            els.findGrid.innerHTML = '';
+            choices.forEach((color, i) => els.findGrid.appendChild(makeJelly(color, i, { showName: false, showHint: false })));
+            const prompt = document.getElementById('prompt');
+            prompt.style.animation = 'none';
+            void prompt.offsetWidth;
+            prompt.style.animation = '';
+            renderPrompt();
+            sayPrompt();
+        }
+
+        function showCheer(text, ms = 1300) {
+            els.cheer.textContent = text;
+            els.cheer.classList.add('show');
+            setTimeout(() => els.cheer.classList.remove('show'), ms);
+        }
+
+        els.findGrid.addEventListener('click', event => {
+            const btn = event.target.closest('.jelly');
+            if (!btn || locked) return;
+            const color = COLORS.find(c => c.id === btn.dataset.id);
+            if (color.id !== target.id) {
+                bounce(btn, 'wobble');
+                oopsSound();
+                return;
             }
+            locked = true;
+            bounce(btn, 'squish');
+            smile(btn, 1400);
+            cheerSound();
+            burstFrom(btn, color, 34);
+            tint(color);
+            roundsWon++;
+            renderPrompt();
+            const star = els.stars.children[roundsWon - 1];
+            if (star) { star.classList.add('pop'); setTimeout(() => star.classList.remove('pop'), 350); }
 
-            // Update background color subtly
-            document.body.style.backgroundColor = color.hex + '22'; // 22 is low opacity hex
-
-            // Particles
-            const rect = btn.getBoundingClientRect();
-            let x, y;
-            if (e.type === 'touchstart') {
-                x = e.touches[0].clientX;
-                y = e.touches[0].clientY;
+            let delay = 1300;
+            if (roundsWon >= ROUNDS_PER_LEVEL) {
+                roundsWon = 0;
+                if (findLevel < FIND_LEVELS.length - 1) {
+                    findLevel++;
+                    try { localStorage.setItem(FIND_KEY, String(findLevel)); } catch (error) { /* optional */ }
+                }
+                speak(`Yes, ${color.name.toLowerCase()}! Super! Level ${findLevel + 1}!`, `Oui, ${color.fr.toLowerCase()}${NBSP}! Super${NBSP}! Niveau ${findLevel + 1}${NBSP}!`);
+                setTimeout(() => showCheer(lang.t(`⭐ Super! Level ${findLevel + 1}`, `⭐ Super${NBSP}! Niveau ${findLevel + 1}`), 1700), 400);
+                setTimeout(() => cheerSound(), 500);
+                delay = 2600;
             } else {
-                x = e.clientX;
-                y = e.clientY;
+                speak(`Yes, ${color.name.toLowerCase()}!`, `Oui, ${color.fr.toLowerCase()}${NBSP}!`);
             }
-            if (!x) { x = rect.left + rect.width/2; y = rect.top + rect.height/2; }
+            nextRoundTimer = setTimeout(newRound, delay);
+        });
 
-            createExplosion(x, y, color.hex);
+        document.getElementById('say-again').addEventListener('click', () => target && sayPrompt());
 
-            // Ripple
-            const ripple = document.createElement('div');
-            ripple.className = 'ripple';
-            const size = Math.max(rect.width, rect.height);
-            ripple.style.width = ripple.style.height = `${size}px`;
-            ripple.style.left = `${x - rect.left - size/2}px`;
-            ripple.style.top = `${y - rect.top - size/2}px`;
-            btn.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
-        }
+        // --- NAVIGATION ---
+        document.getElementById('explore-btn').addEventListener('click', () => {
+            renderExplore();
+            show(els.explore);
+            speak('Tap a jelly!', `Touche une gelée${NBSP}!`);
+        });
+        document.getElementById('find-btn').addEventListener('click', () => {
+            roundsWon = 0;
+            show(els.find);
+            newRound();
+        });
+        els.back.addEventListener('click', () => {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            show(els.start);
+        });
 
-        // --- PARTICLE SYSTEM ---
+        lang.mountToggle();
+        lang.onChange(() => {
+            if (!els.explore.hidden) renderExplore();
+            if (!els.find.hidden) {
+                renderPrompt();
+                els.findGrid.querySelectorAll('.jelly').forEach(btn => {
+                    btn.setAttribute('aria-label', colorName(COLORS.find(c => c.id === btn.dataset.id)));
+                });
+            }
+        });
+
+        // --- ✨ PARTICLES ---
         const canvas = document.getElementById('particles');
         const ctx = canvas.getContext('2d');
         let particles = [];
 
-        function setupCanvas() {
-            const resize = () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            };
-            window.addEventListener('resize', resize);
-            resize();
-            animateParticles();
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
 
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x; this.y = y;
-                this.color = color;
-                this.size = Math.random() * 10 + 5; 
-                this.speedX = Math.random() * 8 - 4;
-                this.speedY = Math.random() * 8 - 4;
-                this.life = 100;
-                this.isStar = Math.random() > 0.7;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.speedY += 0.2; 
-                this.life -= 1.5;
-                this.size *= 0.95;
-            }
-            draw() {
-                if (this.isStar) {
-                    ctx.save();
-                    ctx.translate(this.x, this.y);
-                    ctx.rotate(this.life * 0.1);
-                    ctx.fillStyle = '#FFF';
-                    for(let i=0; i<4; i++) {
-                        ctx.rotate(Math.PI/2);
-                        ctx.fillRect(-this.size/2, -1, this.size, 2);
-                    }
-                    ctx.restore();
-                }
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+        function createExplosion(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 9,
+                    vy: Math.random() * -8 - 1,
+                    size: Math.random() * 8 + 4,
+                    life: 1,
+                    color: Math.random() > 0.75 ? '#FFFFFF' : color,
+                    star: Math.random() > 0.6
+                });
             }
         }
 
-        function createExplosion(x, y, color) {
-            for (let i = 0; i < 15; i++) {
-                particles.push(new Particle(x, y, color));
+        function drawStar(p) {
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.life * 6);
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                ctx.lineTo(Math.cos((18 + i * 72) * Math.PI / 180) * p.size, -Math.sin((18 + i * 72) * Math.PI / 180) * p.size);
+                ctx.lineTo(Math.cos((54 + i * 72) * Math.PI / 180) * p.size / 2.2, -Math.sin((54 + i * 72) * Math.PI / 180) * p.size / 2.2);
             }
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
         }
 
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                if (particles[i].life <= 0) {
-                    particles.splice(i, 1);
-                    i--;
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.25;
+                p.life -= 0.02;
+                if (p.life <= 0) { particles.splice(i, 1); continue; }
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                if (p.star) {
+                    drawStar(p);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
                 }
             }
+            ctx.globalAlpha = 1;
             requestAnimationFrame(animateParticles);
         }
 
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = () => {};
-        }
-
-        setupCanvas();
-        init();
-        setLanguage(window.BabyLang.lang, true);
-
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        animateParticles();
+        renderStart();
+        if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
     </script>
 </body>
 </html>

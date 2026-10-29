@@ -100,6 +100,14 @@ activities) save their choice to the same shared setting.
 - The board and piece tray resize for the screen and difficulty, with a side-by-side layout on short landscape screens.
 - On very small screens, the page can scroll so all pieces remain reachable.
 
+### Colors (`/colors/`)
+
+- 11 basic colours (red, orange, yellow, green, blue, purple, pink, brown, black, white, gray), each a
+  "jelly friend" with a face and a matching example (🍎, 🐸, 🐳...).
+- **Play with colors**: tap a jelly to hear its name and note; it squishes, smiles and tints the background.
+- **Find the color**: "Where is red? 🍎" with 2, 3, 4 then 6 choices. Five correct answers earn a level;
+  the level is saved in `localStorage` key `colors-find-level`. Wrong taps only wobble (no voice).
+
 ### Gentle toddler activities
 
 Four additional games use original vector illustrations, large touch controls,
