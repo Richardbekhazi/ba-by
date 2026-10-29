@@ -54,7 +54,7 @@
             flex-wrap: wrap;
             align-items: center;
             gap: 8px;
-            z-index: 60;
+            z-index: 90;
             pointer-events: none;
         }
         .round-btn {
@@ -128,24 +128,6 @@
         .power-bar { width: 110px; height: 12px; border-radius: 999px; background: #E3E7F3; overflow: hidden; }
         .power-bar i { display: block; height: 100%; width: 100%; border-radius: 999px; background: linear-gradient(90deg, #7FD8FF, #3B9BFF); }
 
-        .streak {
-            position: fixed;
-            right: var(--safe-right);
-            top: calc(var(--safe-top) + 64px);
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.7rem;
-            color: var(--gold);
-            -webkit-text-stroke: 1.5px var(--gold-dark);
-            text-shadow: 0 3px 0 var(--gold-dark), 0 6px 14px rgba(0,0,0,0.2);
-            z-index: 55;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .streak.show { opacity: 1; }
-        .streak.bump { animation: pop 0.35s; }
-
-        /* Small notes tuck under the buttons in the corner, never over Santa. */
         .toast {
             position: fixed;
             top: calc(var(--safe-top) + 60px);
@@ -372,7 +354,7 @@
             .touch-hint { display: inline; }
         }
 
-        .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+        .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
         .summary div { padding: 10px 4px; border-radius: 18px; background: #fff; box-shadow: 0 4px 0 rgba(46,51,80,0.08); }
         .summary b { display: block; font-family: 'Fredoka One', cursive; font-weight: 400; font-size: clamp(1.3rem, 5vw, 1.7rem); color: var(--red); }
         .summary small { font-weight: 800; color: var(--muted); font-size: 0.78rem; }
@@ -395,9 +377,7 @@
             .stat { min-height: 36px; font-size: 1rem; padding: 4px 11px 4px 8px; }
             .power { top: calc(var(--safe-top) + 108px); }
             .toast { top: calc(var(--safe-top) + 2px); left: auto; right: var(--safe-right); max-width: calc(100vw - 196px); font-size: 0.8rem; padding: 5px 10px; }
-            .streak { top: calc(var(--safe-top) + 152px); left: 0; right: 0; text-align: center; font-size: 1.4rem; }
             .how { grid-template-columns: repeat(2, 1fr); }
-            .summary { grid-template-columns: repeat(2, 1fr); }
             .touch-btn { width: 60px; height: 60px; font-size: 27px; }
         }
         @media (orientation: landscape) and (max-height: 520px) {
@@ -437,14 +417,12 @@
         <button class="round-btn" id="sound-btn" type="button" aria-label="Sound on or off" data-fr-aria-label="Son activé ou désactivé">🔊</button>
         <div class="stats" aria-live="off">
             <div class="stat hearts" id="hearts" aria-label="Hearts" data-fr-aria-label="Cœurs">❤️❤️❤️</div>
-            <div class="stat" id="sack-stat" title="Presents in the sack" data-fr-title="Cadeaux dans la hotte"><span>🎁</span><b id="sack">0</b></div>
-            <div class="stat" id="delivered-stat" title="Presents delivered" data-fr-title="Cadeaux livrés"><span>🏠</span><b id="delivered">0</b></div>
+            <div class="stat" id="gifts-stat" title="Presents" data-fr-title="Cadeaux"><span>🎁</span><b id="gifts">0</b></div>
             <div class="stat score" id="score-stat"><span>⭐</span><b id="score">0</b></div>
         </div>
     </div>
 
     <div class="power" id="power"><span id="power-icon">🧲</span><div class="power-bar"><i id="power-fill"></i></div></div>
-    <div class="streak" id="streak"></div>
     <div class="toast" id="toast" aria-live="polite"></div>
     <div id="floats"></div>
 
@@ -466,10 +444,10 @@
             <div class="tag" data-fr="❄ EXPRESS DU PÔLE NORD">❄ NORTH POLE EXPRESS</div>
             <div class="hero-emoji" aria-hidden="true">🎅🦌</div>
             <h1 class="title"><small data-fr="LE PÈRE NOËL">SANTA'S</small><span data-fr="sur les toits">Rooftop Rush</span></h1>
-            <p class="subtitle" data-fr="Aide le Père Noël à livrer les cadeaux sur les toits enneigés !">Help Santa deliver presents across the snowy rooftops!</p>
+            <p class="subtitle" data-fr="Cours sur les toits enneigés et attrape tous les cadeaux !">Race across the snowy rooftops and grab every present!</p>
             <div class="how">
                 <div><span>🎁</span><em style="font-style:normal" data-fr="Ramasse les cadeaux">Grab presents</em></div>
-                <div><span>⭐</span><em style="font-style:normal" data-fr="Saute sur les cheminées étoilées">Jump over star chimneys</em></div>
+                <div><span>🧱</span><em style="font-style:normal" data-fr="Saute par-dessus les cheminées">Jump over chimneys</em></div>
                 <div><span>💡</span><em style="font-style:normal" data-fr="Glisse sous les lumières">Slide under the lights</em></div>
                 <div><span>⛄</span><em style="font-style:normal" data-fr="Saute par-dessus les obstacles">Hop over snowmen</em></div>
             </div>
@@ -506,8 +484,7 @@
             <h2 class="title gold" id="over-title">What a night!</h2>
             <p class="subtitle" id="over-sub"></p>
             <div class="summary">
-                <div><b id="sum-delivered">0</b><small data-fr="Livrés">Delivered</small></div>
-                <div><b id="sum-gifts">0</b><small data-fr="Ramassés">Collected</small></div>
+                <div><b id="sum-gifts">0</b><small data-fr="Cadeaux">Presents</small></div>
                 <div><b id="sum-dist">0m</b><small data-fr="Distance">Distance</small></div>
                 <div><b id="sum-score">0</b><small data-fr="Points">Score</small></div>
             </div>
@@ -542,15 +519,13 @@
         const LANES = [-4, 0, 4];
         const SEG_LEN = 12;
         const SEG_COUNT = 16;
-        const GAP_HALF = 2.6;
         const GRAVITY = 0.024;
         const JUMP_V = 0.5;
         const SLIDE_TIME = 38;
         const FLY_Y = 5.4;
-        const SACK_MAX = 12;
         const MODES = {
-            cozy:   { speed0: 0.40, speedMax: 0.90, accel: 0.00008, busy: 0.42, gapsFrom: 700, hearts: 0.35 },
-            speedy: { speed0: 0.55, speedMax: 1.30, accel: 0.00014, busy: 0.62, gapsFrom: 260, hearts: 0.15 }
+            cozy:   { speed0: 0.40, speedMax: 0.90, accel: 0.00008, busy: 0.42, hearts: 0.35 },
+            speedy: { speed0: 0.55, speedMax: 1.30, accel: 0.00014, busy: 0.62, hearts: 0.15 }
         };
         const TIME_PHASE_DISTANCE = 750;
         const TIME_PHASES = [
@@ -564,11 +539,11 @@
         let state = 'menu'; // menu | play | paused | ending | over
         let mode = store.get('santa-mode', 'cozy') === 'speedy' ? 'speedy' : 'cozy';
         let bestScore = Number(store.get('santa-best-score', 0)) || 0;
-        let totalDelivered = Number(store.get('santa-total-delivered', 0)) || 0;
+        let totalGifts = Number(store.get('santa-total-gifts', 0)) || 0;
         const run = {};
         const P = {};
         let segments = [], obstacles = [], collectables = [], effects = [];
-        let spawnIndex = 0, segsSinceWish = 0, segsSinceGap = 0;
+        let spawnIndex = 0;
         let shake = 0, clock = 0, last = performance.now();
         let currentWeather = 'clear', weatherCycle = -1, currentTimePhase = 'morning';
         const hintsSeen = new Set();
@@ -578,7 +553,7 @@
         scene.background = new THREE.Color(TIME_PHASES[0].sky);
         scene.fog = new THREE.FogExp2(TIME_PHASES[0].sky, 0.014);
         const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 170);
-        let camBase = { z: 16, fov: 60 };
+        let camBase = { z: 13, y: 6.2, fov: 62 };
         let renderer;
         try {
             renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -708,7 +683,8 @@
         const std = (color, o) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.8 }, o));
         const M = {
             snow: std(0xffffff, { roughness: 0.95, map: snowTex }),
-            track: std(0x9dbbe2, { roughness: 1 }),
+            track: std(0xb3cbea, { roughness: 1 }),
+            runner: new THREE.MeshBasicMaterial({ color: 0x6d8fc7 }),
             roof: std(0x5a6a9a, { map: roofTileTex }),
             brick: std(0xffffff, { roughness: 0.9, map: brickTex }),
             brickDark: std(0xc99a88, { roughness: 0.9, map: brickTex }),
@@ -736,10 +712,9 @@
         const G = {
             roofBase: new THREE.BoxGeometry(18, 2, SEG_LEN),
             roofSnow: new THREE.BoxGeometry(18.4, 0.5, SEG_LEN),
-            roofBaseHalf: new THREE.BoxGeometry(18, 2, SEG_LEN / 2 - GAP_HALF),
-            roofSnowHalf: new THREE.BoxGeometry(18.4, 0.5, SEG_LEN / 2 - GAP_HALF),
-            track: new THREE.PlaneGeometry(1.5, SEG_LEN),
-            trackHalf: new THREE.PlaneGeometry(1.5, SEG_LEN / 2 - GAP_HALF),
+            track: new THREE.PlaneGeometry(1.7, SEG_LEN),
+            runner: new THREE.PlaneGeometry(0.16, SEG_LEN),
+            shadow: new THREE.CircleGeometry(1.1, 24),
             unit: new THREE.BoxGeometry(1, 1, 1),
             bulb: new THREE.SphereGeometry(0.17, 8, 6),
             window: new THREE.PlaneGeometry(1.1, 1.4),
@@ -778,7 +753,7 @@
             puff: new THREE.SphereGeometry(0.5, 10, 8)
         };
 
-        // Snowy ground far below the rooftops, so gaps look deep instead of empty.
+        // Snowy ground far below the rooftops.
         const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), M.ground);
         ground.rotation.x = -Math.PI / 2;
         ground.position.set(0, -13, -60);
@@ -865,7 +840,11 @@
         const reindeer = new THREE.Group();
         const santa = new THREE.Group();
         const legs = [];
-        let sack, shieldMesh, noseMat;
+        let shieldMesh, noseMat;
+        const playerShadow = new THREE.Mesh(new THREE.CircleGeometry(1.1, 24), new THREE.MeshBasicMaterial({ color: 0x24305a, transparent: true, opacity: 0.28, depthWrite: false }));
+        playerShadow.rotation.x = -Math.PI / 2;
+        playerShadow.scale.set(1, 1, 1);
+        scene.add(playerShadow);
         (function createPlayer() {
             const mat = (c, r = 0.7) => new THREE.MeshStandardMaterial({ color: c, flatShading: true, roughness: r });
             const fur = mat(0x8b4513), cream = mat(0xfffdf5);
@@ -933,15 +912,7 @@
             const mitL = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 8), white); mitL.position.set(0.85, 0.42, 0);
             const mitR = mitL.clone(); mitR.position.x = -0.85;
             const scarf = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.55, 0.08), mat(0x16a34a)); scarf.position.set(0.4, 1.25, 0.52); scarf.rotation.z = -0.3;
-            // The gift sack on Santa's back fills up as presents are collected.
-            sack = new THREE.Group();
-            const sackBody = new THREE.Mesh(new THREE.SphereGeometry(0.6, 20, 16), new THREE.MeshStandardMaterial({ color: 0xa8743f, roughness: 0.95 }));
-            sackBody.scale.set(1, 1.1, 0.9); sackBody.castShadow = true;
-            const sackTie = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.06, 6, 14), mat(0xffd54a, 0.5));
-            sackTie.rotation.x = Math.PI / 2; sackTie.position.y = 0.62;
-            sack.add(sackBody, sackTie);
-            sack.position.set(0.62, 0.45, 0.45);
-            santa.add(coat, trim, belt, headS, hair, beard, hat, armL, armR, mitL, mitR, scarf, sack);
+            santa.add(coat, trim, belt, headS, hair, beard, hat, armL, armR, mitL, mitR, scarf);
             santa.userData = { hat, scarf, armL, armR };
             player.add(santa);
 
@@ -953,37 +924,36 @@
         }());
 
         // ---------- World building ----------
-        function addRoof(group, gap) {
-            const parts = gap
-                ? [[G.roofBaseHalf, G.roofSnowHalf, -(SEG_LEN / 4 + GAP_HALF / 2)], [G.roofBaseHalf, G.roofSnowHalf, SEG_LEN / 4 + GAP_HALF / 2]]
-                : [[G.roofBase, G.roofSnow, 0]];
-            parts.forEach(([baseGeo, snowGeo, z]) => {
-                const base = new THREE.Mesh(baseGeo, M.roof); base.position.set(0, -1.5, z); base.receiveShadow = true;
-                const top = new THREE.Mesh(snowGeo, M.snow); top.position.set(0, -0.25, z); top.receiveShadow = true;
-                group.add(base, top);
-                // Soft sled tracks show the three lanes.
-                LANES.forEach(lx => {
-                    const track = new THREE.Mesh(gap ? G.trackHalf : G.track, M.track);
-                    track.rotation.x = -Math.PI / 2;
-                    track.position.set(lx, 0.01, z);
-                    track.receiveShadow = true;
-                    group.add(track);
+        function addRoof(group) {
+            const base = new THREE.Mesh(G.roofBase, M.roof); base.position.y = -1.5; base.receiveShadow = true;
+            const top = new THREE.Mesh(G.roofSnow, M.snow); top.position.y = -0.25; top.receiveShadow = true;
+            group.add(base, top);
+            // Clear sled lanes: a soft track with two runner lines, like rails to follow.
+            LANES.forEach(lx => {
+                const track = new THREE.Mesh(G.track, M.track);
+                track.rotation.x = -Math.PI / 2;
+                track.position.set(lx, 0.01, 0);
+                track.receiveShadow = true;
+                group.add(track);
+                [-0.62, 0.62].forEach(off => {
+                    const runner = new THREE.Mesh(G.runner, M.runner);
+                    runner.rotation.x = -Math.PI / 2;
+                    runner.position.set(lx + off, 0.02, 0);
+                    group.add(runner);
                 });
             });
             // Fairy lights along both roof edges.
             [-1, 1].forEach(side => {
                 for (let k = 0; k < 6; k++) {
-                    const z = -SEG_LEN / 2 + 1 + k * 2;
-                    if (gap && Math.abs(z) < GAP_HALF) continue;
                     const bulb = new THREE.Mesh(G.bulb, M.bulbs[(k + (side > 0 ? 2 : 0)) % M.bulbs.length]);
-                    bulb.position.set(side * 9.25, -0.2, z);
+                    bulb.position.set(side * 9.25, -0.2, -SEG_LEN / 2 + 1 + k * 2);
                     group.add(bulb);
                 }
                 for (let k = 0; k < 2; k++) {
                     const win = new THREE.Mesh(G.window, M.window);
                     win.position.set(side * 9.02, -1.45, k * 5 - 2.5);
                     win.rotation.y = side * Math.PI / 2;
-                    if (!gap || Math.abs(win.position.z) > GAP_HALF) group.add(win);
+                    group.add(win);
                 }
             });
         }
@@ -1026,25 +996,21 @@
             });
         }
 
-        const segmentPool = { true: [], false: [] };
-        function buildSegment(gap) {
+        const segmentPool = [];
+        function buildSegment() {
             const group = new THREE.Group();
-            group.userData.gap = gap;
-            addRoof(group, gap);
+            addRoof(group);
             addScenery(group);
             return group;
         }
         function releaseSegment(seg) {
             scene.remove(seg);
-            segmentPool[seg.userData.gap].push(seg);
+            segmentPool.push(seg);
         }
 
         function spawnSegment(z) {
-            const mcfg = MODES[run.mode || mode];
             const ahead = (run.distance || 0) - z;
-            const gap = state === 'play' && spawnIndex > 6 && ahead > mcfg.gapsFrom && segsSinceGap > 5 && Math.random() < 0.1 + difficulty(ahead) * 0.08;
-            segsSinceGap = gap ? 0 : segsSinceGap + 1;
-            const group = segmentPool[gap].pop() || buildSegment(gap);
+            const group = segmentPool.pop() || buildSegment();
             group.position.z = z;
             scene.add(group);
             segments.push(group);
@@ -1123,23 +1089,13 @@
         function buildObstacle(type, lane) {
             const g = new THREE.Group();
             const u = { type, width: 1.15, depth: 1.15, clear: 3.0 };
-            if (type === 'chimney' || type === 'wish') {
-                const base = new THREE.Mesh(G.chimney, type === 'wish' ? M.brick : M.brickDark); base.position.y = 1.3; base.castShadow = true;
+            if (type === 'chimney') {
+                const base = new THREE.Mesh(G.chimney, M.brick); base.position.y = 1.3; base.castShadow = true;
                 const rim = new THREE.Mesh(G.chimneyRim, M.brick); rim.position.y = 2.75; rim.castShadow = true;
                 const cap = new THREE.Mesh(G.chimneyCap, M.snow); cap.position.y = 3.0;
                 const hole = new THREE.Mesh(G.chimneyHole, M.dark); hole.position.y = 3.16;
                 g.add(base, rim, cap, hole);
                 u.clear = 3.0;
-                if (type === 'wish') {
-                    const wreath = new THREE.Mesh(G.wreath, M.wreath); wreath.position.set(0, 1.5, 1.13);
-                    const knot = new THREE.Mesh(G.bowKnot, M.bow); knot.position.set(0, 0.98, 1.25);
-                    const beacon = new THREE.Group();
-                    beacon.add(glowSprite(0xffe066, 4.2, 0.7), emojiSprite('⭐', 1.8));
-                    beacon.position.y = 4.7;
-                    g.add(wreath, knot, beacon);
-                    u.beacon = beacon;
-                    u.wish = true;
-                }
             } else if (type === 'snowman') {
                 const bottom = new THREE.Mesh(G.sbBottom, M.white); bottom.position.y = 0.75; bottom.scale.y = 0.9; bottom.castShadow = true;
                 const head = new THREE.Mesh(G.sbHead, M.white); head.position.y = 1.82; head.castShadow = true;
@@ -1204,7 +1160,6 @@
             const base = g.userData.base;
             g.userData = Object.assign({ base, key, lane }, base, opts);
             if (type === 'penguin') { g.userData.walk = 0.5 + Math.random() * 0.4; g.userData.off = Math.random() * Math.PI * 2; }
-            if (base.beacon) base.beacon.visible = true;
             g.position.set(lane === null ? 0 : LANES[lane], 0, z);
             g.rotation.set(0, 0, 0);
             scene.add(g);
@@ -1213,7 +1168,6 @@
         }
         function releaseObstacle(ob) {
             const u = ob.userData;
-            if (u.drop) { releaseGift(u.drop.gift); u.drop = null; }
             scene.remove(ob);
             (obstaclePool[u.key] = obstaclePool[u.key] || []).push(ob);
         }
@@ -1229,21 +1183,11 @@
             const cfg = MODES[run.mode];
             const d = difficulty(ahead);
             if (spawnIndex < 9) {
-                // Gentle opening: presents straight ahead, then the very first star chimney.
-                if (spawnIndex === 3 || spawnIndex === 5) addGiftLine(1, z + 4, 3);
-                if (spawnIndex === 7) addObstacle('wish', 1, z - 2);
+                // Gentle opening: presents straight ahead, then a first easy chimney.
+                if (spawnIndex === 3 || spawnIndex === 5) addGiftLine(1, z + 4, 4);
+                if (spawnIndex === 7) { addObstacle('chimney', 1, z - 2); addGiftLine(0, z + 4, 4); }
                 return;
             }
-            if (seg.userData.gap) {
-                // A little arc of presents rewards jumping across.
-                const lane = (Math.random() * 3) | 0;
-                for (let i = 0; i < 5; i++) {
-                    const t = i / 4;
-                    addGift(LANES[lane], 1.3 + Math.sin(t * Math.PI) * 3.2, z + 5 - i * 2.5);
-                }
-                return;
-            }
-            segsSinceWish++;
             // After anything to dodge, the next roof is usually calm so the rhythm stays smooth.
             if (run.calm > 0) {
                 run.calm--;
@@ -1254,14 +1198,6 @@
             }
             if (run.lives < run.maxLives && Math.random() < cfg.hearts * 0.08) {
                 addHeart(LANES[(Math.random() * 3) | 0], z);
-                return;
-            }
-            if (segsSinceWish >= 3 || Math.random() < 0.22) {
-                segsSinceWish = 0;
-                const lane = (Math.random() * 3) | 0;
-                addObstacle('wish', lane, z - 3);
-                run.calm = 1;
-                if (run.sack < 3 || Math.random() < 0.35) addGiftLine(otherLane([lane]), z + 5, 3);
                 return;
             }
             if (Math.random() > cfg.busy * (0.55 + d * 0.45)) {
@@ -1275,7 +1211,9 @@
             run.calm = 1;
             if (roll < 0.3) {
                 addObstacle(Math.random() < 0.5 ? 'snowman' : 'chimney', lane, z);
-                addGiftLine(otherLane([lane]), z + 4, 3);
+                // Presents float over the obstacle as a reward for jumping.
+                addGift(LANES[lane], 4.3, z);
+                addGiftLine(otherLane([lane]), z + 4, 4);
             } else if (roll < 0.48 && d > 0.05) {
                 if (d > 0.45 && Math.random() < 0.35) addObstacle('garland', null, z);
                 else { addObstacle('garland', lane, z); addGift(LANES[lane], 0.9, z - 3); }
@@ -1456,17 +1394,10 @@
                     tone(base, 0.16, 0.22, s, 'sine'); tone(base * 1.5, 0.18, 0.12, s, 'triangle', 0.05);
                     break;
                 }
-                case 'deliver':
-                    [1319, 1568, 2093, 1568, 2093, 2637].forEach((f, i) => tone(f, 0.25, 0.14, s, 'triangle', i * 0.06));
-                    tone(hz(72), 0.4, 0.2, s, 'sine'); tone(hz(76), 0.4, 0.16, s, 'sine', 0.1); tone(hz(79), 0.5, 0.16, s, 'sine', 0.2);
-                    break;
-                case 'empty': tone(300, 0.15, 0.12, s, 'triangle', 0, 220); break;
                 case 'power': [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.22, 0.18, s, 'triangle', i * 0.06)); break;
                 case 'fly': tone(220, 0.8, 0.12, s, 'sawtooth', 0, 880); [1568, 2093, 2637].forEach((f, i) => tone(f, 0.3, 0.08, s, 'sine', 0.2 + i * 0.1)); break;
                 case 'shield': [880, 660, 990].forEach((f, i) => tone(f, 0.2, 0.18, s, 'sine', i * 0.05)); break;
                 case 'hit': tone(180, 0.16, 0.3, s, 'square'); tone(110, 0.25, 0.24, s, 'sawtooth', 0.06); break;
-                case 'fall': tone(600, 0.5, 0.16, s, 'sine', 0, 140); break;
-                case 'boost': [392, 523, 659, 784].forEach((f, i) => tone(f, 0.25, 0.2, s, 'triangle', i * 0.08)); break;
                 case 'heart': [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.35, 0.22, s, 'sine', i * 0.1)); break;
                 case 'milestone': [523, 659, 784].forEach((f, i) => tone(f, 0.3, 0.2, s, 'triangle', i * 0.1)); break;
                 case 'crash': [180, 130, 85].forEach((f, i) => tone(f, 0.3, 0.32, s, 'sawtooth', i * 0.055)); break;
@@ -1492,12 +1423,11 @@
         }
         function updateHud() {
             setText('hearts', '❤️'.repeat(Math.max(0, run.lives)) + '🤍'.repeat(Math.max(0, run.maxLives - run.lives)));
-            setText('sack', String(run.sack));
-            setText('delivered', String(run.delivered));
+            setText('gifts', String(run.gifts));
             setText('score', fmt(run.score));
         }
         function renderRecords() {
-            const html = `<span>🏆 ${T('Best', 'Record')} <b>${fmt(bestScore)}</b></span><span>🏠 ${T('Presents delivered', 'Cadeaux livrés')} <b>${fmt(totalDelivered)}</b></span>`;
+            const html = `<span>🏆 ${T('Best', 'Record')} <b>${fmt(bestScore)}</b></span><span>🎁 ${T('All presents', 'Tous les cadeaux')} <b>${fmt(totalGifts)}</b></span>`;
             $('records').innerHTML = html;
             $('records-over').innerHTML = html;
         }
@@ -1517,12 +1447,12 @@
             collectables.forEach(releaseCollectable);
             effects.forEach(releasePart);
             segments = []; obstacles = []; collectables = []; effects = [];
-            spawnIndex = 0; segsSinceWish = 0; segsSinceGap = 0;
+            spawnIndex = 0;
             for (let i = 0; i < SEG_COUNT; i++) spawnSegment(-i * SEG_LEN + SEG_LEN);
         }
 
         function resetPlayer() {
-            Object.assign(P, { lane: 1, x: 0, targetX: 0, y: 0, vy: 0, jumping: false, sliding: false, slideTimer: 0, squash: 0, flying: false, falling: 0 });
+            Object.assign(P, { lane: 1, x: 0, targetX: 0, y: 0, vy: 0, jumping: false, sliding: false, slideTimer: 0, squash: 0, flying: false });
             player.position.set(0, 0, 0);
             player.rotation.set(0, 0, 0);
             player.scale.set(1, 1, 1);
@@ -1534,9 +1464,9 @@
             initAudio();
             const cfg = MODES[mode];
             Object.assign(run, {
-                mode, speed: cfg.speed0, distance: 0, score: 0, delivered: 0, sack: 0, collected: 0,
-                lives: 3, maxLives: 3, invuln: 0, streak: 0, streakTimer: 0, power: null, shield: false,
-                slow: 1, milestone: 0, endTimer: 0, time: 0, fullWarned: false, calm: 0
+                mode, speed: cfg.speed0, distance: 0, score: 0, gifts: 0,
+                lives: 3, maxLives: 3, invuln: 0, power: null, shield: false,
+                slow: 1, milestone: 0, endTimer: 0, time: 0, calm: 0
             });
             resetPlayer();
             currentWeather = 'clear'; weatherCycle = -1; currentTimePhase = 'morning';
@@ -1545,7 +1475,6 @@
             show(null);
             updateHud();
             $('power').classList.remove('show');
-            $('streak').classList.remove('show');
             startMusic('day');
         }
 
@@ -1576,7 +1505,6 @@
             run.power = null;
             P.flying = false;
             $('power').classList.remove('show');
-            $('streak').classList.remove('show');
         }
 
         function endRun() {
@@ -1591,19 +1519,19 @@
             setState('over');
             sfx('over');
             const score = Math.floor(run.score);
+            store.set('santa-total-gifts', String(totalGifts));
             const isBest = score > bestScore;
             if (isBest) { bestScore = score; store.set('santa-best-score', String(bestScore)); }
-            $('sum-delivered').textContent = run.delivered;
-            $('sum-gifts').textContent = run.collected;
+            $('sum-gifts').textContent = run.gifts;
             $('sum-dist').textContent = `${Math.floor(run.distance)}m`;
             $('sum-score').textContent = fmt(score);
             $('new-best').hidden = !isBest;
-            const great = run.delivered >= 10, some = run.delivered > 0;
+            const great = run.gifts >= 40, some = run.gifts > 0;
             $('over-emoji').textContent = great ? '🎄' : some ? '🛷' : '☃️';
-            $('over-title').textContent = great ? T('Merry Christmas!', 'Joyeux Noël !') : some ? T('What a night!', 'Quelle nuit !') : T('Oops! Try again!', 'Oups ! On réessaie !');
+            $('over-title').textContent = great ? T('Merry Christmas!', 'Joyeux Noël !') : some ? T('What a run!', 'Belle course !') : T('Oops! Try again!', 'Oups ! On réessaie !');
             $('over-sub').textContent = some
-                ? T(`You made ${run.delivered} ${run.delivered === 1 ? 'family' : 'families'} happy!`, `Tu as rendu ${run.delivered} ${run.delivered === 1 ? 'famille heureuse' : 'familles heureuses'} !`)
-                : T('Grab presents, then jump over a ⭐ chimney!', 'Ramasse des cadeaux, puis saute sur une cheminée ⭐ !');
+                ? T(`You grabbed ${run.gifts} ${run.gifts === 1 ? 'present' : 'presents'}!`, `Tu as attrapé ${run.gifts} ${run.gifts === 1 ? 'cadeau' : 'cadeaux'} !`)
+                : T('Grab the presents 🎁 on the roofs!', 'Attrape les cadeaux 🎁 sur les toits !');
             renderRecords();
             show('over-overlay');
         }
@@ -1614,13 +1542,13 @@
             if (action === 'left' && P.lane > 0) { P.lane--; P.targetX = LANES[P.lane]; sfx('move'); }
             else if (action === 'right' && P.lane < 2) { P.lane++; P.targetX = LANES[P.lane]; sfx('move'); }
             else if (action === 'up') {
-                if (!P.jumping && !P.flying && P.falling <= 0) {
+                if (!P.jumping && !P.flying) {
                     P.jumping = true; P.sliding = false; P.slideTimer = 0; P.vy = JUMP_V; sfx('jump');
                 }
             } else if (action === 'down') {
                 if (P.flying) return;
                 if (P.jumping) P.vy = Math.min(P.vy, -0.42);
-                else if (P.falling <= 0) { P.sliding = true; P.slideTimer = SLIDE_TIME; sfx('slide'); }
+                else { P.sliding = true; P.slideTimer = SLIDE_TIME; sfx('slide'); }
             }
         }
 
@@ -1636,14 +1564,14 @@
             if (run.shield) {
                 run.shield = false;
                 shieldMesh.visible = false;
-                run.invuln = 70;
+                run.invuln = 120;
                 burst(player.position.clone().setY(2), ['#9be7ff', '#ffffff', '#c4b5fd'], 24, 1.3);
                 sfx('shield');
                 return;
             }
             run.lives--;
-            run.streak = 0;
-            run.invuln = 110;
+            // Three safe seconds after a bump.
+            run.invuln = 180;
             shake = 0.7;
             sfx('hit');
             bump('hearts', 'shake');
@@ -1652,54 +1580,15 @@
             if (run.lives <= 0) { endRun(); return; }
         }
 
-        function deliver(ob) {
-            const u = ob.userData;
-            u.delivered = true;
-            run.sack--;
-            run.delivered++;
-            run.streak++;
-            run.streakTimer = 720;
-            const mult = Math.min(5, run.streak);
-            const points = 100 * mult;
-            run.score += points;
-            totalDelivered++;
-            store.set('santa-total-delivered', String(totalDelivered));
-            // A present arcs from Santa's sack down the chimney.
-            const gift = takeGift((Math.random() * M.gifts.length) | 0);
-            gift.scale.setScalar(0.7);
-            ob.add(gift);
-            gift.position.set(P.x - ob.position.x, P.y + 2.6, -ob.position.z);
-            u.drop = { gift, t: 0, from: gift.position.clone() };
-            u.beacon.visible = false;
-            sfx('deliver');
-            bump('delivered-stat', 'pop');
-            floatText(ob.position.clone().setY(5), mult > 1 ? `+${points} ×${mult}` : `+${points}`, '#2EB872');
-            if (run.streak >= 2) {
-                const el = $('streak');
-                el.textContent = T(`${run.streak} in a row! ×${mult}`, `${run.streak} de suite ! ×${mult}`);
-                el.classList.add('show');
-                bump('streak', 'bump');
-            }
-            updateHud();
-        }
-
         function collect(c) {
             const u = c.userData;
             releaseCollectable(c);
             if (u.type === 'gift') {
-                if (run.sack >= SACK_MAX) {
-                    run.score += 10;
-                    sfx('gift');
-                    if (!run.fullWarned) { run.fullWarned = true; toast(T('The sack is full! Deliver some presents ⭐', 'La hotte est pleine ! Livre des cadeaux ⭐'), 'hint'); }
-                    burst(c.position, ['#ffd700', '#ffffff'], 6, 0.6);
-                    updateHud();
-                    return;
-                }
-                run.sack++;
-                run.collected++;
+                run.gifts++;
                 run.score += 10;
+                totalGifts++;
                 sfx('gift');
-                bump('sack-stat', 'pop');
+                bump('gifts-stat', 'pop');
                 burst(c.position, [u.color, '#ffd700', '#ffffff'], 6, 0.8);
             } else if (u.type === 'heart') {
                 run.lives = Math.min(run.maxLives, run.lives + 1);
@@ -1724,7 +1613,7 @@
             $('power-icon').textContent = POWERS[kind].emoji;
             $('power').classList.add('show');
             if (kind === 'sleigh') {
-                P.flying = true; P.jumping = false; P.sliding = false; P.falling = 0;
+                P.flying = true; P.jumping = false; P.sliding = false;
                 sfx('fly');
                 // A trail of presents up in the sky.
                 for (let i = 0; i < 30; i++) addGift(Math.sin(i * 0.33) * 4, FLY_Y + 1.2, -12 - i * 4.4);
@@ -1741,34 +1630,16 @@
             }
         }
 
-        function overGap() {
-            for (const s of segments) {
-                if (s.userData.gap && Math.abs(s.position.z) < GAP_HALF - 0.45) return true;
-            }
-            return false;
-        }
-
-        function startFall() {
-            P.falling = 18;
-            P.jumping = false; P.sliding = false;
-            run.slow = 0.2;
-            sfx('fall');
-            if (run.invuln <= 0) hurt(null);
-            if (state !== 'play') return;
-        }
-
         function maybeHint(type) {
             if (hintsSeen.has(type)) return;
             hintsSeen.add(type);
             const touch = window.matchMedia('(pointer: coarse)').matches;
             const jump = touch ? T('Swipe up to jump', 'Glisse vers le haut pour sauter') : T('Press ↑ to jump', 'Appuie sur ↑ pour sauter');
             const texts = {
-                wish: T('⭐ Jump over star chimneys to deliver!', '⭐ Saute sur les cheminées étoilées !'),
                 garland: touch ? T('💡 Swipe down to slide', '💡 Glisse vers le bas') : T('💡 Press ↓ to slide', '💡 Appuie sur ↓ pour glisser'),
                 snowman: `⛄ ${jump}`,
                 chimney: `🧱 ${jump}`,
                 penguin: `🐧 ${jump}`,
-                gap: `🏠 ${jump}`,
                 power: T('🫧 Grab the bubble!', '🫧 Attrape la bulle !')
             };
             if (texts[type]) toast(texts[type], 'hint', 2600);
@@ -1800,10 +1671,6 @@
                 $('power-fill').style.width = `${clamp(run.power.t / run.power.max, 0, 1) * 100}%`;
                 if (run.power.t <= 0) endPower();
             }
-            if (run.streakTimer > 0) {
-                run.streakTimer -= k;
-                if (run.streakTimer <= 0) { run.streak = 0; $('streak').classList.remove('show'); }
-            }
             const milestone = Math.floor(run.distance / 500);
             if (milestone > run.milestone) {
                 run.milestone = milestone;
@@ -1811,7 +1678,6 @@
             }
             checkObstacles();
             checkCollectables(k);
-            if (!P.jumping && !P.flying && P.falling <= 0 && overGap()) startFall();
             updateHud();
         }
 
@@ -1839,24 +1705,6 @@
                 } else if (u.type === 'snowman') {
                     ob.rotation.z = Math.sin(clock * 0.05 + ob.position.z) * 0.04;
                 }
-                if (u.beacon && u.beacon.visible && ob.position.z > 2) u.beacon.visible = false;
-                if (u.beacon && u.beacon.visible) {
-                    u.beacon.position.y = 4.7 + Math.sin(clock * 0.08 + ob.position.z) * 0.25;
-                    u.beacon.children[1].material.rotation = Math.sin(clock * 0.05) * 0.2;
-                }
-                if (u.drop) {
-                    u.drop.t += 0.06 * k;
-                    const t = Math.min(1, u.drop.t);
-                    const g = u.drop.gift;
-                    g.position.set(u.drop.from.x * (1 - t), u.drop.from.y + (3.4 - u.drop.from.y) * t + Math.sin(t * Math.PI) * 1.8, u.drop.from.z * (1 - t));
-                    g.rotation.y += 0.25 * k;
-                    if (t >= 1) {
-                        releaseGift(g);
-                        u.drop = null;
-                        puff(ob.position.clone().setY(3.4), 7);
-                        burst(ob.position.clone().setY(3.6), ['#ffd54a', '#ff6b8b', '#4ade80', '#60a5fa'], 22, 1.2);
-                    }
-                }
                 if (ob.position.z > 22 || ob.position.y < -20) { releaseObstacle(ob); obstacles.splice(i, 1); }
             }
             const magnet = run.power && run.power.kind === 'magnet' && state === 'play';
@@ -1882,19 +1730,12 @@
                 const u = ob.userData;
                 if (u.knocked) continue;
                 const dz = Math.abs(ob.position.z);
-                if (dz < 30 && ob.position.z > -30) maybeHint(u.wish ? 'wish' : u.type);
+                if (dz < 30 && ob.position.z > -30) maybeHint(u.type);
                 if (dz > u.depth + 0.75) continue;
                 const dx = Math.abs(ob.position.x - P.x);
                 if (dx > u.width + 0.55) continue;
-                if (u.wish && !u.delivered && P.y > u.clear - 0.5) {
-                    if (run.sack > 0) deliver(ob);
-                    else if (!u.warned) { u.warned = true; sfx('empty'); toast(T('Grab presents 🎁 first, then deliver!', 'Ramasse d’abord des cadeaux 🎁 !'), 'hint'); }
-                }
                 const blocked = u.slide ? !(P.sliding && !P.jumping) && P.y < u.clear : P.y < u.clear;
                 if (blocked && !P.flying && run.invuln <= 0) hurt(ob);
-            }
-            for (const s of segments) {
-                if (s.userData.gap && s.position.z > -30 && s.position.z < 0) maybeHint('gap');
             }
         }
 
@@ -1917,27 +1758,13 @@
             if (P.flying) {
                 P.y += (FLY_Y - P.y) * ease(0.94);
                 P.vy = 0;
-            } else if (P.falling > 0) {
-                P.falling -= k;
-                P.y -= 0.16 * k;
-                if (P.falling <= 0 && state === 'play') {
-                    // Rudolph's nose glows and he leaps back up to the roofs.
-                    P.jumping = true;
-                    P.vy = 0.62;
-                    run.slow = 1;
-                    sfx('boost');
-                    burst(player.position.clone().setY(1), ['#ff3b3b', '#ffd54a', '#ffffff'], 16, 1);
-                }
             } else if (P.jumping) {
                 P.y += P.vy * k;
                 P.vy -= GRAVITY * k;
                 if (P.y <= 0 && P.vy < 0) {
-                    if (overGap() && state === 'play') { P.y = 0; startFall(); }
-                    else {
-                        P.y = 0; P.vy = 0; P.jumping = false; P.squash = 9;
-                        sfx('land');
-                        puff(new THREE.Vector3(P.x, 0.1, 0.6), 4);
-                    }
+                    P.y = 0; P.vy = 0; P.jumping = false; P.squash = 9;
+                    sfx('land');
+                    puff(new THREE.Vector3(P.x, 0.1, 0.6), 4);
                 }
             } else if (state === 'menu' || state === 'play') {
                 P.y = Math.abs(Math.sin(clock * 0.2)) * 0.12;
@@ -1977,9 +1804,10 @@
             santa.userData.scarf.rotation.z = -0.3 - Math.sin(mt * 1.3) * 0.14;
             santa.userData.armL.rotation.x = Math.sin(mt) * 0.1;
             santa.userData.armR.rotation.x = -Math.sin(mt) * 0.1;
-            const sackSize = Math.min(0.9, 0.45 + (run.sack || 0) * 0.04);
-            sack.scale.setScalar(sack.scale.x + (sackSize - sack.scale.x) * ease(0.85));
-            noseMat.emissiveIntensity = 2 + (P.falling > 0 || P.flying ? 2 + Math.sin(clock * 0.5) * 1.5 : 0);
+            noseMat.emissiveIntensity = 2 + (P.flying ? 2 + Math.sin(clock * 0.5) * 1.5 : 0);
+            // The shadow stays on the roof, so it is always clear which lane Santa is in.
+            playerShadow.position.set(P.x, 0.03, 0.2);
+            playerShadow.scale.setScalar(clamp(1 - P.y * 0.08, 0.45, 1) * (P.sliding ? 1.15 : 1));
             if (shieldMesh.visible) { shieldMesh.rotation.y += 0.02 * k; shieldMesh.scale.setScalar(1 + Math.sin(clock * 0.1) * 0.03); }
             P.trail = (P.trail || 0) - k;
             if (P.flying && P.trail <= 0) {
@@ -2069,14 +1897,14 @@
 
         function updateCamera(k) {
             const e = n => 1 - Math.pow(n, k);
-            const tx = P.x * 0.4;
-            const ty = 7.2 + P.y * 0.38 + (P.flying ? 1.4 : 0);
+            const tx = P.x * 0.55;
+            const ty = camBase.y + P.y * 0.38 + (P.flying ? 1.4 : 0);
             camera.position.x += (tx - camera.position.x) * e(0.9);
             camera.position.y += (ty - camera.position.y) * e(0.92);
             camera.position.z = camBase.z;
             const fov = camBase.fov + ((run.speed || 0.4) - 0.5) * 9 + (P.flying ? 6 : 0);
             if (Math.abs(fov - camera.fov) > 0.01) { camera.fov += (fov - camera.fov) * e(0.95); camera.updateProjectionMatrix(); }
-            camera.lookAt(P.x * 0.3, 2 + P.y * 0.42, -8);
+            camera.lookAt(P.x * 0.35, 2.2 + P.y * 0.4, -10);
             skyDome.position.copy(camera.position);
             if (shake > 0 && !reduceMotion) {
                 camera.position.x += (Math.random() - 0.5) * shake;
@@ -2112,7 +1940,7 @@
 
         function resize() {
             const aspect = innerWidth / innerHeight;
-            camBase = aspect < 0.75 ? { z: 19.5, fov: 72 } : aspect < 1.1 ? { z: 17.5, fov: 66 } : { z: 16, fov: 60 };
+            camBase = aspect < 0.75 ? { z: 15.5, y: 7.4, fov: 74 } : aspect < 1.1 ? { z: 14.5, y: 6.8, fov: 68 } : { z: 13, y: 6.2, fov: 62 };
             camera.aspect = aspect;
             camera.fov = camBase.fov;
             camera.updateProjectionMatrix();
@@ -2193,7 +2021,7 @@
 
         function prewarm() {
             const warm = [];
-            ['chimney', 'wish', 'snowman', 'penguin', 'garland'].forEach(t => warm.push(addObstacle(t, 1, -20)));
+            ['chimney', 'snowman', 'penguin', 'garland'].forEach(t => warm.push(addObstacle(t, 1, -20)));
             warm.push(addObstacle('garland', null, -24));
             for (let ci = 0; ci < M.gifts.length; ci++) giftPools[ci].push(makeGift(ci));
             const gifts = giftPools.map(pool => pool[pool.length - 1]);
@@ -2208,7 +2036,7 @@
         }
 
         // ---------- Boot ----------
-        run.mode = mode; run.distance = 0; run.speed = 0.3; run.sack = 0; run.lives = 3; run.maxLives = 3;
+        run.mode = mode; run.distance = 0; run.speed = 0.3; run.gifts = 0; run.lives = 3; run.maxLives = 3;
         resize();
         resetPlayer();
         prewarm();
