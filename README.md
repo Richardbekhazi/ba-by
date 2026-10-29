@@ -39,7 +39,7 @@ with its own `index.html`, so its address is `https://ba-by.ca/<folder>/`.
 | Bubble Hero | `/bubbles/` | Pop the Grumpies with bubbles (see below) |
 | Jump! (Rooftop Rush) | `/rooftoprush/` | A cat hops from roof to roof, collecting coins for new skins |
 | Rooftop Santa | `/rooftopsanta/` | Deliver presents down star chimneys (see below) |
-| Tetris (Stacky Smiles) | `/tetris/` | Stack the smiley blocks |
+| Tetris (Stacky Smiles) | `/tetris/` | Stack the smiley blocks to make lines, 6 levels (see below) |
 
 ---
 
@@ -60,7 +60,7 @@ ba-by/
 ```
 
 Most games are a single self-contained `index.html`. `numbers/` and `sounds/` also have
-their own sound/icon folders, and `tetris/` has a `background.svg`.
+their own sound/icon folders.
 
 ---
 
@@ -129,8 +129,9 @@ activities) save their choice to the same shared setting.
   is on. After level 12 is cleared, play continues on level 12.
 - The start screen offers "Continue" (the furthest puzzle reached, saved in `localStorage` key
   `puzzles-progress`) and "Start from the beginning". On a first visit it shows a single "Play!" button.
-- "Choose your level" opens the 12 levels; only fully cleared levels can be picked, the rest show a lock.
-  The button itself stays locked until level 1 is cleared.
+- "Choose your level" opens the 12 levels; cleared levels and the level reached next can be picked,
+  the rest show a lock. The button itself stays locked until level 1 is cleared. Progress is saved as
+  soon as a puzzle is solved, even if the child leaves from the victory screen.
 - The board and piece tray resize for the screen and difficulty, with a side-by-side layout on short landscape screens.
 - On very small screens, the page can scroll so all pieces remain reachable.
 
@@ -179,6 +180,25 @@ activities) save their choice to the same shared setting.
   waddling penguins; power-ups are a magnet, sleigh flight and a snow globe.
 - Cozy and Speedy modes, first-time hints, toy-style menus in English/French.
 - The best score and total presents delivered are saved in the browser.
+
+### Stacky Smiles (`/tetris/`)
+
+A gentle falling-blocks game for about age 4, on a narrow 8 x 14 board with big smiley jelly blocks.
+
+- 6 levels: level 1 uses tiny pieces (1, 2 and 3 blocks), bigger pieces are added step by step, and
+  each level falls a little faster (🐌 → 🐢 → 🐇). Five lines fill five stars and move to the next
+  level with a fresh board.
+- A dashed shadow shows where the piece will land, and a short grace time lets children slide a piece
+  after it touches down. There is no game over: when the stack reaches the top, the blocks pop away
+  and play goes on.
+- Controls:
+  - **Touch:** drag on the board to slide the piece, tap to turn it, flick down to drop it.
+  - **Mouse:** the piece follows the pointer over the board, click to turn, wheel down to go down
+    faster (wheel up turns).
+  - **Buttons:** big ⬅ ➡ (hold to keep moving), turn and drop buttons.
+  - **Keyboard:** arrows to move/turn/go down, Space to drop.
+- The start screen and level picker work like ABC and Puzzles. Progress is saved in `localStorage`
+  keys `stacky-level` and `stacky-cleared`.
 
 ### Gentle toddler activities
 
@@ -235,6 +255,7 @@ Nothing is uploaded; progress is kept in the browser's `localStorage`:
 | `puzzles-progress` | Puzzles: furthest puzzle reached |
 | `colors-find-level` | Colors: Find the color level |
 | `colors-mixes` | Colors: mixes discovered |
+| `stacky-level`, `stacky-cleared` | Stacky Smiles: level to continue and levels cleared |
 | `rr_coins`, `rr_skins`, `rr_current_skin` | Jump! (Rooftop Rush): coins and unlocked skins |
 
 Bubble Hero and Rooftop Santa also save their best results in the browser.

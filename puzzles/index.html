@@ -1017,7 +1017,7 @@
                 const tile = event.target.closest('.level-tile');
                 if (!tile) return;
                 const level = Number(tile.dataset.level);
-                if (level < clearedLevels()) {
+                if (level <= clearedLevels()) {
                     startAt(LEVEL_START[level]);
                 } else {
                     wobble(tile);
@@ -1175,7 +1175,8 @@
             const cleared = clearedLevels();
             let html = '';
             for (let n = 0; n < LEVEL_COUNT; n++) {
-                const open = n < cleared;
+                // Cleared levels and the next one (the level the child has reached) can be picked.
+                const open = n <= cleared;
                 const pieces = LEVEL_PIECES[n];
                 const [color, dark] = LEVEL_COLORS[n];
                 const detail = lang.t(`${pieces} pieces`, `${pieces} pièces`);
@@ -1201,7 +1202,7 @@
             els.startMain.hidden = true;
             els.picker.hidden = false;
             els.start.scrollTop = 0;
-            const latest = els.levelGrid.querySelector(`[data-level="${clearedLevels() - 1}"]`);
+            const latest = els.levelGrid.querySelector(`[data-level="${Math.min(clearedLevels(), LEVEL_COUNT - 1)}"]`);
             if (latest) latest.focus({ preventScroll: true });
         }
 
@@ -1535,6 +1536,7 @@
             : lang.t('Next puzzle ➜', 'Casse-tête suivant ➜'));
 
         function triggerVictory() {
+            saveSolved();
             const level = levelOf(stepNumber);
             els.nextBtn.textContent = nextLabel();
             const bonus = LEVELS[LEVELS.length - 1];
@@ -1560,12 +1562,17 @@
             els.nextBtn.focus({ preventScroll: true });
         }
 
-        function nextLevel() {
-            const next = stepNumber + 1;
-            bestStep = Math.min(Math.max(bestStep, next), TOTAL_STEPS);
+        // Save as soon as a puzzle is solved, so leaving from the victory screen keeps the progress.
+        function saveSolved() {
+            bestStep = Math.min(Math.max(bestStep, stepNumber + 1), TOTAL_STEPS);
             try {
                 localStorage.setItem(PROGRESS_KEY, JSON.stringify({ best: bestStep }));
             } catch (error) { /* progress is optional */ }
+        }
+
+        function nextLevel() {
+            const next = stepNumber + 1;
+            saveSolved();
             // After the last level, keep playing the last level.
             setStep(next >= TOTAL_STEPS ? LEVEL_START[LEVEL_COUNT - 1] : next);
             loadLevel(currentLevelIdx);

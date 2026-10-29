@@ -1058,14 +1058,17 @@
                 `${L} comme ${w}. Peux-tu trouver ${article(target)}${w.toLowerCase()}${NBSP}?`);
         }
 
-        function newRound() {
+        // keepLetter: replay the same letter (used when the language changes) with words from the new language.
+        function newRound(keepLetter = null) {
             clearTimeout(roundTimer);
             clearTimeout(speakTimer);
             locked = false;
             const data = letters();
-            targetLetter = pickLetter();
-            recentLetters.push(targetLetter.L);
-            if (recentLetters.length > 8) recentLetters.shift();
+            targetLetter = keepLetter ? data.find(d => d.L === keepLetter) : pickLetter();
+            if (!keepLetter) {
+                recentLetters.push(targetLetter.L);
+                if (recentLetters.length > 8) recentLetters.shift();
+            }
             target = pickItem(targetLetter);
 
             const count = LEVEL_CARDS[level];
@@ -1076,7 +1079,7 @@
             els.prompt.style.setProperty('--cd', letterColor(targetLetter.L)[1]);
             els.letter.textContent = targetLetter.L;
             els.friend.classList.remove('show');
-            bounce(els.block, 'drop-in');
+            bounce(els.block, keepLetter ? 'squish' : 'drop-in');
             document.documentElement.style.setProperty('--tint', `color-mix(in srgb, ${letterColor(targetLetter.L)[0]} 22%, #FFFBF2)`);
 
             els.choices.className = `choices n${count}`;
@@ -1218,8 +1221,8 @@
                 els.continueLevel.textContent = levelLabel(level);
                 if (!els.picker.hidden) renderPicker();
             } else if (!locked) {
-                // Words differ per language, so start a fresh round in the new language.
-                newRound();
+                // Words differ per language: keep the same letter and swap in words from the new language.
+                newRound(targetLetter.L);
             } else {
                 renderHud();
             }
