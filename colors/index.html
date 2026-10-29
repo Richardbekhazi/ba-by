@@ -132,43 +132,64 @@
             box-shadow: 0 4px 0 rgba(0,0,0,0.06);
         }
 
-        .start-jellies {
+        /* 🃏 MODE PICTURE CARDS */
+        .mode-cards {
             display: flex;
             justify-content: center;
-            gap: 6px;
-            margin-bottom: 14px;
+            gap: 24px;
+            width: min(780px, 100%);
+            margin-top: 28px;
         }
-        .start-jellies .jelly-art { width: 64px; height: 64px; animation: bob 2.6s ease-in-out infinite; }
-        .start-jellies .jelly-art:nth-child(2) { animation-delay: -0.5s; }
-        .start-jellies .jelly-art:nth-child(3) { animation-delay: -1s; }
-        .start-jellies .jelly-art:nth-child(4) { animation-delay: -1.5s; }
-        .start-jellies .jelly-art:nth-child(5) { animation-delay: -2s; }
-
-        .start-buttons {
+        .mode-card {
+            --c: #4CC26A;
+            --cd: #2F9E4C;
+            --soft: #DDF5E2;
+            width: 230px;
+            border: 0;
+            padding: 12px 12px 14px;
+            border-radius: 36px;
+            background: #fff;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            width: min(380px, 100%);
-            margin-top: 30px;
-        }
-        .big-btn {
-            width: 100%;
-            border: 0;
-            border-radius: 999px;
-            padding: 18px 24px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.45rem;
-            color: #fff;
-            cursor: pointer;
-            background: var(--c);
-            box-shadow: 0 7px 0 var(--cd), 0 14px 24px rgba(0,0,0,0.12);
-            transition: transform 0.15s, box-shadow 0.15s;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 0 var(--c), 0 20px 30px rgba(0,0,0,0.12);
+            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s;
             animation: popUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
-        .big-btn + .big-btn { animation-delay: 0.1s; }
-        .big-btn:hover { transform: translateY(-3px) scale(1.02); }
-        .big-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 var(--cd); }
-        .big-btn:focus-visible { outline: 4px solid var(--cd); outline-offset: 4px; }
+        .mode-card:nth-child(2) { animation-delay: 0.08s; }
+        .mode-card:nth-child(3) { animation-delay: 0.16s; }
+        .mode-card:hover { transform: translateY(-6px) rotate(-1.5deg); }
+        .mode-card:active, .mode-card.pressed { transform: translateY(8px) scale(0.97); box-shadow: 0 2px 0 var(--c), 0 6px 12px rgba(0,0,0,0.10); }
+        .mode-card:focus-visible { outline: 5px solid var(--c); outline-offset: 5px; }
+        .mode-art {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1.1;
+            border-radius: 26px;
+            background:
+                radial-gradient(circle at 25% 20%, rgba(255,255,255,0.8) 0 12%, transparent 13%),
+                radial-gradient(circle at 80% 85%, rgba(255,255,255,0.6) 0 9%, transparent 10%),
+                var(--soft);
+            overflow: hidden;
+        }
+        .art-item { position: absolute; }
+        .art-item > svg {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1;
+            animation: bob 2.8s ease-in-out infinite;
+        }
+        .art-item:nth-child(2) > svg { animation-delay: -0.9s; }
+        .art-item:nth-child(3) > svg { animation-delay: -1.8s; }
+        .mode-label {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.8rem;
+            line-height: 1;
+            color: var(--cd);
+        }
 
         @keyframes popUp {
             from { opacity: 0; transform: translateY(24px) scale(0.9); }
@@ -488,7 +509,7 @@
         .recipe.new { animation: wobble 0.6s ease-in-out 2; }
 
         @media (prefers-reduced-motion: reduce) {
-            .sky span, .jelly .jelly-art, .start-jellies .jelly-art { animation: none !important; }
+            .sky span, .jelly .jelly-art, .art-item > svg { animation: none !important; }
         }
 
         @media (max-width: 600px) {
@@ -503,8 +524,11 @@
             .find-grid { gap: 16px 12px; }
             .find-grid .jelly { --size: 120px; }
             .find-grid.many .jelly { --size: 96px; }
-            .start-jellies .jelly-art { width: 50px; height: 50px; }
-            .big-btn { font-size: 1.25rem; padding: 16px 20px; }
+            .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 14px; margin-top: 22px; }
+            .mode-card { width: auto; padding: 8px 8px 10px; border-radius: 30px; gap: 6px; }
+            .mode-card:nth-child(3) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 7px); }
+            .mode-art { border-radius: 22px; }
+            .mode-label { font-size: 1.4rem; }
             .explore-grid { margin-top: 14px; }
             .mix-row { gap: 6px; font-size: 1.7rem; margin-top: 16px; }
             .mix-slot { width: 74px; height: 74px; font-size: 1.9rem; border-width: 4px; }
@@ -518,6 +542,7 @@
 
         @media (max-width: 600px) and (max-height: 720px) {
             h1 { font-size: 2rem; }
+            #start-screen .subtitle { display: none; }
             .explore-grid .jelly { --size: 76px; }
             .explore-grid { gap: 10px 6px; }
         }
@@ -526,10 +551,11 @@
             .screen { padding: 12px 16px 16px 84px; }
             h1 { font-size: 1.9rem; text-shadow: 0 3px 0 #fff; }
             .subtitle { margin-top: 4px; font-size: 0.85rem; padding: 3px 12px; }
-            .start-jellies { margin-bottom: 4px; }
-            .start-jellies .jelly-art { width: 44px; height: 44px; }
-            .start-buttons { flex-direction: row; width: min(720px, 100%); margin-top: 18px; gap: 12px; }
-            .big-btn { font-size: 1.1rem; padding: 14px 16px; }
+            .mode-cards { display: flex; gap: 18px; margin-top: 14px; }
+            .mode-card { width: 170px; padding: 8px 8px 10px; gap: 6px; border-radius: 28px; }
+            .mode-card:nth-child(3) { width: 170px; }
+            .mode-art { aspect-ratio: 1.35; border-radius: 20px; }
+            .mode-label { font-size: 1.2rem; }
             .explore-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px 6px; margin-top: 10px; }
             .explore-grid .jelly { --size: 72px; }
             .jelly-name { font-size: 0.85rem; padding: 1px 8px; }
@@ -568,13 +594,24 @@
 
     <!-- START -->
     <section class="screen" id="start-screen">
-        <div class="start-jellies" id="start-jellies" aria-hidden="true"></div>
         <h1 data-fr="Couleurs">Colors</h1>
         <p class="subtitle" data-fr="Jouons avec les couleurs !">Let's play with colors!</p>
-        <div class="start-buttons">
-            <button type="button" class="big-btn" id="explore-btn" style="--c: #4CC26A; --cd: #2F9E4C" data-fr="🎨 Joue avec les couleurs">🎨 Play with colors</button>
-            <button type="button" class="big-btn" id="find-btn" style="--c: #4DA3F2; --cd: #2B7FCC" data-fr="🔍 Trouve la couleur">🔍 Find the color</button>
-            <button type="button" class="big-btn" id="mix-btn" style="--c: #9B6CF0; --cd: #764BD1" data-fr="🧪 Mélange les couleurs">🧪 Mix colors</button>
+        <div class="mode-cards">
+            <button type="button" class="mode-card" id="explore-btn" style="--c: #4CC26A; --cd: #2F9E4C; --soft: #DDF5E2"
+                    aria-label="Play with colors" data-fr-aria-label="Joue avec les couleurs">
+                <span class="mode-art" id="art-play" aria-hidden="true"></span>
+                <span class="mode-label" data-fr="Joue">Play</span>
+            </button>
+            <button type="button" class="mode-card" id="find-btn" style="--c: #4DA3F2; --cd: #2B7FCC; --soft: #DCEEFF"
+                    aria-label="Find the color" data-fr-aria-label="Trouve la couleur">
+                <span class="mode-art" id="art-find" aria-hidden="true"></span>
+                <span class="mode-label" data-fr="Trouve">Find</span>
+            </button>
+            <button type="button" class="mode-card" id="mix-btn" style="--c: #9B6CF0; --cd: #764BD1; --soft: #ECE5FF"
+                    aria-label="Mix colors" data-fr-aria-label="Mélange les couleurs">
+                <span class="mode-art" id="art-mix" aria-hidden="true"></span>
+                <span class="mode-label" data-fr="Mélange">Mix</span>
+            </button>
         </div>
     </section>
 
@@ -770,9 +807,28 @@
             if (screen !== els.find) clearTimeout(nextRoundTimer);
         }
 
+        // Picture cards on the start screen; positions are % of the card window.
+        const artItem = (svg, left, top, width, turn = 0) =>
+            `<span class="art-item" style="left: ${left}%; top: ${top}%; width: ${width}%; transform: rotate(${turn}deg)">${svg}</span>`;
+        const MAGNIFIER = `<svg viewBox="0 0 100 100" aria-hidden="true">
+            <line x1="62" y1="62" x2="88" y2="88" stroke="#2B7FCC" stroke-width="15" stroke-linecap="round"/>
+            <circle cx="40" cy="40" r="28" fill="rgba(255,255,255,0.35)" stroke="#3D3551" stroke-width="9"/>
+            <path d="M24 34 Q28 24 38 21" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.9"/>
+        </svg>`;
+
         function renderStart() {
-            document.getElementById('start-jellies').innerHTML =
-                ['red', 'yellow', 'green', 'blue', 'purple'].map((id, i) => jellyArt(COLORS.find(c => c.id === id), i)).join('');
+            const color = id => COLORS.find(c => c.id === id);
+            document.getElementById('art-play').innerHTML =
+                artItem(jellyArt(color('red'), 0), 4, 38, 40)
+                + artItem(jellyArt(color('blue'), 3), 56, 38, 40)
+                + artItem(jellyArt(color('yellow'), 1), 29, 8, 42);
+            document.getElementById('art-find').innerHTML =
+                artItem(jellyArt(color('green'), 2), 12, 34, 54)
+                + artItem(MAGNIFIER, 40, 6, 56);
+            document.getElementById('art-mix').innerHTML =
+                artItem(dropArt(color('red')), 8, 4, 28, -18)
+                + artItem(dropArt(color('yellow')), 64, 4, 28, 18)
+                + artItem(jellyArt(color('orange'), 2), 25, 34, 50);
         }
 
         // --- 🎨 EXPLORE ---
@@ -1050,6 +1106,11 @@
         }
 
         // --- NAVIGATION ---
+        document.querySelectorAll('.mode-card').forEach(card => card.addEventListener('pointerdown', () => {
+            card.classList.add('pressed');
+            setTimeout(() => card.classList.remove('pressed'), 180);
+            squishSound(523.25);
+        }));
         document.getElementById('explore-btn').addEventListener('click', () => {
             renderExplore();
             show(els.explore);
