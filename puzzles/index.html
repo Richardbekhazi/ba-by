@@ -92,6 +92,26 @@
         }
         .home-btn:hover { transform: scale(1.08) rotate(-6deg); }
         .home-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
+        .back-btn {
+            position: fixed;
+            top: max(14px, env(safe-area-inset-top));
+            left: calc(max(14px, env(safe-area-inset-left)) + 62px);
+            width: 52px;
+            height: 52px;
+            border: 0;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08);
+            z-index: 100;
+            transition: transform 0.15s;
+        }
+        .back-btn[hidden] { display: none; }
+        .back-btn:hover { transform: scale(1.08) rotate(6deg); }
+        .back-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
 
         body .site-lang-toggle button.active { background: var(--accent); }
 
@@ -771,7 +791,8 @@
 
     <div class="sky" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <canvas id="particles"></canvas>
-    <a href="/" class="home-btn" title="Back to Games" aria-label="Back to Games" data-fr-title="Retour aux jeux" data-fr-aria-label="Retour aux jeux">🏠</a>
+    <a href="/" class="home-btn" title="Back to Games" aria-label="Back to Games" data-fr-title="Retour aux jeux" data-fr-aria-label="Retour aux jeux"><svg class="nav-icon" width="32" height="32" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="31" y="7" width="6" height="11" rx="2" fill="#E04B4B"/><rect x="10" y="21" width="28" height="21" rx="6" fill="#FFC93C"/><path d="M7 24 L24 9 L41 24" fill="none" stroke="#FF5A5F" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5 42 V33 a4.5 4.5 0 0 1 9 0 V42 Z" fill="#8C6CF0"/><rect x="29" y="27" width="6" height="6" rx="2" fill="#7CCBFF"/><rect x="13" y="27" width="5" height="5" rx="2" fill="#fff" opacity="0.7"/></svg></a>
+    <button type="button" class="back-btn" id="back-btn" hidden aria-label="Back to start" title="Back to start" data-fr-aria-label="Retour au début" data-fr-title="Retour au début"><svg class="nav-icon" width="30" height="30" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M22 11 L9 24 L22 37" fill="none" stroke="#3D9BF0" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 24 H38" fill="none" stroke="#3D9BF0" stroke-width="7.5" stroke-linecap="round"/></svg></button>
 
     <div class="start-screen visible" id="start-screen">
         <div class="start-main" id="start-main">
@@ -792,7 +813,6 @@
         <div class="level-picker" id="level-picker" hidden>
             <h2 data-fr="Choisis ton niveau">Choose your level</h2>
             <div class="level-grid" id="level-grid"></div>
-            <button type="button" class="start-btn secondary" id="picker-back" data-fr="⬅ Retour">⬅ Back</button>
         </div>
     </div>
 
@@ -979,7 +999,7 @@
             startMain: document.getElementById('start-main'),
             picker: document.getElementById('level-picker'),
             levelGrid: document.getElementById('level-grid'),
-            pickerBack: document.getElementById('picker-back'),
+            back: document.getElementById('back-btn'),
             levelNum: document.getElementById('level-num'),
             dots: document.getElementById('level-dots'),
             game: document.querySelector('.game-container'),
@@ -1012,7 +1032,8 @@
             els.continueBtn.addEventListener('click', () => startAt(resumeStep()));
             els.restartBtn.addEventListener('click', () => startAt(0));
             els.chooseBtn.addEventListener('click', openPicker);
-            els.pickerBack.addEventListener('click', closePicker);
+            // One back button: picker -> start menu, puzzle -> start menu.
+            els.back.addEventListener('click', () => (els.picker.hidden ? showStart() : closePicker()));
             els.levelGrid.addEventListener('click', event => {
                 const tile = event.target.closest('.level-tile');
                 if (!tile) return;
@@ -1153,6 +1174,7 @@
             closePicker();
             lang.apply(els.start);
             els.start.classList.add('visible');
+            els.back.hidden = true;
             (hasProgress ? els.continueBtn : els.restartBtn).focus({ preventScroll: true });
         }
 
@@ -1201,6 +1223,7 @@
             renderPicker();
             els.startMain.hidden = true;
             els.picker.hidden = false;
+            els.back.hidden = false;
             els.start.scrollTop = 0;
             const latest = els.levelGrid.querySelector(`[data-level="${Math.min(clearedLevels(), LEVEL_COUNT - 1)}"]`);
             if (latest) latest.focus({ preventScroll: true });
@@ -1209,11 +1232,13 @@
         function closePicker() {
             els.picker.hidden = true;
             els.startMain.hidden = false;
+            if (els.start.classList.contains('visible')) els.back.hidden = true;
         }
 
         function startAt(number) {
             speak("Let's play!", `On joue${NBSP}!`);
             els.start.classList.remove('visible');
+            els.back.hidden = false;
             setStep(number);
             loadLevel(currentLevelIdx);
         }

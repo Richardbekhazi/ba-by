@@ -494,7 +494,7 @@
 
     <!-- 🎛 Top bar -->
     <div class="topbar">
-        <a href="/" class="round-btn" title="Back to Games" data-fr-title="Retour aux jeux" aria-label="Back to Games" data-fr-aria-label="Retour aux jeux">🏠</a>
+        <a href="/" class="round-btn" title="Back to Games" data-fr-title="Retour aux jeux" aria-label="Back to Games" data-fr-aria-label="Retour aux jeux"><svg class="nav-icon" width="32" height="32" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="31" y="7" width="6" height="11" rx="2" fill="#E04B4B"/><rect x="10" y="21" width="28" height="21" rx="6" fill="#FFC93C"/><path d="M7 24 L24 9 L41 24" fill="none" stroke="#FF5A5F" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5 42 V33 a4.5 4.5 0 0 1 9 0 V42 Z" fill="#8C6CF0"/><rect x="29" y="27" width="6" height="6" rx="2" fill="#7CCBFF"/><rect x="13" y="27" width="5" height="5" rx="2" fill="#fff" opacity="0.7"/></svg></a>
         <button class="round-btn" id="pause-btn" type="button" aria-label="Pause" data-fr-aria-label="Pause">⏸️</button>
         <button class="round-btn" id="mute-btn" type="button" aria-label="Sound on or off" data-fr-aria-label="Son activé ou désactivé">🔊</button>
         <div class="bars" aria-hidden="true">
@@ -785,7 +785,7 @@
                     hp: 100, maxHp: 100, invuln: 0, blink: 0, squash: 0,
                     speed: 1, damage: 1, luck: 0, fireRate: 50, fireTimer: 20,
                     bulletSpeed: 7.5, bulletSize: 13, bulletCount: 1, pierce: 0,
-                    moons: 0, splash: 0, magnet: 120, levels: {}
+                    moons: 0, splash: 0, magnet: 120, shield: 0, levels: {}
                 });
                 target = { x: player.x, y: player.y };
                 enemies = []; bullets = []; gems = []; particles = []; texts = []; orbiters = [];
@@ -797,10 +797,10 @@
 
             // ---------- Spawning ----------
             const KINDS = {
-                blob:  { color: '#FFB3C7', dark: '#E5779A', r: 24, speed: 1.15, hp: l => 1 + l * 0.35, hurt: 10 },
-                tank:  { color: '#C9B6FF', dark: '#8E72DB', r: 34, speed: 0.7,  hp: l => 4 + l * 0.8,  hurt: 15 },
-                zoom:  { color: '#FFD18A', dark: '#E59A2E', r: 18, speed: 2.1,  hp: l => 1 + l * 0.2,  hurt: 8 },
-                boss:  { color: '#9F8CFF', dark: '#5E45C9', r: 80, speed: 0.75, hp: l => 45 + l * 16,  hurt: 20 }
+                blob:  { color: '#FFB3C7', dark: '#E5779A', r: 24, speed: 1.05, hp: l => 1 + l * 0.25, hurt: 8 },
+                tank:  { color: '#C9B6FF', dark: '#8E72DB', r: 34, speed: 0.65, hp: l => 3 + l * 0.55, hurt: 12 },
+                zoom:  { color: '#FFD18A', dark: '#E59A2E', r: 18, speed: 1.9,  hp: l => 1 + l * 0.15, hurt: 6 },
+                boss:  { color: '#9F8CFF', dark: '#5E45C9', r: 80, speed: 0.7,  hp: l => 40 + l * 12,  hurt: 15 }
             };
 
             function edgePoint(margin) {
@@ -817,7 +817,7 @@
                 const hp = k.hp(game.level);
                 const e = {
                     kind, x: p.x, y: p.y, r: k.r * (kind === 'boss' ? 1 : 0.9 + Math.random() * 0.2),
-                    speed: k.speed * (0.85 + Math.random() * 0.3) * (1 + Math.min(0.6, game.level * 0.025)),
+                    speed: k.speed * (0.85 + Math.random() * 0.3) * (1 + Math.min(0.4, game.level * 0.015)),
                     hp, maxHp: hp, hurt: k.hurt, color: k.color, dark: k.dark,
                     flash: 0, kx: 0, ky: 0, wob: Math.random() * TAU, orbitCd: 0, born: 0,
                     dashTimer: 90 + Math.random() * 90, dash: 0, summon: 240
@@ -833,9 +833,9 @@
                 if (lvl >= 3 && roll < 0.22) kind = 'tank';
                 else if (lvl >= 2 && roll < 0.45) kind = 'zoom';
                 spawnEnemy(kind);
-                // From level 6, now and then a whole ring of blobs arrives together.
-                if (lvl >= 6 && !game.boss && Math.random() < 0.04) {
-                    const n = 8 + Math.min(8, lvl);
+                // From level 8, now and then a whole ring of blobs arrives together.
+                if (lvl >= 8 && !game.boss && Math.random() < 0.025) {
+                    const n = 6 + Math.min(6, Math.floor(lvl / 2));
                     const rad = Math.max(W, H) * 0.62;
                     for (let i = 0; i < n; i++) {
                         const a = (i / n) * TAU;
@@ -928,18 +928,26 @@
                     addShake(18);
                     sound('win');
                     banner(T('Hooray! You did it!', 'Hourra ! Tu as réussi !'));
-                    for (let i = 0; i < 14; i++) dropGem(e.x, e.y, 3, 7);
+                    for (let i = 0; i < 12; i++) dropGem(e.x, e.y, 1, 7);
                     dropHeart(e.x, e.y, 40);
                     player.hp = Math.min(player.maxHp, player.hp + player.maxHp * 0.3);
-                    pendingLevelUps++;
+                    bossLevelUp();
                     return;
                 }
 
-                const worth = e.kind === 'tank' ? 3 : 1;
                 let drops = 1;
                 if (Math.random() < 0.06 + player.luck * 0.08) drops += 1 + Math.floor(Math.random() * 2);
-                for (let i = 0; i < drops; i++) dropGem(e.x, e.y, worth, 3);
-                if (Math.random() < 0.018 + player.luck * 0.012) dropHeart(e.x, e.y, 15);
+                for (let i = 0; i < drops; i++) dropGem(e.x, e.y, starValue(e.kind), 3);
+                if (Math.random() < 0.03 + player.luck * 0.012) dropHeart(e.x, e.y, 15);
+            }
+
+            // Bigger stars appear as the game goes on: yellow = 1, blue = 3, pink = 10.
+            function starValue(kind) {
+                const lvl = game.level, roll = Math.random();
+                if (kind === 'tank') return lvl >= 10 && roll < 0.35 ? 10 : 3;
+                if (lvl >= 12 && roll < 0.08 + Math.min(0.12, (lvl - 12) * 0.01)) return 10;
+                if (lvl >= 5 && roll < 0.22 + Math.min(0.2, (lvl - 5) * 0.015)) return 3;
+                return 1;
             }
 
             function dropGem(x, y, value, spread) {
@@ -951,10 +959,16 @@
                 gems.push({ x, y, vx: 0, vy: -2, value: heal, kind: 'heart', spin: 0, pulled: false, age: 0 });
             }
 
+            // A few seconds inside a safe bubble after each upgrade.
+            function grace(ticks) {
+                player.invuln = Math.max(player.invuln, ticks);
+                player.shield = Math.max(player.shield || 0, ticks);
+            }
+
             function hurtPlayer(amount, from) {
                 if (player.invuln > 0) return;
                 player.hp = Math.max(0, player.hp - amount);
-                player.invuln = 70;
+                player.invuln = 80;
                 addShake(9);
                 sound('hurt');
                 burst(player.x, player.y, '#FF8FA3', 12, 6);
@@ -1048,6 +1062,7 @@
                     pushParticle({ type: 'star', x: player.x - player.mvx * 3, y: player.y - player.mvy * 3, vx: 0, vy: 0.3, life: 0.8, decay: 0.035, r: 3 + Math.random() * 3, rot: 0, vr: 0.1, color: '#FFE27A' });
                 }
                 player.invuln = Math.max(0, player.invuln - k);
+                player.shield = Math.max(0, (player.shield || 0) - k);
                 player.squash = Math.max(0, player.squash - 0.12 * k);
 
                 // Shooting
@@ -1059,7 +1074,7 @@
                     spawnTimer -= k;
                     if (spawnTimer <= 0) {
                         spawnWave();
-                        spawnTimer = Math.max(14, 72 - game.level * 3.2 - game.time * 0.25);
+                        spawnTimer = Math.max(20, 84 - game.level * 2.6 - game.time * 0.15);
                     }
                 }
 
@@ -1220,6 +1235,17 @@
                 }
             }
 
+            // Beating a boss is worth exactly one level: 65% of level 11 becomes 65% of level 12.
+            function bossLevelUp() {
+                const pct = game.xp / game.xpToNext;
+                game.level++;
+                game.xpToNext = Math.round(game.xpToNext * 1.28 + 3);
+                game.xp = Math.floor(pct * game.xpToNext);
+                pendingLevelUps++;
+                floatText(player.x, player.y - player.r - 30, T('+1 level!', '+1 niveau !'), '#A66BFF', 28);
+                updateHud();
+            }
+
             function gainXp(n) {
                 game.xp += n;
                 sound('star', game.xp);
@@ -1228,7 +1254,7 @@
                     game.level++;
                     game.xpToNext = Math.round(game.xpToNext * 1.28 + 3);
                     if (game.level % 5 === 0 && !game.boss) spawnBoss();
-                    else pendingLevelUps++;
+                    pendingLevelUps++;
                 }
                 updateHud();
             }
@@ -1270,7 +1296,7 @@
                 ctx.restore();
 
                 // Hurt vignette
-                if (player.invuln > 50) {
+                if (player.invuln > 50 && !(player.shield > 0)) {
                     ctx.fillStyle = `rgba(255,79,123,${((player.invuln - 50) / 20) * 0.18})`;
                     ctx.fillRect(0, 0, W, H);
                 }
@@ -1290,7 +1316,11 @@
                 const x = px === undefined ? player.x : px;
                 const y = py === undefined ? player.y : py;
                 const r = player.r || 30;
-                if (player.invuln > 0 && Math.floor(player.invuln / 5) % 2 === 0) return;
+                const shielded = player.shield > 0;
+                if (!shielded && player.invuln > 0 && Math.floor(player.invuln / 5) % 2 === 0) return;
+                if (shielded && (player.shield > 40 || Math.floor(player.shield / 5) % 2 === 0)) {
+                    drawBubble(x, y, r * 1.75 * (1 + Math.sin(time * 0.15) * 0.04), 0.75);
+                }
                 const mvx = player.mvx || 0, mvy = player.mvy || 0;
                 const tilt = clamp(mvx * 0.03, -0.35, 0.35);
                 const sq = (player.squash || 0) * 0.12;
@@ -1341,7 +1371,7 @@
                 ctx.lineWidth = r * 0.06;
                 ctx.lineCap = 'round';
                 ctx.beginPath();
-                if (player.invuln > 0) ctx.arc(lx, r * 0.3 + ly, r * 0.1, Math.PI * 1.1, Math.PI * 1.9);
+                if (player.invuln > 0 && !shielded) ctx.arc(lx, r * 0.3 + ly, r * 0.1, Math.PI * 1.1, Math.PI * 1.9);
                 else ctx.arc(lx, r * 0.12 + ly, r * 0.13, 0.15 * Math.PI, 0.85 * Math.PI);
                 ctx.stroke();
                 ctx.restore();
@@ -1493,13 +1523,20 @@
                     ctx.bezierCurveTo(10, -16, 16, -2, 0, 10);
                     ctx.fill(); ctx.stroke();
                 } else {
-                    const big = g.value >= 3;
-                    const r = big ? 11 : 8;
-                    ctx.rotate(Math.sin(g.spin) * 0.4);
+                    const tier = g.value >= 10 ? 2 : g.value >= 3 ? 1 : 0;
+                    const r = [8, 11, 14][tier];
+                    if (tier === 2) {
+                        const glow = ctx.createRadialGradient(0, 0, 2, 0, 0, r * 2.2);
+                        glow.addColorStop(0, 'rgba(255,120,200,0.55)');
+                        glow.addColorStop(1, 'rgba(255,120,200,0)');
+                        ctx.fillStyle = glow;
+                        ctx.beginPath(); ctx.arc(0, 0, r * 2.2, 0, TAU); ctx.fill();
+                    }
+                    ctx.rotate(Math.sin(g.spin) * 0.4 + (tier === 2 ? g.age * 0.04 : 0));
                     ctx.lineJoin = 'round';
                     starPath(ctx, r, 0.5, 5);
-                    ctx.fillStyle = big ? '#7FD8FF' : '#FFD54A';
-                    ctx.strokeStyle = big ? '#2E9BD6' : '#F2A900';
+                    ctx.fillStyle = ['#FFD54A', '#7FD8FF', '#FF7EC8'][tier];
+                    ctx.strokeStyle = ['#F2A900', '#2E9BD6', '#D63C93'][tier];
                     ctx.lineWidth = 3;
                     ctx.stroke(); ctx.fill();
                     ctx.fillStyle = 'rgba(255,255,255,0.8)';
@@ -1624,6 +1661,7 @@
                 });
                 // Favour powers the child already likes a little, but keep it varied.
                 const pool = avail.slice();
+                if (pool.length < 3 && !pool.some(p => p.id === 'heal')) pool.push(POWERS.find(p => p.id === 'heal'));
                 currentChoices = [];
                 while (currentChoices.length < 3 && pool.length) {
                     const weights = pool.map(p => 1 + ((player.levels[p.id] || 0) > 0 ? 0.5 : 0));
@@ -1674,7 +1712,7 @@
                 updateHud();
                 show(null);
                 setState('play');
-                player.invuln = Math.max(player.invuln, 45);
+                grace(150);
             }
 
             function pause() {
