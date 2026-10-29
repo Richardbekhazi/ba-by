@@ -168,9 +168,11 @@ activities) save their choice to the same shared setting.
 
 - Same style as Colors: three picture cards on the start screen (Play, Count, Feed).
 - Number blocks 1-10 show the digit plus the same number of dots.
-- **Play**: tap a block to hear the number; that many numbered balloons float up with rising notes.
-  The number voice can be English, French (site language), Tagalog (browser voice), or Arabic and
-  Ilokano (recordings in `numbers/sounds/`).
+- **Play**: tap a block to hear the number; that many numbered items come out one by one with rising
+  notes. The number voice can be English, French (site language), Tagalog (browser voice), or Arabic and
+  Ilokano (recordings in `numbers/sounds/`), and each voice has its own effect: English balloons float
+  up, French bouncy balls bounce on the floor, Tagalog butterflies flutter away, Arabic stars burst like
+  fireworks, Ilokano fish swim across the screen.
 - **Count**: "How many?" Tap each thing to count it out loud, then tap the matching number block.
   Levels go 1-3 (2 choices), 1-5, 1-7, 1-10 (4 choices).
 - **Feed**: "Give the bunny 3 carrots!" Tap food into the bowl (it counts out loud; tap food in the

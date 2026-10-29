@@ -277,16 +277,19 @@
             margin-top: 22px;
         }
         .play-grid .num { --size: 124px; }
-        .balloon {
+        /* Tap effects: one per number voice (balloons, bouncy balls, butterflies, stars, fish). */
+        .fx {
             position: fixed;
             z-index: 60;
             pointer-events: none;
-            font-size: 44px;
             line-height: 1;
             transform: translate(-50%, -50%);
+        }
+        .balloon {
+            font-size: 44px;
             animation: balloonUp 2.4s cubic-bezier(0.25, 0.6, 0.4, 1) forwards;
         }
-        .balloon b {
+        .fx b {
             position: absolute;
             left: 50%;
             top: 42%;
@@ -301,6 +304,48 @@
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
             15% { opacity: 1; transform: translate(calc(-50% + var(--dx) * 0.3), calc(-50% - 40px)) scale(1.1); }
             100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% - 60vh)) scale(1); }
+        }
+
+        /* 🦋 Butterflies flutter out on a loopy path, wings flapping. */
+        .butterfly { font-size: 42px; animation: flutter 2.8s ease-in-out forwards; }
+        .butterfly > span { display: inline-block; animation: flap 0.22s ease-in-out infinite alternate; }
+        .butterfly b { top: 62%; font-size: 15px; }
+        @keyframes flutter {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+            15% { opacity: 1; transform: translate(calc(-50% + var(--dx) * 0.25), calc(-50% - 50px)) scale(1) rotate(-12deg); }
+            40% { transform: translate(calc(-50% + var(--dx) * 0.6 + 30px), calc(-50% + var(--dy) * 0.3)) rotate(14deg); }
+            70% { opacity: 1; transform: translate(calc(-50% + var(--dx) * 0.8 - 20px), calc(-50% + var(--dy) * 0.75)) rotate(-10deg); }
+            100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(8deg) scale(0.8); }
+        }
+        @keyframes flap {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0.45); }
+        }
+
+        /* ⭐ Stars burst out like fireworks, spin and twinkle. */
+        .starburst { font-size: 40px; animation: starBurst 2s cubic-bezier(0.2, 0.8, 0.3, 1) forwards; }
+        .starburst b { top: 54%; font-size: 15px; color: #8A5A00; text-shadow: none; }
+        @keyframes starBurst {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(0); }
+            30% { opacity: 1; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25) rotate(200deg); }
+            45% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.9) rotate(220deg); }
+            60% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.15) rotate(230deg); }
+            100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 30px)) scale(0.6) rotate(260deg); }
+        }
+
+        /* 🐟 A school of fish swims across the screen. */
+        .fish { font-size: 42px; animation: swim 3.4s linear forwards; }
+        .fish > span { display: inline-block; transform: scaleX(-1); animation: wiggle 0.5s ease-in-out infinite alternate; }
+        .fish b { font-size: 15px; top: 50%; left: 44%; }
+        @keyframes swim {
+            0% { opacity: 0; transform: translate(-50%, -50%); }
+            8% { opacity: 1; }
+            92% { opacity: 1; }
+            100% { opacity: 0; transform: translate(calc(-50% + 100vw + 120px), -50%); }
+        }
+        @keyframes wiggle {
+            from { transform: scaleX(-1) translateY(-6px) rotate(-6deg); }
+            to { transform: scaleX(-1) translateY(6px) rotate(6deg); }
         }
 
         /* 🔍 PROMPT + PROGRESS (Count & Feed) */
@@ -527,6 +572,7 @@
 
         @media (prefers-reduced-motion: reduce) {
             .sky span, .num-art, .art-item > *, .friend-face { animation: none !important; }
+            .fx { animation-duration: 0.01s !important; }
         }
 
         /* 📱 PHONES */
@@ -927,23 +973,73 @@
             boing(numData(n).note);
             sayNumber(n);
             tint(n);
-            // Balloons pop out one at a time, each with a rising note: a little counting song.
+            // Each number voice has its own effect; items come out one at a time with a rising note.
             const [x, y] = centerOf(btn);
-            for (let i = 0; i < n; i++) {
-                setTimeout(() => {
-                    const b = document.createElement('span');
-                    b.className = 'balloon';
-                    b.innerHTML = `🎈<b>${i + 1}</b>`;
-                    b.style.left = `${x}px`;
-                    b.style.top = `${y}px`;
-                    b.style.setProperty('--dx', `${(Math.random() - 0.5) * 220}px`);
-                    b.style.filter = `hue-rotate(${i * 36}deg)`;
-                    document.body.appendChild(b);
-                    plink(i);
-                    setTimeout(() => b.remove(), 2500);
-                }, 250 + i * 170);
-            }
+            (PLAY_EFFECTS[voiceLang()] || PLAY_EFFECTS.en)(n, x, y);
         });
+
+        // Adds one numbered effect item at (x, y) and removes it when its animation is done.
+        function fxItem(cls, emoji, i, x, y, ms, vars = {}) {
+            const el = document.createElement('span');
+            el.className = `fx ${cls}`;
+            el.innerHTML = `<span>${emoji}</span><b>${i + 1}</b>`;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            Object.entries(vars).forEach(([k, v]) => el.style.setProperty(k, v));
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), ms);
+            return el;
+        }
+        function oneByOne(n, fn, gap = 170) {
+            for (let i = 0; i < n; i++) {
+                setTimeout(() => { fn(i); plink(i); }, 250 + i * gap);
+            }
+        }
+
+        const PLAY_EFFECTS = {
+            // 🎈 English: balloons float up.
+            en: (n, x, y) => oneByOne(n, i => {
+                const b = fxItem('balloon', '🎈', i, x, y, 2500, { '--dx': `${(Math.random() - 0.5) * 220}px` });
+                b.firstChild.style.filter = `hue-rotate(${i * 36}deg)`;
+            }),
+            // 🔵 French: the classic bouncy balls, now numbered and glossy.
+            fr: (n, x, y) => oneByOne(n, i => {
+                const { c, d } = numData(Math.min(10, i + 1));
+                bouncers.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: Math.random() * -10 - 6,
+                    r: 26,
+                    color: c,
+                    dark: d,
+                    label: i + 1,
+                    life: 260
+                });
+            }, 150),
+            // 🦋 Tagalog: butterflies flutter away.
+            tl: (n, x, y) => oneByOne(n, i => {
+                const side = i % 2 ? 1 : -1;
+                fxItem('butterfly', '🦋', i, x, y, 2900, {
+                    '--dx': `${side * (120 + Math.random() * 160)}px`,
+                    '--dy': `${-(140 + Math.random() * 200)}px`
+                }).firstChild.style.filter = `hue-rotate(${i * 40}deg)`;
+            }),
+            // ⭐ Arabic: stars burst out like fireworks.
+            ar: (n, x, y) => oneByOne(n, i => {
+                const angle = (-90 + (i - (n - 1) / 2) * (300 / Math.max(n, 2))) * Math.PI / 180;
+                const dist = 130 + Math.random() * 40;
+                fxItem('starburst', '⭐', i, x, y, 2100, {
+                    '--dx': `${Math.cos(angle) * dist}px`,
+                    '--dy': `${Math.sin(angle) * dist}px`
+                });
+            }, 120),
+            // 🐟 Ilokano: a school of fish swims across.
+            ilo: (n, x, y) => oneByOne(n, i => {
+                const fishes = ['🐟', '🐠', '🐡'];
+                const top = Math.min(window.innerHeight - 40, Math.max(80, y + (Math.random() - 0.5) * 220));
+                fxItem('fish', fishes[i % 3], i, -50, top, 3500);
+            }, 200)
+        };
 
         // --- 🐥 COUNT ---
         // Each level: the biggest number to count and how many number blocks to choose from.
@@ -1258,8 +1354,39 @@
             ctx.fill();
             ctx.restore();
         }
+        // Bouncy balls (French tap effect): fall, bounce on the floor and walls, then fade out.
+        let bouncers = [];
+        function drawBouncers() {
+            for (let i = bouncers.length - 1; i >= 0; i--) {
+                const b = bouncers[i];
+                b.vy += 0.5;
+                b.x += b.vx;
+                b.y += b.vy;
+                const floor = canvas.height - b.r - 6;
+                if (b.y > floor) { b.y = floor; b.vy *= -0.72; b.vx *= 0.96; }
+                if (b.x < b.r) { b.x = b.r; b.vx *= -0.8; }
+                if (b.x > canvas.width - b.r) { b.x = canvas.width - b.r; b.vx *= -0.8; }
+                b.life--;
+                if (b.life <= 0) { bouncers.splice(i, 1); continue; }
+                ctx.globalAlpha = Math.min(1, b.life / 40);
+                ctx.fillStyle = b.dark;
+                ctx.beginPath(); ctx.arc(b.x, b.y + 3, b.r, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = b.color;
+                ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.55)';
+                ctx.beginPath(); ctx.ellipse(b.x - b.r * 0.35, b.y - b.r * 0.4, b.r * 0.32, b.r * 0.18, -0.6, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = `${Math.round(b.r * 0.95)}px 'Fredoka One', sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(String(b.label), b.x, b.y + 1);
+            }
+            ctx.globalAlpha = 1;
+        }
+
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBouncers();
             for (let i = particles.length - 1; i >= 0; i--) {
                 const p = particles[i];
                 p.x += p.vx;
