@@ -103,10 +103,14 @@ activities) save their choice to the same shared setting.
 ### Colors (`/colors/`)
 
 - 11 basic colours (red, orange, yellow, green, blue, purple, pink, brown, black, white, gray), each a
-  "jelly friend" with a face and a matching example (🍎, 🐸, 🐳...).
+  rounded-square "jelly friend" with a face and a matching example (🍎, 🐸, 🐳...).
 - **Play with colors**: tap a jelly to hear its name and note; it squishes, smiles and tints the background.
 - **Find the color**: "Where is red? 🍎" with 2, 3, 4 then 6 choices. Five correct answers earn a level;
   the level is saved in `localStorage` key `colors-find-level`. Wrong taps only wobble (no voice).
+- **Mix colors**: tap two paint drops (red, yellow, blue, white); they swirl together and a new jelly pops
+  out ("Red and yellow make orange!"). A recipe book tracks the 6 mixes to discover (orange, green,
+  purple, pink, sky blue, light yellow), saved in `localStorage` key `colors-mixes`, with a celebration
+  when all are found.
 
 ### Gentle toddler activities
 
