@@ -442,15 +442,21 @@
             box-shadow: 0 3px 0 #D9601F;
             animation: popUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
+        /* Number choices: always 1..k in order, below the things to count.
+           Up to 5 per row on narrow screens (1-5 then 6-10), one row on wide screens. */
         .choices {
-            display: flex;
-            flex-wrap: wrap;
+            --gap: 14px;
+            display: grid;
+            grid-template-columns: repeat(var(--k5, 5), auto);
             justify-content: center;
-            gap: 16px 20px;
+            gap: var(--gap);
             margin-top: 22px;
         }
-        .choices .num { --size: 112px; }
-        .choices.four { max-width: 270px; }
+        .choices .num { --size: min(104px, calc((100vw - 48px - (var(--k5, 5) - 1) * var(--gap)) / var(--k5, 5))); }
+        @media (min-width: 700px) {
+            .choices { grid-template-columns: repeat(var(--k, 5), auto); }
+            .choices .num { --size: min(104px, calc((100vw - 200px - (var(--k, 5) - 1) * var(--gap)) / var(--k, 5))); }
+        }
 
         /* 🥕 FEED MODE */
         .feed-stage {
@@ -594,8 +600,7 @@
             .say-again { width: 42px; height: 42px; font-size: 19px; }
             .tray { gap: 8px; padding: 12px; margin-top: 16px; }
             .thing { width: 56px; height: 56px; font-size: 34px; border-radius: 18px; }
-            .choices { gap: 12px 14px; margin-top: 18px; }
-            .choices .num { --size: 92px; }
+            .choices { --gap: 8px; margin-top: 18px; }
 
             .feed-stage { gap: 14px; margin-top: 14px; }
             .friend-face { font-size: 72px; }
@@ -615,15 +620,8 @@
             .tray { margin-top: 12px; }
             .thing { width: 50px; height: 50px; font-size: 30px; }
             .choices { margin-top: 14px; }
-            .choices .num { --size: 84px; }
             .friend-face { font-size: 64px; }
             .pantry { margin-top: 14px; }
-        }
-
-        /* 💻 PC: things to count on the left, number choices on the right */
-        @media (orientation: landscape) and (min-width: 860px) {
-            .count-stage { flex-direction: row; align-items: center; gap: 40px; margin-top: 10px; }
-            .count-stage .choices { margin-top: 20px; }
         }
 
         /* 📐 SHORT LANDSCAPE SCREENS */
@@ -644,11 +642,11 @@
             .prompt { font-size: 1.1rem; padding: 5px 5px 5px 14px; }
             .say-again { width: 38px; height: 38px; font-size: 17px; }
             .progress { margin-top: 6px; }
-            .count-stage, .feed-wrap { flex-direction: row; gap: 20px; }
-            .tray { margin-top: 8px; padding: 10px; max-width: 330px; gap: 6px; }
-            .thing { width: 48px; height: 48px; font-size: 30px; border-radius: 14px; }
-            .choices { margin-top: 8px; max-width: 260px; }
-            .choices .num { --size: 84px; }
+            .feed-wrap { flex-direction: row; gap: 20px; }
+            .tray { margin-top: 8px; padding: 8px 10px; max-width: 580px; gap: 6px; }
+            .thing { width: 46px; height: 46px; font-size: 28px; border-radius: 14px; }
+            .choices { --gap: 10px; margin-top: 10px; }
+            .choices .num { --size: min(72px, calc((100vw - 140px - (var(--k, 5) - 1) * var(--gap)) / var(--k, 5))); }
             .feed-stage { margin-top: 6px; gap: 14px; }
             .friend-face { font-size: 60px; }
             .bowl { width: 150px; min-height: 64px; padding: 8px 8px 12px; }
@@ -1042,8 +1040,9 @@
         };
 
         // --- 🐥 COUNT ---
-        // Each level: the biggest number to count and how many number blocks to choose from.
-        const COUNT_LEVELS = [{ max: 3, choices: 2 }, { max: 5, choices: 3 }, { max: 7, choices: 3 }, { max: 10, choices: 4 }];
+        // Level 1 shows the numbers 1-2, level 2 shows 1-3 ... level 9 shows 1-10.
+        // The choices are always every number from 1 up, in order, and the answer is one of them.
+        const COUNT_LEVELS = Array.from({ length: 9 }, (_, i) => i + 2);
         const COUNT_KEY = 'numbers-count-level';
         const THINGS = ['🐥', '🍎', '⭐', '🐟', '🚗', '🍓', '🐞', '🦋', '🧁', '🎈', '🐸', '🌸'];
         let countLevel = loadLevel(COUNT_KEY, COUNT_LEVELS.length);
@@ -1069,17 +1068,16 @@
         function newCountRound() {
             countLocked = false;
             counted = 0;
-            const { max, choices } = COUNT_LEVELS[countLevel];
+            const max = COUNT_LEVELS[countLevel];
             do { countTarget = randInt(1, max); } while (countTarget === lastCountTarget && max > 1);
             lastCountTarget = countTarget;
             const thing = THINGS[randInt(0, THINGS.length - 1)];
             countEls.tray.innerHTML = Array.from({ length: countTarget }, (_, i) =>
                 `<button type="button" class="thing" style="animation-delay: ${i * 0.05}s" aria-label="${thing}">${thing}</button>`).join('');
-            const pool = shuffle(Array.from({ length: Math.max(max, choices) }, (_, i) => i + 1).filter(n => n !== countTarget));
-            const options = shuffle([countTarget, ...pool.slice(0, choices - 1)]);
             countEls.choices.innerHTML = '';
-            countEls.choices.classList.toggle('four', options.length === 4);
-            options.forEach((n, i) => countEls.choices.appendChild(makeNum(n, i)));
+            countEls.choices.style.setProperty('--k', max);
+            countEls.choices.style.setProperty('--k5', Math.min(max, 5));
+            for (let n = 1; n <= max; n++) countEls.choices.appendChild(makeNum(n, n - 1));
             renderCountHud();
             speak('How many?', `Combien${NBSP}?`);
         }

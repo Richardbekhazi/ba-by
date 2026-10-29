@@ -173,8 +173,9 @@ activities) save their choice to the same shared setting.
   Ilokano (recordings in `numbers/sounds/`), and each voice has its own effect: English balloons float
   up, French bouncy balls bounce on the floor, Tagalog butterflies flutter away, Arabic stars burst like
   fireworks, Ilokano fish swim across the screen.
-- **Count**: "How many?" Tap each thing to count it out loud, then tap the matching number block.
-  Levels go 1-3 (2 choices), 1-5, 1-7, 1-10 (4 choices).
+- **Count**: "How many?" Tap each thing to count it out loud, then tap the matching number block below.
+  The choices are always every number from 1 up, in order: level 1 shows 1-2, level 2 shows 1-3, and
+  each level adds the next number up to 1-10 at level 9.
 - **Feed**: "Give the bunny 3 carrots!" Tap food into the bowl (it counts out loud; tap food in the
   bowl to take it back). The animal hops happily at the right number. Levels go up to 3, 5, 7, 10.
 - Five right answers earn the next level in Count and Feed; wrong taps only wobble (no voice).
