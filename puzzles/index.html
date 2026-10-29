@@ -836,7 +836,7 @@
         // Using emojis for visual appeal
         const LEVELS = [
             {
-                name: "Shapes", accent: ["#FF7A7A", "#E05555", "#FFE3E0"], nameFr: "Formes",
+                name: "Shapes", pickupSound: "boing", accent: ["#FF7A7A", "#E05555", "#FFE3E0"], nameFr: "Formes",
                 bg: "linear-gradient(160deg, #FFF4EC 0%, #FFD3C6 100%)",
                 items: [
                     { id: 'circle', name: 'Circle', fr: 'Cercle', color: '#FF6B6B', path: '<circle cx="50" cy="50" r="40"/>' },
@@ -851,7 +851,7 @@
                 ]
             },
             {
-                name: "Fruits", accent: ["#4CC26A", "#2F9E4C", "#DDF5E2"], nameFr: "Fruits",
+                name: "Fruits", pickupSound: "plop", accent: ["#4CC26A", "#2F9E4C", "#DDF5E2"], nameFr: "Fruits",
                 bg: "linear-gradient(160deg, #F1FFF0 0%, #C5EFCF 100%)",
                 items: [
                     { id: 'apple', name: 'Apple', fr: 'Pomme', emoji: '🍎' },
@@ -866,7 +866,7 @@
                 ]
             },
             {
-                name: "Animals", accent: ["#4DA3F2", "#2B7FCC", "#DCEEFF"], nameFr: "Animaux",
+                name: "Animals", pickupSound: "squeak", accent: ["#4DA3F2", "#2B7FCC", "#DCEEFF"], nameFr: "Animaux",
                 bg: "linear-gradient(160deg, #EEF8FF 0%, #BFDFFF 100%)",
                 items: [
                     { id: 'cat', name: 'Cat', fr: 'Chat', emoji: '🐱' },
@@ -881,7 +881,7 @@
                 ]
             },
             {
-                name: "Transport", accent: ["#FF9F2E", "#E07F10", "#FFEBD2"], nameFr: "Transports",
+                name: "Transport", pickupSound: "honk", accent: ["#FF9F2E", "#E07F10", "#FFEBD2"], nameFr: "Transports",
                 bg: "linear-gradient(160deg, #FFF8EA 0%, #FFD9A8 100%)",
                 items: [
                     { id: 'car', name: 'Car', fr: 'Auto', emoji: '🚗' },
@@ -896,7 +896,7 @@
                 ]
             },
             {
-                name: "Yummy Food", accent: ["#8C6CF0", "#6A4BD1", "#ECE5FF"], nameFr: "Miam-miam",
+                name: "Yummy Food", pickupSound: "twinkle", accent: ["#8C6CF0", "#6A4BD1", "#ECE5FF"], nameFr: "Miam-miam",
                 bg: "linear-gradient(160deg, #F7F3FF 0%, #D9CCFF 100%)",
                 items: [
                     { id: 'cake', name: 'Cake', fr: 'Gâteau', emoji: '🎂' },
@@ -1280,9 +1280,7 @@
             // Move to body so it floats over everything
             document.body.appendChild(activePiece);
             activePiece.setPointerCapture?.(activePointerId);
-
-            const item = findItem(activePiece.dataset.id);
-            if (item) speak(item.name, item.fr || item.name);
+            playPickup();
         }
 
         function drag(e) {
@@ -1317,7 +1315,6 @@
                     piece.classList.add('wobble');
                     piece.addEventListener('animationend', () => piece.classList.remove('wobble'), { once: true });
                     playTone(220, 0.15);
-                    speak('Try again!', 'Essaie encore !');
                 }
             }
 
@@ -1464,6 +1461,70 @@
                 osc.connect(gain).connect(audioCtx.destination);
                 osc.start();
                 osc.stop(audioCtx.currentTime + duration);
+            } catch (error) { /* audio is optional */ }
+        }
+
+        // One synth voice: an oscillator gliding between two pitches with a soft envelope.
+        function voice({ type = 'sine', from, to = from, at = 0, dur, vol = 0.2, wobble = 0, wobbleDepth = 0 }) {
+            const start = audioCtx.currentTime + at;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(from, start);
+            osc.frequency.exponentialRampToValueAtTime(to, start + dur);
+            if (wobble) {
+                const lfo = audioCtx.createOscillator();
+                const lfoGain = audioCtx.createGain();
+                lfo.frequency.value = wobble;
+                lfoGain.gain.value = wobbleDepth;
+                lfo.connect(lfoGain).connect(osc.frequency);
+                lfo.start(start);
+                lfo.stop(start + dur + 0.02);
+            }
+            gain.gain.setValueAtTime(0.0001, start);
+            gain.gain.exponentialRampToValueAtTime(vol, start + Math.min(0.015, dur / 4));
+            gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start(start);
+            osc.stop(start + dur + 0.02);
+        }
+
+        // Each theme has its own pickup sound; the pitch shifts a little every time.
+        const PICKUP_SOUNDS = {
+            // Springy cartoon "boing".
+            boing: k => voice({ from: 520 * k, to: 170 * k, dur: 0.32, vol: 0.28, wobble: 22, wobbleDepth: 55 * k }),
+            // Juicy water-drop "plop-plop".
+            plop: k => {
+                voice({ from: 1150 * k, to: 260 * k, dur: 0.09, vol: 0.32 });
+                voice({ from: 950 * k, to: 320 * k, at: 0.11, dur: 0.08, vol: 0.14 });
+            },
+            // Squeaky-toy "squee-squee".
+            squeak: k => {
+                voice({ type: 'triangle', from: 1300 * k, to: 1900 * k, dur: 0.08, vol: 0.14, wobble: 35, wobbleDepth: 70 });
+                voice({ type: 'triangle', from: 1450 * k, to: 2150 * k, at: 0.1, dur: 0.09, vol: 0.14, wobble: 35, wobbleDepth: 70 });
+            },
+            // Little car horn "beep-beep".
+            honk: k => {
+                [0, 0.14].forEach(at => {
+                    voice({ type: 'square', from: 392 * k, at, dur: 0.1, vol: 0.06 });
+                    voice({ type: 'square', from: 494 * k, at, dur: 0.1, vol: 0.05 });
+                });
+            },
+            // Sparkly sprinkle "twinkle".
+            twinkle: k => {
+                [1047, 1319, 1568].forEach((note, i) => {
+                    voice({ from: note * k, at: i * 0.06, dur: 0.2, vol: 0.12 });
+                    voice({ from: note * 2 * k, at: i * 0.06, dur: 0.12, vol: 0.035 });
+                });
+            }
+        };
+
+        function playPickup() {
+            try {
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const sound = PICKUP_SOUNDS[LEVELS[currentLevelIdx].pickupSound] || PICKUP_SOUNDS.boing;
+                sound(0.9 + Math.random() * 0.22);
             } catch (error) { /* audio is optional */ }
         }
 

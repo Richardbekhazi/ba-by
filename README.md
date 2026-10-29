@@ -85,7 +85,9 @@ activities) save their choice to the same shared setting.
 ### Puzzle controls and mobile layout
 
 - Drag each piece to its matching outline; tapping or double-clicking does not automatically solve it.
-- Picking up a piece says its name (in English or French); dropping it on the wrong outline gives a gentle wobble and "Try again".
+- Picking up a piece plays its theme's sound (Shapes: boing, Fruits: plop, Animals: squeaky toy, Transport:
+  car horn, Yummy Food: twinkle), with a slightly different pitch each time. The piece's name is spoken (in English or French) only when it
+  is dropped in the right place; a wrong drop just gives a gentle wobble and a soft low tone.
 - There are 12 levels. A level is one puzzle of each theme with the same number of pieces
   (3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9). Levels 1-6 use Shapes, Fruits, Animals and Transport; clearing
   level 6 unlocks a fifth theme, Yummy Food, so levels 7-12 have 5 puzzles. Play flows automatically from
