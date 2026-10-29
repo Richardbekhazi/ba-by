@@ -37,7 +37,7 @@ with its own `index.html`, so its address is `https://ba-by.ca/<folder>/`.
 | Game | Folder | What it is |
 | --- | --- | --- |
 | Bubble Hero | `/bubbles/` | Pop the Grumpies with bubbles (see below) |
-| Jump! (Rooftop Rush) | `/rooftoprush/` | A cat hops from roof to roof, collecting coins for new skins |
+| Jump! | `/rooftoprush/` | Kitty's rooftop adventure: run, jump and collect fish across 5 worlds |
 | Rooftop Santa | `/rooftopsanta/` | Run the snowy rooftops and grab presents (see below) |
 | Tetris (Stacky Smiles) | `/tetris/` | Stack the smiley blocks to make lines, 6 levels (see below) |
 
@@ -163,6 +163,21 @@ shared setting; the 🔊 button there mutes every kit game (`baby-muted`).
 - **Feed the friend**: "Give the bunny 3 carrots!" Food hops into the bowl and is counted; tap the bowl
   to take one back. The friend munches and dances at the right number. Levels go up to 3, 5, 7, 10.
 
+### Jump! (`/rooftoprush/`)
+
+- Kitty runs by itself; one tap (or Space / Up) jumps, and one extra double jump is allowed in the air.
+  Late and early taps still count, so jumps feel fair for small hands.
+- No game over: falling between roofs brings a bouncy cloud that puts the runner back on the next roof
+  (2 fish are lost). If a child doesn't tap at a taller roof, the runner hops up by itself after a moment.
+- **Adventure**: 15 short levels (about 30-50 seconds) in 5 worlds: City rooftops, Park treetops, Sunny
+  beach, Snowy village and Outer space (floaty jumps). Fish arcs follow real jumps and are counted out
+  loud; springs give big bounces. Each level ends at a flag where a lost kitten waits. Stars (1-3) depend
+  on the fish collected; finishing a level unlocks the next one.
+- **Endless**: an endless run that speeds up and travels through all five worlds.
+- **Friends**: Kitty, Puppy, Bunny, Panda, Fox, Unicorn and Dragon unlock with stars (no prices or reading).
+- Everything is drawn on a canvas by the game (no image files). Old Rooftop Rush coins become bonus stars once,
+  and friends bought in the old game stay unlocked.
+
 ### Bubble Hero (`/bubbles/`)
 
 - A star hero shoots bubbles to calm the Grumpies. Touch steering is relative (drag anywhere to move).
@@ -227,7 +242,8 @@ Nothing is uploaded; progress is kept in the browser's `localStorage`:
 | `garden-basket` | My Tiny Garden: what has been picked |
 | `baby-muted` | Kit games: sound on or off |
 | `bubbles-save`, `bubbles-best` | Bubble Hero: saved run to continue, best level |
-| `rr_coins`, `rr_skins`, `rr_current_skin` | Jump! (Rooftop Rush): coins and unlocked skins |
+| `jump-stars`, `jump-friend`, `jump-endless-best` | Jump!: stars per level, chosen friend, best Endless fish |
+| `jump-bonus` | Jump!: bonus stars carried over once from the old Rooftop Rush coins (`rr_coins`, `rr_skins`) |
 
 Bubble Hero and Rooftop Santa also save their best results in the browser.
 
