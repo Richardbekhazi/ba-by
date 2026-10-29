@@ -210,9 +210,12 @@ A gentle falling-blocks game for about age 4, on a narrow 8 x 14 board with big 
 Four calm games with no timers, scores or losing screens. Everything is done by rubbing or tapping,
 the tool follows the finger, and spoken instructions can be repeated with 🔊.
 
-- **Animal Wash** (`/animal-wash/`): pick a puppy, piglet, kitten or bunny. Scrub the mud with the
-  sponge (bubbles appear), rinse the bubbles with the shower, dry the drops with the towel, then dress up
-  with a hat, bow, glasses, crown, scarf or flower. Tap the pet to make it giggle and the duck to squeak.
+- **Animal Wash** (`/animal-wash/`): opens straight into the bath. The puppy, piglet, kitten and bunny
+  wait in a row beside the tub; tap one to swap who is bathing (each keeps its own mud and outfit).
+  Every tool works at any time: scrub the mud with the sponge (bubbles appear), rinse with the shower,
+  dry the drops with the towel, dress up (hat, bow, glasses, crown, scarf, flower) or splash mud back on.
+  The tool that helps next gently pulses and is picked for the child when a part is done. Tap the pet
+  to make it giggle and the duck to squeak.
 - **Little Car Garage** (`/car-garage/`): pick a car, bus or truck. Rub off the mud, tap each wobbly wheel
   with the wrench to fix it, choose a paint colour and stickers, then drive along a rolling road with a
   horn and headlights (which also turn on the night sky).
@@ -220,8 +223,9 @@ the tool follows the finger, and spoken instructions can be repeated with 🔊.
   tomato) and tap a pot. A bubble shows what each plant needs next (💧 or ☀️); tapping a pot does it.
   Grown plants get a visitor and can be picked into the basket (`garden-basket`). Day / night switch
   with fireflies.
-- **Finger Painting** (`/finger-paint/`): crayon, rainbow, sparkles, bubbles, eight stamps and an eraser
-  on white, night (glowing colours), brown paper or a coloring page (butterfly, fish, flower). Notes play
+- **Finger Painting** (`/finger-paint/`): opens straight onto white paper. Crayon, rainbow, sparkles,
+  bubbles, eight stamps and an eraser. The paper buttons switch between white, night (glowing colours),
+  brown paper and a coloring page (butterfly, fish, flower) without erasing the painting. Notes play
   as you paint, higher at the top. Undo (10 steps) also brings back a cleared page.
 
 ### Saved progress

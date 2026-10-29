@@ -14,65 +14,94 @@
     <script src="/assets/js/kit.js?v=20261029"></script>
     <style>
         :root { --tint: #DDF3FF; }
-        .steps { display: flex; gap: 8px; }
-        .step { width: 58px; height: 58px; border-radius: 20px; display: grid; place-items: center; font-size: 30px; background: rgba(255,255,255,0.6); box-shadow: 0 4px 0 rgba(61,53,81,0.1); position: relative; }
-        .step.now { background: #fff; box-shadow: 0 4px 0 var(--blue-d), 0 0 0 4px var(--blue); transform: scale(1.08); }
-        .step.done::after { content: '✓'; position: absolute; right: -6px; top: -6px; width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; font: 400 14px/24px 'Fredoka One', system-ui; text-align: center; }
-        .stage { position: relative; width: 100%; max-width: min(760px, calc((100vh - 300px) * 1.25)); max-width: min(760px, calc((100dvh - 300px) * 1.25)); min-width: min(100%, 300px); border-radius: 34px; overflow: hidden; background: linear-gradient(180deg, #FFF7EC 0%, #FFE9D0 62%, #CFEFFF 62%, #A9E0FF 100%); box-shadow: 0 10px 0 rgba(61,53,81,0.1); touch-action: none; }
+        #bath { gap: 12px; }
+        /* The bath friends: always on screen, tap one to swap who is in the tub. */
+        .friends { display: flex; gap: 10px; justify-content: center; }
+        .friend { width: 66px; height: 66px; border: 0; border-radius: 50%; background: #fff; font-size: 38px; line-height: 1; display: grid; place-items: center; padding: 0; box-shadow: 0 5px 0 rgba(61,53,81,0.12); transition: transform 0.15s; }
+        .friend:hover { transform: translateY(-3px) rotate(-6deg); }
+        .friend[aria-pressed="true"] { box-shadow: 0 5px 0 var(--c-d), 0 0 0 4px var(--c); transform: scale(1.1); }
+        .friend[aria-pressed="true"] span { animation: kit-bob 2.4s ease-in-out infinite; display: inline-block; }
+        .stage { position: relative; width: 100%; max-width: min(760px, calc((100vh - 330px) * 1.25)); max-width: min(760px, calc((100dvh - 330px) * 1.25)); min-width: min(100%, 280px); border-radius: 34px; overflow: hidden; background: linear-gradient(180deg, #FFF7EC 0%, #FFE9D0 62%, #CFEFFF 62%, #A9E0FF 100%); box-shadow: 0 10px 0 rgba(61,53,81,0.1); touch-action: none; }
         .stage svg { display: block; width: 100%; height: auto; }
         .tool-cursor { position: absolute; z-index: 3; font-size: 64px; line-height: 1; pointer-events: none; transform: translate(-50%, -50%) rotate(-12deg); filter: drop-shadow(0 6px 4px rgba(61,53,81,0.25)); transition: opacity 0.2s; }
         .tool-cursor.idle { opacity: 0; }
         .rubbing .tool-cursor { animation: scrub 0.25s ease-in-out infinite alternate; }
         @keyframes scrub { to { transform: translate(-46%, -54%) rotate(10deg); } }
+        /* Tools: any one, any time. The one that helps next gently pulses. */
+        .side { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .tool { position: relative; width: 74px; height: 74px; border: 0; border-radius: 24px; background: #fff; font-size: 40px; line-height: 1; padding: 0; box-shadow: 0 5px 0 rgba(61,53,81,0.12); transition: transform 0.15s; }
+        .tool[aria-pressed="true"] { box-shadow: 0 5px 0 var(--blue-d), 0 0 0 4px var(--blue); transform: translateY(-3px); }
+        .tool.hint:not([aria-pressed="true"])::after { content: ''; position: absolute; inset: -6px; border-radius: 28px; border: 4px solid var(--sun); animation: hint 1.4s ease-out infinite; pointer-events: none; }
+        @keyframes hint { 0% { opacity: 0.9; transform: scale(0.92); } 100% { opacity: 0; transform: scale(1.15); } }
         .wear { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .wear button { width: 74px; height: 74px; border: 0; border-radius: 24px; background: #fff; font-size: 40px; box-shadow: 0 5px 0 rgba(61,53,81,0.12); }
+        .wear button { width: 64px; height: 64px; border: 0; border-radius: 22px; background: #fff; font-size: 36px; padding: 0; box-shadow: 0 5px 0 rgba(61,53,81,0.12); }
         .wear button[aria-pressed="true"] { box-shadow: 0 5px 0 var(--pink-d), 0 0 0 4px var(--pink); }
-        .pet-pick .kit-mode-art { font-size: 80px; }
         .pet { transform-origin: 200px 250px; }
         .pet.giggle { animation: giggle 0.6s ease-in-out; }
+        .pet.hop-in { animation: hop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @keyframes giggle { 25% { transform: rotate(-4deg) scale(1.02); } 75% { transform: rotate(4deg) scale(1.02); } }
+        @keyframes hop-in { from { transform: translateY(-120px) scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
         .duck { cursor: pointer; animation: bob-duck 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
         @keyframes bob-duck { 50% { transform: translateY(-6px) rotate(-6deg); } }
         .shine { animation: shine 1.4s ease-out forwards; transform-box: fill-box; transform-origin: center; }
         @keyframes shine { 0% { opacity: 0; transform: scale(0.2); } 40% { opacity: 1; } 100% { opacity: 0; transform: scale(1.4) rotate(40deg); } }
+        @media (max-width: 560px) {
+            .friend { width: 56px; height: 56px; font-size: 32px; }
+            .tool { width: 58px; height: 58px; font-size: 32px; border-radius: 20px; }
+            .wear button { width: 52px; height: 52px; font-size: 30px; border-radius: 18px; }
+            .stage { max-width: 100%; }
+        }
+        /* Wide screens: friends on the left, tools on the right, a big tub in the middle. */
+        @media (orientation: landscape) and (min-width: 640px) {
+            #bath { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); align-items: center; justify-items: center; column-gap: 18px; row-gap: 10px; padding: calc(var(--safe-top) + 4px) var(--safe-right) var(--safe-bottom) var(--safe-left); height: 100vh; height: 100dvh; }
+            #bath .kit-prompt { grid-column: 2; grid-row: 1; max-width: min(100%, 560px); }
+            .friends { grid-column: 1; grid-row: 1 / 3; flex-direction: column; padding-top: 56px; }
+            .stage { grid-column: 2; grid-row: 2; max-width: min(100%, 900px, calc((100vh - 130px) * 1.25)); max-width: min(100%, 900px, calc((100dvh - 130px) * 1.25)); }
+            .side { grid-column: 3; grid-row: 1 / 3; padding-top: 56px; }
+            .tools { display: grid; grid-template-columns: repeat(2, 74px); }
+            .wear { display: grid; grid-template-columns: repeat(2, 64px); }
+        }
+        @media (orientation: landscape) and (max-height: 600px) {
+            #bath { column-gap: 14px; row-gap: 6px; padding-bottom: 8px; }
+            .stage { max-width: min(100%, calc((100dvh - 90px) * 1.25)); }
+            .side { gap: 8px; }
+            .tools { display: grid; grid-template-columns: repeat(2, 58px); gap: 8px; }
+            .tool { width: 58px; height: 58px; font-size: 30px; border-radius: 20px; }
+            .wear { display: grid; grid-template-columns: repeat(3, 44px); gap: 6px; }
+            .wear button { width: 44px; height: 44px; font-size: 24px; border-radius: 14px; }
+            .friend { width: 52px; height: 52px; font-size: 30px; }
+        }
     </style>
 </head>
 <body>
-    <main class="kit-screen" id="start">
-        <h1 class="kit-title" style="--title-shadow:#4FB8FF"><span class="bob" data-fr="Le bain">Animal</span> <span class="bob" style="animation-delay:-1.3s" data-fr="des animaux">Wash</span></h1>
-        <p class="kit-sub" data-fr="Qui prend un bain aujourd'hui ?">Who is having a bath today?</p>
-        <div class="kit-modes pet-pick">
-            <button class="kit-mode" type="button" data-pet="puppy" style="--c:#FFB627"><span class="kit-mode-art"><span>🐶</span></span><span class="kit-mode-label"><b data-fr="Chiot">Puppy</b><small data-fr="Plein de boue !">So muddy!</small></span></button>
-            <button class="kit-mode" type="button" data-pet="piglet" style="--c:#FF8FB1"><span class="kit-mode-art"><span>🐷</span></span><span class="kit-mode-label"><b data-fr="Cochonnet">Piglet</b><small data-fr="Il adore la boue">Loves the mud</small></span></button>
-            <button class="kit-mode" type="button" data-pet="kitten" style="--c:#A66BFF"><span class="kit-mode-art"><span>🐱</span></span><span class="kit-mode-label"><b data-fr="Chaton">Kitten</b><small data-fr="Un bain tout doux">A gentle bath</small></span></button>
-            <button class="kit-mode" type="button" data-pet="bunny" style="--c:#3FC9C0"><span class="kit-mode-art"><span>🐰</span></span><span class="kit-mode-label"><b data-fr="Lapin">Bunny</b><small data-fr="Des oreilles à laver">Ears to wash</small></span></button>
-        </div>
-    </main>
-
-    <main class="kit-screen" id="bath" hidden>
-        <div class="steps" id="steps"></div>
+    <main class="kit-screen" id="bath">
+        <div class="friends" id="friends" role="group" aria-label="Bath friends" data-fr-aria-label="Les amis du bain"></div>
         <div class="kit-prompt"><span id="prompt"></span><button type="button" class="kit-say" id="say" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button></div>
-        <div class="stage" id="stage" role="button" tabindex="0" aria-label="Bath. Rub to clean." data-fr-aria-label="Bain. Frotte pour nettoyer."><div class="tool-cursor idle" id="cursor"></div></div>
-        <div class="wear" id="wear" hidden></div>
-        <button type="button" class="kit-btn" id="next" hidden data-fr="🛁 Un autre ami">🛁 Next friend</button>
+        <div class="stage" id="stage" role="button" tabindex="0" aria-label="Bath. Rub with the tool." data-fr-aria-label="Bain. Frotte avec l'outil."><div class="tool-cursor idle" id="cursor"></div></div>
+        <div class="side">
+            <div class="tools" id="tools" role="group" aria-label="Bath tools" data-fr-aria-label="Outils du bain"></div>
+            <div class="wear" id="wear" hidden></div>
+        </div>
     </main>
 
     <script>
     (function () {
         'use strict';
         const { T, $, sfx, say } = Kit;
-        const NBSP = ' ';
+        const NBSP = ' ';
         const PETS = {
-            puppy: { name: ['Puppy', 'le chiot'], fur: '#F2B96B', dark: '#C9873E', belly: '#FFE2B5', nose: '#3D3551' },
-            piglet: { name: ['Piglet', 'le cochonnet'], fur: '#FFB3C6', dark: '#F07FA0', belly: '#FFD6E2', nose: '#F07FA0' },
-            kitten: { name: ['Kitten', 'le chaton'], fur: '#B8A9D9', dark: '#8C79C2', belly: '#EDE6FF', nose: '#FF8FB1' },
-            bunny: { name: ['Bunny', 'le lapin'], fur: '#F4F4F8', dark: '#C9C9D9', belly: '#FFFFFF', nose: '#FF8FB1' }
+            puppy: { e: '🐶', name: ['Puppy', 'Chiot'], hi: ['Woof! Hi, I am Puppy!', `Ouaf${NBSP}! Salut, je suis le chiot${NBSP}!`], c: '#FFB627', cd: '#D99100', fur: '#F2B96B', dark: '#C9873E', belly: '#FFE2B5', nose: '#3D3551' },
+            piglet: { e: '🐷', name: ['Piglet', 'Cochonnet'], hi: ['Oink! Hi, I am Piglet!', `Groin${NBSP}! Salut, je suis le cochonnet${NBSP}!`], c: '#FF8FB1', cd: '#E0688D', fur: '#FFB3C6', dark: '#F07FA0', belly: '#FFD6E2', nose: '#F07FA0' },
+            kitten: { e: '🐱', name: ['Kitten', 'Chaton'], hi: ['Meow! Hi, I am Kitten!', `Miaou${NBSP}! Salut, je suis le chaton${NBSP}!`], c: '#A66BFF', cd: '#7B45D6', fur: '#B8A9D9', dark: '#8C79C2', belly: '#EDE6FF', nose: '#FF8FB1' },
+            bunny: { e: '🐰', name: ['Bunny', 'Lapin'], hi: ['Hop hop! Hi, I am Bunny!', `Hop hop${NBSP}! Salut, je suis le lapin${NBSP}!`], c: '#3FC9C0', cd: '#2AA198', fur: '#F4F4F8', dark: '#C9C9D9', belly: '#FFFFFF', nose: '#FF8FB1' }
         };
-        const STEPS = [
-            { id: 'scrub', icon: '🧽', tool: '🧽', say: ['Rub with the sponge! Scrub off the mud!', `Frotte avec l'éponge${NBSP}! Enlève la boue${NBSP}!`] },
-            { id: 'rinse', icon: '🚿', tool: '🚿', say: ['Rinse off the bubbles!', `Rince les bulles${NBSP}!`] },
-            { id: 'dry', icon: '🧺', tool: '🧺', say: ['Dry with the towel!', `Sèche avec la serviette${NBSP}!`] },
-            { id: 'dress', icon: '🎀', tool: '', say: ['Pick something to wear!', `Choisis quelque chose à porter${NBSP}!`] }
+        const TOOLS = [
+            { id: 'sponge', e: '🧽', name: ['Sponge', 'Éponge'] },
+            { id: 'shower', e: '🚿', name: ['Shower', 'Douche'] },
+            { id: 'towel', e: '🧺', name: ['Towel', 'Serviette'] },
+            { id: 'dress', e: '🎀', name: ['Dress up', 'Déguisement'] },
+            { id: 'mud', e: '🟤', name: ['Mud', 'Boue'] }
         ];
         const WEAR = [
             { id: 'hat', e: '👒', x: 200, y: 52, s: 70 }, { id: 'bow', e: '🎀', x: 150, y: 72, s: 46 },
@@ -118,11 +147,13 @@
             </svg>`;
         }
 
-        const start = $('#start'), bath = $('#bath');
-        Kit.topbar({ onBack: () => goStart() });
-        function goStart() { Kit.show(start, { back: false }); Kit.tint('#DDF3FF'); }
+        Kit.topbar();
+        Kit.tint('#DDF3FF');
 
-        let pet = 'puppy', stepIndex = 0, items = [], worn = new Set(), rubbing = null, giggleAt = 0;
+        // Each friend remembers its own mud, bubbles, drops and outfit while the child swaps between them.
+        const state = {};
+        let pet = 'puppy', tool = 'sponge', rubbing = null, giggleAt = 0, cleanCheered = false;
+        const S = () => state[pet];
         const svgEl = () => $('#scene');
         function add(parent, tag, attrs) {
             const el = document.createElementNS(NS, tag);
@@ -131,63 +162,73 @@
             return el;
         }
         // Spots on the head and body where mud, bubbles and drops can sit.
-        function spots(n) {
+        function spots(n, avoid = []) {
             const list = [];
             let guard = 0;
             while (list.length < n && guard++ < 400) {
                 const onHead = Math.random() < 0.45;
                 const x = onHead ? 200 + (Math.random() - 0.5) * 120 : 200 + (Math.random() - 0.5) * 170;
                 const y = onHead ? 120 + (Math.random() - 0.5) * 110 : 205 + Math.random() * 35;
-                if (list.every(p => Math.hypot(p.x - x, p.y - y) > 34)) list.push({ x, y });
+                if ([...list, ...avoid].every(p => Math.hypot(p.x - x, p.y - y) > 30)) list.push({ x, y });
             }
             return list;
         }
-        function fill(step) {
-            items = [];
-            if (step === 'scrub') {
-                spots(11).forEach(({ x, y }, i) => {
-                    const g = $('#mud');
-                    const r = 18 + Math.random() * 10;
-                    const el = add(g, 'path', { d: `M${x - r} ${y} Q${x - r - 6} ${y - r} ${x} ${y - r + 2} Q${x + r + 8} ${y - r - 4} ${x + r} ${y + 2} Q${x + r + 4} ${y + r} ${x + 2} ${y + r - 2} Q${x - r - 4} ${y + r + 6} ${x - r} ${y} Z`, fill: i % 2 ? '#8B5E3C' : '#A47148' });
-                    items.push({ x, y, el });
-                });
-            } else if (step === 'rinse') {
-                spots(12).forEach(({ x, y }) => {
-                    const el = add($('#bubbles'), 'circle', { cx: x, cy: y, r: 12 + Math.random() * 10, fill: '#fff', 'fill-opacity': 0.75, stroke: '#9AD7F5', 'stroke-width': 3 });
-                    items.push({ x, y, el });
-                });
-            } else if (step === 'dry') {
-                spots(12).forEach(({ x, y }) => {
-                    const el = add($('#drops'), 'path', { d: `M${x} ${y - 14} Q${x + 10} ${y} ${x} ${y + 8} Q${x - 10} ${y} ${x} ${y - 14} Z`, fill: '#5BC0F5' });
-                    items.push({ x, y, el });
-                });
-            }
+        const mudPath = (x, y, r) => `M${x - r} ${y} Q${x - r - 6} ${y - r} ${x} ${y - r + 2} Q${x + r + 8} ${y - r - 4} ${x + r} ${y + 2} Q${x + r + 4} ${y + r} ${x + 2} ${y + r - 2} Q${x - r - 4} ${y + r + 6} ${x - r} ${y} Z`;
+
+        // Draw the friend's saved dirt (data only, so it survives swapping friends).
+        function drawDirt() {
+            ['mud', 'bubbles', 'drops'].forEach(id => { $('#' + id).innerHTML = ''; });
+            S().items.forEach(it => {
+                if (it.type === 'mud') it.el = add($('#mud'), 'path', { d: mudPath(it.x, it.y, it.r), fill: it.shade });
+                else if (it.type === 'bubble') it.el = add($('#bubbles'), 'circle', { cx: it.x, cy: it.y, r: it.r, fill: '#fff', 'fill-opacity': 0.8, stroke: '#9AD7F5', 'stroke-width': 3 });
+                else it.el = add($('#drops'), 'path', { d: `M${it.x} ${it.y - 14} Q${it.x + 10} ${it.y} ${it.x} ${it.y + 8} Q${it.x - 10} ${it.y} ${it.x} ${it.y - 14} Z`, fill: '#5BC0F5' });
+            });
         }
-        function renderSteps() {
-            $('#steps').innerHTML = STEPS.map((s, i) => `<span class="step${i === stepIndex ? ' now' : i < stepIndex ? ' done' : ''}" aria-hidden="true">${s.icon}</span>`).join('');
-            const s = STEPS[stepIndex];
-            $('#prompt').textContent = T(...s.say);
-            $('#cursor').textContent = s.tool;
-            $('#wear').hidden = s.id !== 'dress';
-            $('#next').hidden = s.id !== 'dress';
+        function addItem(type, x, y) {
+            const it = { type, x, y, r: type === 'mud' ? 16 + Math.random() * 10 : 8 + Math.random() * 10, shade: Math.random() < 0.5 ? '#8B5E3C' : '#A47148' };
+            S().items.push(it);
+            if (type === 'mud') it.el = add($('#mud'), 'path', { d: mudPath(x, y, it.r), fill: it.shade });
+            else if (type === 'bubble') it.el = add($('#bubbles'), 'circle', { cx: x, cy: y, r: it.r, fill: '#fff', 'fill-opacity': 0.8, stroke: '#9AD7F5', 'stroke-width': 3 });
+            else it.el = add($('#drops'), 'path', { d: `M${x} ${y - 14} Q${x + 10} ${y} ${x} ${y + 8} Q${x - 10} ${y} ${x} ${y - 14} Z`, fill: '#5BC0F5' });
+            return it;
         }
-        function sayStep() { say(...STEPS[stepIndex].say); }
-        function goStep(i) {
-            stepIndex = i;
-            renderSteps();
-            fill(STEPS[i].id);
-            sayStep();
-            if (STEPS[i].id === 'dress') renderWear();
+        const count = type => S().items.filter(it => it.type === type).length;
+
+        // What would help next: mud → sponge, bubbles → shower, drops → towel, clean → dress up.
+        function nextTool() {
+            if (count('mud')) return 'sponge';
+            if (count('bubble')) return 'shower';
+            if (count('drop')) return 'towel';
+            return 'dress';
         }
-        function stepDone() {
-            const s = STEPS[stepIndex];
-            sfx.cheer();
-            shine(6);
-            Kit.bounce($('#pet'), 'giggle');
-            const lines = { scrub: ['No more mud!', `Plus de boue${NBSP}!`], rinse: ['Squeaky clean!', `Tout propre${NBSP}!`], dry: ['All dry and fluffy!', `Tout sec et tout doux${NBSP}!`] };
-            say(...lines[s.id]);
-            Kit.later(() => goStep(stepIndex + 1), 1500);
+        const LINES = {
+            sponge: ['Rub with the sponge! Scrub off the mud!', `Frotte avec l'éponge${NBSP}! Enlève la boue${NBSP}!`],
+            shower: ['Rinse off the bubbles with the shower!', `Rince les bulles avec la douche${NBSP}!`],
+            towel: ['Dry with the towel!', `Sèche avec la serviette${NBSP}!`],
+            dress: ['All clean! Pick something to wear, or splash some mud!', `Tout propre${NBSP}! Choisis un habit, ou remets de la boue${NBSP}!`]
+        };
+        function renderPrompt() {
+            const n = nextTool();
+            $('#prompt').textContent = T(...LINES[n]);
+            document.querySelectorAll('.tool').forEach(b => b.classList.toggle('hint', b.dataset.t === n));
         }
+        function renderTools() {
+            $('#tools').innerHTML = TOOLS.map(t => `<button type="button" class="tool" data-t="${t.id}" aria-pressed="${t.id === tool}" aria-label="${T(...t.name)}">${t.e}</button>`).join('');
+            $('#cursor').textContent = tool === 'dress' ? '' : TOOLS.find(t => t.id === tool).e;
+            $('#wear').hidden = tool !== 'dress';
+            renderPrompt();
+        }
+        function renderFriends() {
+            $('#friends').innerHTML = Object.entries(PETS).map(([id, p]) => `<button type="button" class="friend" data-pet="${id}" style="--c:${p.c};--c-d:${p.cd}" aria-pressed="${id === pet}" aria-label="${T(...p.name)}"><span>${p.e}</span></button>`).join('');
+        }
+        function setTool(id, speak) {
+            tool = id;
+            renderTools();
+            if (id === 'dress') renderWear();
+            if (speak) say(...(id === 'mud' ? ['Splat! Make it muddy!', `Splat${NBSP}! Plein de boue${NBSP}!`] : LINES[id] || TOOLS.find(t => t.id === id).name));
+        }
+        function sayHint() { say(...LINES[nextTool()]); }
+
         function shine(n) {
             for (let i = 0; i < n; i++) {
                 const { x, y } = spots(1)[0] || { x: 200, y: 140 };
@@ -196,6 +237,32 @@
                 t.style.animationDelay = `${i * 0.12}s`;
                 setTimeout(() => t.remove(), 1700 + i * 120);
             }
+        }
+
+        // A part of the bath is done: cheer a little, then pick the tool that helps next.
+        let stageCheerAt = 0;
+        function afterClean(type) {
+            if (count(type)) return;
+            const lines = { mud: ['No more mud!', `Plus de boue${NBSP}!`], bubble: ['Squeaky clean!', `Tout propre${NBSP}!`], drop: ['All dry and fluffy!', `Tout sec et tout doux${NBSP}!`] };
+            if (performance.now() - stageCheerAt < 400) return;
+            stageCheerAt = performance.now();
+            const n = nextTool();
+            if (n === 'dress' && !cleanCheered) {
+                cleanCheered = true;
+                sfx.fanfare();
+                Kit.confetti(90);
+                Kit.cheer(T('🛁 All clean!', `🛁 Tout propre${NBSP}!`), 1500);
+                shine(8);
+                Kit.bounce($('#pet'), 'giggle');
+                say(...LINES.dress);
+            } else {
+                sfx.cheer();
+                shine(5);
+                Kit.bounce($('#pet'), 'giggle');
+                say(...lines[type]);
+            }
+            // Gently hand over the next tool, so a toddler can keep rubbing.
+            setTimeout(() => { if (tool === { mud: 'sponge', bubble: 'shower', drop: 'towel' }[type]) setTool(n, false); else renderPrompt(); }, 700);
         }
 
         // ---------- Rubbing ----------
@@ -208,30 +275,51 @@
             $('#cursor').style.left = event.clientX - r.left + 'px';
             $('#cursor').style.top = event.clientY - r.top + 'px';
         }
-        let lastRubSound = 0;
+        const onPet = p => Math.hypot(p.x - 200, p.y - 120) < 90 || (Math.abs(p.x - 200) < 110 && p.y > 150 && p.y < 300);
+        let lastRubSound = 0, lastSplat = 0;
         function rubAt(p) {
-            const s = STEPS[stepIndex].id;
-            if (s === 'dress') return;
-            let cleaned = 0;
-            items = items.filter(it => {
-                if (Math.hypot(it.x - p.x, it.y - p.y) < 44) { it.el.remove(); cleaned++; return false; }
+            if (tool === 'dress') return;
+            const now = performance.now();
+            if (tool === 'mud') {
+                if (!onPet(p) || now - lastSplat < 120) return;
+                lastSplat = now;
+                const splat = addItem('mud', p.x + (Math.random() - 0.5) * 16, p.y + (Math.random() - 0.5) * 16);
+                splat.el.animate([{ transform: 'scale(0.2)' }, { transform: 'scale(1)' }], { duration: 250, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
+                splat.el.style.transformBox = 'fill-box';
+                splat.el.style.transformOrigin = 'center';
+                Kit.noise({ dur: 0.12, freq: 500, q: 1.2, vol: 0.12 });
+                cleanCheered = false;
+                renderPrompt();
+                return;
+            }
+            const removes = { sponge: ['mud'], shower: ['bubble', 'mud'], towel: ['drop'] }[tool];
+            const gone = { mud: 0, bubble: 0, drop: 0 };
+            S().items = S().items.filter(it => {
+                if (removes.includes(it.type) && Math.hypot(it.x - p.x, it.y - p.y) < (it.type === 'mud' && tool === 'shower' ? 30 : 44)) {
+                    it.el.remove();
+                    gone[it.type]++;
+                    return false;
+                }
                 return true;
             });
-            const now = performance.now();
             if (now - lastRubSound > 140) {
                 lastRubSound = now;
-                if (s === 'scrub') { Kit.noise({ dur: 0.12, freq: 2400, vol: 0.05 }); if (Math.random() < 0.6) add($('#bubbles'), 'circle', { cx: p.x + (Math.random() - 0.5) * 30, cy: p.y + (Math.random() - 0.5) * 30, r: 6 + Math.random() * 8, fill: '#fff', 'fill-opacity': 0.8, stroke: '#9AD7F5', 'stroke-width': 2 }); }
-                else if (s === 'rinse') { Kit.noise({ dur: 0.18, freq: 3200, q: 0.4, vol: 0.06 }); add($('#drops'), 'circle', { cx: p.x, cy: p.y + 10, r: 4, fill: '#7FD0F7' }).animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(60px)', opacity: 0 }], { duration: 600 }).onfinish = function () { this.effect.target.remove(); }; }
-                else Kit.noise({ dur: 0.1, freq: 800, vol: 0.04 });
+                if (tool === 'sponge') Kit.noise({ dur: 0.12, freq: 2400, vol: 0.05 });
+                else if (tool === 'shower') {
+                    Kit.noise({ dur: 0.18, freq: 3200, q: 0.4, vol: 0.06 });
+                    add($('#sparkles'), 'circle', { cx: p.x, cy: p.y + 10, r: 4, fill: '#7FD0F7' }).animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(60px)', opacity: 0 }], { duration: 600 }).onfinish = function () { this.effect.target.remove(); };
+                } else Kit.noise({ dur: 0.1, freq: 800, vol: 0.04 });
             }
+            // Scrubbing mud makes foam; rinsing foam leaves water drops to dry.
+            if (gone.mud && tool === 'sponge') for (let i = 0; i < gone.mud; i++) addItem('bubble', p.x + (Math.random() - 0.5) * 30, p.y + (Math.random() - 0.5) * 30);
+            if ((gone.bubble || gone.mud) && tool === 'shower' && Math.random() < 0.8) addItem('drop', p.x + (Math.random() - 0.5) * 26, p.y + (Math.random() - 0.5) * 20);
+            const cleaned = gone.mud + gone.bubble + gone.drop;
             if (cleaned) {
                 sfx.plink(Math.floor(Math.random() * 8));
                 const r = svgEl().getBoundingClientRect();
-                Kit.burst(r.left + p.x / 400 * r.width, r.top + p.y / 320 * r.height, s === 'scrub' ? ['#fff', '#BFE3F5'] : ['#7FD0F7', '#fff'], 6, 0.6);
-                if (!items.length) {
-                    if (s === 'rinse') { $('#bubbles').innerHTML = ''; }
-                    stepDone();
-                }
+                Kit.burst(r.left + p.x / 400 * r.width, r.top + p.y / 320 * r.height, tool === 'sponge' ? ['#fff', '#BFE3F5'] : ['#7FD0F7', '#fff'], 6, 0.6);
+                Object.keys(gone).forEach(type => { if (gone[type]) afterClean(type); });
+                renderPrompt();
             }
         }
         $('#stage').addEventListener('pointerdown', event => {
@@ -242,12 +330,12 @@
             rubbing = { id: event.pointerId, moved: 0, x: event.clientX, y: event.clientY };
             try { $('#stage').setPointerCapture(event.pointerId); } catch (e) { /* ignore */ }
             $('#stage').classList.add('rubbing');
-            $('#cursor').classList.remove('idle');
+            if (tool !== 'dress') $('#cursor').classList.remove('idle');
             moveCursor(event);
             rubAt(toScene(event));
         });
         $('#stage').addEventListener('pointermove', event => {
-            if (event.pointerType === 'mouse' && rubbing === null && STEPS[stepIndex].tool) { $('#cursor').classList.remove('idle'); moveCursor(event); }
+            if (event.pointerType === 'mouse' && rubbing === null && tool !== 'dress') { $('#cursor').classList.remove('idle'); moveCursor(event); }
             if (!rubbing || event.pointerId !== rubbing.id) return;
             rubbing.moved += Math.hypot(event.clientX - rubbing.x, event.clientY - rubbing.y);
             rubbing.x = event.clientX; rubbing.y = event.clientY;
@@ -257,7 +345,7 @@
         const stopRub = event => {
             if (!rubbing || (event && event.pointerId !== rubbing.id)) return;
             // A tap (no rubbing) on the pet makes it giggle.
-            if (rubbing.moved < 8 && event && event.target.closest && event.target.closest('#pet') && performance.now() - giggleAt > 600) {
+            if (rubbing.moved < 8 && event && event.target.closest && event.target.closest('#pet') && tool !== 'mud' && performance.now() - giggleAt > 600) {
                 giggleAt = performance.now();
                 Kit.bounce($('#pet'), 'giggle');
                 Kit.tone(660, { to: 880, dur: 0.12, vol: 0.1 }); Kit.tone(880, { at: 0.12, to: 740, dur: 0.12, vol: 0.1 });
@@ -269,15 +357,19 @@
         $('#stage').addEventListener('pointerup', stopRub);
         $('#stage').addEventListener('pointercancel', stopRub);
         $('#stage').addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !rubbing) $('#cursor').classList.add('idle'); });
-        // Keyboard: Space / Enter cleans the next spot.
+        // Keyboard: Space / Enter uses the tool on the next spot.
         $('#stage').addEventListener('keydown', event => {
             if (event.key !== ' ' && event.key !== 'Enter') return;
             event.preventDefault();
-            if (items.length) rubAt({ x: items[0].x, y: items[0].y });
+            const types = { sponge: 'mud', shower: 'bubble', towel: 'drop' };
+            const it = S().items.find(i => i.type === types[tool]);
+            if (it) rubAt({ x: it.x, y: it.y });
+            else if (tool === 'mud') rubAt(spots(1)[0]);
         });
 
         // ---------- Dress up ----------
         function renderWear() {
+            const worn = S().worn;
             $('#wear').innerHTML = WEAR.map(w => `<button type="button" data-id="${w.id}" aria-pressed="${worn.has(w.id)}" aria-label="${w.id}">${w.e}</button>`).join('');
             $('#worn').innerHTML = '';
             WEAR.filter(w => worn.has(w.id)).forEach(w => { const t = add($('#worn'), 'text', { x: w.x, y: w.y, 'font-size': w.s, 'text-anchor': 'middle', 'dominant-baseline': 'middle' }); t.textContent = w.e; });
@@ -285,7 +377,7 @@
         $('#wear').addEventListener('click', event => {
             const b = event.target.closest('button');
             if (!b) return;
-            const id = b.dataset.id;
+            const id = b.dataset.id, worn = S().worn;
             if (worn.has(id)) worn.delete(id);
             else {
                 worn.add(id);
@@ -297,27 +389,46 @@
             Kit.bounce($('#pet'), 'giggle');
             if (worn.has(id)) { shine(3); say('So cute!', `Trop mignon${NBSP}!`); }
         });
-        $('#next').addEventListener('click', () => {
-            sfx.fanfare();
-            Kit.confetti(110);
-            Kit.cheer(T('🛁 All clean!', `🛁 Tout propre${NBSP}!`), 1600);
-            const order = Object.keys(PETS);
-            Kit.later(() => openBath(order[(order.indexOf(pet) + 1) % order.length]), 1600);
+        $('#tools').addEventListener('click', event => {
+            const b = event.target.closest('.tool');
+            if (!b) return;
+            sfx.pop();
+            setTool(b.dataset.t, true);
         });
-        $('#say').addEventListener('click', sayStep);
+        $('#say').addEventListener('click', sayHint);
 
-        function openBath(kind) {
+        // ---------- Friends ----------
+        function freshFriend() {
+            const items = [];
+            spots(11).forEach(({ x, y }) => items.push({ type: 'mud', x, y, r: 18 + Math.random() * 10, shade: Math.random() < 0.5 ? '#8B5E3C' : '#A47148' }));
+            return { items, worn: new Set() };
+        }
+        function openFriend(kind, greet) {
             pet = kind;
-            worn = new Set();
-            Kit.show(bath);
-            Kit.tint('#DDF3FF');
+            if (!state[kind]) state[kind] = freshFriend();
+            cleanCheered = nextTool() === 'dress';
             $('#stage').querySelectorAll('svg').forEach(s => s.remove());
             $('#stage').insertAdjacentHTML('afterbegin', sceneSVG(kind));
-            goStep(0);
+            drawDirt();
+            renderWear();
+            renderFriends();
+            setTool(nextTool(), false);
+            if (greet) {
+                Kit.bounce($('#pet'), 'hop-in');
+                sfx.splash();
+                say(PETS[kind].hi[0] + ' ' + LINES[nextTool()][0], PETS[kind].hi[1] + ' ' + LINES[nextTool()][1]);
+            }
         }
-        document.querySelectorAll('[data-pet]').forEach(b => b.addEventListener('click', () => { sfx.pop(); openBath(b.dataset.pet); }));
-        Kit.onLang(() => { if (!bath.hidden) renderSteps(); });
-        goStart();
+        $('#friends').addEventListener('click', event => {
+            const b = event.target.closest('.friend');
+            if (!b || b.dataset.pet === pet) { if (b) Kit.bounce($('#pet'), 'giggle'); return; }
+            sfx.pop();
+            openFriend(b.dataset.pet, true);
+        });
+
+        Kit.onLang(() => { renderFriends(); renderTools(); });
+        Kit.show($('#bath'), { back: false });
+        openFriend('puppy', false);
     }());
     </script>
 </body>
