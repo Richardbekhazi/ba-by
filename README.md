@@ -1,74 +1,108 @@
 ﻿# 🍼 ba-by.ca – Baby-Friendly Games Website
 
-Welcome to **ba-by.ca**, a collection of simple, fun, touch-friendly baby games designed for toddlers and young children.  
-This project is hosted using **GitHub Pages** and contains multiple mini-game folders.
+Welcome to **ba-by.ca**, a collection of simple, fun, touch-friendly baby games designed for toddlers and young children.
+It is a plain static site (HTML, CSS and JavaScript, no build step) hosted on **GitHub Pages**.
 
 ---
 
-## 🎮 Project Structure
+## 🎮 Games
 
-ba-by.ca/
-│
-├─ index.html → Main landing page (clouds, sun, 3D cards)
-├─ assets/ → Images, CSS, JS (optional future use)
-│ ├─ images/
-│ ├─ css/
-│ └─ js/
-│
-├─ abc/
-├─ colors/
-├─ sounds/
-├─ puzzles/
-├─ rooftoprush/
-├─ dino/
-├─ shapes/
-└─ numbers/
+The homepage groups the games into three sections. Each game lives in its own folder
+with its own `index.html`, so its address is `https://ba-by.ca/<folder>/`.
 
+### 📚 Learn & Play
 
-Each game folder contains its own **index.html**, so the route becomes:
+| Game | Folder | What it is |
+| --- | --- | --- |
+| ABC Time | `/abc/` | Find the picture that goes with each letter, 8 levels (see below) |
+| Colors | `/colors/` | Jelly colour friends: play, find and mix (see below) |
+| Numbers | `/numbers/` | Count 1-2-3 to a party |
+| Shapes | `/shapes/` | Pop the shapes |
+| Sounds | `/sounds/` | Make your own music |
+| Animal Sounds | `/animals/` | Who says moo? |
+| Puzzles | `/puzzles/` | Drag each piece into place, 12 levels (see below) |
+| Key Letter | `/keyboard-letter/` | Press a key on the keyboard, meet the letter |
 
-- a-by.ca/abc/
-- a-by.ca/colors/
-- a-by.ca/sounds/
-- …and so on.
+### 🫶 Gentle Play
+
+| Game | Folder | What it is |
+| --- | --- | --- |
+| Animal Wash | `/animal-wash/` | Bath time for a puppy, piglet or bunny |
+| Little Car Garage | `/car-garage/` | Wash, paint and drive a car, bus or truck |
+| My Tiny Garden | `/tiny-garden/` | Plant, water and harvest |
+| Finger Painting | `/finger-paint/` | Draw rainbows and stamp stars |
+
+### 🚀 Action Games
+
+| Game | Folder | What it is |
+| --- | --- | --- |
+| Bubble Hero | `/bubbles/` | Pop the Grumpies with bubbles (see below) |
+| Jump! (Rooftop Rush) | `/rooftoprush/` | A cat hops from roof to roof, collecting coins for new skins |
+| Rooftop Santa | `/rooftopsanta/` | Deliver presents down star chimneys (see below) |
+| Tetris (Stacky Smiles) | `/tetris/` | Stack the smiley blocks |
+
+---
+
+## 🗂️ Project Structure
+
+```
+ba-by/
+├─ index.html          → Homepage (sky, sun, clouds, grouped game cards)
+├─ CNAME               → Custom domain: ba-by.ca
+├─ ba-by logo.png
+├─ assets/
+│  ├─ css/             → Shared toddler styles + one stylesheet per toddler activity
+│  ├─ js/              → site-lang.js (EN/FR), toddler helpers, one module per toddler activity
+│  └─ badges1/         → Badge/reward icons used by Bubble Hero
+├─ abc/  colors/  numbers/  shapes/  sounds/  animals/  puzzles/  keyboard-letter/
+├─ animal-wash/  car-garage/  tiny-garden/  finger-paint/
+└─ bubbles/  rooftoprush/  rooftopsanta/  tetris/
+```
+
+Most games are a single self-contained `index.html`. `numbers/` and `sounds/` also have
+their own sound/icon folders, and `tetris/` has a `background.svg`.
+
+---
+
+## 🖥️ Running Locally
+
+Any static file server works. From the project folder:
+
+```bash
+python -m http.server 8123
+```
+
+Then open http://localhost:8123. The same server is set up as the `site` preview
+in `.claude/launch.json` (with a second one, `site-alt`, on port 8127).
 
 ---
 
 ## 🚀 Deployment
 
-This project is intended for **GitHub Pages**:
-
-1. Create a repo with the name you want.
-2. Push all project files into the repo.
-3. In GitHub → *Settings → Pages* → choose  
-   **Source: main branch → root folder**.
-4. Add your custom domain **ba-by.ca**.
-5. Enable HTTPS.
-
-GitHub will automatically serve:
-
-https://ba-by.ca
-
+The site is served by **GitHub Pages** from the `main` branch, root folder, with the
+custom domain **ba-by.ca** (set in `CNAME`) and HTTPS enabled. Pushing to `main`
+publishes the changes at https://ba-by.ca.
 
 ---
 
 ## ➕ Adding New Games
 
-To add a new game:
-
-1. Create a folder in the root (e.g. /animals/)
-2. Add an index.html inside it
-3. Add a new card on the homepage pointing to /animals/
+1. Create a folder in the root (e.g. `/farm/`).
+2. Add an `index.html` inside it, loading `/assets/js/site-lang.js` for English/French.
+3. Add a card for it in the right section of the homepage `index.html`
+   (with `data-fr` text for the French title and description).
 
 ---
 
 ## ✨ Features
 
-- Baby-friendly UI (large icons, big buttons)
-- Animated background: sun, clouds
-- 3D tilt cards
-- Touch-based sparkle effects
-- Works on all devices (tablet, phone, PC)
+- Baby-friendly UI (large icons, big buttons, picture choices that need no reading)
+- Homepage with a bouncy colour logo, sun, clouds and hills; games grouped into
+  Learn, Gentle Play and Action sections with jump links and age hints
+- "Play again" shortcut on the homepage for the last game played
+- Touch sparkle effects
+- Works on all devices (tablet, phone, PC), in portrait and landscape
+- English and French throughout
 - Easy to extend with new games
 
 ### English / French
@@ -100,8 +134,25 @@ activities) save their choice to the same shared setting.
 - The board and piece tray resize for the screen and difficulty, with a side-by-side layout on short landscape screens.
 - On very small screens, the page can scroll so all pieces remain reachable.
 
+### ABC Time (`/abc/`)
+
+- A big jelly letter block drops in and the game says "A is for Apple. Can you find the apple?"
+  The child taps the matching picture card; each card shows the word with its first letter coloured
+  in that letter's colour.
+- The right picture jumps onto the letter block with sparkles; a wrong tap wobbles, says that word
+  and fades the card, so the child is never stuck.
+- 8 levels with 2, 2, 3, 3, 4, 4, 5 and 6 pictures. Five right answers fill five stars and move on
+  to the next level automatically.
+- The start screen works like Puzzles: "Continue", "Play!" / "Start from the beginning" and
+  "Choose your level" (locked until level 1 is cleared). Tapping the A, B, C blocks says the letter.
+- Progress is saved in `localStorage` keys `abc-level` (level to continue) and `abc-cleared`
+  (levels cleared). Saves from the old version are converted automatically.
+
 ### Colors (`/colors/`)
 
+- The start screen has three big picture cards (Play, Find, Mix) with animated jelly illustrations and a
+  single short word, so children can choose without reading. Cards squish with a sound when tapped;
+  they sit two-plus-one on phones and in one row on PC and landscape screens.
 - 11 basic colours (red, orange, yellow, green, blue, purple, pink, brown, black, white, gray), each a
   rounded-square "jelly friend" with a face and a matching example (🍎, 🐸, 🐳...).
 - **Play with colors**: tap a jelly to hear its name and note; it squishes, smiles and tints the background.
@@ -111,6 +162,23 @@ activities) save their choice to the same shared setting.
   out ("Red and yellow make orange!"). A recipe book tracks the 6 mixes to discover (orange, green,
   purple, pink, sky blue, light yellow), saved in `localStorage` key `colors-mixes`, with a celebration
   when all are found.
+
+### Bubble Hero (`/bubbles/`)
+
+- A star hero shoots bubbles to calm the Grumpies. Touch steering is relative (drag anywhere to move).
+- Hits cost health, followed by a short invulnerable moment; combos reward quick pops.
+- Levels end in a boss fight with a health bar; powers can be collected and levelled up.
+- Start, pause and game-over screens, a mute button, French text, and the best level saved in the browser.
+- The game loop is frame-rate independent and the canvas stays crisp on high-resolution screens.
+
+### Rooftop Santa (`/rooftopsanta/`)
+
+- Santa runs across rooftops, grabs presents into his sack and jumps over glowing star chimneys to
+  deliver them; delivery streaks build a multiplier.
+- Obstacles and helpers: roof gaps (Rudolph rescues Santa), light strings to slide under and
+  waddling penguins; power-ups are a magnet, sleigh flight and a snow globe.
+- Cozy and Speedy modes, first-time hints, toy-style menus in English/French.
+- The best score and total presents delivered are saved in the browser.
 
 ### Gentle toddler activities
 
@@ -156,16 +224,31 @@ to prevent older cached helpers from breaking newer games. When deploying change
 to these assets, update the release identifier in all four HTML pages, the loader,
 and all four game-module imports together.
 
+### Saved progress
+
+Nothing is uploaded; progress is kept in the browser's `localStorage`:
+
+| Key | Used by |
+| --- | --- |
+| `baby-lang` | Whole site: chosen language |
+| `abc-level`, `abc-cleared` | ABC Time: level to continue and levels cleared |
+| `puzzles-progress` | Puzzles: furthest puzzle reached |
+| `colors-find-level` | Colors: Find the color level |
+| `colors-mixes` | Colors: mixes discovered |
+| `rr_coins`, `rr_skins`, `rr_current_skin` | Jump! (Rooftop Rush): coins and unlocked skins |
+
+Bubble Hero and Rooftop Santa also save their best results in the browser.
+
 ---
 
 ## 👨‍💻 Author
 
-Built by **Richard Bekhazi** with the help of AI.  
+Built by **Richard Bekhazi** with the help of AI.
 Designed for toddlers—including Richie 🍼💙
 
 ---
 
 ## ❤️ License
 
-This project is open for personal use.  
+This project is open for personal use.
 Game assets or media may require their own licenses.
