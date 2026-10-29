@@ -14,23 +14,23 @@ with its own `index.html`, so its address is `https://ba-by.ca/<folder>/`.
 
 | Game | Folder | What it is |
 | --- | --- | --- |
-| ABC Time | `/abc/` | Find the picture that goes with each letter, 8 levels (see below) |
-| Colors | `/colors/` | Jelly colour friends: play, find and mix (see below) |
-| Numbers | `/numbers/` | Count 1-2-3 to a party |
+| ABC Time | `/abc/` | Meet the letters, find the picture and pop letter balloons (see below) |
+| Colors | `/colors/` | Jelly colour friends: meet, find, mix and paint a picture (see below) |
+| Numbers | `/numbers/` | Tap & count, How many?, Feed the friend (see below) |
 | Shapes | `/shapes/` | Pop the shapes |
-| Sounds | `/sounds/` | Make your own music |
-| Animal Sounds | `/animals/` | Who says moo? |
-| Puzzles | `/puzzles/` | Drag each piece into place, 12 levels (see below) |
+| Music Box | `/sounds/` | Real instruments, a rainbow xylophone with songs, an animal choir |
+| Animal Safari | `/animals/` | Farm, wild and faraway animals with real sounds, plus a listening game |
+| Puzzles | `/puzzles/` | Shape puzzles (12 levels) and picture puzzles (see below) |
 | Key Letter | `/keyboard-letter/` | Press a key on the keyboard, meet the letter |
 
 ### 🫶 Gentle Play
 
 | Game | Folder | What it is |
 | --- | --- | --- |
-| Animal Wash | `/animal-wash/` | Bath time for a puppy, piglet or bunny |
-| Little Car Garage | `/car-garage/` | Wash, paint and drive a car, bus or truck |
-| My Tiny Garden | `/tiny-garden/` | Plant, water and harvest |
-| Finger Painting | `/finger-paint/` | Draw rainbows and stamp stars |
+| Animal Wash | `/animal-wash/` | Scrub, rinse, dry and dress up a puppy, piglet, kitten or bunny |
+| Little Car Garage | `/car-garage/` | Wash, fix, paint and drive a car, bus or truck |
+| My Tiny Garden | `/tiny-garden/` | Plant, water, give sunshine and harvest, day or night |
+| Finger Painting | `/finger-paint/` | Crayons, rainbow, sparkles, bubbles and stamps, with music |
 
 ### 🚀 Action Games
 
@@ -38,7 +38,7 @@ with its own `index.html`, so its address is `https://ba-by.ca/<folder>/`.
 | --- | --- | --- |
 | Bubble Hero | `/bubbles/` | Pop the Grumpies with bubbles (see below) |
 | Jump! (Rooftop Rush) | `/rooftoprush/` | A cat hops from roof to roof, collecting coins for new skins |
-| Rooftop Santa | `/rooftopsanta/` | Deliver presents down star chimneys (see below) |
+| Rooftop Santa | `/rooftopsanta/` | Run the snowy rooftops and grab presents (see below) |
 | Tetris (Stacky Smiles) | `/tetris/` | Stack the smiley blocks to make lines, 6 levels (see below) |
 
 ---
@@ -51,15 +51,16 @@ ba-by/
 ├─ CNAME               → Custom domain: ba-by.ca
 ├─ ba-by logo.png
 ├─ assets/
-│  ├─ css/             → Shared toddler styles + one stylesheet per toddler activity
-│  ├─ js/              → site-lang.js (EN/FR), toddler helpers, one module per toddler activity
+│  ├─ css/kit.css      → The shared toy look used by every Learn and Gentle Play game
+│  ├─ js/kit.js        → Shared sound, voice, screens, levels and celebrations (window.Kit)
+│  ├─ js/site-lang.js  → English / French for the whole site
 │  └─ badges1/         → Badge/reward icons used by Bubble Hero
 ├─ abc/  colors/  numbers/  shapes/  sounds/  animals/  puzzles/  keyboard-letter/
 ├─ animal-wash/  car-garage/  tiny-garden/  finger-paint/
 └─ bubbles/  rooftoprush/  rooftopsanta/  tetris/
 ```
 
-Most games are a single self-contained `index.html`. `numbers/` and `sounds/` also have
+Each game is one `index.html` built on the shared kit. `numbers/` and `sounds/` also have
 their own sound/icon folders.
 
 ---
@@ -88,7 +89,9 @@ publishes the changes at https://ba-by.ca.
 ## ➕ Adding New Games
 
 1. Create a folder in the root (e.g. `/farm/`).
-2. Add an `index.html` inside it, loading `/assets/js/site-lang.js` for English/French.
+2. Add an `index.html` inside it, loading `/assets/css/kit.css`, `/assets/js/site-lang.js` and then
+   `/assets/js/kit.js`. `Kit.topbar()` adds the home, back, sound and EN/FR buttons; `Kit.show(screen)`
+   switches screens; `Kit.say(en, fr)`, `Kit.sfx.*`, `Kit.cheer()` and `Kit.confetti()` do the rest.
 3. Add a card for it in the right section of the homepage `index.html`
    (with `data-fr` text for the French title and description).
 
@@ -113,72 +116,52 @@ whole site. The homepage and most games show an EN / FR toggle; the arcade games
 follow the language picked on the homepage. To translate static text, add a
 `data-fr="..."` attribute (or `data-fr-aria-label` / `data-fr-title`); for text
 built in JavaScript use `BabyLang.t(english, french)` and `BabyLang.speak(english, french)`.
-Games with their own toggles (ABC, Colors, Numbers, Key Letter and the toddler
-activities) save their choice to the same shared setting.
+Games built on the toy kit show the EN / FR toggle in their top bar and save to the same
+shared setting; the 🔊 button there mutes every kit game (`baby-muted`).
 
 ### Puzzle controls and mobile layout
 
-- Drag each piece to its matching outline; tapping or double-clicking does not automatically solve it.
-- Picking up a piece plays its theme's sound (Shapes: boing, Fruits: plop, Animals: squeaky toy, Transport:
-  car horn, Yummy Food: twinkle), with a slightly different pitch each time. The piece's name is spoken (in English or French) only when it
-  is dropped in the right place; a wrong drop just gives a gentle wobble and a soft low tone.
-- There are 12 levels. A level is one puzzle of each theme with the same number of pieces
-  (3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9). Levels 1-6 use Shapes, Fruits, Animals and Transport; clearing
-  level 6 unlocks a fifth theme, Yummy Food, so levels 7-12 have 5 puzzles. Play flows automatically from
-  puzzle to puzzle; the "Level N" badge shows the level and the dots show which of its puzzles the child
-  is on. After level 12 is cleared, play continues on level 12.
-- The start screen offers "Continue" (the furthest puzzle reached, saved in `localStorage` key
-  `puzzles-progress`) and "Start from the beginning". On a first visit it shows a single "Play!" button.
-- "Choose your level" opens the 12 levels; cleared levels and the level reached next can be picked,
-  the rest show a lock. The button itself stays locked until level 1 is cleared. Progress is saved as
-  soon as a puzzle is solved, even if the child leaves from the victory screen.
-- The board and piece tray resize for the screen and difficulty, with a side-by-side layout on short landscape screens.
-- On very small screens, the page can scroll so all pieces remain reachable.
+- **Shape puzzles**: drag each piece onto its matching shadow. Picking up a piece plays its theme's
+  sound and says its name; a wrong drop slides it back with a gentle wobble. After a few seconds of
+  waiting, the right shadow for the first piece pulses as a hint.
+- 12 levels: one puzzle of each theme with 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8 and 9 pieces. Levels 1-6 use
+  Shapes, Fruits, Animals and Things that go; level 7 adds Yummy food. Progress is saved as soon as a
+  puzzle is solved (`puzzles-progress`), and "Choose a level" opens every cleared level.
+- **Picture puzzles**: a drawn scene (farm, sea, space, rainbow) is cut into 2, 4, 6 then 9 tiles; a faint
+  copy of the picture on the board helps toddlers. Four pictures earn the next size (`puzzles-picture-level`).
+- Pieces and the board resize to the screen; dragging works with one finger, a pen or a mouse.
 
 ### ABC Time (`/abc/`)
 
-- A big jelly letter block drops in and the game says "A is for Apple. Can you find the apple?"
-  The child taps the matching picture card; each card shows the word with its first letter coloured
-  in that letter's colour.
-- The right picture jumps onto the letter block with sparkles; a wrong tap wobbles, says that word
-  and fades the card, so the child is never stuck.
-- 8 levels with 2, 2, 3, 3, 4, 4, 5 and 6 pictures. Five right answers fill five stars and move on
-  to the next level automatically.
-- The start screen works like Puzzles: "Continue", "Play!" / "Start from the beginning" and
-  "Choose your level" (locked until level 1 is cleared). Tapping the A, B, C blocks says the letter.
-- Progress is saved in `localStorage` keys `abc-level` (level to continue) and `abc-cleared`
-  (levels cleared). Saves from the old version are converted automatically.
+- **Meet the letters**: tap any of the 26 jelly blocks (or press a letter key) to hear "B. B is for Bear."
+  Tap the picture for another friend of that letter. Letters already met get a star (`abc-seen`), with a
+  party when all 26 are found.
+- **Find the picture**: "A is for Apple. Find the apple!" with 2 up to 6 pictures. The right picture hops onto
+  the letter block; a wrong tap says that word and fades. Five stars earn a level (`abc-level`).
+- **Letter balloons**: "Pop the letter B!" Balloons float up; popping the right one bursts it with
+  sparkles, a wrong one just wiggles and says its letter. Levels add more balloons and letters
+  (`abc-pop-level`). Words always start with their letter in both English and French.
 
 ### Colors (`/colors/`)
 
-- The start screen has three big picture cards (Play, Find, Mix) with animated jelly illustrations and a
-  single short word, so children can choose without reading. Cards squish with a sound when tapped;
-  they sit two-plus-one on phones and in one row on PC and landscape screens.
-- 11 basic colours (red, orange, yellow, green, blue, purple, pink, brown, black, white, gray), each a
-  rounded-square "jelly friend" with a face and a matching example (🍎, 🐸, 🐳...).
-- **Play with colors**: tap a jelly to hear its name and note; it squishes, smiles and tints the background.
-- **Find the color**: "Where is red? 🍎" with 2, 3, 4 then 6 choices. Five correct answers earn a level;
-  the level is saved in `localStorage` key `colors-find-level`. Wrong taps only wobble (no voice).
-- **Mix colors**: tap two paint drops (red, yellow, blue, white); they swirl together and a new jelly pops
-  out ("Red and yellow make orange!"). A recipe book tracks the 6 mixes to discover (orange, green,
-  purple, pink, sky blue, light yellow), saved in `localStorage` key `colors-mixes`, with a celebration
-  when all are found.
+- 11 jelly colour friends with faces and matching examples (🍎, 🐸, 🐳...).
+- **Meet the colors**: tap a jelly to hear its name; it squishes, smiles and tints the page.
+- **Find the color**: "Where is red?" with 2, 3, 4 then 6 jellies; five right answers earn a level
+  (`colors-find-level`).
+- **Mix colors**: tap two paint drops; they swirl into a new jelly ("Red and yellow make orange!").
+  The recipe book tracks the 6 mixes (`colors-mixes`).
+- **Paint the picture**: pick a colour, tap a part of a house, a fish or a rainbow to fill it; a
+  finished picture gets a celebration. White works as an eraser.
 
 ### Numbers (`/numbers/`)
 
-- Same style as Colors: three picture cards on the start screen (Play, Count, Feed).
-- Number blocks 1-10 show the digit plus the same number of dots.
-- **Play**: tap a block to hear the number; that many numbered items come out one by one with rising
-  notes. The number voice can be English, French (site language), Tagalog (browser voice), or Arabic and
-  Ilokano (recordings in `numbers/sounds/`), and each voice has its own effect: English balloons float
-  up, French bouncy balls bounce on the floor, Tagalog butterflies flutter away, Arabic stars burst like
-  fireworks, Ilokano fish swim across the screen.
-- **Count**: "How many?" Tap each thing to count it out loud, then tap the matching number block below.
-  The choices are always every number from 1 up, in order: level 1 shows 1-2, level 2 shows 1-3, and
-  each level adds the next number up to 1-10 at level 9.
-- **Feed**: "Give the bunny 3 carrots!" Tap food into the bowl (it counts out loud; tap food in the
-  bowl to take it back). The animal hops happily at the right number. Levels go up to 3, 5, 7, 10.
-- Five right answers earn the next level in Count and Feed; wrong taps only wobble (no voice).
+- **Tap & count**: tap a number block (digit plus dots) and that many friends hop onto the meadow one by
+  one, each counted out loud with a number tag. The counting voice can be English, French, Tagalog
+  (browser voice), or Arabic and Ilokano (recordings in `numbers/sounds/`), and is used in every mode.
+- **How many?**: tap each thing to count it, then tap the number; choices are always 1 up to the level's
+  biggest number (1-2 at level 1, up to 1-10).
+- **Feed the friend**: "Give the bunny 3 carrots!" Food hops into the bowl and is counted; tap the bowl
+  to take one back. The friend munches and dances at the right number. Levels go up to 3, 5, 7, 10.
 
 ### Bubble Hero (`/bubbles/`)
 
@@ -190,75 +173,41 @@ activities) save their choice to the same shared setting.
 
 ### Rooftop Santa (`/rooftopsanta/`)
 
-- Santa runs across rooftops, grabs presents into his sack and jumps over glowing star chimneys to
-  deliver them; delivery streaks build a multiplier.
-- Obstacles and helpers: roof gaps (Rudolph rescues Santa), light strings to slide under and
-  waddling penguins; power-ups are a magnet, sleigh flight and a snow globe.
-- Cozy and Speedy modes, first-time hints, toy-style menus in English/French.
-- The best score and total presents delivered are saved in the browser.
+- Santa and Rudolph run along continuous rooftops in three lanes like a classic runner; presents are the
+  only currency. Jump chimneys, snowmen and penguins, slide under strings of lights.
+- Three seconds of safety after a bump, three hearts, power-ups (magnet, sleigh flight, snow globe),
+  Cozy and Speedy modes, first-time hints and English/French menus.
+- The best score and all-time presents collected are saved in the browser.
 
 ### Stacky Smiles (`/tetris/`)
 
 A gentle falling-blocks game for about age 4, on a narrow 8 x 14 board with big smiley jelly blocks.
 
-- 6 levels: level 1 uses tiny pieces (1, 2 and 3 blocks), bigger pieces are added step by step, and
-  each level falls a little faster (🐌 → 🐢 → 🐇). Five lines fill five stars and move to the next
-  level with a fresh board.
-- A dashed shadow shows where the piece will land, and a short grace time lets children slide a piece
-  after it touches down. There is no game over: when the stack reaches the top, the blocks pop away
-  and play goes on.
-- Controls:
-  - **Touch:** drag on the board to slide the piece, tap to turn it, flick down to drop it.
-  - **Mouse:** the piece follows the pointer over the board, click to turn, wheel down to go down
-    faster (wheel up turns).
-  - **Buttons:** big ⬅ ➡ (hold to keep moving), turn and drop buttons.
-  - **Keyboard:** arrows to move/turn/go down, Space to drop.
-- The start screen and level picker work like ABC and Puzzles. Progress is saved in `localStorage`
-  keys `stacky-level` and `stacky-cleared`.
+- 6 levels, each with its own sky: tiny pieces first, bigger ones step by step, a little faster each
+  level. Five lines fill five stars and move to the next level with a fresh board.
+- A dashed shadow shows where the piece will land. There is no game over: a tower that reaches the top
+  pops away and play goes on.
+- Controls: drag on the board to slide, tap to turn, flick down to drop; big ◀ ▶ (hold to repeat),
+  turn and drop buttons; arrow keys and Space. Progress: `stacky-level`, `stacky-cleared`.
 
 ### Gentle toddler activities
 
-Four additional games use original vector illustrations, large touch controls,
-English/French instructions, a mute button, and spoken help. There are no timers,
-scores, adverts, purchases, or losing screens.
+Four calm games with no timers, scores or losing screens. Everything is done by rubbing or tapping,
+the tool follows the finger, and spoken instructions can be repeated with 🔊.
 
-- **Animal Wash** (`/animal-wash/`): rub or tap to remove mud, rinse the bubbles,
-  and meet a puppy, piglet, or bunny. Tickle the animals, splash in the bath,
-  pop a floating bubble party, and try silly hats without resetting the bath.
-  Space/Enter cleans spots or pops an active party bubble.
-- **Little Car Garage** (`/car-garage/`): wash a car, bus, or truck, choose its
-  paint color, honk, and explore a continuous pretend drive. Tap a bunny,
-  balloons, or a puddle; switch between meadow, beach, and evening roads.
-  The Garage button returns home whenever the child is ready.
-- **My Tiny Garden** (`/tiny-garden/`): choose flower, strawberry, or sunflower
-  seeds in independent pots, then water, add sunshine, and harvest. Tap each
-  pot to help it grow, collect a little basket, and greet rotating animal visitors.
-- **Magic Finger Painting** (`/finger-paint/`): draw, stamp stars or flowers,
-  erase, and switch optional outlines. Rainbow strokes, hearts, glitter,
-  and a non-destructive stamp dance add playful surprises.
-  Undo also recovers a cleared painting.
-  Arrow keys move the drawing cursor; Space/Enter paints at that point.
-
-Shared styles and interaction/audio helpers live in `assets/css/toddler-play.css`
-and `assets/js/toddler-play.js`. Each activity has its own module in `assets/js/`.
-Art survives viewport changes while the page remains open; paintings are not
-uploaded or saved across visits. Sound starts only after interaction and uses
-browser-generated tones and optional device speech synthesis. Supervised,
-short play sessions are recommended for ages 2-3.
-
-Scenes keep their artwork proportions in portrait and landscape so overlaid
-touch buttons stay aligned with the characters and pots. Garage scene buttons
-also support Enter/Space without triggering a different road action, and road
-choices retain their accessible label when sound is toggled.
-Painting caches finished strokes instead of redrawing the full undo history on
-every finger movement, while preserving clear recovery and the 50-step history.
-
-The four toddler pages use `assets/js/toddler-loader.js` to show loading errors
-and a reload option rather than leaving an empty scene. Their stylesheet, loader,
-game modules, and shared module imports carry a matching release query parameter
-to prevent older cached helpers from breaking newer games. When deploying changes
-to these assets, update the release identifier in all four HTML pages, the loader,
-and all four game-module imports together.
+- **Animal Wash** (`/animal-wash/`): pick a puppy, piglet, kitten or bunny. Scrub the mud with the
+  sponge (bubbles appear), rinse the bubbles with the shower, dry the drops with the towel, then dress up
+  with a hat, bow, glasses, crown, scarf or flower. Tap the pet to make it giggle and the duck to squeak.
+- **Little Car Garage** (`/car-garage/`): pick a car, bus or truck. Rub off the mud, tap each wobbly wheel
+  with the wrench to fix it, choose a paint colour and stickers, then drive along a rolling road with a
+  horn and headlights (which also turn on the night sky).
+- **My Tiny Garden** (`/tiny-garden/`): three pots; pick a seed (tulip, strawberry, sunflower, carrot or
+  tomato) and tap a pot. A bubble shows what each plant needs next (💧 or ☀️); tapping a pot does it.
+  Grown plants get a visitor and can be picked into the basket (`garden-basket`). Day / night switch
+  with fireflies.
+- **Finger Painting** (`/finger-paint/`): crayon, rainbow, sparkles, bubbles, eight stamps and an eraser
+  on white, night (glowing colours), brown paper or a coloring page (butterfly, fish, flower). Notes play
+  as you paint, higher at the top. Undo (10 steps) also brings back a cleared page.
 
 ### Saved progress
 
@@ -267,13 +216,17 @@ Nothing is uploaded; progress is kept in the browser's `localStorage`:
 | Key | Used by |
 | --- | --- |
 | `baby-lang` | Whole site: chosen language |
-| `abc-level`, `abc-cleared` | ABC Time: level to continue and levels cleared |
-| `puzzles-progress` | Puzzles: furthest puzzle reached |
+| `abc-level`, `abc-pop-level`, `abc-seen` | ABC Time: Find level, Balloons level, letters met |
+| `puzzles-progress`, `puzzles-picture-level` | Puzzles: furthest shape puzzle, picture puzzle size |
 | `colors-find-level` | Colors: Find the color level |
 | `colors-mixes` | Colors: mixes discovered |
 | `numbers-count-level`, `numbers-feed-level` | Numbers: Count and Feed levels |
 | `numbers-voice` | Numbers: Tagalog / Arabic / Ilokano number voice |
 | `stacky-level`, `stacky-cleared` | Stacky Smiles: level to continue and levels cleared |
+| `animals-quiz-level` | Animal Safari: "Who says that?" level |
+| `garden-basket` | My Tiny Garden: what has been picked |
+| `baby-muted` | Kit games: sound on or off |
+| `bubbles-save`, `bubbles-best` | Bubble Hero: saved run to continue, best level |
 | `rr_coins`, `rr_skins`, `rr_current_skin` | Jump! (Rooftop Rush): coins and unlocked skins |
 
 Bubble Hero and Rooftop Santa also save their best results in the browser.

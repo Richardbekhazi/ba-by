@@ -1,1660 +1,402 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-title-fr="Bébé Casse-tête">
+<html lang="en" data-title-fr="Casse-tête pour bébé">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Baby Shape Snaps</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
-    <!-- Friendly Font -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Drag shapes, fruits, animals and vehicles onto their outlines, or rebuild a picture tile by tile. 12 levels, English and French.">
+    <title>Puzzles</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧩</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
     <script src="/assets/js/site-lang.js?v=20261028"></script>
-
+    <script src="/assets/js/kit.js?v=20261029"></script>
     <style>
-        :root {
-            --accent: #FF7A7A;
-            --accent-dark: #E05555;
-            --accent-soft: #FFE3E0;
-            --text-main: #3D3551;
-            --tile-gap: 10px;
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: pan-y;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Nunito', sans-serif;
-            color: var(--text-main);
-            background: linear-gradient(160deg, #FFF6E9 0%, #FFE3C4 100%) fixed;
-            height: 100vh;
-            height: 100dvh;
-            overflow-x: hidden;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            transition: background 0.6s ease;
-        }
-
-        /* 🎈 FLOATING BACKGROUND BUBBLES */
-        .sky {
-            position: fixed;
-            inset: 0;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 0;
-            background-image: radial-gradient(rgba(255,255,255,0.55) 2px, transparent 2.5px);
-            background-size: 28px 28px;
-        }
-        .sky span {
-            position: absolute;
-            bottom: -120px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--accent-soft) 60%, transparent 72%);
-            opacity: 0.75;
-            animation: floatUp linear infinite;
-        }
-        .sky span:nth-child(1) { left: 6%;  width: 70px;  height: 70px;  animation-duration: 18s; }
-        .sky span:nth-child(2) { left: 22%; width: 34px;  height: 34px;  animation-duration: 13s; animation-delay: -6s; }
-        .sky span:nth-child(3) { left: 40%; width: 90px;  height: 90px;  animation-duration: 24s; animation-delay: -12s; }
-        .sky span:nth-child(4) { left: 62%; width: 46px;  height: 46px;  animation-duration: 16s; animation-delay: -3s; }
-        .sky span:nth-child(5) { left: 78%; width: 110px; height: 110px; animation-duration: 28s; animation-delay: -18s; }
-        .sky span:nth-child(6) { left: 90%; width: 28px;  height: 28px;  animation-duration: 12s; animation-delay: -8s; }
-        @keyframes floatUp {
-            from { transform: translateY(0) translateX(0); }
-            50%  { transform: translateY(-60vh) translateX(18px); }
-            to   { transform: translateY(-130vh) translateX(-10px); }
-        }
-
-        /* 🏠 HOME BUTTON */
-        .home-btn {
-            position: fixed;
-            top: max(14px, env(safe-area-inset-top));
-            left: max(14px, env(safe-area-inset-left));
-            width: 52px;
-            height: 52px;
-            background: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            text-decoration: none;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08);
-            z-index: 100;
-            transition: transform 0.15s;
-        }
-        .home-btn:hover { transform: scale(1.08) rotate(-6deg); }
-        .home-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
-        .back-btn {
-            position: fixed;
-            top: max(14px, env(safe-area-inset-top));
-            left: calc(max(14px, env(safe-area-inset-left)) + 62px);
-            width: 52px;
-            height: 52px;
-            border: 0;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08);
-            z-index: 100;
-            transition: transform 0.15s;
-        }
-        .back-btn[hidden] { display: none; }
-        .back-btn:hover { transform: scale(1.08) rotate(6deg); }
-        .back-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
-
-        body .site-lang-toggle button.active { background: var(--accent); }
-
-        /* ✨ PARTICLES CANVAS */
-        #particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-        }
-
-        /* --- GAME CONTAINER --- */
-        .game-container {
-            --grid-cols: 3;
-            --piece-size: 100px;
-            flex: 1;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            padding-top: 80px;
-            width: 100%;
-            max-width: 760px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* --- HEADER / PROGRESS --- */
-        .level-header {
-            text-align: center;
-            margin-bottom: 24px;
-            animation: dropIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes dropIn {
-            from { opacity: 0; transform: translateY(-24px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        h1 {
-            font-family: 'Fredoka One', cursive;
-            color: var(--accent);
-            font-size: 3rem;
-            line-height: 1.05;
-            margin: 0;
-            letter-spacing: 1px;
-            text-shadow: 0 4px 0 #fff, 0 8px 18px rgba(0,0,0,0.12);
-            transition: color 0.4s;
-        }
-
-        .subtitle {
-            display: inline-block;
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--accent-dark);
-            background: #fff;
-            padding: 6px 18px;
-            border-radius: 999px;
-            margin-top: 10px;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.06);
-        }
-
-        /* Level progress pills */
-        .level-dots {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .level-dots span {
-            width: 14px;
-            height: 14px;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.85);
-            box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08);
-            transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s;
-        }
-        .level-dots span.done { background: var(--accent-dark); }
-        .level-dots span.current { width: 34px; background: var(--accent); }
-
-        .level-progress {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .level-progress .level-dots { margin-top: 0; }
-        .level-num {
-            font-family: 'Fredoka One', cursive;
-            font-size: 0.95rem;
-            color: #fff;
-            background: var(--accent);
-            padding: 3px 12px;
-            border-radius: 999px;
-            box-shadow: 0 3px 0 var(--accent-dark);
-        }
-
-        /* ▶️ START SCREEN */
-        .start-screen {
-            position: fixed;
-            inset: 0;
-            z-index: 90;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            justify-content: safe center;
-            padding: 84px 20px 32px;
-            overflow-y: auto;
-            text-align: center;
-            background: linear-gradient(160deg, #FFF4EC 0%, #FFE3F1 50%, #DDEFFF 100%);
-            transition: opacity 0.35s, visibility 0.35s;
-        }
-        .start-screen:not(.visible) {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .start-icons {
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-            font-size: 52px;
-            line-height: 1;
-            margin-bottom: 14px;
-        }
-        .start-icons span { display: inline-block; animation: bob 2.6s ease-in-out infinite; }
-        .start-icons span:nth-child(2) { animation-delay: -0.6s; }
-        .start-icons span:nth-child(3) { animation-delay: -1.2s; }
-        .start-icons span:nth-child(4) { animation-delay: -1.8s; }
-        .start-screen h1 { color: #FF7A7A; font-size: 3.4rem; }
-        .start-screen .subtitle { color: #E05555; }
-        .start-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            width: min(380px, 100%);
-            margin-top: 30px;
-        }
-        .start-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        :root { --tint: #DCF6EE; --size: 110px; }
+        .play-area { width: 100%; max-width: 1060px; display: flex; gap: 18px; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .board, .tray {
+            display: grid;
+            grid-template-columns: repeat(var(--cols, 3), var(--size));
             gap: 12px;
-            width: 100%;
-            border: 0;
-            border-radius: 999px;
-            padding: 18px 24px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #fff;
-            background: #4CC26A;
-            box-shadow: 0 7px 0 #2F9E4C, 0 14px 24px rgba(0,0,0,0.12);
-            transition: transform 0.15s, box-shadow 0.15s;
-            animation: cardIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        .start-btn[hidden] { display: none; }
-        .start-btn + .start-btn { animation-delay: 0.1s; }
-        .start-btn.secondary {
-            background: #fff;
-            color: #E05555;
-            font-size: 1.25rem;
-            box-shadow: 0 7px 0 #FFC9C2, 0 14px 24px rgba(0,0,0,0.08);
-        }
-        .start-btn:hover { transform: translateY(-3px) scale(1.02); }
-        .start-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 #2F9E4C; }
-        .start-btn.secondary:active { box-shadow: 0 1px 0 #FFC9C2; }
-        .start-btn:focus-visible { outline: 4px solid #FF7A7A; outline-offset: 4px; }
-        .start-btn small {
-            font-size: 0.85rem;
-            background: rgba(255,255,255,0.25);
-            padding: 4px 10px;
-            border-radius: 999px;
-        }
-        .start-btn.choose {
-            background: #fff;
-            color: #2B7FCC;
-            font-size: 1.15rem;
-            box-shadow: 0 7px 0 #BFDFFF, 0 14px 24px rgba(0,0,0,0.08);
-        }
-        .start-btn.choose:active { box-shadow: 0 1px 0 #BFDFFF; }
-        .start-btn.choose.locked { color: #9AA3B2; box-shadow: 0 7px 0 #DDE2EA, 0 14px 24px rgba(0,0,0,0.06); }
-        .start-btn.choose.locked::after { content: '🔒'; font-size: 1rem; }
-        .start-btn.wobble { animation: wobble 0.45s ease-in-out; }
-        .start-btn + .start-btn + .start-btn { animation-delay: 0.2s; }
-
-        /* 🔢 LEVEL PICKER */
-        .start-main {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .start-main[hidden], .level-picker[hidden] { display: none; }
-        .level-picker {
-            width: min(880px, 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .level-picker h2 {
-            font-family: 'Fredoka One', cursive;
-            color: #2B7FCC;
-            font-size: 2.2rem;
-            margin: 0 0 18px;
-            text-shadow: 0 3px 0 #fff;
-        }
-        .level-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 18px;
-            width: 100%;
-            padding: 6px 4px 14px;
-        }
-        .level-note {
-            margin: -10px 0 18px;
-            font-weight: 800;
-            font-size: 1.15rem;
-            color: var(--accent-dark);
-        }
-        .level-tile {
-            --c: #FF7A7A;
-            --cd: #E05555;
-            position: relative;
-            width: 128px;
-            aspect-ratio: 1;
-            border: 0;
-            border-radius: 26%;
-            background: var(--c);
-            color: #fff;
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.7rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            cursor: pointer;
-            box-shadow: 0 6px 0 var(--cd), 0 10px 16px rgba(0,0,0,0.10);
-            transition: transform 0.15s;
-            animation: cardIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        .level-tile .tile-num { font-size: 2.6rem; line-height: 1; }
-        .level-tile .tile-icon { font-size: 0.85rem; line-height: 1; letter-spacing: 1px; }
-        .level-tile .tile-pieces {
-            font-size: 0.8rem;
-            background: rgba(255,255,255,0.28);
-            padding: 2px 8px;
-            border-radius: 999px;
-        }
-        .level-tile.locked .tile-pieces { background: rgba(0,0,0,0.05); }
-        .level-tile:hover { transform: translateY(-3px) scale(1.05); }
-        .level-tile:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--cd); }
-        .level-tile:focus-visible { outline: 4px solid var(--cd); outline-offset: 3px; }
-        .level-tile.locked {
-            background: #E8ECF2;
-            color: #A7B0BE;
-            box-shadow: 0 6px 0 #D2D8E1;
-        }
-        .level-tile.locked .tile-icon { filter: grayscale(1); opacity: 0.5; }
-        .level-tile .tile-lock {
-            position: absolute;
-            top: -8px;
-            right: -6px;
-            font-size: 1.05rem;
-            background: #fff;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
-        }
-        .level-tile.wobble { animation: wobble 0.45s ease-in-out; }
-        .level-picker .start-btn { width: min(320px, 100%); margin-top: 10px; }
-
-        @keyframes cardIn {
-            from { opacity: 0; transform: translateY(24px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @media (max-width: 600px) {
-            .start-screen h1 { font-size: 2.6rem; }
-            .start-icons { font-size: 42px; gap: 10px; }
-            .start-btn { font-size: 1.3rem; padding: 16px 20px; }
-            .start-btn.secondary { font-size: 1.1rem; }
-        }
-        @media (max-width: 600px) {
-            .level-picker h2 { font-size: 1.8rem; }
-            .level-grid { gap: 14px; }
-            .level-tile { width: calc((100% - 28px) / 3); max-width: 108px; }
-            .level-tile .tile-num { font-size: 2.1rem; }
-            .start-btn.choose { font-size: 1.05rem; }
-        }
-        @media (orientation: landscape) and (max-height: 600px) {
-            .start-screen { padding: 12px 20px 16px 84px; }
-            .start-buttons { flex-wrap: wrap; justify-content: center; gap: 12px 14px; }
-            .start-buttons .start-btn { flex: 1 1 40%; }
-            .start-buttons #continue-btn { flex-basis: 100%; }
-            .level-picker { padding-right: 72px; }
-            .level-picker h2 { font-size: 1.5rem; margin-bottom: 8px; }
-            .level-grid { gap: 12px; }
-            .level-tile { width: 92px; }
-            .level-tile .tile-num { font-size: 1.8rem; }
-            .level-tile .tile-icon { display: none; }
-            .start-icons { font-size: 34px; margin-bottom: 4px; }
-            .start-screen h1 { font-size: 2rem; }
-            .start-buttons { flex-direction: row; width: min(640px, 100%); margin-top: 16px; }
-            .start-btn { font-size: 1.15rem; padding: 14px 16px; }
-            .start-btn.secondary { font-size: 1rem; }
-        }
-
-        /* --- PLAY AREA --- */
-        .play-area {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 22px;
-            position: relative;
-            animation: fadeIn 0.6s ease-out 0.15s both;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* The Board: a soft toy tray with a coloured lip */
-        .board {
-            display: grid;
-            grid-template-columns: repeat(var(--grid-cols), var(--piece-size));
-            justify-content: center;
-            align-items: center;
-            gap: var(--tile-gap);
-            width: max-content;
-            min-width: 0;
-            padding: 14px;
-            border: 4px solid #fff;
-            border-radius: 36px;
-            background: rgba(255,255,255,0.72);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            box-shadow: 0 10px 0 var(--accent), 0 18px 30px rgba(0,0,0,0.12);
-        }
-
-        /* Slots: soft "holes" showing the piece's shadow */
-        .slot {
-            width: 100%;
-            min-width: 0;
-            height: auto;
-            aspect-ratio: 1;
-            background: var(--accent-soft);
-            border-radius: 28%;
-            box-shadow: inset 0 5px 0 rgba(0,0,0,0.07), inset 0 0 0 3px rgba(255,255,255,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, background 0.25s;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .slot.hint-pulse {
-            animation: hintPulse 1.2s ease-in-out infinite;
-        }
-
-        @keyframes hintPulse {
-            0%, 100% { transform: scale(1); box-shadow: inset 0 5px 0 rgba(0,0,0,0.07), 0 0 0 0 var(--accent); }
-            50% { transform: scale(1.07); box-shadow: inset 0 5px 0 rgba(0,0,0,0.07), 0 0 0 7px var(--accent); }
-        }
-
-        .slot.hovered {
-            background: #fff;
-            transform: scale(1.08);
-            box-shadow: inset 0 5px 0 rgba(0,0,0,0.05), 0 0 0 5px var(--accent), 0 8px 20px rgba(0,0,0,0.12);
-        }
-
-        /* Emoji Display */
-        .emoji-display {
-            font-size: calc(var(--piece-size) * 0.62);
-            line-height: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            filter: drop-shadow(0 3px 4px rgba(0,0,0,0.15));
-        }
-
-        /* Silhouette of the emoji in the slot */
-        .emoji-placeholder {
-            filter: brightness(0);
-            opacity: 0.16;
-        }
-
-        /* Only target the silhouette SVG, not the SVG inside a placed piece */
-        .slot > svg {
-            width: 66%;
-            height: 66%;
-            fill: var(--accent-dark);
-            opacity: 0.28;
-            pointer-events: none;
-        }
-
-        /* Pieces tray */
-        .pieces-row {
-            display: grid;
-            justify-content: center;
-            grid-template-columns: repeat(var(--grid-cols), var(--piece-size));
-            width: max-content;
-            padding: 14px;
-            gap: var(--tile-gap);
-            min-height: 0;
-            align-items: center;
-            border-radius: 32px;
-            background: rgba(255,255,255,0.35);
-        }
-
-        /* Pieces: chunky candy tiles */
-        .piece {
-            width: var(--piece-size);
-            height: var(--piece-size);
-            cursor: grab;
-            touch-action: none;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            background: #fff;
-            border-radius: 28%;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.10), 0 12px 20px rgba(0,0,0,0.10);
-            padding: 4px;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s;
-            animation: bob 2.6s ease-in-out infinite;
-        }
-        .piece-wrapper:nth-child(2n) .piece { animation-delay: -0.9s; }
-        .piece-wrapper:nth-child(3n) .piece { animation-delay: -1.7s; }
-
-        @keyframes bob {
-            0%, 100% { transform: translateY(0) rotate(-2deg); }
-            50% { transform: translateY(-5px) rotate(2deg); }
-        }
-
-        .piece:hover:not(.placed):not(.dragging) {
-            animation: none;
-            transform: translateY(-8px) scale(1.06);
-            box-shadow: 0 12px 0 rgba(0,0,0,0.08), 0 18px 26px rgba(0,0,0,0.14);
-        }
-
-        .piece svg {
-            width: 80%;
-            height: 80%;
-            pointer-events: none;
-            filter: drop-shadow(0 3px 3px rgba(0,0,0,0.15));
-        }
-
-        .piece:active:not(.placed) {
-            cursor: grabbing;
-        }
-
-        .piece.dragging {
-            position: fixed; /* Popped out of layout */
-            pointer-events: none; /* Let events pass through to check for slots */
-            z-index: 1000;
-            animation: none;
-            box-shadow: 0 0 0 4px var(--accent), 0 22px 40px rgba(0,0,0,0.25);
-            will-change: transform;
-            transition: none !important;
-        }
-
-        .piece.wobble {
-            animation: wobble 0.45s ease-in-out;
-        }
-
-        @keyframes wobble {
-            0%, 100% { transform: translateX(0) rotate(0); }
-            20% { transform: translateX(-8px) rotate(-8deg); }
-            40% { transform: translateX(8px) rotate(8deg); }
-            60% { transform: translateX(-5px) rotate(-4deg); }
-            80% { transform: translateX(5px) rotate(4deg); }
-        }
-
-        .piece.placed {
-            position: absolute; /* Stick to slot */
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 5;
-            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            background: #fff;
-            box-shadow: 0 0 0 4px var(--accent);
-        }
-
-        @keyframes popIn {
-            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
-            70% { transform: scale(1.18) rotate(8deg); }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-
-        .piece-wrapper {
-            width: var(--piece-size);
-            height: var(--piece-size);
-        }
-
-        /* --- VICTORY SCREEN --- */
-        #victory-screen {
-            position: fixed;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 16px;
-            z-index: 200;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
+            border-radius: 32px;
         }
-
-        #victory-screen.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .victory-card {
-            position: relative;
+        .board { background: #fff; box-shadow: 0 10px 0 color-mix(in srgb, var(--accent, #3FC9C0) 45%, #fff); }
+        .tray { background: color-mix(in srgb, var(--accent, #3FC9C0) 16%, #fff); box-shadow: inset 0 0 0 4px rgba(255,255,255,0.8); min-height: calc(var(--size) + 32px); }
+        .slot { width: var(--size); height: var(--size); border-radius: 26px; background: #F5F1FA; display: grid; place-items: center; position: relative; }
+        .slot .ghost { width: 82%; height: 82%; opacity: 0.22; filter: grayscale(1) brightness(0.4); display: grid; place-items: center; font-size: calc(var(--size) * 0.62); line-height: 1; }
+        .slot .ghost svg { width: 100%; height: 100%; }
+        .slot.hover { box-shadow: inset 0 0 0 5px var(--accent, #3FC9C0); }
+        .slot.hint { animation: hint 1s ease-in-out 3; }
+        @keyframes hint { 50% { box-shadow: inset 0 0 0 6px var(--sun); transform: scale(1.06); } }
+        .piece {
+            width: var(--size);
+            height: var(--size);
+            border-radius: 26px;
+            display: grid;
+            place-items: center;
             background: #fff;
-            padding: 64px 48px 40px;
-            border-radius: 44px;
-            text-align: center;
-            max-width: 420px;
-            width: 100%;
-            box-shadow: 0 12px 0 var(--accent), 0 30px 60px rgba(0,0,0,0.18);
-            transform: scale(0.6) rotate(-4deg);
-            transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 6px 0 rgba(61,53,81,0.12);
+            font-size: calc(var(--size) * 0.62);
+            line-height: 1;
+            touch-action: none;
+            cursor: grab;
+            animation: kit-rise 0.4s backwards;
         }
+        .piece svg { width: 82%; height: 82%; filter: drop-shadow(0 4px 0 rgba(0,0,0,0.12)); }
+        .piece.dragging { position: fixed; z-index: 90; pointer-events: none; transform: translate(-50%, -50%) scale(1.12); box-shadow: 0 18px 30px rgba(61,53,81,0.25); cursor: grabbing; animation: none; }
+        .piece.placed { box-shadow: none; background: transparent; cursor: default; animation: kit-pop 0.4s; }
+        .slot .piece.placed { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-        #victory-screen.visible .victory-card {
-            transform: scale(1) rotate(0);
-        }
-
-        .victory-badge {
-            position: absolute;
-            top: -52px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 104px;
-            height: 104px;
-            border-radius: 50%;
-            background: var(--accent);
-            border: 6px solid #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 54px;
-            box-shadow: 0 8px 18px rgba(0,0,0,0.15);
-        }
-
-        #victory-screen.visible .victory-badge { animation: spinIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both; }
-
-        @keyframes spinIn {
-            from { transform: translateX(-50%) scale(0) rotate(-180deg); }
-            to { transform: translateX(-50%) scale(1) rotate(0); }
-        }
-
-        .victory-stars {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            font-size: 2.6rem;
-            margin-bottom: 4px;
-        }
-        .victory-stars span { display: inline-block; opacity: 0; }
-        #victory-screen.visible .victory-stars span { animation: starPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-        #victory-screen.visible .victory-stars span:nth-child(1) { animation-delay: 0.35s; }
-        #victory-screen.visible .victory-stars span:nth-child(2) { animation-delay: 0.5s; font-size: 1.25em; }
-        #victory-screen.visible .victory-stars span:nth-child(3) { animation-delay: 0.65s; }
-
-        @keyframes starPop {
-            from { opacity: 0; transform: scale(0) rotate(-90deg); }
-            to { opacity: 1; transform: scale(1) rotate(0); }
-        }
-
-        .victory-card h1 {
-            font-size: 3.4rem;
-            margin: 0;
-        }
-
-        .victory-card .subtitle {
-            font-size: 1.3rem;
-            margin: 8px 0 26px;
-            background: var(--accent-soft);
-            box-shadow: none;
-        }
-
-        .next-btn {
-            display: block;
-            width: 100%;
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 18px 28px;
-            font-size: 1.5rem;
-            font-family: 'Fredoka One', cursive;
-            letter-spacing: 0.5px;
-            border-radius: 999px;
-            cursor: pointer;
-            box-shadow: 0 7px 0 var(--accent-dark), 0 12px 20px rgba(0,0,0,0.15);
-            transition: transform 0.15s, box-shadow 0.15s;
-            animation: nudge 1.6s ease-in-out 1.2s infinite;
-        }
-
-        @keyframes nudge {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .next-btn:hover { animation-play-state: paused; transform: translateY(-2px) scale(1.03); }
-        .next-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 var(--accent-dark); }
-        .next-btn:focus-visible { outline: 4px solid var(--accent-soft); outline-offset: 4px; }
-
-        @media (prefers-reduced-motion: reduce) {
-            .sky span, .piece, .next-btn { animation: none !important; }
-        }
-
-        @media (max-width: 600px) {
-            :root { --tile-gap: 8px; }
-            .game-container { padding: 76px 12px 12px; justify-content: flex-start; justify-content: safe center; }
-            .level-header { margin-bottom: 16px; }
-            .level-header h1 { font-size: 2.3rem; }
-            .subtitle { font-size: 0.95rem; padding: 5px 14px; margin-top: 6px; }
-            .play-area { gap: 18px; }
-            .board { padding: 10px; border-radius: 28px; }
-            .pieces-row { padding: 10px; border-radius: 26px; }
-            .victory-card { padding: 60px 24px 32px; border-radius: 36px; }
-            .victory-card h1 { font-size: 2.8rem; }
-        }
-
-        @media (max-width: 600px) and (max-height: 520px) {
-            .game-container { padding-top: 56px; }
-            .level-header { margin-bottom: 8px; }
-            .level-header h1 { font-size: 1.7rem; }
-            .subtitle { font-size: 0.8rem; }
-            .play-area { gap: 10px; }
-        }
-
-        @media (orientation: landscape) and (max-height: 600px) {
-            :root { --tile-gap: 8px; }
-            .game-container { max-width: none; padding: 8px 12px 8px 76px; justify-content: flex-start; }
-            .level-header { margin-bottom: 6px; }
-            .level-header h1 { font-size: 1.8rem; text-shadow: 0 3px 0 #fff; }
-            .subtitle { margin-top: 2px; font-size: 0.85rem; padding: 3px 12px; }
-            .level-dots { margin-top: 6px; }
-            .play-area { flex-direction: row; justify-content: center; gap: 16px; }
-            .board { padding: 10px; border-radius: 28px; }
-            .pieces-row { padding: 10px; border-radius: 26px; }
-            .victory-card { padding: 54px 24px 24px; }
-            .victory-card h1 { font-size: 2.4rem; }
-            .victory-stars { font-size: 1.8rem; }
-            .victory-card .subtitle { margin-bottom: 14px; }
-        }
-
+        /* Picture puzzles: tiles are slices of one drawing */
+        .pic-board { position: relative; background-size: cover; }
+        .pic-board::before { content: ''; position: absolute; inset: 16px; border-radius: 20px; background: var(--pic) center / 100% 100% no-repeat; opacity: 0.16; }
+        .pic-board .slot { background: transparent; border: 3px dashed rgba(61,53,81,0.18); z-index: 1; }
+        .tile { background-image: var(--pic); background-size: var(--bw) var(--bh); background-position: var(--bx) var(--by); font-size: 0; border: 4px solid #fff; }
+        .slot .tile.placed { border-radius: 22px; border: 0; background: var(--pic) var(--bx) var(--by) / var(--bw) var(--bh) no-repeat; }
+        .tray:empty { display: none; }
+        .done-row { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        @media (max-width: 640px) { .board, .tray { gap: 8px; padding: 10px; border-radius: 24px; } }
     </style>
 </head>
 <body>
-
-    <div class="sky" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    <canvas id="particles"></canvas>
-    <a href="/" class="home-btn" title="Back to Games" aria-label="Back to Games" data-fr-title="Retour aux jeux" data-fr-aria-label="Retour aux jeux"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#FF7A45"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#E85A28" opacity="0.55"/><path d="M24 12.5 L35.5 22 V33.5 a2.5 2.5 0 0 1 -2.5 2.5 H28 V29 a4 4 0 0 0 -8 0 V36 H15 a2.5 2.5 0 0 1 -2.5 -2.5 V22 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg></a>
-    <button type="button" class="back-btn" id="back-btn" hidden aria-label="Back to start" title="Back to start" data-fr-aria-label="Retour au début" data-fr-title="Retour au début"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#3D9BF0"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#2177C9" opacity="0.55"/><path d="M25 14 L15 24 L25 34 M16 24 H34" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-
-    <div class="start-screen visible" id="start-screen">
-        <div class="start-main" id="start-main">
-        <div class="start-icons" aria-hidden="true"><span>⭐</span><span>🍎</span><span>🐱</span><span>🚗</span></div>
-        <h1 data-fr="Casse-tête">Puzzles</h1>
-        <p class="subtitle" data-fr="Trouve la bonne place !">Find the right spot!</p>
-        <div class="start-buttons">
-            <button type="button" class="start-btn" id="continue-btn" hidden>
-                <span data-fr="▶ Continuer">▶ Continue</span> <small id="continue-level"></small>
-            </button>
-            <button type="button" class="start-btn" id="restart-btn" data-fr="▶ Jouer !">▶ Play!</button>
-            <button type="button" class="start-btn choose" id="choose-btn">
-                <span data-fr="🔢 Choisis ton niveau">🔢 Choose your level</span>
-            </button>
+    <main class="kit-screen" id="start">
+        <h1 class="kit-title" style="--title-shadow:#2EC4B6"><span class="bob" data-fr="Casse">Puz</span><span class="bob" style="animation-delay:-1.2s" data-fr="-tête">zles</span></h1>
+        <p class="kit-sub" data-fr="Glisse chaque pièce à sa place !">Slide every piece into its place!</p>
+        <div class="kit-modes">
+            <button class="kit-mode" type="button" id="go-shapes" style="--c:#2EC4B6"><span class="kit-badge" id="shapes-badge"></span><span class="kit-mode-art"><span>⭐🍎🐱</span></span><span class="kit-mode-label"><b data-fr="Formes et amis">Shape puzzles</b><small data-fr="Glisse sur la bonne ombre">Match each piece to its shadow</small></span></button>
+            <button class="kit-mode" type="button" id="go-pictures" style="--c:#A66BFF"><span class="kit-badge" id="pictures-badge"></span><span class="kit-mode-art"><span>🖼️</span></span><span class="kit-mode-label"><b data-fr="Images en morceaux">Picture puzzles</b><small data-fr="Reconstruis l'image">Put the picture back together</small></span></button>
         </div>
-        </div>
+        <button type="button" class="kit-btn small white" id="go-pick" data-fr="🔢 Choisir un niveau">🔢 Choose a level</button>
+    </main>
 
-        <div class="level-picker" id="level-picker" hidden>
-            <h2 data-fr="Choisis ton niveau">Choose your level</h2>
-            <div class="level-grid" id="level-grid"></div>
-        </div>
-    </div>
+    <main class="kit-screen" id="pick" hidden>
+        <h2 class="kit-title" style="font-size:2.4rem" data-fr="Choisis un niveau">Choose a level</h2>
+        <div id="picker"></div>
+    </main>
 
-    <div class="game-container">
-        <div class="level-header">
-            <h1 id="level-title">Shapes</h1>
-            <div class="subtitle" id="level-subtitle" data-fr="Glisse pour assortir !">Drag to match!</div>
-            <div class="level-progress">
-                <span class="level-num" id="level-num"></span>
-                <div class="level-dots" id="level-dots" aria-hidden="true"></div>
-            </div>
-        </div>
+    <main class="kit-screen" id="shapes" hidden>
+        <div class="kit-hud"><span class="kit-level" id="shapes-level"></span><span class="kit-stars" id="shapes-dots"></span></div>
+        <div class="play-area"><div class="board" id="shape-board"></div><div class="tray" id="shape-tray"></div></div>
+        <div class="done-row" id="shape-done" hidden><button type="button" class="kit-btn" id="shape-next" data-fr="Suivant ➜">Next ➜</button></div>
+    </main>
 
-        <div class="play-area" id="play-area">
-            <div class="board">
-                <div id="slots-container" style="display: contents;"></div>
-            </div>
-            
-            <!-- Pieces go here -->
-            <div class="pieces-row" id="pieces-container"></div>
-        </div>
-    </div>
-
-    <div id="victory-screen">
-        <div class="victory-card">
-            <div class="victory-badge" aria-hidden="true">🏆</div>
-            <div class="victory-stars" aria-hidden="true"><span>⭐</span><span>⭐</span><span>⭐</span></div>
-            <h1 data-fr="Bravo !">Yay!</h1>
-            <p class="subtitle" data-fr="Beau travail !">Good Job!</p>
-            <p class="level-note" id="level-note" hidden></p>
-            <button class="next-btn" id="next-level-btn">Next puzzle ➜</button>
-        </div>
-    </div>
+    <main class="kit-screen" id="pictures" hidden>
+        <div class="kit-hud"><span class="kit-level" id="pic-level"></span><span class="kit-stars" id="pic-stars"></span></div>
+        <div class="play-area"><div class="board pic-board" id="pic-board"></div><div class="tray" id="pic-tray"></div></div>
+        <div class="done-row" id="pic-done" hidden><button type="button" class="kit-btn" id="pic-next" style="--c:#A66BFF;--cd:#7B45D6" data-fr="Suivant ➜">Next ➜</button></div>
+    </main>
 
     <script>
-        /**
-         * Baby Shape Snaps Logic
-         */
+    (function () {
+        'use strict';
+        const { T, $, sfx, say } = Kit;
+        const NBSP = ' ';
+        const THEMES = [
+            { name: ['Shapes', 'Formes'], accent: '#FF7A7A', sound: 'boing', items: [
+                { id: 'circle', name: ['Circle', 'Cercle'], svg: '<circle cx="50" cy="50" r="40" fill="#FF6B6B"/>' },
+                { id: 'square', name: ['Square', 'Carré'], svg: '<rect x="15" y="15" width="70" height="70" rx="10" fill="#4ECDC4"/>' },
+                { id: 'triangle', name: ['Triangle', 'Triangle'], svg: '<path d="M50 14 L88 82 L12 82 Z" fill="#FFD23F" stroke="#FFD23F" stroke-width="8" stroke-linejoin="round"/>' },
+                { id: 'star', name: ['Star', 'Étoile'], svg: '<path d="M50 8 L61 38 L93 39 L67 59 L77 90 L50 72 L23 90 L33 59 L7 39 L39 38 Z" fill="#A29BFE"/>' },
+                { id: 'heart', name: ['Heart', 'Cœur'], svg: '<path d="M50 86 C50 86 14 62 14 36 A18 18 0 0 1 50 32 A18 18 0 0 1 86 36 C86 62 50 86 50 86 Z" fill="#FF7DB8"/>' },
+                { id: 'diamond', name: ['Diamond', 'Losange'], svg: '<polygon points="50,8 88,50 50,92 12,50" fill="#54A0FF"/>' },
+                { id: 'moon', name: ['Moon', 'Lune'], svg: '<path d="M70 8 C42 12 22 34 22 58 C22 80 42 94 66 90 C52 80 44 65 44 49 C44 31 54 17 70 8 Z" fill="#FDCB6E"/>' },
+                { id: 'pentagon', name: ['Pentagon', 'Pentagone'], svg: '<polygon points="50,10 90,40 75,86 25,86 10,40" fill="#FAB1A0"/>' },
+                { id: 'hexagon', name: ['Hexagon', 'Hexagone'], svg: '<polygon points="50,8 87,29 87,71 50,92 13,71 13,29" fill="#6C5CE7"/>' }
+            ] },
+            { name: ['Fruits', 'Fruits'], accent: '#4CC26A', sound: 'plop', items: [
+                ['apple', '🍎', 'Apple', 'Pomme'], ['banana', '🍌', 'Banana', 'Banane'], ['grape', '🍇', 'Grapes', 'Raisins'], ['orange', '🍊', 'Orange', 'Orange'],
+                ['pear', '🍐', 'Pear', 'Poire'], ['cherry', '🍒', 'Cherry', 'Cerise'], ['strawberry', '🍓', 'Strawberry', 'Fraise'], ['watermelon', '🍉', 'Watermelon', 'Pastèque'], ['pineapple', '🍍', 'Pineapple', 'Ananas']
+            ] },
+            { name: ['Animals', 'Animaux'], accent: '#4DA3F2', sound: 'squeak', items: [
+                ['cat', '🐱', 'Cat', 'Chat'], ['fish', '🐠', 'Fish', 'Poisson'], ['bear', '🐻', 'Bear', 'Ours'], ['bird', '🐦', 'Bird', 'Oiseau'], ['pig', '🐷', 'Pig', 'Cochon'],
+                ['duck', '🦆', 'Duck', 'Canard'], ['frog', '🐸', 'Frog', 'Grenouille'], ['crab', '🦀', 'Crab', 'Crabe'], ['turtle', '🐢', 'Turtle', 'Tortue']
+            ] },
+            { name: ['Things that go', 'Transports'], accent: '#FF9F2E', sound: 'honk', items: [
+                ['car', '🚗', 'Car', 'Auto'], ['boat', '⛵', 'Boat', 'Bateau'], ['rocket', '🚀', 'Rocket', 'Fusée'], ['plane', '✈️', 'Plane', 'Avion'], ['truck', '🚚', 'Truck', 'Camion'],
+                ['bike', '🚲', 'Bike', 'Vélo'], ['bus', '🚌', 'Bus', 'Autobus'], ['train', '🚂', 'Train', 'Train'], ['helicopter', '🚁', 'Helicopter', 'Hélicoptère']
+            ] },
+            { name: ['Yummy food', 'Miam-miam'], accent: '#8C6CF0', sound: 'sparkle', items: [
+                ['cake', '🎂', 'Cake', 'Gâteau'], ['icecream', '🍦', 'Ice cream', 'Crème glacée'], ['donut', '🍩', 'Donut', 'Beigne'], ['cookie', '🍪', 'Cookie', 'Biscuit'], ['cupcake', '🧁', 'Cupcake', 'Petit gâteau'],
+                ['pizza', '🍕', 'Pizza', 'Pizza'], ['croissant', '🥐', 'Croissant', 'Croissant'], ['popcorn', '🍿', 'Popcorn', 'Maïs soufflé'], ['lollipop', '🍭', 'Lollipop', 'Sucette']
+            ] }
+        ].map(t => ({ ...t, items: t.items.map(i => Array.isArray(i) ? { id: i[0], emoji: i[1], name: [i[2], i[3]] } : i) }));
+        const art = item => item.emoji || `<svg viewBox="0 0 100 100">${item.svg}</svg>`;
+        const itemName = item => T(item.name[0], item.name[1]);
 
-        // --- LEVELS DATA ---
-        // Using emojis for visual appeal
-        const LEVELS = [
-            {
-                name: "Shapes", pickupSound: "boing", accent: ["#FF7A7A", "#E05555", "#FFE3E0"], nameFr: "Formes",
-                bg: "linear-gradient(160deg, #FFF4EC 0%, #FFD3C6 100%)",
-                items: [
-                    { id: 'circle', name: 'Circle', fr: 'Cercle', color: '#FF6B6B', path: '<circle cx="50" cy="50" r="40"/>' },
-                    { id: 'square', name: 'Square', fr: 'Carré', color: '#4ECDC4', path: '<rect x="15" y="15" width="70" height="70" rx="10"/>' },
-                    { id: 'triangle', name: 'Triangle', fr: 'Triangle', color: '#FFE66D', path: '<path d="M50 15 L85 80 L15 80 Z" stroke-linejoin="round" stroke-width="10"/>' },
-                    { id: 'star', name: 'Star', fr: 'Étoile', color: '#A29BFE', path: '<path d="M50 10 L61 40 L93 40 L67 60 L77 90 L50 72 L23 90 L33 60 L7 40 L39 40 Z"/>' },
-                    { id: 'heart', name: 'Heart', fr: 'Cœur', color: '#FF9FF3', path: '<path d="M50 85 C50 85 15 60 15 35 A18 18 0 0 1 50 35 A18 18 0 0 1 85 35 C85 60 50 85 50 85 Z"/>' },
-                    { id: 'diamond', name: 'Diamond', fr: 'Losange', color: '#54a0ff', path: '<polygon points="50,10 85,50 50,90 15,50"/>' },
-                    { id: 'pentagon', name: 'Pentagon', fr: 'Pentagone', color: '#fab1a0', path: '<polygon points="50,10 90,40 75,85 25,85 10,40"/>' },
-                    { id: 'moon', name: 'Moon', fr: 'Lune', color: '#fdcb6e', path: '<path d="M70 8 C42 12 22 34 22 58 C22 80 42 94 66 90 C52 80 44 65 44 49 C44 31 54 17 70 8 Z"/>' },
-                    { id: 'hexagon', name: 'Hexagon', fr: 'Hexagone', color: '#6c5ce7', path: '<polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>' }
-                ]
-            },
-            {
-                name: "Fruits", pickupSound: "plop", accent: ["#4CC26A", "#2F9E4C", "#DDF5E2"], nameFr: "Fruits",
-                bg: "linear-gradient(160deg, #F1FFF0 0%, #C5EFCF 100%)",
-                items: [
-                    { id: 'apple', name: 'Apple', fr: 'Pomme', emoji: '🍎' },
-                    { id: 'banana', name: 'Banana', fr: 'Banane', emoji: '🍌' },
-                    { id: 'grape', name: 'Grapes', fr: 'Raisins', emoji: '🍇' },
-                    { id: 'orange', name: 'Orange', fr: 'Orange', emoji: '🍊' },
-                    { id: 'pear', name: 'Pear', fr: 'Poire', emoji: '🍐' },
-                    { id: 'cherry', name: 'Cherry', fr: 'Cerise', emoji: '🍒' },
-                    { id: 'strawberry', name: 'Strawberry', fr: 'Fraise', emoji: '🍓' },
-                    { id: 'watermelon', name: 'Watermelon', fr: 'Pastèque', emoji: '🍉' },
-                    { id: 'pineapple', name: 'Pineapple', fr: 'Ananas', emoji: '🍍' }
-                ]
-            },
-            {
-                name: "Animals", pickupSound: "squeak", accent: ["#4DA3F2", "#2B7FCC", "#DCEEFF"], nameFr: "Animaux",
-                bg: "linear-gradient(160deg, #EEF8FF 0%, #BFDFFF 100%)",
-                items: [
-                    { id: 'cat', name: 'Cat', fr: 'Chat', emoji: '🐱' },
-                    { id: 'fish', name: 'Fish', fr: 'Poisson', emoji: '🐠' },
-                    { id: 'bear', name: 'Bear', fr: 'Ours', emoji: '🐻' },
-                    { id: 'bird', name: 'Bird', fr: 'Oiseau', emoji: '🐦' },
-                    { id: 'pig', name: 'Pig', fr: 'Cochon', emoji: '🐷' },
-                    { id: 'duck', name: 'Duck', fr: 'Canard', emoji: '🦆' },
-                    { id: 'frog', name: 'Frog', fr: 'Grenouille', emoji: '🐸' },
-                    { id: 'crab', name: 'Crab', fr: 'Crabe', emoji: '🦀' },
-                    { id: 'turtle', name: 'Turtle', fr: 'Tortue', emoji: '🐢' }
-                ]
-            },
-            {
-                name: "Transport", pickupSound: "honk", accent: ["#FF9F2E", "#E07F10", "#FFEBD2"], nameFr: "Transports",
-                bg: "linear-gradient(160deg, #FFF8EA 0%, #FFD9A8 100%)",
-                items: [
-                    { id: 'car', name: 'Car', fr: 'Auto', emoji: '🚗' },
-                    { id: 'boat', name: 'Boat', fr: 'Bateau', emoji: '⛵' },
-                    { id: 'rocket', name: 'Rocket', fr: 'Fusée', emoji: '🚀' },
-                    { id: 'plane', name: 'Plane', fr: 'Avion', emoji: '✈️' },
-                    { id: 'truck', name: 'Truck', fr: 'Camion', emoji: '🚚' },
-                    { id: 'bike', name: 'Bike', fr: 'Vélo', emoji: '🚴' },
-                    { id: 'bus', name: 'Bus', fr: 'Autobus', emoji: '🚌' },
-                    { id: 'train', name: 'Train', fr: 'Train', emoji: '🚂' },
-                    { id: 'helicopter', name: 'Helicopter', fr: 'Hélicoptère', emoji: '🚁' }
-                ]
-            },
-            {
-                name: "Yummy Food", pickupSound: "twinkle", accent: ["#8C6CF0", "#6A4BD1", "#ECE5FF"], nameFr: "Miam-miam",
-                bg: "linear-gradient(160deg, #F7F3FF 0%, #D9CCFF 100%)",
-                items: [
-                    { id: 'cake', name: 'Cake', fr: 'Gâteau', emoji: '🎂' },
-                    { id: 'icecream', name: 'Ice cream', fr: 'Crème glacée', emoji: '🍦' },
-                    { id: 'donut', name: 'Donut', fr: 'Beigne', emoji: '🍩' },
-                    { id: 'cookie', name: 'Cookie', fr: 'Biscuit', emoji: '🍪' },
-                    { id: 'cupcake', name: 'Cupcake', fr: 'Petit gâteau', emoji: '🧁' },
-                    { id: 'pizza', name: 'Pizza', fr: 'Pizza', emoji: '🍕' },
-                    { id: 'croissant', name: 'Croissant', fr: 'Croissant', emoji: '🥐' },
-                    { id: 'popcorn', name: 'Popcorn', fr: 'Maïs soufflé', emoji: '🍿' },
-                    { id: 'lollipop', name: 'Lollipop', fr: 'Sucette', emoji: '🍭' }
-                ]
-            }
-        ];
-
-        const PROGRESS_KEY = 'puzzles-progress';
-        const lang = window.BabyLang;
-        const NBSP = '\u00a0';
-        const itemName = item => lang.t(item.name, item.fr || item.name);
-
-        // A level is one puzzle of each theme with the same number of pieces.
-        // Levels 1-6 use the first 4 themes; clearing level 6 unlocks the 5th theme,
-        // so levels 7-12 have 5 puzzles. "Steps" count single puzzles across all levels.
+        // Levels: each level is one puzzle per theme; the 5th theme joins at level 7.
         const LEVEL_PIECES = [3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9];
-        const LEVEL_COUNT = LEVEL_PIECES.length;
-        const BONUS_LEVEL = 6; // index of level 7, the first level with the 5th theme
-        const themesIn = level => (level >= BONUS_LEVEL ? LEVELS.length : LEVELS.length - 1);
-        const STEPS = [];
-        const LEVEL_START = [];
-        LEVEL_PIECES.forEach((_, level) => {
-            LEVEL_START.push(STEPS.length);
-            for (let theme = 0; theme < themesIn(level); theme++) STEPS.push({ level, theme });
+        const themesIn = level => (level >= 6 ? 5 : 4);
+        const STEPS = [], LEVEL_START = [];
+        LEVEL_PIECES.forEach((_, level) => { LEVEL_START.push(STEPS.length); for (let t = 0; t < themesIn(level); t++) STEPS.push({ level, theme: t }); });
+        const saved = Kit.store.json('puzzles-progress', {});
+        let best = Number.isInteger(saved.best) ? Math.min(Math.max(0, saved.best), STEPS.length) : 0;
+        const saveBest = step => { best = Math.min(Math.max(best, step), STEPS.length); Kit.store.setJson('puzzles-progress', { best }); };
+        const cleared = () => LEVEL_START.filter((s, l) => s + themesIn(l) <= best).length;
+        const resumeStep = () => (best >= STEPS.length ? LEVEL_START[LEVEL_PIECES.length - 1] : best);
+
+        const start = $('#start'), pick = $('#pick'), shapes = $('#shapes'), pictures = $('#pictures');
+        Kit.topbar({ onBack: () => goStart() });
+        function goStart() { Kit.show(start, { back: false }); Kit.tint('#DCF6EE'); renderBadges(); }
+
+        // ---------- Dragging (one finger or mouse, snaps or slides back) ----------
+        let drag = null;
+        function startDrag(event, piece, onDrop) {
+            if (drag || piece.classList.contains('placed')) return;
+            event.preventDefault();
+            const rect = piece.getBoundingClientRect();
+            drag = { piece, home: piece.parentElement, next: piece.nextSibling, onDrop, id: event.pointerId, dx: event.clientX - (rect.left + rect.width / 2), dy: event.clientY - (rect.top + rect.height / 2) };
+            piece.style.width = rect.width + 'px';
+            piece.style.height = rect.height + 'px';
+            piece.classList.add('dragging');
+            document.body.appendChild(piece);
+            moveDrag(event);
+            pickupSound();
+        }
+        function moveDrag(event) {
+            if (!drag || event.pointerId !== drag.id) return;
+            drag.x = event.clientX - drag.dx;
+            drag.y = event.clientY - drag.dy;
+            drag.piece.style.left = drag.x + 'px';
+            drag.piece.style.top = drag.y + 'px';
+            document.querySelectorAll('.slot').forEach(s => {
+                const r = s.getBoundingClientRect();
+                s.classList.toggle('hover', drag.x > r.left - 14 && drag.x < r.right + 14 && drag.y > r.top - 14 && drag.y < r.bottom + 14 && !s.querySelector('.placed'));
+            });
+        }
+        function endDrag(event) {
+            if (!drag || (event && event.pointerId !== drag.id)) return;
+            const d = drag;
+            drag = null;
+            document.querySelectorAll('.slot.hover').forEach(s => s.classList.remove('hover'));
+            const slot = [...document.querySelectorAll('.slot')].find(s => {
+                const r = s.getBoundingClientRect();
+                return d.x > r.left - 14 && d.x < r.right + 14 && d.y > r.top - 14 && d.y < r.bottom + 14 && !s.querySelector('.placed');
+            });
+            d.piece.classList.remove('dragging');
+            d.piece.style.left = d.piece.style.top = d.piece.style.width = d.piece.style.height = '';
+            if (event && slot && d.onDrop(d.piece, slot)) return;
+            d.home.insertBefore(d.piece, d.next && d.next.parentElement === d.home ? d.next : null);
+            if (event && slot) { Kit.bounce(d.piece, 'wobble'); sfx.oops(); }
+        }
+        window.addEventListener('pointermove', moveDrag);
+        window.addEventListener('pointerup', endDrag);
+        window.addEventListener('pointercancel', () => endDrag(null));
+        window.addEventListener('blur', () => endDrag(null));
+        let pickupKind = 'boing';
+        function pickupSound() {
+            const k = 0.9 + Math.random() * 0.2;
+            if (pickupKind === 'plop') { Kit.tone(1150 * k, { to: 260 * k, dur: 0.09, vol: 0.2 }); Kit.tone(950 * k, { at: 0.11, to: 320 * k, dur: 0.08, vol: 0.1 }); }
+            else if (pickupKind === 'squeak') sfx.squeak();
+            else if (pickupKind === 'honk') sfx.honk();
+            else if (pickupKind === 'sparkle') sfx.sparkle();
+            else Kit.tone(520 * k, { to: 170 * k, dur: 0.3, vol: 0.18, vibrato: 50 });
+        }
+        function sizeFor(count, cols) {
+            const rows = Math.ceil(count / cols);
+            const wide = innerWidth > 820;
+            const w = wide ? (Math.min(innerWidth, 1060) - 120) / (cols * 2) : (innerWidth - 80) / cols;
+            const h = wide ? (innerHeight - 230) / rows : (innerHeight - 260) / (rows * 2);
+            return Math.max(56, Math.floor(Math.min(140, w - 12, h - 12)));
+        }
+
+        // ---------------- ⭐ SHAPE PUZZLES ----------------
+        let step = 0, placed = 0, hintTimer = 0;
+        function renderShapeHud() {
+            const s = STEPS[step];
+            $('#shapes-level').textContent = T(`Level ${s.level + 1}`, `Niveau ${s.level + 1}`) + ' · ' + T(...THEMES[s.theme].name);
+            const total = themesIn(s.level);
+            $('#shapes-dots').innerHTML = Array.from({ length: total }, (_, i) => `<span class="${i < s.theme ? '' : 'off'}">${['⭐', '🍎', '🐱', '🚗', '🧁'][i]}</span>`).join('');
+        }
+        function loadShape(n) {
+            step = n;
+            placed = 0;
+            const s = STEPS[step], theme = THEMES[s.theme], count = LEVEL_PIECES[s.level];
+            const items = theme.items.slice(0, count);
+            pickupKind = theme.sound;
+            Kit.tint(theme.accent + '30');
+            document.documentElement.style.setProperty('--accent', theme.accent);
+            const cols = count === 4 ? 2 : Math.min(count, 3);
+            document.documentElement.style.setProperty('--size', sizeFor(count, cols) + 'px');
+            ['#shape-board', '#shape-tray'].forEach(id => $(id).style.setProperty('--cols', cols));
+            $('#shape-board').innerHTML = items.map(i => `<div class="slot" data-id="${i.id}"><span class="ghost">${art(i)}</span></div>`).join('');
+            $('#shape-tray').innerHTML = Kit.shuffle(items).map((i, k) => `<div class="piece" data-id="${i.id}" role="img" aria-label="${itemName(i)}" style="animation-delay:${k * 0.05}s">${art(i)}</div>`).join('');
+            $('#shape-done').hidden = true;
+            renderShapeHud();
+            armHint();
+        }
+        function armHint() {
+            clearTimeout(hintTimer);
+            document.querySelectorAll('.slot.hint').forEach(s => s.classList.remove('hint'));
+            hintTimer = setTimeout(() => {
+                if (shapes.hidden) return;
+                const piece = $('#shape-tray .piece');
+                if (piece) { const slot = $(`#shape-board .slot[data-id="${piece.dataset.id}"]`); if (slot) slot.classList.add('hint'); }
+            }, 6000);
+        }
+        $('#shape-tray').addEventListener('pointerdown', event => {
+            const piece = event.target.closest('.piece');
+            if (!piece) return;
+            armHint();
+            const item = THEMES[STEPS[step].theme].items.find(i => i.id === piece.dataset.id);
+            say(item.name[0], item.name[1]);
+            startDrag(event, piece, (p, slot) => {
+                if (slot.dataset.id !== p.dataset.id) return false;
+                p.classList.add('placed');
+                slot.appendChild(p);
+                placed++;
+                sfx.pop();
+                Kit.later(() => sfx.boing(Kit.note(placed + 3)), 90);
+                Kit.burstFrom(slot, [THEMES[STEPS[step].theme].accent, '#FFD54A', '#fff'], 22);
+                armHint();
+                if (placed === LEVEL_PIECES[STEPS[step].level]) shapeSolved();
+                return true;
+            });
         });
-        const TOTAL_STEPS = STEPS.length;
-        let stepNumber = 0;
-        let bestStep = 0;
-        let currentLevelIdx = 0;
-        let currentDifficulty = 3;
-        try {
-            const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
-            if (saved && Number.isInteger(saved.best)) {
-                bestStep = Math.min(Math.max(0, saved.best), TOTAL_STEPS);
-            } else if (saved && saved.level >= 0 && saved.level < 4 && saved.difficulty >= 3 && saved.difficulty <= 9) {
-                // Older saves stored the theme and piece count; resume at the first level with that many pieces.
-                bestStep = LEVEL_START[LEVEL_PIECES.indexOf(saved.difficulty)] + saved.level;
-            }
-        } catch (error) { /* start fresh */ }
-
-        const levelOf = step => STEPS[Math.min(step, TOTAL_STEPS - 1)].level;
-        const clearedLevels = () => LEVEL_START.filter((start, level) => start + themesIn(level) <= bestStep).length;
-        // After the last level is cleared, Continue replays the last level.
-        const resumeStep = () => (bestStep >= TOTAL_STEPS ? LEVEL_START[LEVEL_COUNT - 1] : bestStep);
-
-        function setStep(step) {
-            stepNumber = step;
-            currentLevelIdx = STEPS[step].theme;
-            currentDifficulty = LEVEL_PIECES[STEPS[step].level];
-        }
-        let piecesPlaced = 0;
-        let activePiece = null;
-        let activeWrapper = null;
-        let activePointerId = null;
-        let currentPos = { x: 0, y: 0 };
-        let hintTimeout = null;
-        // The short pause before the victory screen; cancelled if the child leaves or starts another puzzle.
-        let victoryTimer = null;
-        let offset = { x: 0, y: 0 };
-
-        const els = {
-            slots: document.getElementById('slots-container'),
-            pieces: document.getElementById('pieces-container'),
-            title: document.getElementById('level-title'),
-            subtitle: document.getElementById('level-subtitle'),
-            victory: document.getElementById('victory-screen'),
-            nextBtn: document.getElementById('next-level-btn'),
-            levelNote: document.getElementById('level-note'),
-            start: document.getElementById('start-screen'),
-            continueBtn: document.getElementById('continue-btn'),
-            continueLevel: document.getElementById('continue-level'),
-            restartBtn: document.getElementById('restart-btn'),
-            chooseBtn: document.getElementById('choose-btn'),
-            startMain: document.getElementById('start-main'),
-            picker: document.getElementById('level-picker'),
-            levelGrid: document.getElementById('level-grid'),
-            back: document.getElementById('back-btn'),
-            levelNum: document.getElementById('level-num'),
-            dots: document.getElementById('level-dots'),
-            game: document.querySelector('.game-container'),
-            body: document.body
-        };
-
-        // --- INIT ---
-        function init() {
-            showStart();
-            
-            // Pointer Events handle touch, pen and mouse through one reliable path.
-            document.addEventListener('pointerdown', dragStart, { passive: false });
-            document.addEventListener('pointermove', drag, { passive: false });
-            document.addEventListener('pointerup', dragEnd, { passive: false });
-            document.addEventListener('pointercancel', cancelActiveDrag);
-            document.addEventListener('lostpointercapture', event => {
-                if (activePiece && event.pointerId === activePointerId) cancelActiveDrag();
-            });
-            window.addEventListener('blur', cancelActiveDrag);
-            window.addEventListener('orientationchange', cancelActiveDrag);
-            window.addEventListener('resize', () => {
-                cancelActiveDrag();
-                fitLayout();
-            });
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) cancelActiveDrag();
-            });
-
-            els.nextBtn.addEventListener('click', nextLevel);
-            els.continueBtn.addEventListener('click', () => startAt(resumeStep()));
-            els.restartBtn.addEventListener('click', () => startAt(0));
-            els.chooseBtn.addEventListener('click', openPicker);
-            // One back button: picker -> start menu, puzzle -> start menu.
-            els.back.addEventListener('click', () => (els.picker.hidden ? showStart() : closePicker()));
-            els.levelGrid.addEventListener('click', event => {
-                const tile = event.target.closest('.level-tile');
-                if (!tile) return;
-                const level = Number(tile.dataset.level);
-                if (level <= clearedLevels()) {
-                    startAt(LEVEL_START[level]);
+        function shapeSolved() {
+            saveBest(step + 1);
+            clearTimeout(hintTimer);
+            const s = STEPS[step];
+            const levelDone = s.theme === themesIn(s.level) - 1;
+            Kit.later(() => {
+                sfx.fanfare();
+                Kit.confetti(levelDone ? 140 : 70);
+                document.querySelectorAll('#shape-board .piece').forEach((p, i) => Kit.later(() => Kit.bounce(p, 'dance'), i * 90));
+                if (levelDone) {
+                    Kit.cheer(T(`🎉 Level ${s.level + 1} done!`, `🎉 Niveau ${s.level + 1} réussi${NBSP}!`), 2000);
+                    say(`Level ${s.level + 1} done! Amazing!`, `Niveau ${s.level + 1} réussi${NBSP}! Bravo${NBSP}!`);
                 } else {
-                    wobble(tile);
-                    speak('Clear this level first!', `Termine ce niveau d'abord${NBSP}!`);
+                    Kit.cheer(T('⭐ You did it!', `⭐ Bravo${NBSP}!`), 1400);
+                    say('You did it!', `Tu as réussi${NBSP}!`);
                 }
-            });
-
-            lang.mountToggle();
-            lang.onChange(updateLanguage);
-
-            setupParticles();
-            setupVoice();
+                $('#shape-done').hidden = false;
+                $('#shape-next').focus({ preventScroll: true });
+            }, 500);
         }
+        $('#shape-next').addEventListener('click', () => { sfx.pop(); loadShape(step + 1 >= STEPS.length ? LEVEL_START[LEVEL_PIECES.length - 1] : step + 1); });
+        function openShapes(n) { Kit.show(shapes); loadShape(n); say("Let's play!", `On joue${NBSP}!`); }
+        Kit.onLeave(shapes, () => { clearTimeout(hintTimer); endDrag(null); });
 
-        function loadLevel(idx) {
-            cancelActiveDrag();
-            clearTimeout(victoryTimer);
-            const level = LEVELS[idx];
-            els.title.textContent = lang.t(level.name, level.nameFr);
-            els.body.style.background = level.bg;
-            const root = document.documentElement.style;
-            root.setProperty('--accent', level.accent[0]);
-            root.setProperty('--accent-dark', level.accent[1]);
-            root.setProperty('--accent-soft', level.accent[2]);
-            renderDots();
-            resetHint();
-            els.slots.innerHTML = '';
-            els.pieces.innerHTML = '';
-            
-            // CLEANUP: Remove any "zombie" pieces that got stuck on body
-            document.querySelectorAll('.piece').forEach(p => {
-                if(p.parentNode === document.body) {
-                    p.remove();
-                }
-            });
-
-            piecesPlaced = 0;
-            els.victory.classList.remove('visible');
-
-            // 1. Create Slots (Targets) - Use currentDifficulty number of items
-            let itemsToUse = level.items.slice(0, currentDifficulty);
-            els.game.dataset.count = itemsToUse.length;
-
-            itemsToUse.forEach(item => {
-                const slot = document.createElement('div');
-                slot.className = 'slot';
-                slot.dataset.id = item.id;
-                // Use emoji if available, otherwise use SVG
-                if (item.emoji) {
-                    slot.innerHTML = `<span class="emoji-display emoji-placeholder">${item.emoji}</span>`;
-                } else {
-                    slot.innerHTML = createSVG(item.path, item.color);
-                }
-                els.slots.appendChild(slot);
-            });
-
-            // 2. Create Pieces (Draggables)
-            // Shuffle pieces
-            const shuffledItems = [...itemsToUse].sort(() => Math.random() - 0.5);
-            shuffledItems.forEach(item => {
-                const pieceWrapper = document.createElement('div');
-                pieceWrapper.className = 'piece-wrapper';
-                
-                const piece = document.createElement('div');
-                piece.className = 'piece';
-                piece.dataset.id = item.id;
-                piece.setAttribute('role', 'img');
-                piece.setAttribute('aria-label', itemName(item));
-                // Use emoji if available, otherwise use SVG
-                if (item.emoji) {
-                    piece.innerHTML = `<span class="emoji-display">${item.emoji}</span>`;
-                } else {
-                    piece.innerHTML = createSVG(item.path, item.color);
-                }
-                
-                // Keep ref to wrapper
-                piece.dataset.wrapper = true; 
-                pieceWrapper.appendChild(piece);
-                els.pieces.appendChild(pieceWrapper);
-            });
-            fitLayout();
-            document.fonts.ready.then(fitLayout);
+        // ---------------- 🖼️ PICTURE PUZZLES ----------------
+        const PICS = [
+            // Sunny farm
+            '<rect width="300" height="300" fill="#9EDCFF"/><circle cx="240" cy="62" r="34" fill="#FFD54A"/><rect y="200" width="300" height="100" fill="#7ED36B"/>'
+            + '<rect x="60" y="120" width="120" height="100" fill="#E8465C"/><polygon points="50,125 120,70 190,125" fill="#B92D45"/><rect x="100" y="160" width="40" height="60" fill="#fff"/>'
+            + '<path d="M100 160 L140 220 M140 160 L100 220" stroke="#E8465C" stroke-width="6"/><circle cx="235" cy="225" r="22" fill="#fff"/><circle cx="252" cy="212" r="12" fill="#fff"/><circle cx="256" cy="210" r="3" fill="#333"/>'
+            + '<ellipse cx="70" cy="40" rx="40" ry="16" fill="#fff"/><ellipse cx="100" cy="32" rx="26" ry="14" fill="#fff"/>',
+            // Under the sea
+            '<rect width="300" height="300" fill="#3FA9F5"/><rect y="250" width="300" height="50" fill="#F4D58D"/><ellipse cx="150" cy="140" rx="80" ry="50" fill="#FF9F43"/>'
+            + '<polygon points="70,140 30,100 30,180" fill="#FF6B8B"/><circle cx="195" cy="130" r="10" fill="#fff"/><circle cx="198" cy="130" r="5" fill="#333"/>'
+            + '<path d="M120 100 L150 140 L120 180" stroke="#fff" stroke-width="8" fill="none" opacity="0.7"/><circle cx="250" cy="70" r="12" fill="#BDE7FF"/><circle cx="265" cy="40" r="8" fill="#BDE7FF"/>'
+            + '<path d="M40 250 Q30 210 50 190 Q60 230 55 250 Z" fill="#4CC26A"/><path d="M260 250 Q250 200 275 180 Q280 220 272 250 Z" fill="#4CC26A"/>',
+            // Rocket in space
+            '<rect width="300" height="300" fill="#1E2A5A"/><circle cx="60" cy="60" r="4" fill="#fff"/><circle cx="240" cy="40" r="3" fill="#fff"/><circle cx="260" cy="200" r="4" fill="#fff"/><circle cx="40" cy="220" r="3" fill="#fff"/>'
+            + '<circle cx="230" cy="110" r="36" fill="#A66BFF"/><ellipse cx="230" cy="110" rx="60" ry="12" fill="none" stroke="#FFD54A" stroke-width="6"/>'
+            + '<path d="M130 50 Q160 90 160 170 H100 Q100 90 130 50 Z" fill="#fff"/><circle cx="130" cy="115" r="16" fill="#4FB8FF" stroke="#3D3551" stroke-width="5"/>'
+            + '<polygon points="100,150 76,195 100,185" fill="#E8465C"/><polygon points="160,150 184,195 160,185" fill="#E8465C"/><path d="M110 172 Q130 240 150 172 Z" fill="#FFB627"/>',
+            // Rainbow and flowers
+            '<rect width="300" height="300" fill="#DFF4FF"/>' + [0, 1, 2, 3, 4, 5].map(i => `<circle cx="150" cy="230" r="${140 - i * 16}" fill="${['#FF5A5F', '#FF9A2E', '#FFD93B', '#4CC26A', '#3D9BF0', '#9B6CF0'][i]}"/>`).join('')
+            + '<circle cx="150" cy="230" r="44" fill="#DFF4FF"/><rect y="230" width="300" height="70" fill="#7ED36B"/>'
+            + [50, 150, 250].map((x, i) => `<circle cx="${x}" cy="255" r="16" fill="${['#FF7DB8', '#FFD54A', '#A66BFF'][i]}"/><circle cx="${x}" cy="255" r="6" fill="#fff"/>`).join('')
+        ].map(svg => `url("data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'>${svg}</svg>`)}")`);
+        const PIC_LEVELS = [[2, 1], [2, 2], [3, 2], [3, 3]];
+        const ROUNDS = 4;
+        const picStore = Kit.levelStore('puzzles-picture-level', PIC_LEVELS.length);
+        let picLevel = picStore.get(), picWon = 0, picIndex = 0, picPlaced = 0;
+        function renderPicHud(popIndex) {
+            $('#pic-level').textContent = T(`Level ${picLevel + 1}`, `Niveau ${picLevel + 1}`);
+            Kit.stars($('#pic-stars'), ROUNDS, picWon, popIndex);
         }
-
-        function fitLayout() {
-            const count = Number(els.game.dataset.count);
-            if (!count) return;
-            const columns = count === 4 ? 2 : Math.min(count, 3);
-            const rows = Math.ceil(count / columns);
-            const gameStyle = getComputedStyle(els.game);
-            const header = document.querySelector('.level-header');
-            const headerStyle = getComputedStyle(header);
-            const playStyle = getComputedStyle(document.getElementById('play-area'));
-            const horizontal = playStyle.flexDirection === 'row';
-            const availableWidth = els.game.clientWidth - parseFloat(gameStyle.paddingLeft) - parseFloat(gameStyle.paddingRight);
-            // Reserve room for the board's shadow as well as its frame.
-            const availableHeight = window.innerHeight - parseFloat(gameStyle.paddingTop) - parseFloat(gameStyle.paddingBottom)
-                - header.offsetHeight - parseFloat(headerStyle.marginBottom) - 20;
-            const gap = parseFloat(playStyle.gap);
-            const frame = el => {
-                const style = getComputedStyle(el);
-                return parseFloat(style.paddingLeft) + parseFloat(style.paddingRight)
-                    + parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
-            };
-            const boardFrame = frame(document.querySelector('.board'));
-            const trayFrame = frame(els.pieces);
-            const boardLip = 12; // coloured shadow under the board
-            const tileGap = parseFloat(getComputedStyle(els.pieces).columnGap) || 8;
-            const rowGaps = (rows - 1) * tileGap;
-            const columnGaps = (columns - 1) * tileGap;
-            const widthSize = horizontal
-                ? (availableWidth - boardFrame - trayFrame - gap - columnGaps * 2) / (columns * 2)
-                : (availableWidth - boardFrame - columnGaps) / columns;
-            const heightSize = horizontal
-                ? (availableHeight - boardFrame - boardLip - rowGaps) / rows
-                : (availableHeight - boardFrame - trayFrame - boardLip - gap - rowGaps * 2) / (rows * 2);
-            els.game.style.setProperty('--grid-cols', columns);
-            els.game.style.setProperty('--piece-size', Math.max(44, Math.floor(Math.min(count <= 4 ? 140 : 120, widthSize, heightSize))) + 'px');
-        }
-
-        const levelLabel = level => lang.t(`Level ${level + 1}`, `Niveau ${level + 1}`);
-
-        function showStart() {
-            clearTimeout(victoryTimer);
-            const hasProgress = bestStep > 0;
-            els.continueBtn.hidden = !hasProgress;
-            els.continueLevel.textContent = levelLabel(levelOf(resumeStep()));
-            // With saved progress the second button starts over; otherwise it is the only "Play" button.
-            els.restartBtn.classList.toggle('secondary', hasProgress);
-            els.restartBtn.dataset.en = hasProgress ? '⭐ Start from the beginning' : '▶ Play!';
-            els.restartBtn.dataset.fr = hasProgress ? '⭐ Recommencer au début' : `▶ Jouer${NBSP}!`;
-            const canChoose = clearedLevels() > 0;
-            els.chooseBtn.classList.toggle('locked', !canChoose);
-            els.chooseBtn.setAttribute('aria-disabled', String(!canChoose));
-            closePicker();
-            lang.apply(els.start);
-            els.start.classList.add('visible');
-            els.back.hidden = true;
-            (hasProgress ? els.continueBtn : els.restartBtn).focus({ preventScroll: true });
-        }
-
-        const THEME_ICONS = ['⭐', '🍎', '🐱', '🚗', '🧁'];
-        const LEVEL_COLORS = [
-            ['#FF7A7A', '#E05555'], ['#FF9F2E', '#E07F10'], ['#F5C518', '#D4A20A'], ['#4CC26A', '#2F9E4C'],
-            ['#2EC4B6', '#1E9C90'], ['#4DA3F2', '#2B7FCC'], ['#8C6CF0', '#6A4BD1'], ['#F06CB4', '#D04A93'],
-            ['#FF7A7A', '#E05555'], ['#FF9F2E', '#E07F10'], ['#4CC26A', '#2F9E4C'], ['#8C6CF0', '#6A4BD1']
-        ];
-
-        function wobble(el) {
-            el.classList.remove('wobble');
-            void el.offsetWidth;
-            el.classList.add('wobble');
-            el.addEventListener('animationend', () => el.classList.remove('wobble'), { once: true });
-            playTone(220, 0.15);
-        }
-
-        function renderPicker() {
-            const cleared = clearedLevels();
-            let html = '';
-            for (let n = 0; n < LEVEL_COUNT; n++) {
-                // Cleared levels and the next one (the level the child has reached) can be picked.
-                const open = n <= cleared;
-                const pieces = LEVEL_PIECES[n];
-                const [color, dark] = LEVEL_COLORS[n];
-                const detail = lang.t(`${pieces} pieces`, `${pieces} pièces`);
-                const label = `${levelLabel(n)}, ${detail}${open ? '' : ', ' + lang.t('locked', 'verrouillé')}`;
-                html += `<button type="button" class="level-tile${open ? '' : ' locked'}" data-level="${n}"
-                        aria-label="${label}" style="--c: ${color}; --cd: ${dark}; animation-delay: ${n * 0.03}s">
-                    <span class="tile-num">${n + 1}</span>
-                    <span class="tile-icon" aria-hidden="true">${THEME_ICONS.slice(0, themesIn(n)).join('')}</span>
-                    <span class="tile-pieces" aria-hidden="true">${pieces} 🧩</span>
-                    ${open ? '' : '<span class="tile-lock" aria-hidden="true">🔒</span>'}
-                </button>`;
-            }
-            els.levelGrid.innerHTML = html;
-        }
-
-        function openPicker() {
-            if (clearedLevels() === 0) {
-                wobble(els.chooseBtn);
-                speak('Finish a level first!', `Termine un niveau d'abord${NBSP}!`);
-                return;
-            }
-            renderPicker();
-            els.startMain.hidden = true;
-            els.picker.hidden = false;
-            els.back.hidden = false;
-            els.start.scrollTop = 0;
-            const latest = els.levelGrid.querySelector(`[data-level="${Math.min(clearedLevels(), LEVEL_COUNT - 1)}"]`);
-            if (latest) latest.focus({ preventScroll: true });
-        }
-
-        function closePicker() {
-            els.picker.hidden = true;
-            els.startMain.hidden = false;
-            if (els.start.classList.contains('visible')) els.back.hidden = true;
-        }
-
-        function startAt(number) {
-            speak("Let's play!", `On joue${NBSP}!`);
-            els.start.classList.remove('visible');
-            els.back.hidden = false;
-            setStep(number);
-            loadLevel(currentLevelIdx);
-        }
-
-        function renderDots() {
-            els.levelNum.textContent = levelLabel(levelOf(stepNumber));
-            els.dots.innerHTML = THEME_ICONS.slice(0, themesIn(levelOf(stepNumber))).map((_, i) => {
-                const state = i === currentLevelIdx ? 'current' : i < currentLevelIdx ? 'done' : '';
-                return `<span class="${state}"></span>`;
+        function loadPicture() {
+            const [cols, rows] = PIC_LEVELS[picLevel];
+            const count = cols * rows;
+            const size = sizeFor(count, cols);
+            picPlaced = 0;
+            document.documentElement.style.setProperty('--size', size + 'px');
+            document.documentElement.style.setProperty('--accent', '#A66BFF');
+            Kit.tint('#EFE6FF');
+            const board = $('#pic-board'), tray = $('#pic-tray');
+            board.style.setProperty('--cols', cols);
+            tray.style.setProperty('--cols', Math.min(count, cols === 2 ? 2 : 3));
+            board.style.setProperty('--pic', PICS[picIndex]);
+            const bw = cols * (size + 12) - 12, bh = rows * (size + 12) - 12;
+            board.innerHTML = Array.from({ length: count }, (_, i) => `<div class="slot" data-id="${i}"></div>`).join('');
+            tray.innerHTML = Kit.shuffle(Array.from({ length: count }, (_, i) => i)).map((i, k) => {
+                const cx = i % cols, cy = Math.floor(i / cols);
+                return `<div class="piece tile" data-id="${i}" role="img" aria-label="${T('Puzzle piece', 'Pièce du casse-tête')}"
+                    style="--bw:${bw}px;--bh:${bh}px;--bx:-${cx * (size + 12)}px;--by:-${cy * (size + 12)}px;animation-delay:${k * 0.05}s"></div>`;
             }).join('');
+            // The picture URL holds quotes, so it is set through the style API rather than the markup.
+            tray.querySelectorAll('.tile').forEach(t => t.style.setProperty('--pic', PICS[picIndex]));
+            $('#pic-done').hidden = true;
+            renderPicHud();
         }
-
-        function findItem(id) {
-            return LEVELS[currentLevelIdx].items.find(item => item.id === id);
-        }
-
-        function updateLanguage() {
-            els.continueLevel.textContent = levelLabel(levelOf(resumeStep()));
-            if (!els.picker.hidden) renderPicker();
-            els.levelNum.textContent = levelLabel(levelOf(stepNumber));
-            els.nextBtn.textContent = nextLabel();
-            const level = LEVELS[currentLevelIdx];
-            els.title.textContent = lang.t(level.name, level.nameFr);
-            document.querySelectorAll('.piece').forEach(piece => {
-                const item = findItem(piece.dataset.id);
-                if (item) piece.setAttribute('aria-label', itemName(item));
+        $('#pic-tray').addEventListener('pointerdown', event => {
+            const piece = event.target.closest('.piece');
+            if (!piece) return;
+            startDrag(event, piece, (p, slot) => {
+                if (slot.dataset.id !== p.dataset.id) return false;
+                p.classList.add('placed');
+                slot.appendChild(p);
+                picPlaced++;
+                sfx.pop();
+                Kit.later(() => sfx.boing(Kit.note(picPlaced + 2)), 90);
+                Kit.burstFrom(slot, ['#A66BFF', '#FFD54A', '#fff'], 18);
+                if (picPlaced === $('#pic-board').children.length) picSolved();
+                return true;
             });
-        }
-
-        function createSVG(path, color) {
-            return `<svg viewBox="0 0 100 100" fill="${color}">${path}</svg>`;
-        }
-
-        // --- DRAG LOGIC ---
-        function dragStart(e) {
-            const target = e.target.closest('.piece');
-            if (!target || target.classList.contains('placed')) return;
-
-            if (activePiece) cancelActiveDrag();
-
-            resetHint();
-            e.preventDefault();
-            activePiece = target;
-            activeWrapper = target.parentElement;
-            activePointerId = e.pointerId;
-            
-            const clientX = e.clientX;
-            const clientY = e.clientY;
-
-            // Calculate offset relative to piece center to snap to finger
-            const rect = activePiece.getBoundingClientRect();
-            activePiece.style.setProperty('--piece-size', rect.width + 'px');
-            offset.x = clientX - (rect.left + rect.width / 2);
-            offset.y = clientY - (rect.top + rect.height / 2);
-
-            // Set Initial Pos for visual placement
-            currentPos.x = clientX - offset.x;
-            currentPos.y = clientY - offset.y;
-
-            // Visual State
-            activePiece.classList.add('dragging');
-            activePiece.style.left = currentPos.x + 'px'; // Center on finger approx
-            activePiece.style.top = currentPos.y + 'px';
-            activePiece.style.transform = 'translate(-50%, -50%) scale(1.1)'; // Centering transform
-            // Move to body so it floats over everything
-            document.body.appendChild(activePiece);
-            activePiece.setPointerCapture?.(activePointerId);
-            playPickup();
-        }
-
-        function drag(e) {
-            if (!activePiece || e.pointerId !== activePointerId) return;
-            e.preventDefault();
-
-            const clientX = e.clientX;
-            const clientY = e.clientY;
-
-            currentPos.x = clientX - offset.x;
-            currentPos.y = clientY - offset.y;
-
-            activePiece.style.left = currentPos.x + 'px';
-            activePiece.style.top = currentPos.y + 'px';
-
-            checkHover();
-        }
-
-        function dragEnd(e) {
-            if (!activePiece || e.pointerId !== activePointerId) return;
-            e.preventDefault();
-
-            const result = checkDrop();
-
-            if (result !== 'placed') {
-                const piece = activePiece;
-                restoreActivePiece();
-                if (result === 'wrong') {
-                    // Gentle wobble so the child knows to try another spot.
-                    piece.classList.remove('wobble');
-                    void piece.offsetWidth;
-                    piece.classList.add('wobble');
-                    piece.addEventListener('animationend', () => piece.classList.remove('wobble'), { once: true });
-                    playTone(220, 0.15);
-                }
+        });
+        function picSolved() {
+            picWon++;
+            let levelUp = false;
+            if (picWon >= ROUNDS) {
+                picWon = 0;
+                levelUp = picLevel < PIC_LEVELS.length - 1;
+                if (levelUp) picLevel++;
+                picStore.set(picLevel);
             }
-
-            finishActiveDrag();
-        }
-
-        function restoreActivePiece() {
-            if (!activePiece) return;
-            activePiece.classList.remove('dragging');
-            activePiece.style.position = '';
-            activePiece.style.left = '';
-            activePiece.style.top = '';
-            activePiece.style.transform = '';
-            activePiece.style.removeProperty('--piece-size');
-
-            if (activeWrapper?.isConnected) {
-                activeWrapper.appendChild(activePiece);
-            } else {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'piece-wrapper';
-                wrapper.appendChild(activePiece);
-                els.pieces.appendChild(wrapper);
-            }
-        }
-
-        function finishActiveDrag() {
-            if (activePiece && activePointerId !== null && activePiece.hasPointerCapture?.(activePointerId)) {
-                activePiece.releasePointerCapture(activePointerId);
-            }
-            activePiece = null;
-            activeWrapper = null;
-            activePointerId = null;
-            document.querySelectorAll('.slot').forEach(s => s.classList.remove('hovered'));
-            resetHint();
-        }
-
-        function cancelActiveDrag() {
-            if (!activePiece) return;
-            restoreActivePiece();
-            finishActiveDrag();
-        }
-
-        // --- COLLISION LOGIC ---
-        function checkHover() {
-            // Simple AABB using mouse position directly (faster than getBoundingClientRect)
-            const pX = currentPos.x;
-            const pY = currentPos.y;
-
-            document.querySelectorAll('.slot').forEach(slot => {
-                const rect = slot.getBoundingClientRect();
-                const tolerance = 16;
-                if (pX > rect.left - tolerance && pX < rect.right + tolerance && pY > rect.top - tolerance && pY < rect.bottom + tolerance) {
-                    slot.classList.add('hovered');
+            Kit.later(() => {
+                sfx.fanfare();
+                Kit.confetti(levelUp ? 140 : 80);
+                Kit.bounce($('#pic-board'), 'dance');
+                if (levelUp) {
+                    Kit.cheer(T(`🎉 Level ${picLevel + 1}: more pieces!`, `🎉 Niveau ${picLevel + 1}${NBSP}: plus de pièces${NBSP}!`), 2000);
+                    say(`Wow! Level ${picLevel + 1}!`, `Bravo${NBSP}! Niveau ${picLevel + 1}${NBSP}!`);
+                    renderPicHud();
                 } else {
-                    slot.classList.remove('hovered');
+                    Kit.cheer(T('🖼️ Picture done!', `🖼️ Image finie${NBSP}!`), 1400);
+                    say('You did it!', `Tu as réussi${NBSP}!`);
+                    renderPicHud(picWon - 1);
                 }
-            });
+                $('#pic-done').hidden = false;
+            }, 400);
         }
+        $('#pic-next').addEventListener('click', () => { sfx.pop(); picIndex = (picIndex + 1) % PICS.length; loadPicture(); });
+        function openPictures() { Kit.show(pictures); picWon = 0; loadPicture(); say('Put the picture back together!', `Reconstruis l'image${NBSP}!`); }
+        Kit.onLeave(pictures, () => endDrag(null));
 
-        function checkDrop() {
-            const pieceRect = activePiece.getBoundingClientRect();
-            const pX = pieceRect.left + pieceRect.width/2;
-            const pY = pieceRect.top + pieceRect.height/2;
-            let result = 'missed';
-
-            document.querySelectorAll('.slot').forEach(slot => {
-                if (result === 'placed') return; // Already placed
-                const rect = slot.getBoundingClientRect();
-                const tolerance = 16;
-
-                // If inside slot AND id matches
-                if (pX > rect.left - tolerance && pX < rect.right + tolerance && pY > rect.top - tolerance && pY < rect.bottom + tolerance) {
-                    if (slot.dataset.id === activePiece.dataset.id) {
-                        snapToSlot(activePiece, slot);
-                        result = 'placed';
-                    } else if (!slot.querySelector('.piece.placed')) {
-                        result = 'wrong';
-                    }
-                }
-            });
-            return result;
+        // ---------------- START & PICKER ----------------
+        function renderBadges() {
+            $('#shapes-badge').textContent = T(`Level ${STEPS[resumeStep()].level + 1}`, `Niv. ${STEPS[resumeStep()].level + 1}`);
+            $('#pictures-badge').textContent = T(`Level ${picLevel + 1}`, `Niv. ${picLevel + 1}`);
         }
-
-        function snapToSlot(piece, slot) {
-            piece.classList.remove('dragging');
-            piece.classList.add('placed');
-            piece.style.transform = '';
-            piece.style.left = '';
-            piece.style.top = '';
-            piece.style.removeProperty('--piece-size');
-            
-            slot.appendChild(piece); // Move DOM element into slot
-            
-            // Celebration
-            const rect = slot.getBoundingClientRect();
-            createExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
-            playTone(660, 0.12);
-            setTimeout(() => playTone(880, 0.15), 110);
-            const item = findItem(piece.dataset.id);
-            if (item) speak(item.name, item.fr || item.name);
-            
-            resetHint();
-            piecesPlaced++;
-            if (piecesPlaced === document.querySelectorAll('.slot').length) {
-                // Count the solve right away, even if the child leaves before the victory screen.
-                saveSolved();
-                victoryTimer = setTimeout(triggerVictory, 1000);
-            }
+        function openPick() {
+            if (cleared() === 0) { Kit.bounce($('#go-pick'), 'wobble'); sfx.oops(); say('Finish level 1 first!', `Termine le niveau 1 d'abord${NBSP}!`); return; }
+            Kit.show(pick);
+            Kit.picker($('#picker'), { count: LEVEL_PIECES.length, open: n => n <= cleared(), onPick: n => openShapes(LEVEL_START[n]) });
         }
-
-        function resetHint() {
-            clearTimeout(hintTimeout);
-            document.querySelectorAll('.slot').forEach(s => s.classList.remove('hint-pulse'));
-            hintTimeout = setTimeout(showHint, 5000);
-        }
-
-        function showHint() {
-            if (els.start.classList.contains('visible')) return;
-            if (activePiece || piecesPlaced === document.querySelectorAll('.slot').length) return;
-            const firstUnplaced = document.querySelector('.pieces-row .piece');
-            if (!firstUnplaced) return;
-            const targetId = firstUnplaced.dataset.id;
-            const targetSlot = document.querySelector(`.slot[data-id="${targetId}"]`);
-            if (targetSlot) targetSlot.classList.add('hint-pulse');
-        }
-
-        // --- AUDIO ---
-        function setupVoice() {
-            // Init speech synthesis
-            if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
-        }
-        function speak(en, fr) {
-            lang.speak(en, fr, { pitch: 1.2 });
-        }
-
-        let audioCtx = null;
-        function playTone(freq, duration) {
-            try {
-                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.value = freq;
-                gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-                osc.connect(gain).connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-            } catch (error) { /* audio is optional */ }
-        }
-
-        // One synth voice: an oscillator gliding between two pitches with a soft envelope.
-        function voice({ type = 'sine', from, to = from, at = 0, dur, vol = 0.2, wobble = 0, wobbleDepth = 0 }) {
-            const start = audioCtx.currentTime + at;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(from, start);
-            osc.frequency.exponentialRampToValueAtTime(to, start + dur);
-            if (wobble) {
-                const lfo = audioCtx.createOscillator();
-                const lfoGain = audioCtx.createGain();
-                lfo.frequency.value = wobble;
-                lfoGain.gain.value = wobbleDepth;
-                lfo.connect(lfoGain).connect(osc.frequency);
-                lfo.start(start);
-                lfo.stop(start + dur + 0.02);
-            }
-            gain.gain.setValueAtTime(0.0001, start);
-            gain.gain.exponentialRampToValueAtTime(vol, start + Math.min(0.015, dur / 4));
-            gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-            osc.connect(gain).connect(audioCtx.destination);
-            osc.start(start);
-            osc.stop(start + dur + 0.02);
-        }
-
-        // Each theme has its own pickup sound; the pitch shifts a little every time.
-        const PICKUP_SOUNDS = {
-            // Springy cartoon "boing".
-            boing: k => voice({ from: 520 * k, to: 170 * k, dur: 0.32, vol: 0.28, wobble: 22, wobbleDepth: 55 * k }),
-            // Juicy water-drop "plop-plop".
-            plop: k => {
-                voice({ from: 1150 * k, to: 260 * k, dur: 0.09, vol: 0.32 });
-                voice({ from: 950 * k, to: 320 * k, at: 0.11, dur: 0.08, vol: 0.14 });
-            },
-            // Squeaky-toy "squee-squee".
-            squeak: k => {
-                voice({ type: 'triangle', from: 1300 * k, to: 1900 * k, dur: 0.08, vol: 0.14, wobble: 35, wobbleDepth: 70 });
-                voice({ type: 'triangle', from: 1450 * k, to: 2150 * k, at: 0.1, dur: 0.09, vol: 0.14, wobble: 35, wobbleDepth: 70 });
-            },
-            // Little car horn "beep-beep".
-            honk: k => {
-                [0, 0.14].forEach(at => {
-                    voice({ type: 'square', from: 392 * k, at, dur: 0.1, vol: 0.06 });
-                    voice({ type: 'square', from: 494 * k, at, dur: 0.1, vol: 0.05 });
-                });
-            },
-            // Sparkly sprinkle "twinkle".
-            twinkle: k => {
-                [1047, 1319, 1568].forEach((note, i) => {
-                    voice({ from: note * k, at: i * 0.06, dur: 0.2, vol: 0.12 });
-                    voice({ from: note * 2 * k, at: i * 0.06, dur: 0.12, vol: 0.035 });
-                });
-            }
-        };
-
-        function playPickup() {
-            try {
-                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const sound = PICKUP_SOUNDS[LEVELS[currentLevelIdx].pickupSound] || PICKUP_SOUNDS.boing;
-                sound(0.9 + Math.random() * 0.22);
-            } catch (error) { /* audio is optional */ }
-        }
-
-        // --- GAME FLOW ---
-        const finishesLevel = () => currentLevelIdx === themesIn(levelOf(stepNumber)) - 1;
-        const nextLabel = () => (finishesLevel()
-            ? lang.t('Next level ➜', 'Niveau suivant ➜')
-            : lang.t('Next puzzle ➜', 'Casse-tête suivant ➜'));
-
-        function triggerVictory() {
-            saveSolved();
-            const level = levelOf(stepNumber);
-            els.nextBtn.textContent = nextLabel();
-            const bonus = LEVELS[LEVELS.length - 1];
-            const unlocksBonus = finishesLevel() && level === BONUS_LEVEL - 1;
-            if (finishesLevel()) {
-                els.levelNote.textContent = unlocksBonus
-                    ? lang.t(`🎉 Level ${level + 1} cleared! New puzzles: ${bonus.name} 🧁`,
-                        `🎉 Niveau ${level + 1} réussi${NBSP}! Nouveaux casse-tête${NBSP}: ${bonus.nameFr} 🧁`)
-                    : lang.t(`🎉 Level ${level + 1} cleared!`, `🎉 Niveau ${level + 1} réussi${NBSP}!`);
-                els.levelNote.hidden = false;
-            } else {
-                els.levelNote.hidden = true;
-            }
-            els.victory.classList.add('visible');
-            if (unlocksBonus) {
-                speak(`Level ${level + 1} cleared! New puzzles: ${bonus.name}!`,
-                    `Niveau ${level + 1} réussi${NBSP}! Nouveaux casse-tête${NBSP}: ${bonus.nameFr}${NBSP}!`);
-            } else if (finishesLevel()) {
-                speak(`Level ${level + 1} cleared! Amazing!`, `Niveau ${level + 1} réussi${NBSP}! Bravo${NBSP}!`);
-            } else {
-                speak("You did it! Amazing!", `Tu as réussi${NBSP}! Bravo${NBSP}!`);
-            }
-            els.nextBtn.focus({ preventScroll: true });
-        }
-
-        // Save as soon as a puzzle is solved, so leaving from the victory screen keeps the progress.
-        function saveSolved() {
-            bestStep = Math.min(Math.max(bestStep, stepNumber + 1), TOTAL_STEPS);
-            try {
-                localStorage.setItem(PROGRESS_KEY, JSON.stringify({ best: bestStep }));
-            } catch (error) { /* progress is optional */ }
-        }
-
-        function nextLevel() {
-            const next = stepNumber + 1;
-            saveSolved();
-            // After the last level, keep playing the last level.
-            setStep(next >= TOTAL_STEPS ? LEVEL_START[LEVEL_COUNT - 1] : next);
-            loadLevel(currentLevelIdx);
-        }
-
-        // --- PARTICLES ---
-        const ctx = document.getElementById('particles').getContext('2d');
-        let particles = [];
-        
-        function setupParticles() {
-            const resize = () => {
-                ctx.canvas.width = window.innerWidth;
-                ctx.canvas.height = window.innerHeight;
-            };
-            window.addEventListener('resize', resize);
-            resize();
-            loopParticles();
-        }
-
-        function createExplosion(x, y) {
-            const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D'];
-            for(let i=0; i<30; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (Math.random() - 0.5) * 10,
-                    vy: (Math.random() - 0.5) * 10,
-                    life: 1,
-                    color: colors[Math.floor(Math.random()*colors.length)]
-                });
-            }
-        }
-
-        function loopParticles() {
-            ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
-            for(let i=0; i<particles.length; i++) {
-                let p = particles[i];
-                p.x += p.vx; p.y += p.vy;
-                p.vy += 0.2; // grav
-                p.life -= 0.02;
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 5, 0, Math.PI*2);
-                ctx.fill();
-                if(p.life <= 0) { particles.splice(i, 1); i--; }
-            }
-            requestAnimationFrame(loopParticles);
-        }
-
-        init();
-
+        $('#go-shapes').addEventListener('click', () => { sfx.pop(); openShapes(resumeStep()); });
+        $('#go-pictures').addEventListener('click', () => { sfx.pop(); openPictures(); });
+        $('#go-pick').addEventListener('click', openPick);
+        window.addEventListener('resize', () => {
+            if (drag) endDrag(null);
+            if (!shapes.hidden && !placed) loadShape(step);
+            if (!pictures.hidden && !picPlaced) loadPicture();
+        });
+        Kit.onLang(() => { renderBadges(); if (!shapes.hidden) renderShapeHud(); });
+        goStart();
+    }());
     </script>
 </body>
 </html>

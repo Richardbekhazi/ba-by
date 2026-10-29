@@ -1,1218 +1,399 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-title-fr="Couleurs">
+<html lang="en" data-title-fr="Couleurs en gelée">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Squishy jelly colors: explore, find the color, mix paints and paint a picture. English and French.">
     <title>Jelly Colors</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
     <script src="/assets/js/site-lang.js?v=20261028"></script>
-
+    <script src="/assets/js/kit.js?v=20261029"></script>
     <style>
-        :root {
-            --tint: #FFE3EC;
-            --text: #3D3551;
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Nunito', sans-serif;
-            color: var(--text);
-            background: linear-gradient(160deg, #FFF6FB 0%, var(--tint) 100%);
-            transition: background 0.6s ease;
-            height: 100vh;
-            height: 100dvh;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        /* 🎈 FLOATING BUBBLES */
-        .sky {
-            position: fixed;
-            inset: 0;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 0;
-            background-image: radial-gradient(rgba(255,255,255,0.6) 2px, transparent 2.5px);
-            background-size: 28px 28px;
-        }
-        .sky span {
-            position: absolute;
-            bottom: -120px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), var(--tint) 60%, transparent 72%);
-            opacity: 0.8;
-            animation: floatUp linear infinite;
-        }
-        .sky span:nth-child(1) { left: 6%;  width: 70px;  height: 70px;  animation-duration: 18s; }
-        .sky span:nth-child(2) { left: 24%; width: 34px;  height: 34px;  animation-duration: 13s; animation-delay: -6s; }
-        .sky span:nth-child(3) { left: 44%; width: 90px;  height: 90px;  animation-duration: 24s; animation-delay: -12s; }
-        .sky span:nth-child(4) { left: 64%; width: 46px;  height: 46px;  animation-duration: 16s; animation-delay: -3s; }
-        .sky span:nth-child(5) { left: 82%; width: 100px; height: 100px; animation-duration: 27s; animation-delay: -18s; }
-        @keyframes floatUp {
-            from { transform: translateY(0); }
-            to { transform: translateY(-130vh) translateX(-12px); }
-        }
-
-        #particles {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-        }
-
-        /* 🏠 ROUND TOP BUTTONS */
-        .round-btn {
-            position: fixed;
-            top: max(14px, env(safe-area-inset-top));
-            width: 52px;
-            height: 52px;
-            border: 0;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            text-decoration: none;
-            cursor: pointer;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08);
-            z-index: 100;
-            transition: transform 0.15s;
-        }
-        .round-btn:hover { transform: scale(1.08) rotate(-6deg); }
-        .round-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
-        .home-btn { left: max(14px, env(safe-area-inset-left)); }
-        .back-btn { left: calc(max(14px, env(safe-area-inset-left)) + 62px); }
-        .back-btn[hidden] { display: none; }
-
-        /* ▶️ START SCREEN */
-        .screen {
-            position: relative;
-            z-index: 1;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            justify-content: safe center;
-            padding: 80px 16px 28px;
-            text-align: center;
-        }
-        .screen[hidden] { display: none; }
-
-        h1 {
-            font-family: 'Fredoka One', cursive;
-            font-size: 3.2rem;
-            line-height: 1.05;
-            margin: 0;
-            color: #FF5A8A;
-            text-shadow: 0 4px 0 #fff, 0 8px 18px rgba(0,0,0,0.12);
-        }
-        .subtitle {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 6px 18px;
-            border-radius: 999px;
-            background: #fff;
-            color: #D9467A;
-            font-weight: 800;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.06);
-        }
-
-        /* 🃏 MODE PICTURE CARDS */
-        .mode-cards {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            width: min(780px, 100%);
-            margin-top: 28px;
-        }
-        .mode-card {
-            --c: #4CC26A;
-            --cd: #2F9E4C;
-            --soft: #DDF5E2;
-            width: 230px;
-            border: 0;
-            padding: 12px 12px 14px;
-            border-radius: 36px;
-            background: #fff;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 0 var(--c), 0 20px 30px rgba(0,0,0,0.12);
-            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s;
-            animation: popUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        .mode-card:nth-child(2) { animation-delay: 0.08s; }
-        .mode-card:nth-child(3) { animation-delay: 0.16s; }
-        .mode-card:hover { transform: translateY(-6px) rotate(-1.5deg); }
-        .mode-card:active, .mode-card.pressed { transform: translateY(8px) scale(0.97); box-shadow: 0 2px 0 var(--c), 0 6px 12px rgba(0,0,0,0.10); }
-        .mode-card:focus-visible { outline: 5px solid var(--c); outline-offset: 5px; }
-        .mode-art {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1.1;
-            border-radius: 26px;
-            background:
-                radial-gradient(circle at 25% 20%, rgba(255,255,255,0.8) 0 12%, transparent 13%),
-                radial-gradient(circle at 80% 85%, rgba(255,255,255,0.6) 0 9%, transparent 10%),
-                var(--soft);
-            overflow: hidden;
-        }
-        .art-item { position: absolute; }
-        .art-item > svg {
-            display: block;
-            width: 100%;
-            height: auto;
-            aspect-ratio: 1;
-            animation: bob 2.8s ease-in-out infinite;
-        }
-        .art-item:nth-child(2) > svg { animation-delay: -0.9s; }
-        .art-item:nth-child(3) > svg { animation-delay: -1.8s; }
-        .mode-label {
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.8rem;
-            line-height: 1;
-            color: var(--cd);
-        }
-
-        @keyframes popUp {
-            from { opacity: 0; transform: translateY(24px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes bob {
-            0%, 100% { transform: translateY(0) rotate(-3deg); }
-            50% { transform: translateY(-6px) rotate(3deg); }
-        }
-
-        /* 🟢 JELLY FRIENDS */
-        .jelly {
-            position: relative;
-            border: 0;
-            background: transparent;
-            padding: 0;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            font: inherit;
-            color: inherit;
-            animation: popUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        .jelly:focus-visible { outline: 4px solid #fff; outline-offset: 4px; border-radius: 24px; }
-        .jelly-art {
-            width: var(--size, 110px);
-            height: var(--size, 110px);
-            overflow: visible;
-            filter: drop-shadow(0 8px 0 rgba(0,0,0,0.08)) drop-shadow(0 12px 16px rgba(0,0,0,0.10));
-            transform-origin: 50% 90%;
-        }
-        .jelly .jelly-art { animation: idle 3.4s ease-in-out infinite; }
-        .jelly:nth-child(2n) .jelly-art { animation-delay: -1.1s; }
-        .jelly:nth-child(3n) .jelly-art { animation-delay: -2.2s; }
-        @keyframes idle {
-            0%, 100% { transform: scale(1, 1); }
-            50% { transform: scale(1.04, 0.96); }
-        }
-        .jelly.squish .jelly-art { animation: squish 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes squish {
-            0% { transform: scale(1, 1); }
-            25% { transform: scale(1.22, 0.78); }
-            55% { transform: scale(0.88, 1.15) translateY(-10px); }
-            80% { transform: scale(1.05, 0.96); }
-            100% { transform: scale(1, 1); }
-        }
-        .jelly.wobble .jelly-art { animation: wobble 0.45s ease-in-out; }
-        @keyframes wobble {
-            0%, 100% { transform: rotate(0); }
-            20% { transform: rotate(-12deg); }
-            40% { transform: rotate(10deg); }
-            60% { transform: rotate(-6deg); }
-            80% { transform: rotate(4deg); }
-        }
-        .face-happy { display: none; }
+        :root { --tint: #FFF1D6; }
+        .jelly { position: relative; border: 0; padding: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 4px; animation: kit-rise 0.4s backwards; }
+        .jelly svg { width: 100%; max-width: 150px; aspect-ratio: 1; filter: drop-shadow(0 6px 6px rgba(61,53,81,0.15)); }
+        .jelly .face-happy { display: none; }
         .jelly.happy .face-happy { display: inline; }
         .jelly.happy .face-normal { display: none; }
-        .jelly .face-normal .eye { animation: blink 4.5s infinite; transform-box: fill-box; transform-origin: center; }
-        .jelly:nth-child(2n) .face-normal .eye { animation-delay: -2s; }
-        @keyframes blink {
-            0%, 92%, 100% { transform: scaleY(1); }
-            95% { transform: scaleY(0.1); }
-        }
+        .jelly .eye { animation: blink 4.5s infinite; transform-origin: center; transform-box: fill-box; }
+        @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+        .jelly-name { font-family: 'Fredoka One', system-ui, sans-serif; font-size: clamp(1.05rem, 3.5vw, 1.4rem); color: var(--cd); }
+        .jelly-hint { position: absolute; top: -6px; right: 6%; font-size: 1.8rem; }
+        .jelly-grid { width: 100%; max-width: 960px; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 16px 12px; }
+        .find-grid { width: 100%; max-width: 760px; display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 16px; }
 
-        .jelly-name {
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.15rem;
-            padding: 3px 14px;
-            border-radius: 999px;
-            background: #fff;
-            color: var(--cd);
-            box-shadow: 0 3px 0 rgba(0,0,0,0.06);
-        }
-        .jelly-hint {
-            position: absolute;
-            top: -4px;
-            right: -2px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-        }
+        /* Mix */
+        .mix-row { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 3vw, 22px); font-family: 'Fredoka One', system-ui, sans-serif; font-size: 2.4rem; color: var(--muted); }
+        .slot { width: clamp(84px, 22vw, 130px); aspect-ratio: 1; border-radius: 30px; background: #fff; box-shadow: inset 0 0 0 5px #EFE8F6, 0 6px 0 rgba(61,53,81,0.08); display: grid; place-items: center; font-size: 2.6rem; color: #CFC6DD; }
+        .slot svg { width: 80%; }
+        .slot.result { width: clamp(110px, 28vw, 170px); }
+        .slot.swirl { background: conic-gradient(var(--a), var(--b), var(--a)); animation: spin 0.95s linear; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .mix-name { min-height: 2.2rem; font-family: 'Fredoka One', system-ui, sans-serif; font-size: 2rem; color: var(--cd, var(--ink)); }
+        .paints { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+        .paint { border: 0; background: #fff; border-radius: 26px; padding: 10px; width: clamp(78px, 20vw, 104px); aspect-ratio: 1; box-shadow: 0 6px 0 rgba(61,53,81,0.1); }
+        .paint svg { width: 100%; height: 100%; }
+        .paint:active { transform: translateY(5px); box-shadow: none; }
+        .recipes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 760px; }
+        .recipe { display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 999px; background: #fff; font-weight: 900; color: var(--muted); box-shadow: 0 3px 0 rgba(61,53,81,0.08); }
+        .recipe i { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 2px rgba(0,0,0,0.08); font-style: normal; text-align: center; line-height: 22px; }
+        .recipe i.unknown { background: #EEE8F5; color: #A79EBC; }
+        .recipe.new { animation: kit-pop 0.6s; background: #FFF6CC; }
 
-        /* 🎨 EXPLORE MODE */
-        .explore-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-            gap: 18px 10px;
-            width: min(900px, 100%);
-            margin-top: 22px;
-            justify-items: center;
-        }
-
-        /* 🔍 FIND MODE */
-        .prompt {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px 10px 22px;
-            border-radius: 999px;
-            background: #fff;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.06), 0 12px 24px rgba(0,0,0,0.08);
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.6rem;
-            animation: popUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        .prompt-emoji { font-size: 2.2rem; line-height: 1; }
-        .prompt-word {
-            padding: 2px 14px;
-            border-radius: 999px;
-            color: #fff;
-            background: var(--c);
-            box-shadow: 0 4px 0 var(--cd);
-        }
-        .prompt-word.light { color: var(--text); }
-        .say-again {
-            width: 48px;
-            height: 48px;
-            border: 0;
-            border-radius: 50%;
-            background: #FFF0F5;
-            font-size: 22px;
-            cursor: pointer;
-        }
-        .say-again:active { transform: scale(0.92); }
-
-        .find-progress {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 14px;
-        }
-        .level-badge {
-            font-family: 'Fredoka One', cursive;
-            color: #fff;
-            background: #FF5A8A;
-            padding: 3px 12px;
-            border-radius: 999px;
-            box-shadow: 0 3px 0 #D9467A;
-        }
-        .stars { display: flex; gap: 4px; font-size: 1.4rem; }
-        .stars span { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .stars span.off { filter: grayscale(1); opacity: 0.3; }
-        .stars span.pop { transform: scale(1.5) rotate(20deg); }
-
-        .find-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 22px 18px;
-            width: min(820px, 100%);
-            margin-top: 26px;
-        }
-        .find-grid .jelly { --size: 150px; }
-
-        .cheer {
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            z-index: 120;
-            transform: translate(-50%, -50%) scale(0);
-            padding: 22px 34px;
-            border-radius: 36px;
-            background: #fff;
-            font-family: 'Fredoka One', cursive;
-            font-size: 2.2rem;
-            color: #FF5A8A;
-            box-shadow: 0 10px 0 #FF5A8A, 0 24px 50px rgba(0,0,0,0.18);
-            pointer-events: none;
-            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .cheer.show { transform: translate(-50%, -50%) scale(1); }
-
-        /* 🧪 MIX MODE */
-        .mix-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-            margin-top: 22px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 2.4rem;
-            color: #B9AFC8;
-        }
-        .mix-slot {
-            width: 104px;
-            height: 104px;
-            border-radius: 50%;
-            border: 5px dashed #E4D8EC;
-            background: rgba(255,255,255,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.6rem;
-            color: #CBBFD8;
-        }
-        .mix-slot.filled { border-color: transparent; background: transparent; }
-        .mix-slot .drop-art { width: 100%; height: 100%; animation: dropIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes dropIn {
-            from { transform: translateY(-60px) scale(0.4); opacity: 0; }
-            to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        .mix-result {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            border-radius: 40px;
-            border: 5px dashed #E4D8EC;
-            background: rgba(255,255,255,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: #CBBFD8;
-        }
-        .mix-result.swirling {
-            border-color: transparent;
-            background: conic-gradient(var(--a), var(--b), var(--a), var(--b), var(--a));
-            animation: swirl 0.9s cubic-bezier(0.5, 0, 0.5, 1);
-        }
-        @keyframes swirl {
-            from { transform: rotate(0) scale(0.85); border-radius: 50%; }
-            60% { transform: rotate(540deg) scale(1.05); border-radius: 50%; }
-            to { transform: rotate(720deg) scale(1); border-radius: 40px; }
-        }
-        .mix-result.done { border-color: transparent; background: transparent; }
-        .mix-result .jelly { --size: 150px; }
-        .mix-name {
-            min-height: 2.6rem;
-            margin-top: 12px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.5rem;
-        }
-        .mix-name span {
-            display: inline-block;
-            padding: 4px 18px;
-            border-radius: 999px;
-            background: #fff;
-            color: var(--cd);
-            box-shadow: 0 4px 0 rgba(0,0,0,0.06);
-            animation: popUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-
-        .paints {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 18px;
-            padding: 14px 18px;
-            border-radius: 36px;
-            background: rgba(255,255,255,0.65);
-            box-shadow: 0 6px 0 rgba(0,0,0,0.05);
-        }
-        .paint {
-            width: 82px;
-            height: 82px;
-            border: 0;
-            padding: 0;
-            background: transparent;
-            cursor: pointer;
-            transition: transform 0.15s;
-        }
-        .paint .drop-art { width: 100%; height: 100%; filter: drop-shadow(0 6px 0 rgba(0,0,0,0.08)); }
-        .paint:hover { transform: translateY(-4px) rotate(-4deg); }
-        .paint:active, .paint.pressed { transform: translateY(4px) scale(0.92); }
-        .paint:focus-visible { outline: 4px solid #fff; outline-offset: 2px; border-radius: 50%; }
-
-        .recipes-title {
-            margin-top: 22px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.1rem;
-            color: #9B6CF0;
-        }
-        .recipes {
-            display: grid;
-            grid-template-columns: repeat(3, auto);
-            gap: 10px 12px;
-            margin-top: 10px;
-        }
-        .recipe {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: #fff;
-            font-family: 'Fredoka One', cursive;
-            color: #B9AFC8;
-            font-size: 0.95rem;
-            box-shadow: 0 3px 0 rgba(0,0,0,0.05);
-        }
-        .recipe i {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: inline-block;
-            background: var(--c);
-            box-shadow: inset 0 -3px 0 rgba(0,0,0,0.12), 0 0 0 2px #fff, 0 0 0 3px #E8E2F0;
-        }
-        .recipe .unknown {
-            background: #F1ECF6;
-            color: #B9AFC8;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-style: normal;
-            font-size: 0.8rem;
-        }
-        .recipe.found { color: var(--text); }
-        .recipe.new { animation: wobble 0.6s ease-in-out 2; }
-
-        @media (prefers-reduced-motion: reduce) {
-            .sky span, .jelly .jelly-art, .art-item > svg { animation: none !important; }
-        }
-
-        @media (max-width: 600px) {
-            h1 { font-size: 2.4rem; }
-            .subtitle { font-size: 0.95rem; }
-            .explore-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 6px; }
-            .explore-grid .jelly { --size: 92px; }
-            .jelly-name { font-size: 0.95rem; padding: 2px 10px; }
-            .jelly-hint { width: 32px; height: 32px; font-size: 18px; }
-            .prompt { font-size: 1.25rem; gap: 8px; padding: 8px 10px 8px 16px; }
-            .prompt-emoji { font-size: 1.8rem; }
-            .find-grid { gap: 16px 12px; }
-            .find-grid .jelly { --size: 120px; }
-            .find-grid.many .jelly { --size: 96px; }
-            .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 14px; margin-top: 22px; }
-            .mode-card { width: auto; padding: 8px 8px 10px; border-radius: 30px; gap: 6px; }
-            .mode-card:nth-child(3) { grid-column: 1 / -1; justify-self: center; width: calc(50% - 7px); }
-            .mode-art { border-radius: 22px; }
-            .mode-label { font-size: 1.4rem; }
-            .explore-grid { margin-top: 14px; }
-            .mix-row { gap: 6px; font-size: 1.7rem; margin-top: 16px; }
-            .mix-slot { width: 74px; height: 74px; font-size: 1.9rem; border-width: 4px; }
-            .mix-result { width: 116px; height: 116px; border-radius: 32px; border-width: 4px; }
-            .mix-result .jelly { --size: 116px; }
-            .mix-name { font-size: 1.2rem; }
-            .paints { gap: 8px; padding: 10px 12px; }
-            .paint { width: 66px; height: 66px; }
-            .recipes { grid-template-columns: repeat(2, auto); }
-        }
-
-        @media (max-width: 600px) and (max-height: 720px) {
-            h1 { font-size: 2rem; }
-            #start-screen .subtitle { display: none; }
-            .explore-grid .jelly { --size: 76px; }
-            .explore-grid { gap: 10px 6px; }
-        }
-
-        @media (orientation: landscape) and (max-height: 600px) {
-            .screen { padding: 12px 16px 16px 84px; }
-            h1 { font-size: 1.9rem; text-shadow: 0 3px 0 #fff; }
-            .subtitle { margin-top: 4px; font-size: 0.85rem; padding: 3px 12px; }
-            .mode-cards { display: flex; gap: 18px; margin-top: 14px; }
-            .mode-card { width: 170px; padding: 8px 8px 10px; gap: 6px; border-radius: 28px; }
-            .mode-card:nth-child(3) { width: 170px; }
-            .mode-art { aspect-ratio: 1.35; border-radius: 20px; }
-            .mode-label { font-size: 1.2rem; }
-            .explore-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px 6px; margin-top: 10px; }
-            .explore-grid .jelly { --size: 72px; }
-            .jelly-name { font-size: 0.85rem; padding: 1px 8px; }
-            .jelly-hint { width: 28px; height: 28px; font-size: 15px; }
-            .prompt { font-size: 1.1rem; padding: 6px 8px 6px 14px; }
-            .prompt-emoji { font-size: 1.5rem; }
-            .say-again { width: 40px; height: 40px; font-size: 18px; }
-            .find-progress { margin-top: 6px; }
-            .find-grid { margin-top: 10px; gap: 10px 14px; }
-            .find-grid .jelly { --size: 100px; }
-            .find-grid.many .jelly { --size: 84px; }
-            #mix-screen { display: grid; grid-template-columns: auto auto; column-gap: 28px; align-content: center; justify-content: center; }
-            #mix-screen[hidden] { display: none; }
-            #mix-screen h1 { grid-column: 1 / -1; }
-            .mix-main { grid-column: 1; }
-            .mix-side { grid-column: 2; }
-            .mix-row { gap: 8px; font-size: 1.6rem; margin-top: 8px; }
-            .mix-slot { width: 64px; height: 64px; font-size: 1.6rem; border-width: 4px; }
-            .mix-result { width: 100px; height: 100px; border-radius: 28px; border-width: 4px; }
-            .mix-result .jelly { --size: 100px; }
-            .mix-name { font-size: 1.05rem; margin-top: 6px; min-height: 2rem; }
-            .paints { gap: 8px; padding: 8px 12px; margin-top: 6px; }
-            .paint { width: 58px; height: 58px; }
-            .recipes-title { margin-top: 0; }
-            .recipes { grid-template-columns: repeat(2, auto); gap: 6px 8px; }
-            .recipe { padding: 4px 8px; font-size: 0.85rem; }
+        /* Paint the picture */
+        .paint-wrap { width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
+        .picture { width: 100%; border-radius: 30px; background: #fff; padding: 12px; box-shadow: 0 8px 0 rgba(61,53,81,0.08); }
+        .picture svg { width: 100%; height: auto; display: block; border-radius: 22px; touch-action: manipulation; }
+        .picture [data-r] { cursor: pointer; transition: fill 0.25s; stroke: #3D3551; stroke-width: 4; stroke-linejoin: round; }
+        .picture [data-r].splash { animation: kit-pop 0.4s; transform-box: fill-box; transform-origin: center; }
+        .palette { display: grid; grid-template-columns: repeat(2, 64px); gap: 10px; }
+        .swatch { width: 64px; height: 64px; border-radius: 50%; border: 5px solid #fff; background: var(--c); box-shadow: 0 5px 0 rgba(61,53,81,0.15); }
+        .swatch[aria-pressed="true"] { transform: scale(1.12); box-shadow: 0 0 0 5px var(--ink), 0 5px 0 rgba(61,53,81,0.15); }
+        .paint-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        @media (max-width: 680px) {
+            .paint-wrap { grid-template-columns: 1fr; }
+            .palette { grid-template-columns: repeat(6, 1fr); justify-items: center; }
+            .swatch { width: 48px; height: 48px; border-width: 4px; }
+            .jelly-grid { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
 </head>
 <body>
-    <div class="sky" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
-    <canvas id="particles"></canvas>
-
-    <a href="/" class="round-btn home-btn" aria-label="Back to games" title="Back to games" data-fr-aria-label="Retour aux jeux" data-fr-title="Retour aux jeux"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#FF7A45"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#E85A28" opacity="0.55"/><path d="M24 12.5 L35.5 22 V33.5 a2.5 2.5 0 0 1 -2.5 2.5 H28 V29 a4 4 0 0 0 -8 0 V36 H15 a2.5 2.5 0 0 1 -2.5 -2.5 V22 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg></a>
-    <button type="button" class="round-btn back-btn" id="back-btn" hidden aria-label="Back to start" title="Back to start" data-fr-aria-label="Retour au début" data-fr-title="Retour au début"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#3D9BF0"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#2177C9" opacity="0.55"/><path d="M25 14 L15 24 L25 34 M16 24 H34" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-
-    <!-- START -->
-    <section class="screen" id="start-screen">
-        <h1 data-fr="Couleurs">Colors</h1>
-        <p class="subtitle" data-fr="Jouons avec les couleurs !">Let's play with colors!</p>
-        <div class="mode-cards">
-            <button type="button" class="mode-card" id="explore-btn" style="--c: #4CC26A; --cd: #2F9E4C; --soft: #DDF5E2"
-                    aria-label="Play with colors" data-fr-aria-label="Joue avec les couleurs">
-                <span class="mode-art" id="art-play" aria-hidden="true"></span>
-                <span class="mode-label" data-fr="Joue">Play</span>
-            </button>
-            <button type="button" class="mode-card" id="find-btn" style="--c: #4DA3F2; --cd: #2B7FCC; --soft: #DCEEFF"
-                    aria-label="Find the color" data-fr-aria-label="Trouve la couleur">
-                <span class="mode-art" id="art-find" aria-hidden="true"></span>
-                <span class="mode-label" data-fr="Trouve">Find</span>
-            </button>
-            <button type="button" class="mode-card" id="mix-btn" style="--c: #9B6CF0; --cd: #764BD1; --soft: #ECE5FF"
-                    aria-label="Mix colors" data-fr-aria-label="Mélange les couleurs">
-                <span class="mode-art" id="art-mix" aria-hidden="true"></span>
-                <span class="mode-label" data-fr="Mélange">Mix</span>
-            </button>
+    <main class="kit-screen" id="start">
+        <h1 class="kit-title" style="--title-shadow:#FF9A2E"><span class="bob" data-fr="Couleurs">Jelly</span> <span class="bob" style="animation-delay:-1.3s" data-fr="en gelée">Colors</span></h1>
+        <p class="kit-sub" data-fr="Écrase les gelées, trouve, mélange et peins !">Squish the jellies, find, mix and paint!</p>
+        <div class="kit-modes">
+            <button class="kit-mode" type="button" id="go-explore" style="--c:#FF5A5F"><span class="kit-mode-art" id="art-explore"></span><span class="kit-mode-label"><b data-fr="Les couleurs">Meet the colors</b><small data-fr="Touche une gelée">Tap a jelly</small></span></button>
+            <button class="kit-mode" type="button" id="go-find" style="--c:#3D9BF0"><span class="kit-badge" id="find-badge"></span><span class="kit-mode-art"><span>🔍</span></span><span class="kit-mode-label"><b data-fr="Trouve la couleur">Find the color</b><small data-fr="Où est le rouge ?">Where is red?</small></span></button>
+            <button class="kit-mode" type="button" id="go-mix" style="--c:#9B6CF0"><span class="kit-mode-art"><span>🧪</span></span><span class="kit-mode-label"><b data-fr="Mélange">Mix colors</b><small data-fr="Deux couleurs en font une nouvelle">Two colors make a new one</small></span></button>
+            <button class="kit-mode" type="button" id="go-paint" style="--c:#4CC26A"><span class="kit-mode-art"><span>🖌️</span></span><span class="kit-mode-label"><b data-fr="Peins l'image">Paint the picture</b><small data-fr="Choisis une couleur, touche l'image">Pick a color, tap the picture</small></span></button>
         </div>
-    </section>
+    </main>
 
-    <!-- EXPLORE -->
-    <section class="screen" id="explore-screen" hidden>
-        <h1 data-fr="Touche une gelée !">Tap a jelly!</h1>
-        <div class="explore-grid" id="explore-grid"></div>
-    </section>
+    <main class="kit-screen" id="explore" hidden><div class="jelly-grid" id="explore-grid"></div></main>
 
-    <!-- FIND THE COLOR -->
-    <section class="screen" id="find-screen" hidden>
-        <div class="prompt" id="prompt">
-            <span id="prompt-text"></span>
-            <span class="prompt-emoji" id="prompt-emoji" aria-hidden="true"></span>
-            <button type="button" class="say-again" id="say-again" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button>
-        </div>
-        <div class="find-progress">
-            <span class="level-badge" id="find-level"></span>
-            <div class="stars" id="stars" aria-hidden="true"></div>
-        </div>
+    <main class="kit-screen" id="find" hidden>
+        <div class="kit-hud"><span class="kit-level" id="find-level"></span><span class="kit-stars" id="find-stars"></span></div>
+        <div class="kit-prompt"><span id="find-prompt"></span><button type="button" class="kit-say" id="find-say" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button></div>
         <div class="find-grid" id="find-grid"></div>
-    </section>
+    </main>
 
-    <!-- MIX COLORS -->
-    <section class="screen" id="mix-screen" hidden>
-        <h1 data-fr="Mélange les couleurs !">Mix colors!</h1>
-        <div class="mix-main">
-            <div class="mix-row" aria-live="polite">
-                <div class="mix-slot" id="slot-a">?</div>
-                <span aria-hidden="true">+</span>
-                <div class="mix-slot" id="slot-b">?</div>
-                <span aria-hidden="true">=</span>
-                <div class="mix-result" id="mix-result">?</div>
-            </div>
-            <div class="mix-name" id="mix-name"></div>
-            <div class="paints" id="paints"></div>
-        </div>
-        <div class="mix-side">
-            <div class="recipes-title" id="recipes-title"></div>
-            <div class="recipes" id="recipes"></div>
-        </div>
-    </section>
+    <main class="kit-screen" id="mix" hidden>
+        <div class="mix-row"><div class="slot" id="slot-a">?</div>+<div class="slot" id="slot-b">?</div>=<div class="slot result" id="slot-r">?</div></div>
+        <div class="mix-name" id="mix-name"></div>
+        <div class="paints" id="paints"></div>
+        <div class="kit-level" id="recipes-title"></div>
+        <div class="recipes" id="recipes"></div>
+    </main>
 
-    <div class="cheer" id="cheer" aria-live="polite"></div>
+    <main class="kit-screen" id="paint" hidden>
+        <div class="paint-wrap">
+            <div class="picture" id="picture"></div>
+            <div class="palette" id="palette" role="group" aria-label="Paint colors" data-fr-aria-label="Couleurs de peinture"></div>
+        </div>
+        <div class="paint-tools">
+            <button type="button" class="kit-btn small" id="next-pic" style="--c:#4CC26A;--cd:#2F9E4C" data-fr="🖼️ Autre image">🖼️ Another picture</button>
+            <button type="button" class="kit-btn small white" id="clear-pic" data-fr="🧽 Effacer">🧽 Clear</button>
+        </div>
+    </main>
 
     <script>
-        const lang = window.BabyLang;
+    (function () {
+        'use strict';
+        const { T, $, sfx, say } = Kit;
         const NBSP = ' ';
-
-        // Basic toddler colours, each with a friendly example and a pentatonic note.
         const COLORS = [
-            { id: 'red',    name: 'Red',    fr: 'Rouge',  frThe: 'le rouge',  hex: '#FF5A5F', dark: '#D93A40', emoji: '🍎', note: 261.63 },
-            { id: 'orange', name: 'Orange', fr: 'Orange', frThe: "l'orange",  hex: '#FF9A2E', dark: '#E07A10', emoji: '🥕', note: 293.66 },
-            { id: 'yellow', name: 'Yellow', fr: 'Jaune',  frThe: 'le jaune',  hex: '#FFD93B', dark: '#E0B400', emoji: '🐥', note: 329.63, light: true, label: '#B88A00' },
-            { id: 'green',  name: 'Green',  fr: 'Vert',   frThe: 'le vert',   hex: '#4CC26A', dark: '#2F9E4C', emoji: '🐸', note: 392.00 },
-            { id: 'blue',   name: 'Blue',   fr: 'Bleu',   frThe: 'le bleu',   hex: '#3D9BF0', dark: '#2077C9', emoji: '🐳', note: 440.00 },
-            { id: 'purple', name: 'Purple', fr: 'Violet', frThe: 'le violet', hex: '#9B6CF0', dark: '#764BD1', emoji: '🍇', note: 523.25 },
-            { id: 'pink',   name: 'Pink',   fr: 'Rose',   frThe: 'le rose',   hex: '#FF8FC4', dark: '#E2609F', emoji: '🐷', note: 587.33 },
-            { id: 'brown',  name: 'Brown',  fr: 'Brun',   frThe: 'le brun',   hex: '#A0703F', dark: '#7A5129', emoji: '🐻', note: 659.25 },
-            { id: 'black',  name: 'Black',  fr: 'Noir',   frThe: 'le noir',   hex: '#33303D', dark: '#15131B', emoji: '🐈‍⬛', note: 783.99 },
-            { id: 'white',  name: 'White',  fr: 'Blanc',  frThe: 'le blanc',  hex: '#FFFFFF', dark: '#C9CED8', emoji: '☁️', note: 880.00, light: true, label: '#7A8394' },
-            { id: 'gray',   name: 'Gray',   fr: 'Gris',   frThe: 'le gris',   hex: '#9AA3B2', dark: '#6F7889', emoji: '🐘', note: 1046.50 }
+            { id: 'red',    name: 'Red',    fr: 'Rouge',  frThe: 'le rouge',  hex: '#FF5A5F', dark: '#D93A40', emoji: '🍎', note: 0 },
+            { id: 'orange', name: 'Orange', fr: 'Orange', frThe: "l'orange",  hex: '#FF9A2E', dark: '#E07A10', emoji: '🥕', note: 1 },
+            { id: 'yellow', name: 'Yellow', fr: 'Jaune',  frThe: 'le jaune',  hex: '#FFD93B', dark: '#E0B400', emoji: '🐥', note: 2, label: '#B88A00' },
+            { id: 'green',  name: 'Green',  fr: 'Vert',   frThe: 'le vert',   hex: '#4CC26A', dark: '#2F9E4C', emoji: '🐸', note: 3 },
+            { id: 'blue',   name: 'Blue',   fr: 'Bleu',   frThe: 'le bleu',   hex: '#3D9BF0', dark: '#2077C9', emoji: '🐳', note: 4 },
+            { id: 'purple', name: 'Purple', fr: 'Violet', frThe: 'le violet', hex: '#9B6CF0', dark: '#764BD1', emoji: '🍇', note: 5 },
+            { id: 'pink',   name: 'Pink',   fr: 'Rose',   frThe: 'le rose',   hex: '#FF8FC4', dark: '#E2609F', emoji: '🐷', note: 6 },
+            { id: 'brown',  name: 'Brown',  fr: 'Brun',   frThe: 'le brun',   hex: '#A0703F', dark: '#7A5129', emoji: '🐻', note: 7 },
+            { id: 'black',  name: 'Black',  fr: 'Noir',   frThe: 'le noir',   hex: '#33303D', dark: '#15131B', emoji: '🐈‍⬛', note: 8 },
+            { id: 'white',  name: 'White',  fr: 'Blanc',  frThe: 'le blanc',  hex: '#FFFFFF', dark: '#C9CED8', emoji: '☁️', note: 9, label: '#7A8394' },
+            { id: 'gray',   name: 'Gray',   fr: 'Gris',   frThe: 'le gris',   hex: '#9AA3B2', dark: '#6F7889', emoji: '🐘', note: 10 }
         ];
-        const colorName = c => lang.t(c.name, c.fr);
-
-        // Chunky rounded-square jelly with a darker 3D bottom edge (viewBox 0 0 100 100).
-        function jellyArt(color, index = 0) {
-            const outline = color.id === 'white' ? 'stroke="#DCE1EA" stroke-width="3"' : '';
-            const eye = color.id === 'black' ? '#fff' : '#2D2A38';
-            const shine = color.id === 'black' ? 0 : 1;
-            const tilt = [-3, 2, -1, 3, -2][index % 5];
-            return `<svg class="jelly-art" viewBox="0 0 100 100" aria-hidden="true">
-                <g transform="rotate(${tilt} 50 52)">
-                    <rect x="8" y="15" width="84" height="80" rx="28" fill="${color.dark}"/>
-                    <rect x="8" y="7" width="84" height="80" rx="28" fill="${color.hex}" ${outline}/>
-                    <rect x="20" y="14" width="26" height="9" rx="4.5" fill="#fff" opacity="0.5"/>
-                    <circle cx="54" cy="18" r="3.5" fill="#fff" opacity="0.5"/>
-                    <g class="face-normal">
-                        <ellipse class="eye" cx="36" cy="46" rx="6" ry="7.5" fill="${eye}"/>
-                        <ellipse class="eye" cx="64" cy="46" rx="6" ry="7.5" fill="${eye}"/>
-                        <circle cx="38.5" cy="43" r="2.3" fill="#fff" opacity="${shine}"/>
-                        <circle cx="66.5" cy="43" r="2.3" fill="#fff" opacity="${shine}"/>
-                        <path d="M42 60 Q50 67 58 60" stroke="${eye}" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-                    </g>
-                    <g class="face-happy">
-                        <path d="M29 48 Q36 39 43 48" stroke="${eye}" stroke-width="4" fill="none" stroke-linecap="round"/>
-                        <path d="M57 48 Q64 39 71 48" stroke="${eye}" stroke-width="4" fill="none" stroke-linecap="round"/>
-                        <path d="M38 57 Q50 74 62 57 Z" fill="${eye}"/>
-                    </g>
-                    <ellipse cx="24" cy="58" rx="6.5" ry="4.5" fill="#FF7FA8" opacity="0.5"/>
-                    <ellipse cx="76" cy="58" rx="6.5" ry="4.5" fill="#FF7FA8" opacity="0.5"/>
-                </g>
-            </svg>`;
-        }
-
-        const els = {
-            start: document.getElementById('start-screen'),
-            explore: document.getElementById('explore-screen'),
-            find: document.getElementById('find-screen'),
-            back: document.getElementById('back-btn'),
-            exploreGrid: document.getElementById('explore-grid'),
-            findGrid: document.getElementById('find-grid'),
-            promptText: document.getElementById('prompt-text'),
-            promptEmoji: document.getElementById('prompt-emoji'),
-            findLevel: document.getElementById('find-level'),
-            stars: document.getElementById('stars'),
-            cheer: document.getElementById('cheer')
-        };
-
-        // --- SOUND ---
-        let audioCtx = null;
-        function note(freq, at = 0, dur = 0.35, vol = 0.2, type = 'sine') {
-            try {
-                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const start = audioCtx.currentTime + at;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, start);
-                gain.gain.setValueAtTime(0.0001, start);
-                gain.gain.exponentialRampToValueAtTime(vol, start + 0.015);
-                gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-                osc.connect(gain).connect(audioCtx.destination);
-                osc.start(start);
-                osc.stop(start + dur + 0.02);
-            } catch (error) { /* audio is optional */ }
-        }
-        // Jelly "boing": the colour's note bending up.
-        function squishSound(freq) {
-            try {
-                note(freq, 0, 0.35, 0.22);
-                const start = audioCtx.currentTime;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq / 2, start);
-                osc.frequency.exponentialRampToValueAtTime(freq, start + 0.12);
-                gain.gain.setValueAtTime(0.12, start);
-                gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
-                osc.connect(gain).connect(audioCtx.destination);
-                osc.start(start);
-                osc.stop(start + 0.2);
-            } catch (error) { /* audio is optional */ }
-        }
-        const cheerSound = () => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => note(f, i * 0.08, 0.3, 0.16));
-        const oopsSound = () => note(196, 0, 0.18, 0.14, 'triangle');
-
-        const speak = (en, fr) => lang.speak(en, fr, { pitch: 1.2 });
-
-        // --- SHARED JELLY BEHAVIOUR ---
-        function makeJelly(color, index, { showName, showHint }) {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'jelly';
-            btn.dataset.id = color.id;
-            btn.style.setProperty('--cd', color.label || color.dark);
-            btn.style.animationDelay = `${index * 0.04}s`;
-            btn.setAttribute('aria-label', colorName(color));
-            btn.innerHTML = jellyArt(color, index)
-                + (showHint ? `<span class="jelly-hint" aria-hidden="true">${color.emoji}</span>` : '')
-                + (showName ? `<span class="jelly-name">${colorName(color)}</span>` : '');
-            return btn;
-        }
-
-        function bounce(btn, cls) {
-            btn.classList.remove('squish', 'wobble');
-            void btn.offsetWidth;
-            btn.classList.add(cls);
-            btn.addEventListener('animationend', () => btn.classList.remove(cls), { once: true });
-        }
-
-        function smile(btn, ms = 900) {
-            btn.classList.add('happy');
-            clearTimeout(btn._smile);
-            btn._smile = setTimeout(() => btn.classList.remove('happy'), ms);
-        }
-
-        function burstFrom(btn, color, count = 18) {
-            const art = btn.querySelector('.jelly-art').getBoundingClientRect();
-            createExplosion(art.left + art.width / 2, art.top + art.height / 2, color.id === 'white' ? '#DCE1EA' : color.hex, count);
-        }
-
-        function tint(color) {
-            document.documentElement.style.setProperty('--tint', color.id === 'white' ? '#EEF1F6' : color.hex + '55');
-        }
-
-        // --- SCREENS ---
-        function show(screen) {
-            [els.start, els.explore, els.find, document.getElementById('mix-screen')].forEach(s => { s.hidden = s !== screen; });
-            els.back.hidden = screen === els.start;
-            window.scrollTo(0, 0);
-            if (screen !== els.find) clearTimeout(nextRoundTimer);
-        }
-
-        // Picture cards on the start screen; positions are % of the card window.
-        const artItem = (svg, left, top, width, turn = 0) =>
-            `<span class="art-item" style="left: ${left}%; top: ${top}%; width: ${width}%; transform: rotate(${turn}deg)">${svg}</span>`;
-        const MAGNIFIER = `<svg viewBox="0 0 100 100" aria-hidden="true">
-            <line x1="62" y1="62" x2="88" y2="88" stroke="#2B7FCC" stroke-width="15" stroke-linecap="round"/>
-            <circle cx="40" cy="40" r="28" fill="rgba(255,255,255,0.35)" stroke="#3D3551" stroke-width="9"/>
-            <path d="M24 34 Q28 24 38 21" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.9"/>
-        </svg>`;
-
-        function renderStart() {
-            const color = id => COLORS.find(c => c.id === id);
-            document.getElementById('art-play').innerHTML =
-                artItem(jellyArt(color('red'), 0), 4, 38, 40)
-                + artItem(jellyArt(color('blue'), 3), 56, 38, 40)
-                + artItem(jellyArt(color('yellow'), 1), 29, 8, 42);
-            document.getElementById('art-find').innerHTML =
-                artItem(jellyArt(color('green'), 2), 12, 34, 54)
-                + artItem(MAGNIFIER, 40, 6, 56);
-            document.getElementById('art-mix').innerHTML =
-                artItem(dropArt(color('red')), 8, 4, 28, -18)
-                + artItem(dropArt(color('yellow')), 64, 4, 28, 18)
-                + artItem(jellyArt(color('orange'), 2), 25, 34, 50);
-        }
-
-        // --- 🎨 EXPLORE ---
-        function renderExplore() {
-            els.exploreGrid.innerHTML = '';
-            COLORS.forEach((color, i) => els.exploreGrid.appendChild(makeJelly(color, i, { showName: true, showHint: true })));
-        }
-
-        els.exploreGrid.addEventListener('click', event => {
-            const btn = event.target.closest('.jelly');
-            if (!btn) return;
-            const color = COLORS.find(c => c.id === btn.dataset.id);
-            bounce(btn, 'squish');
-            smile(btn);
-            squishSound(color.note);
-            speak(color.name, color.fr);
-            burstFrom(btn, color);
-            tint(color);
-        });
-
-        // --- 🔍 FIND THE COLOR ---
-        const FIND_LEVELS = [2, 3, 4, 6];
-        const ROUNDS_PER_LEVEL = 5;
-        const FIND_KEY = 'colors-find-level';
-        let findLevel = 0;
-        let roundsWon = 0;
-        let target = null;
-        let lastTargetId = null;
-        let locked = false;
-        let nextRoundTimer = null;
-        try {
-            const saved = Number(localStorage.getItem(FIND_KEY));
-            if (saved >= 0 && saved < FIND_LEVELS.length) findLevel = saved;
-        } catch (error) { /* start at level 1 */ }
-
-        const shuffle = list => list.map(v => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map(p => p[1]);
-
-        function promptWords(color) {
-            return {
-                en: `Where is ${color.name.toLowerCase()}?`,
-                fr: `Où est ${color.frThe}${NBSP}?`
-            };
-        }
-
-        function renderPrompt() {
-            if (!target) return;
-            const light = target.light ? ' light' : '';
-            const style = `--c: ${target.hex}; --cd: ${target.dark}`;
-            const pill = word => `<span class="prompt-word${light}" style="${style}">${word}</span>`;
-            const article = target.frThe.slice(0, target.frThe.length - target.fr.length); // "le " or "l'"
-            els.promptText.innerHTML = lang.t(
-                `Where is ${pill(target.name.toLowerCase())}?`,
-                `Où est ${article}${pill(target.fr.toLowerCase())}${NBSP}?`
-            );
-            els.promptEmoji.textContent = target.emoji;
-            els.findLevel.textContent = lang.t(`Level ${findLevel + 1}`, `Niveau ${findLevel + 1}`);
-            els.stars.innerHTML = Array.from({ length: ROUNDS_PER_LEVEL }, (_, i) =>
-                `<span class="${i < roundsWon ? '' : 'off'}">⭐</span>`).join('');
-        }
-
-        function sayPrompt() {
-            const words = promptWords(target);
-            speak(words.en, words.fr);
-        }
-
-        function newRound() {
-            locked = false;
-            const count = FIND_LEVELS[findLevel];
-            const pool = shuffle(COLORS.filter(c => c.id !== lastTargetId));
-            target = pool[0];
-            lastTargetId = target.id;
-            const choices = shuffle([target, ...shuffle(COLORS.filter(c => c.id !== target.id)).slice(0, count - 1)]);
-            els.findGrid.classList.toggle('many', count > 4);
-            els.findGrid.innerHTML = '';
-            choices.forEach((color, i) => els.findGrid.appendChild(makeJelly(color, i, { showName: false, showHint: false })));
-            const prompt = document.getElementById('prompt');
-            prompt.style.animation = 'none';
-            void prompt.offsetWidth;
-            prompt.style.animation = '';
-            renderPrompt();
-            sayPrompt();
-        }
-
-        function showCheer(text, ms = 1300) {
-            els.cheer.textContent = text;
-            els.cheer.classList.add('show');
-            setTimeout(() => els.cheer.classList.remove('show'), ms);
-        }
-
-        els.findGrid.addEventListener('click', event => {
-            const btn = event.target.closest('.jelly');
-            if (!btn || locked) return;
-            const color = COLORS.find(c => c.id === btn.dataset.id);
-            if (color.id !== target.id) {
-                bounce(btn, 'wobble');
-                oopsSound();
-                return;
-            }
-            locked = true;
-            bounce(btn, 'squish');
-            smile(btn, 1400);
-            cheerSound();
-            burstFrom(btn, color, 34);
-            tint(color);
-            roundsWon++;
-            renderPrompt();
-            const star = els.stars.children[roundsWon - 1];
-            if (star) { star.classList.add('pop'); setTimeout(() => star.classList.remove('pop'), 350); }
-
-            let delay = 1300;
-            if (roundsWon >= ROUNDS_PER_LEVEL) {
-                roundsWon = 0;
-                if (findLevel < FIND_LEVELS.length - 1) {
-                    findLevel++;
-                    try { localStorage.setItem(FIND_KEY, String(findLevel)); } catch (error) { /* optional */ }
-                }
-                speak(`Yes, ${color.name.toLowerCase()}! Super! Level ${findLevel + 1}!`, `Oui, ${color.fr.toLowerCase()}${NBSP}! Super${NBSP}! Niveau ${findLevel + 1}${NBSP}!`);
-                setTimeout(() => showCheer(lang.t(`⭐ Super! Level ${findLevel + 1}`, `⭐ Super${NBSP}! Niveau ${findLevel + 1}`), 1700), 400);
-                setTimeout(() => cheerSound(), 500);
-                delay = 2600;
-            } else {
-                speak(`Yes, ${color.name.toLowerCase()}!`, `Oui, ${color.fr.toLowerCase()}${NBSP}!`);
-            }
-            nextRoundTimer = setTimeout(newRound, delay);
-        });
-
-        document.getElementById('say-again').addEventListener('click', () => target && sayPrompt());
-
-        // --- 🧪 MIX COLORS ---
-        const PAINTS = ['red', 'yellow', 'blue', 'white'].map(id => COLORS.find(c => c.id === id));
-        // Colours that only appear as mixing results.
         const EXTRA = {
-            sky:   { id: 'sky',   name: 'Sky blue',     fr: 'Bleu ciel',  hex: '#8FD0FF', dark: '#5AAEE8', note: 698.46, light: true, label: '#3A8FD0' },
-            cream: { id: 'cream', name: 'Light yellow', fr: 'Jaune pâle', hex: '#FFF0A0', dark: '#E8D266', note: 830.61, light: true, label: '#B89A00' }
+            sky:   { id: 'sky',   name: 'Sky blue',     fr: 'Bleu ciel',  hex: '#8FD0FF', dark: '#5AAEE8', note: 9, label: '#3A8FD0' },
+            cream: { id: 'cream', name: 'Light yellow', fr: 'Jaune pâle', hex: '#FFF0A0', dark: '#E8D266', note: 10, label: '#B89A00' }
         };
         const byId = id => COLORS.find(c => c.id === id) || EXTRA[id];
-        // Paint recipes (order does not matter). Same + same keeps the colour.
+        const nameOf = c => T(c.name, c.fr);
+        const sayColor = c => say(c.name, c.fr);
+
+        function jellyArt(c, i) {
+            const outline = c.id === 'white' ? 'stroke="#DCE1EA" stroke-width="3"' : '';
+            const eye = c.id === 'black' ? '#fff' : '#2D2A38';
+            const tilt = [-3, 2, -1, 3, -2][(i || 0) % 5];
+            return `<svg viewBox="0 0 100 100" aria-hidden="true"><g transform="rotate(${tilt} 50 52)">
+                <rect x="8" y="15" width="84" height="80" rx="28" fill="${c.dark}"/>
+                <rect x="8" y="7" width="84" height="80" rx="28" fill="${c.hex}" ${outline}/>
+                <rect x="20" y="14" width="26" height="9" rx="4.5" fill="#fff" opacity="0.5"/>
+                <g class="face-normal"><ellipse class="eye" cx="36" cy="46" rx="6" ry="7.5" fill="${eye}"/><ellipse class="eye" cx="64" cy="46" rx="6" ry="7.5" fill="${eye}"/>
+                <path d="M42 60 Q50 67 58 60" stroke="${eye}" stroke-width="3.5" fill="none" stroke-linecap="round"/></g>
+                <g class="face-happy"><path d="M29 48 Q36 39 43 48" stroke="${eye}" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M57 48 Q64 39 71 48" stroke="${eye}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M38 57 Q50 74 62 57 Z" fill="${eye}"/></g>
+                <ellipse cx="24" cy="58" rx="6.5" ry="4.5" fill="#FF7FA8" opacity="0.5"/><ellipse cx="76" cy="58" rx="6.5" ry="4.5" fill="#FF7FA8" opacity="0.5"/></g></svg>`;
+        }
+        function dropArt(c) {
+            const outline = c.id === 'white' ? 'stroke="#DCE1EA" stroke-width="3"' : '';
+            return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 8 C50 8 16 46 16 66 A34 34 0 0 0 84 66 C84 46 50 8 50 8 Z" fill="${c.hex}" ${outline}/>
+                <path d="M32 62 Q32 50 42 40" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.55"/></svg>`;
+        }
+        function jellyButton(c, i, opts) {
+            return `<button type="button" class="jelly" data-id="${c.id}" style="--cd:${c.label || c.dark};animation-delay:${i * 0.04}s" aria-label="${nameOf(c)}">
+                ${jellyArt(c, i)}${opts.hint ? `<span class="jelly-hint" aria-hidden="true">${c.emoji}</span>` : ''}${opts.name ? `<span class="jelly-name">${nameOf(c)}</span>` : ''}</button>`;
+        }
+        function smile(btn, ms) { btn.classList.add('happy'); clearTimeout(btn._smile); btn._smile = setTimeout(() => btn.classList.remove('happy'), ms || 900); }
+        const tintFor = c => Kit.tint(c.id === 'white' ? '#EEF1F6' : c.hex + '44');
+
+        const start = $('#start'), explore = $('#explore'), find = $('#find'), mix = $('#mix'), paint = $('#paint');
+        Kit.topbar({ onBack: () => goStart() });
+        function goStart() { Kit.show(start, { back: false }); Kit.tint('#FFF1D6'); renderBadges(); }
+        $('#art-explore').innerHTML = `<span style="width:110px;display:block">${jellyArt(COLORS[0], 0)}</span>`;
+
+        // ---------------- 🎨 EXPLORE ----------------
+        function openExplore() {
+            Kit.show(explore);
+            $('#explore-grid').innerHTML = COLORS.map((c, i) => jellyButton(c, i, { name: true, hint: true })).join('');
+            say('Tap a jelly!', `Touche une gelée${NBSP}!`);
+        }
+        $('#explore-grid').addEventListener('click', event => {
+            const btn = event.target.closest('.jelly');
+            if (!btn) return;
+            const c = byId(btn.dataset.id);
+            Kit.bounce(btn);
+            smile(btn);
+            sfx.boing(Kit.note(c.note));
+            sayColor(c);
+            Kit.burstFrom(btn, [c.id === 'white' ? '#DCE1EA' : c.hex, '#fff'], 18);
+            tintFor(c);
+        });
+
+        // ---------------- 🔍 FIND ----------------
+        const FIND = [2, 3, 4, 6];
+        const ROUNDS = 5;
+        const findStore = Kit.levelStore('colors-find-level', FIND.length);
+        let findLevel = findStore.get(), findWon = 0, target = COLORS[0], findLocked = false;
+        function renderFind(popIndex) {
+            $('#find-level').textContent = T(`Level ${findLevel + 1}`, `Niveau ${findLevel + 1}`);
+            Kit.stars($('#find-stars'), ROUNDS, findWon, popIndex);
+            const article = target.frThe.slice(0, target.frThe.length - target.fr.length);
+            $('#find-prompt').innerHTML = T(`Where is <span class="kit-word" style="--wc:${target.label || target.dark}">${target.name.toLowerCase()}</span>? ${target.emoji}`,
+                `Où est ${article}<span class="kit-word" style="--wc:${target.label || target.dark}">${target.fr.toLowerCase()}</span>${NBSP}? ${target.emoji}`);
+        }
+        const sayFind = () => say(`Where is ${target.name.toLowerCase()}?`, `Où est ${target.frThe}${NBSP}?`);
+        function newFind() {
+            findLocked = false;
+            target = Kit.pick(COLORS.filter(c => c !== target));
+            const n = FIND[findLevel];
+            const choices = Kit.shuffle([target, ...Kit.shuffle(COLORS.filter(c => c !== target)).slice(0, n - 1)]);
+            $('#find-grid').style.setProperty('--n', n <= 4 ? Math.min(n, 4) : 3);
+            $('#find-grid').innerHTML = choices.map((c, i) => jellyButton(c, i, {})).join('');
+            renderFind();
+            sayFind();
+        }
+        $('#find-grid').addEventListener('click', event => {
+            const btn = event.target.closest('.jelly');
+            if (!btn || findLocked) return;
+            const c = byId(btn.dataset.id);
+            if (c !== target) { Kit.bounce(btn, 'wobble'); sfx.oops(); sayColor(c); return; }
+            findLocked = true;
+            Kit.bounce(btn);
+            smile(btn, 1500);
+            sfx.cheer();
+            tintFor(c);
+            Kit.burstFrom(btn, [c.id === 'white' ? '#DCE1EA' : c.hex, '#FFD54A', '#fff'], 34);
+            findWon++;
+            let wait = 1500;
+            if (findWon >= ROUNDS) {
+                findWon = 0;
+                if (findLevel < FIND.length - 1) findLevel++;
+                findStore.set(findLevel);
+                say(`Yes, ${c.name.toLowerCase()}! Super! Level ${findLevel + 1}!`, `Oui, ${c.fr.toLowerCase()}${NBSP}! Super${NBSP}! Niveau ${findLevel + 1}${NBSP}!`);
+                Kit.later(() => { Kit.cheer(T(`⭐ Level ${findLevel + 1}!`, `⭐ Niveau ${findLevel + 1}${NBSP}!`)); Kit.confetti(90); sfx.fanfare(); }, 400);
+                renderFind(ROUNDS - 1);
+                wait = 2800;
+            } else {
+                say(`Yes, ${c.name.toLowerCase()}!`, `Oui, ${c.fr.toLowerCase()}${NBSP}!`);
+                renderFind(findWon - 1);
+            }
+            Kit.later(newFind, wait);
+        });
+        $('#find-say').addEventListener('click', sayFind);
+        function openFind() { Kit.show(find); findWon = 0; newFind(); }
+
+        // ---------------- 🧪 MIX ----------------
+        const PAINTS = ['red', 'yellow', 'blue', 'white'].map(byId);
         const RECIPES = [
-            { mix: ['red', 'yellow'],   result: 'orange' },
-            { mix: ['yellow', 'blue'],  result: 'green' },
-            { mix: ['red', 'blue'],     result: 'purple' },
-            { mix: ['red', 'white'],    result: 'pink' },
-            { mix: ['blue', 'white'],   result: 'sky' },
-            { mix: ['yellow', 'white'], result: 'cream' }
+            { mix: ['red', 'yellow'], result: 'orange' }, { mix: ['yellow', 'blue'], result: 'green' }, { mix: ['red', 'blue'], result: 'purple' },
+            { mix: ['red', 'white'], result: 'pink' }, { mix: ['blue', 'white'], result: 'sky' }, { mix: ['yellow', 'white'], result: 'cream' }
         ];
-        const recipeKey = (a, b) => [a, b].sort().join('+');
-        const MIXES_KEY = 'colors-mixes';
-        let found = new Set();
-        try { found = new Set(JSON.parse(localStorage.getItem(MIXES_KEY)) || []); } catch (error) { /* start fresh */ }
-        let picks = [];
-        let mixing = false;
-
-        const mixEls = {
-            screen: document.getElementById('mix-screen'),
-            a: document.getElementById('slot-a'),
-            b: document.getElementById('slot-b'),
-            result: document.getElementById('mix-result'),
-            name: document.getElementById('mix-name'),
-            paints: document.getElementById('paints'),
-            recipes: document.getElementById('recipes'),
-            recipesTitle: document.getElementById('recipes-title')
-        };
-
-        // A paint drop shape.
-        function dropArt(color) {
-            const outline = color.id === 'white' ? 'stroke="#DCE1EA" stroke-width="3"' : '';
-            return `<svg class="drop-art" viewBox="0 0 100 100" aria-hidden="true">
-                <path d="M50 8 C50 8 16 46 16 66 A34 34 0 0 0 84 66 C84 46 50 8 50 8 Z" fill="${color.hex}" ${outline}/>
-                <path d="M32 62 Q32 50 42 40" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.55"/>
-            </svg>`;
-        }
-
-        function renderPaints() {
-            mixEls.paints.innerHTML = PAINTS.map(color =>
-                `<button type="button" class="paint" data-id="${color.id}" aria-label="${colorName(color)}">${dropArt(color)}</button>`).join('');
-        }
-
-        function renderRecipes(newKey = '') {
-            mixEls.recipesTitle.textContent = lang.t(`📖 My colors: ${found.size} / ${RECIPES.length}`, `📖 Mes couleurs${NBSP}: ${found.size} / ${RECIPES.length}`);
-            mixEls.recipes.innerHTML = RECIPES.map(recipe => {
-                const key = recipeKey(...recipe.mix);
-                const known = found.has(key);
-                const [a, b] = recipe.mix.map(byId);
-                const result = byId(recipe.result);
-                const label = known
-                    ? lang.t(`${a.name} and ${b.name.toLowerCase()} make ${result.name.toLowerCase()}`, `${a.fr} et ${b.fr.toLowerCase()} font ${result.fr.toLowerCase()}`)
-                    : lang.t(`${a.name} and ${b.name.toLowerCase()}: not found yet`, `${a.fr} et ${b.fr.toLowerCase()}${NBSP}: pas encore trouvé`);
-                return `<div class="recipe${known ? ' found' : ''}${key === newKey ? ' new' : ''}" aria-label="${label}">
-                    <i style="--c: ${a.hex}"></i>+<i style="--c: ${b.hex}"></i>=
-                    ${known ? `<i style="--c: ${result.hex}"></i>` : '<i class="unknown">?</i>'}
-                </div>`;
+        const key = (a, b) => [a, b].sort().join('+');
+        const found = new Set(Kit.store.json('colors-mixes', []));
+        let picks = [], mixing = false;
+        function renderRecipes(newKey) {
+            $('#recipes-title').textContent = T(`📖 My colors: ${found.size} / ${RECIPES.length}`, `📖 Mes couleurs${NBSP}: ${found.size} / ${RECIPES.length}`);
+            $('#recipes').innerHTML = RECIPES.map(r => {
+                const k = key(...r.mix), known = found.has(k);
+                const [a, b] = r.mix.map(byId), res = byId(r.result);
+                return `<div class="recipe${k === newKey ? ' new' : ''}"><i style="--c:${a.hex}"></i>+<i style="--c:${b.hex}"></i>=${known ? `<i style="--c:${res.hex}"></i>` : '<i class="unknown">?</i>'}</div>`;
             }).join('');
         }
-
         function clearMix() {
             picks = [];
-            [mixEls.a, mixEls.b].forEach(slot => { slot.className = 'mix-slot'; slot.textContent = '?'; });
-            mixEls.result.className = 'mix-result';
-            mixEls.result.textContent = '?';
-            mixEls.name.innerHTML = '';
+            ['#slot-a', '#slot-b', '#slot-r'].forEach(s => { $(s).className = 'slot' + (s === '#slot-r' ? ' result' : ''); $(s).textContent = '?'; });
+            $('#mix-name').textContent = '';
         }
-
-        function startMix() {
+        function openMix() {
+            Kit.show(mix);
             clearMix();
-            renderPaints();
+            $('#paints').innerHTML = PAINTS.map(c => `<button type="button" class="paint" data-id="${c.id}" aria-label="${nameOf(c)}">${dropArt(c)}</button>`).join('');
             renderRecipes();
-            show(mixEls.screen);
-            speak('Tap two colors to mix them!', `Touche deux couleurs pour les mélanger${NBSP}!`);
+            say('Tap two colors to mix them!', `Touche deux couleurs pour les mélanger${NBSP}!`);
         }
-
-        mixEls.paints.addEventListener('click', event => {
+        $('#paints').addEventListener('click', event => {
             const btn = event.target.closest('.paint');
             if (!btn || mixing) return;
             if (picks.length === 2) clearMix();
-            const color = byId(btn.dataset.id);
-            btn.classList.add('pressed');
-            setTimeout(() => btn.classList.remove('pressed'), 150);
-            squishSound(color.note);
-            picks.push(color);
-            const slot = picks.length === 1 ? mixEls.a : mixEls.b;
-            slot.className = 'mix-slot filled';
-            slot.innerHTML = dropArt(color);
+            const c = byId(btn.dataset.id);
+            Kit.bounce(btn);
+            sfx.boing(Kit.note(c.note));
+            picks.push(c);
+            const slot = picks.length === 1 ? $('#slot-a') : $('#slot-b');
+            slot.innerHTML = dropArt(c);
+            Kit.bounce(slot);
             if (picks.length === 2) mixColors();
         });
-
         function mixColors() {
             mixing = true;
             const [a, b] = picks;
-            const key = recipeKey(a.id, b.id);
-            const recipe = RECIPES.find(r => recipeKey(...r.mix) === key);
-            const result = a.id === b.id ? a : byId(recipe.result);
-            const isNew = recipe && !found.has(key);
-
-            // Swirl the two paints together, then reveal the new colour.
-            mixEls.result.className = 'mix-result swirling';
-            mixEls.result.textContent = '';
-            mixEls.result.style.setProperty('--a', a.hex);
-            mixEls.result.style.setProperty('--b', b.hex);
-            [0, 0.12, 0.24, 0.36, 0.5].forEach((at, i) => note(a.note * (1 + i * 0.12), at, 0.15, 0.08, 'triangle'));
-
-            setTimeout(() => {
-                mixEls.result.className = 'mix-result done';
-                const jelly = makeJelly(result, 1, { showName: false, showHint: false });
-                jelly.tabIndex = -1;
-                mixEls.result.innerHTML = '';
-                mixEls.result.appendChild(jelly);
-                bounce(jelly, 'squish');
-                smile(jelly, 1600);
-                burstFrom(jelly, result, 36);
-                cheerSound();
-                tint(result);
-                mixEls.name.innerHTML = `<span style="--cd: ${result.label || result.dark}">${colorName(result)}</span>`;
-
-                if (a.id === b.id) {
-                    speak(`${a.name} and ${b.name.toLowerCase()} stay ${a.name.toLowerCase()}!`, `${a.fr} et ${b.fr.toLowerCase()}, ça reste ${a.fr.toLowerCase()}${NBSP}!`);
-                } else {
-                    speak(`${a.name} and ${b.name.toLowerCase()} make ${result.name.toLowerCase()}!`,
-                        `${a.fr} et ${b.fr.toLowerCase()}, ça fait ${result.fr.toLowerCase()}${NBSP}!`);
-                }
-
+            const recipe = RECIPES.find(r => key(...r.mix) === key(a.id, b.id));
+            const result = a.id === b.id || !recipe ? a : byId(recipe.result);
+            const k = key(a.id, b.id);
+            const isNew = recipe && !found.has(k);
+            const r = $('#slot-r');
+            r.textContent = '';
+            r.style.setProperty('--a', a.hex);
+            r.style.setProperty('--b', b.hex);
+            r.classList.add('swirl');
+            sfx.whoosh();
+            Kit.later(() => {
+                r.classList.remove('swirl');
+                r.innerHTML = `<span class="jelly happy" style="animation:none">${jellyArt(result, 1)}</span>`;
+                Kit.bounce(r);
+                sfx.cheer();
+                tintFor(result);
+                Kit.burstFrom(r, [result.hex, '#fff', '#FFD54A'], 36);
+                $('#mix-name').style.setProperty('--cd', result.label || result.dark);
+                $('#mix-name').textContent = nameOf(result);
+                if (a.id === b.id) say(`${a.name} and ${b.name.toLowerCase()} stay ${a.name.toLowerCase()}!`, `${a.fr} et ${b.fr.toLowerCase()}, ça reste ${a.fr.toLowerCase()}${NBSP}!`);
+                else say(`${a.name} and ${b.name.toLowerCase()} make ${result.name.toLowerCase()}!`, `${a.fr} et ${b.fr.toLowerCase()}, ça fait ${result.fr.toLowerCase()}${NBSP}!`);
                 if (isNew) {
-                    found.add(key);
-                    try { localStorage.setItem(MIXES_KEY, JSON.stringify([...found])); } catch (error) { /* optional */ }
-                    renderRecipes(key);
-                    if (found.size === RECIPES.length) {
-                        setTimeout(() => {
-                            showCheer(lang.t('🌈 You found all the colors!', `🌈 Tu as trouvé toutes les couleurs${NBSP}!`), 2400);
-                            speak('You found all the colors! Amazing!', `Tu as trouvé toutes les couleurs${NBSP}! Bravo${NBSP}!`);
-                            [0, 0.4, 0.8].forEach(at => setTimeout(cheerSound, at * 1000));
-                        }, 2200);
-                    }
+                    found.add(k);
+                    Kit.store.setJson('colors-mixes', [...found]);
+                    renderRecipes(k);
+                    if (found.size === RECIPES.length) Kit.later(() => { Kit.cheer(T('🌈 You found all the colors!', `🌈 Toutes les couleurs${NBSP}!`), 2400); Kit.confetti(); sfx.fanfare(); }, 2000);
                 }
                 mixing = false;
             }, 950);
         }
 
-        // --- NAVIGATION ---
-        document.querySelectorAll('.mode-card').forEach(card => card.addEventListener('pointerdown', () => {
-            card.classList.add('pressed');
-            setTimeout(() => card.classList.remove('pressed'), 180);
-            squishSound(523.25);
-        }));
-        document.getElementById('explore-btn').addEventListener('click', () => {
-            renderExplore();
-            show(els.explore);
-            speak('Tap a jelly!', `Touche une gelée${NBSP}!`);
+        // ---------------- 🖌️ PAINT THE PICTURE ----------------
+        const S = 'stroke="#3D3551" stroke-width="4"';
+        const PICTURES = [
+            // A little house with a tree and the sun.
+            `<rect data-r="sky" x="2" y="2" width="396" height="296" rx="18"/>
+             <rect data-r="grass" x="2" y="224" width="396" height="74"/>
+             <circle data-r="sun" cx="56" cy="56" r="32"/>
+             <rect data-r="wall" x="96" y="138" width="160" height="104" rx="6"/>
+             <polygon data-r="roof" points="80,142 176,72 272,142"/>
+             <rect data-r="door" x="156" y="180" width="42" height="62" rx="8"/>
+             <rect data-r="window" x="112" y="158" width="32" height="32" rx="6"/>
+             <rect data-r="window2" x="210" y="158" width="32" height="32" rx="6"/>
+             <rect data-r="trunk" x="312" y="160" width="18" height="72" rx="6"/>
+             <circle data-r="leaves" cx="321" cy="140" r="40"/>
+             <circle cx="190" cy="212" r="4" fill="#3D3551"/>`,
+            // A fish in the sea.
+            `<rect data-r="water" x="2" y="2" width="396" height="296" rx="18"/>
+             <path data-r="sand" d="M2 250 Q100 225 200 250 T398 245 V298 H2 Z"/>
+             <path data-r="weed" d="M50 250 Q30 200 55 170 Q75 140 52 100 Q90 140 70 180 Q55 215 72 250 Z"/>
+             <polygon data-r="tail" points="110,150 52,104 52,196"/>
+             <ellipse data-r="fish" cx="200" cy="150" rx="96" ry="58"/>
+             <path data-r="fin" d="M180 96 Q210 60 240 98 Z"/>
+             <circle cx="252" cy="138" r="9" fill="#3D3551"/><circle cx="255" cy="135" r="3" fill="#fff"/>
+             <path d="M262 168 Q276 174 286 166" fill="none" ${S} stroke-linecap="round"/>
+             <circle data-r="bubble1" cx="320" cy="90" r="14"/><circle data-r="bubble2" cx="344" cy="52" r="10"/><circle data-r="bubble3" cx="330" cy="22" r="7"/>
+             <polygon data-r="star" points="330,232 337,250 356,250 341,261 347,279 330,268 313,279 319,261 304,250 323,250"/>`,
+            // A rainbow over two clouds.
+            `<rect data-r="sky" x="2" y="2" width="396" height="296" rx="18"/>
+             ${[0, 1, 2, 3, 4, 5].map(i => { const r2 = 170 - i * 20, r1 = r2 - 20; return `<path data-r="band${i}" d="M${200 - r2} 250 A${r2} ${r2} 0 0 1 ${200 + r2} 250 L${200 + r1} 250 A${r1} ${r1} 0 0 0 ${200 - r1} 250 Z"/>`; }).join('')}
+             <path data-r="cloud1" d="M10 262 Q8 226 44 230 Q56 200 86 216 Q112 208 112 240 Q128 262 100 270 H24 Q8 270 10 262 Z"/>
+             <path data-r="cloud2" d="M290 262 Q288 226 324 230 Q336 200 366 216 Q392 208 392 240 Q398 262 380 270 H304 Q288 270 290 262 Z"/>
+             <circle data-r="sun" cx="352" cy="58" r="30"/>`
+        ];
+        const PAINT_COLORS = COLORS.filter(c => c.id !== 'gray');
+        let picIndex = 0, brush = byId('red');
+        function renderPicture() {
+            $('#picture').innerHTML = `<svg viewBox="0 0 400 300" role="img" aria-label="${T('Picture to paint', 'Image à peindre')}">${PICTURES[picIndex]}</svg>`;
+            $('#picture').querySelectorAll('[data-r]').forEach(el => el.setAttribute('fill', '#FFFFFF'));
+        }
+        function renderPalette() {
+            $('#palette').innerHTML = PAINT_COLORS.map(c => `<button type="button" class="swatch" data-id="${c.id}" style="--c:${c.hex}" aria-label="${nameOf(c)}" aria-pressed="${c === brush}"></button>`).join('');
+        }
+        $('#palette').addEventListener('click', event => {
+            const sw = event.target.closest('.swatch');
+            if (!sw) return;
+            brush = byId(sw.dataset.id);
+            $('#palette').querySelectorAll('.swatch').forEach(b => b.setAttribute('aria-pressed', String(b === sw)));
+            Kit.bounce(sw);
+            sfx.boing(Kit.note(brush.note));
+            sayColor(brush);
         });
-        document.getElementById('find-btn').addEventListener('click', () => {
-            roundsWon = 0;
-            show(els.find);
-            newRound();
-        });
-        document.getElementById('mix-btn').addEventListener('click', startMix);
-        els.back.addEventListener('click', () => {
-            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-            show(els.start);
-        });
-
-        lang.mountToggle();
-        lang.onChange(() => {
-            if (!els.explore.hidden) renderExplore();
-            if (!mixEls.screen.hidden) {
-                renderPaints();
-                renderRecipes();
-                const shown = mixEls.result.querySelector('.jelly');
-                if (shown && !mixing) {
-                    const result = byId(shown.dataset.id);
-                    mixEls.name.innerHTML = `<span style="--cd: ${result.label || result.dark}">${colorName(result)}</span>`;
-                }
+        $('#picture').addEventListener('click', event => {
+            const part = event.target.closest('[data-r]');
+            if (!part) return;
+            part.setAttribute('fill', brush.hex);
+            part.classList.remove('splash'); void part.getBoundingClientRect(); part.classList.add('splash');
+            sfx.splash();
+            Kit.burst(event.clientX, event.clientY, [brush.id === 'white' ? '#DCE1EA' : brush.hex, '#fff'], 14, 0.7);
+            const parts = [...$('#picture').querySelectorAll('[data-r]')];
+            if (parts.every(p => p.getAttribute('fill') !== '#FFFFFF') && !$('#picture')._done) {
+                $('#picture')._done = true;
+                Kit.later(() => { Kit.cheer(T('🎨 What a masterpiece!', `🎨 Quel chef-d'œuvre${NBSP}!`), 2000); Kit.confetti(110); sfx.fanfare(); say('What a beautiful picture!', `Quelle belle image${NBSP}!`); }, 300);
             }
-            if (!els.find.hidden) {
-                renderPrompt();
-                els.findGrid.querySelectorAll('.jelly').forEach(btn => {
-                    btn.setAttribute('aria-label', colorName(COLORS.find(c => c.id === btn.dataset.id)));
-                });
-            }
         });
-
-        // --- ✨ PARTICLES ---
-        const canvas = document.getElementById('particles');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        $('#next-pic').addEventListener('click', () => { picIndex = (picIndex + 1) % PICTURES.length; $('#picture')._done = false; renderPicture(); sfx.whoosh(); });
+        $('#clear-pic').addEventListener('click', () => { $('#picture')._done = false; renderPicture(); sfx.splash(); });
+        function openPaint() {
+            Kit.show(paint);
+            $('#picture')._done = false;
+            renderPicture();
+            renderPalette();
+            say('Pick a color, then tap the picture!', `Choisis une couleur, puis touche l'image${NBSP}!`);
         }
 
-        function createExplosion(x, y, color, count) {
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x, y,
-                    vx: (Math.random() - 0.5) * 9,
-                    vy: Math.random() * -8 - 1,
-                    size: Math.random() * 8 + 4,
-                    life: 1,
-                    color: Math.random() > 0.75 ? '#FFFFFF' : color,
-                    star: Math.random() > 0.6
-                });
-            }
-        }
-
-        function drawStar(p) {
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.life * 6);
-            ctx.beginPath();
-            for (let i = 0; i < 5; i++) {
-                ctx.lineTo(Math.cos((18 + i * 72) * Math.PI / 180) * p.size, -Math.sin((18 + i * 72) * Math.PI / 180) * p.size);
-                ctx.lineTo(Math.cos((54 + i * 72) * Math.PI / 180) * p.size / 2.2, -Math.sin((54 + i * 72) * Math.PI / 180) * p.size / 2.2);
-            }
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.25;
-                p.life -= 0.02;
-                if (p.life <= 0) { particles.splice(i, 1); continue; }
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                if (p.star) {
-                    drawStar(p);
-                } else {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-            ctx.globalAlpha = 1;
-            requestAnimationFrame(animateParticles);
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        animateParticles();
-        renderStart();
-        if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
+        // ---------------- START ----------------
+        function renderBadges() { $('#find-badge').textContent = T(`Level ${findLevel + 1}`, `Niv. ${findLevel + 1}`); }
+        $('#go-explore').addEventListener('click', () => { sfx.pop(); openExplore(); });
+        $('#go-find').addEventListener('click', () => { sfx.pop(); openFind(); });
+        $('#go-mix').addEventListener('click', () => { sfx.pop(); openMix(); });
+        $('#go-paint').addEventListener('click', () => { sfx.pop(); openPaint(); });
+        Kit.onLang(() => {
+            renderBadges();
+            if (!explore.hidden) $('#explore-grid').innerHTML = COLORS.map((c, i) => jellyButton(c, i, { name: true, hint: true })).join('');
+            if (!find.hidden) renderFind();
+            if (!mix.hidden) renderRecipes();
+            if (!paint.hidden) renderPalette();
+        });
+        goStart();
+    }());
     </script>
 </body>
 </html>

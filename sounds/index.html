@@ -1,368 +1,304 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-title-fr="Boîte à musique - ba-by.ca">
+<html lang="en" data-title-fr="Boîte à musique">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Musical Sounds - ba-by.ca</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐣</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Play 15 real instruments, a rainbow xylophone with songs to follow, and an animal choir. English and French.">
+    <title>Music Box</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎶</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-top: #FFF9C4;
-            --bg-bottom: #FFF176;
-            --primary: #FF5722;
-            --secondary: #673AB7;
-            --text-main: #3E2723;
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Nunito', sans-serif;
-            background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
-
-        #particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-        }
-
-        .home-btn {
-            position: fixed; 
-            top: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
-            background: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            text-decoration: none;
-            box-shadow: 0 4px 0 #d7ccc8;
-            border: 2px solid #efebe9;
-            z-index: 100;
-        }
-
-        .app-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            font-family: 'Fredoka One', cursive;
-            color: var(--primary);
-            font-size: 2.5rem;
-            margin-top: 60px;
-            text-shadow: 2px 2px 0px white;
-            text-align: center;
-        }
-
-        .sound-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 20px;
-            width: 100%;
-            padding: 20px;
-        }
-
-        .sound-card {
-            background: white;
-            border-radius: 30px;
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 10px 0 #BDBDBD;
-            transition: transform 0.1s;
-            border: 5px solid white;
-            min-width: 0;
-        }
-
-        .sound-card:active {
-            transform: translateY(8px);
-            box-shadow: 0 2px 0 #BDBDBD;
-        }
-
-        .sound-emoji, .sound-icon {
-            font-size: 4rem;
-            width: 80px;
-            height: 80px;
-            object-fit: contain;
-            margin-bottom: 10px;
-        }
-
-        .sound-name {
-            font-family: 'Fredoka One', cursive;
-            color: var(--text-main);
-            font-size: 1.2rem;
-        }
-
-        /* Overlay */
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 200;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            overflow-x: hidden;
-            overflow-y: auto;
-            overscroll-behavior: contain;
-            touch-action: pan-y;
-            padding: 16px;
-        }
-
-        .overlay.active { display: flex; }
-
-        #big-emoji {
-            font-size: 10rem;
-            animation: bounce 1s infinite alternate;
-        }
-
-        @keyframes bounce {
-            from { transform: scale(1); }
-            to { transform: scale(1.2); }
-        }
-
-        .tap-hint {
-            margin-top: 40px;
-            font-weight: 800;
-            color: #9e9e9e;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        @media (max-width: 600px) {
-            .sound-grid { grid-template-columns: repeat(2, 1fr); }
-            h1 { font-size: 1.8rem; }
-        }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            #big-emoji { font-size: 6rem; }
-            #big-emoji img { width: 110px !important; height: 110px !important; }
-            #big-name { margin: 8px 0 !important; font-size: 2rem !important; }
-            .tap-hint { margin-top: 10px; }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
     <script src="/assets/js/site-lang.js?v=20261028"></script>
+    <script src="/assets/js/kit.js?v=20261029"></script>
+    <style>
+        :root { --tint: #FFF0D9; }
+        .inst-grid { width: 100%; max-width: 980px; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px; }
+        .inst {
+            position: relative;
+            border: 0;
+            border-radius: 28px;
+            background: var(--bg);
+            padding: 14px 6px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 6px 0 rgba(61,53,81,0.12);
+            animation: kit-rise 0.4s backwards;
+        }
+        .inst .pic { font-size: clamp(3rem, 10vw, 4.2rem); line-height: 1.1; height: 1.2em; display: grid; place-items: center; }
+        .inst .pic img { width: 1.1em; height: 1.1em; object-fit: contain; }
+        .inst .name { font-family: 'Fredoka One', system-ui, sans-serif; font-size: clamp(1rem, 3.4vw, 1.25rem); }
+        .inst.playing { box-shadow: 0 6px 0 var(--sun-d), 0 0 0 5px var(--sun); }
+        .inst.playing .pic { animation: kit-dance 0.9s ease-in-out infinite; }
+        .note-fly { position: fixed; z-index: 76; pointer-events: none; font-size: 30px; animation: note-up 1.6s ease-out forwards; }
+        @keyframes note-up { 0% { transform: translate(-50%, 0) scale(0.6); opacity: 0; } 15% { opacity: 1; } 100% { transform: translate(calc(-50% + var(--dx)), -140px) scale(1.2) rotate(var(--r)); opacity: 0; } }
+
+        /* Rainbow xylophone */
+        .xylo { width: 100%; max-width: 900px; height: min(56vh, 420px); display: flex; align-items: center; justify-content: center; gap: clamp(4px, 1.4vw, 12px); padding: 0 10px; position: relative; }
+        .xylo::before, .xylo::after { content: ''; position: absolute; left: 4%; right: 4%; height: 14px; border-radius: 8px; background: #A0703F; box-shadow: 0 4px 0 #7A5129; }
+        .xylo::before { top: 22%; }
+        .xylo::after { bottom: 22%; }
+        .bar {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            height: var(--h);
+            border: 0;
+            border-radius: 20px;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--c) 70%, #fff), var(--c));
+            box-shadow: 0 8px 0 var(--cd), inset 0 -10px 0 rgba(0,0,0,0.08);
+            color: #fff;
+            font-family: 'Fredoka One', system-ui, sans-serif;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 14px;
+            touch-action: none;
+        }
+        .bar::before, .bar::after { content: ''; position: absolute; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: rgba(255,255,255,0.7); }
+        .bar::before { top: 16%; }
+        .bar::after { bottom: 16%; }
+        .bar.hit { transform: translateY(6px) scale(0.98); box-shadow: 0 2px 0 var(--cd); filter: brightness(1.15); }
+        .bar.next { animation: glow 0.9s ease-in-out infinite; }
+        @keyframes glow { 50% { box-shadow: 0 8px 0 var(--cd), 0 0 0 8px #fff, 0 0 30px 10px var(--c); transform: translateY(-6px); } }
+        .songs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .song { border: 3px solid #fff; border-radius: 999px; padding: 10px 18px; background: rgba(255,255,255,0.85); font-weight: 900; box-shadow: 0 4px 0 rgba(61,53,81,0.12); }
+        .song[aria-pressed="true"] { background: var(--purple); color: #fff; box-shadow: 0 4px 0 var(--purple-d); }
+
+        /* Animal choir */
+        .choir { width: 100%; max-width: 900px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; align-items: end; padding: 24px 12px 0; border-radius: 34px; background: linear-gradient(180deg, transparent 55%, #FFD7A8 55%, #F4B97A 100%); }
+        .singer { border: 0; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; }
+        .singer .pic { font-size: clamp(3.4rem, 12vw, 5.6rem); line-height: 1; display: inline-block; transform-origin: bottom center; transition: transform 0.1s; }
+        .singer.sing .pic { animation: sing 0.5s ease-in-out; }
+        @keyframes sing { 30% { transform: scale(1.18, 1.25) translateY(-10px); } 60% { transform: scale(0.95, 1.05); } }
+        .singer .name { font-family: 'Fredoka One', system-ui, sans-serif; font-size: clamp(0.9rem, 3vw, 1.2rem); }
+        .stand { width: 100%; height: 26px; border-radius: 10px 10px 0 0; background: #A0703F; box-shadow: inset 0 6px 0 rgba(255,255,255,0.2); }
+        .singer:nth-child(2) .stand { height: 40px; }
+        .singer:nth-child(3) .stand { height: 54px; }
+        .singer:nth-child(4) .stand { height: 40px; }
+        @media (max-width: 560px) { .inst-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } .choir { gap: 4px; } }
+    </style>
 </head>
 <body>
+    <main class="kit-screen" id="start">
+        <h1 class="kit-title" style="--title-shadow:#FF9F43"><span class="bob" data-fr="Boîte">Music</span> <span class="bob" style="animation-delay:-1.3s" data-fr="à musique">Box</span></h1>
+        <p class="kit-sub" data-fr="Joue des instruments, des chansons et un chœur d'animaux !">Play instruments, songs and an animal choir!</p>
+        <div class="kit-modes">
+            <button class="kit-mode" type="button" id="go-inst" style="--c:#FF9F43"><span class="kit-mode-art"><span>🎺</span></span><span class="kit-mode-label"><b data-fr="Instruments">Instruments</b><small data-fr="15 vrais instruments">15 real instruments</small></span></button>
+            <button class="kit-mode" type="button" id="go-xylo" style="--c:#9B6CF0"><span class="kit-mode-art"><span>🌈</span></span><span class="kit-mode-label"><b data-fr="Xylophone arc-en-ciel">Rainbow xylophone</b><small data-fr="Suis les lumières pour jouer une chanson">Follow the lights to play a song</small></span></button>
+            <button class="kit-mode" type="button" id="go-choir" style="--c:#4CC26A"><span class="kit-mode-art"><span>🐸</span></span><span class="kit-mode-label"><b data-fr="Chœur des animaux">Animal choir</b><small data-fr="Chaque animal chante une note">Each animal sings a note</small></span></button>
+        </div>
+    </main>
 
-    <canvas id="particles"></canvas>
-    <a href="/" class="home-btn" aria-label="Back to games" data-fr-aria-label="Retour aux jeux"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#FF7A45"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#E85A28" opacity="0.55"/><path d="M24 12.5 L35.5 22 V33.5 a2.5 2.5 0 0 1 -2.5 2.5 H28 V29 a4 4 0 0 0 -8 0 V36 H15 a2.5 2.5 0 0 1 -2.5 -2.5 V22 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg></a>
+    <main class="kit-screen" id="inst" hidden><div class="inst-grid" id="inst-grid"></div></main>
 
-    <div class="app-container">
-        <h1 data-fr="Boîte à musique 🎵">Music Box 🎵</h1>
-        <div class="sound-grid" id="grid"></div>
-    </div>
+    <main class="kit-screen" id="xylo-screen" hidden>
+        <div class="songs" id="songs" role="group" aria-label="Songs" data-fr-aria-label="Chansons"></div>
+        <div class="xylo" id="xylo"></div>
+    </main>
 
-    <div class="overlay" id="overlay">
-        <div id="big-emoji">🎹</div>
-        <h2 id="big-name" style="font-family: 'Fredoka One'; font-size: 3rem; color: var(--secondary);">Piano</h2>
-        <div class="tap-hint" data-fr="Touche pour revenir">Tap to go back</div>
-    </div>
+    <main class="kit-screen" id="choir-screen" hidden>
+        <div class="choir" id="choir"></div>
+        <button type="button" class="kit-btn" id="choir-song" style="--c:#4CC26A;--cd:#2F9E4C" data-fr="🎤 On chante ensemble !">🎤 Sing together!</button>
+    </main>
 
     <script>
-    // Local folder for instrument sounds
-    const SOUND_BASE = 'play/';
+    (function () {
+        'use strict';
+        const { T, $, sfx, say } = Kit;
+        const NBSP = ' ';
+        const INSTRUMENTS = [
+            ['Piano', 'Piano', '🎹', '#E1F5FE', 'piano'], ['Drums', 'Tambour', '🥁', '#FCE4EC', 'drum'], ['Bell', 'Cloche', '🔔', '#FFF9C4', 'bell'],
+            ['Guitar', 'Guitare', '🎸', '#E8F5E9', 'guitar'], ['Trumpet', 'Trompette', '🎺', '#FFF3E0', 'trumpet'], ['Violin', 'Violon', '🎻', '#F3E5F5', 'violin'],
+            ['Xylophone', 'Xylophone', '🪘', '#E0F2F1', 'xylophone'], ['Saxophone', 'Saxophone', '🎷', '#FFFDE7', 'saxophone'], ['Harp', 'Harpe', 'icons/harp.png', '#F3E5F5', 'harp'],
+            ['Flute', 'Flûte', '🪈', '#E0F7FA', 'flute'], ['Cello', 'Violoncelle', '🎻', '#EFEBE9', 'cello'], ['Clarinet', 'Clarinette', 'icons/clarinet.png', '#E0F2F1', 'clarinet'],
+            ['Trombone', 'Trombone', '🎺', '#FFF3E0', 'trombone'], ['Tuba', 'Tuba', '📯', '#FFF9C4', 'tuba'], ['Triangle', 'Triangle', 'icons/triangle.png', '#F1F8E9', 'triangle']
+        ].map(([name, fr, pic, bg, file]) => ({ name, fr, pic, bg, file }));
+        const picHtml = i => i.pic.endsWith('.png') ? `<img src="${i.pic}" alt="">` : i.pic;
+        const nameOf = i => T(i.name, i.fr);
 
-    const SOUNDS = [
-        { name: 'Piano', fr: 'Piano', emoji: '🎹', color: '#E1F5FE', file: 'piano.mp3' },
-        { name: 'Drums', fr: 'Tambour', emoji: '🥁', color: '#FCE4EC', file: 'drum.mp3' },
-        { name: 'Bell', fr: 'Cloche', emoji: '🔔', color: '#FFF9C4', file: 'bell.mp3' },
-        { name: 'Guitar', fr: 'Guitare', emoji: '🎸', color: '#E8F5E9', file: 'guitar.mp3' },
-        { name: 'Trumpet', fr: 'Trompette', emoji: '🎺', color: '#FFF3E0', file: 'trumpet.mp3' },
-        { name: 'Violin', fr: 'Violon', emoji: '🎻', color: '#F3E5F5', file: 'violin.mp3' },
-        { name: 'Xylophone', fr: 'Xylophone', emoji: '🎹', color: '#E0F2F1', file: 'xylophone.mp3' },
-        { name: 'Saxophone', fr: 'Saxophone', emoji: '🎷', color: '#FFFDE7', file: 'saxophone.mp3' },
-        { name: 'Harp', fr: 'Harpe', emoji: '🪕', color: '#F3E5F5', file: 'harp.mp3', icon: 'icons/harp.png' },
-        { name: 'Flute', fr: 'Flûte', emoji: '🪈', color: '#E0F7FA', file: 'flute.mp3' },
-        { name: 'Cello', fr: 'Violoncelle', emoji: '🎻', color: '#EFEBE9', file: 'cello.mp3' },
-        { name: 'Clarinet', fr: 'Clarinette', emoji: '🎷', color: '#E0F2F1', file: 'clarinet.mp3', icon: 'icons/clarinet.png' },
-        { name: 'Trombone', fr: 'Trombone', emoji: '🎺', color: '#FFF3E0', file: 'trombone.mp3' },
-        { name: 'Tuba', fr: 'Tuba', emoji: '📯', color: '#FFF9C4', file: 'tuba.mp3' },
-        { name: 'Triangle', fr: 'Triangle', emoji: '🎵', color: '#F1F8E9', file: 'triangle.mp3', icon: 'icons/triangle.png' }
-    ];
+        const start = $('#start'), inst = $('#inst'), xylo = $('#xylo-screen'), choir = $('#choir-screen');
+        Kit.topbar({ onBack: () => goStart() });
+        function goStart() { Kit.show(start, { back: false }); Kit.tint('#FFF0D9'); }
 
-        const grid = document.getElementById('grid');
-        const overlay = document.getElementById('overlay');
-        const bigEmoji = document.getElementById('big-emoji');
-        const bigName = document.getElementById('big-name');
-        const canvas = document.getElementById('particles');
-        const ctx = canvas.getContext('2d');
-
-        let currentAudio = null;
-        let playToken = 0;
-        const lang = window.BabyLang;
-        const nameOf = item => lang.t(item.name, item.fr);
-
-        function init() {
-            SOUNDS.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'sound-card';
-                card.style.backgroundColor = item.color;
-                
-                const visual = item.icon 
-                    ? `<img src="${item.icon}" class="sound-icon" alt="${nameOf(item)}">`
-                    : `<div class="sound-emoji">${item.emoji}</div>`;
-
-                card.innerHTML = `
-                    ${visual}
-                    <div class="sound-name">${nameOf(item)}</div>
-                `;
-                card.onclick = (e) => playSound(item, e);
-                card.dataset.index = SOUNDS.indexOf(item);
-                grid.appendChild(card);
-            });
-
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-            animate();
-
-            lang.mountToggle();
-            lang.onChange(() => {
-                grid.querySelectorAll('.sound-card').forEach(card => {
-                    const item = SOUNDS[card.dataset.index];
-                    card.querySelector('.sound-name').textContent = nameOf(item);
-                    const img = card.querySelector('img');
-                    if (img) img.alt = nameOf(item);
-                });
-            });
+        // Little music notes float up from whatever is playing.
+        function notes(el, n) {
+            if (Kit.reduceMotion()) return;
+            const [x, y] = Kit.centerOf(el);
+            for (let i = 0; i < n; i++) {
+                const s = document.createElement('span');
+                s.className = 'note-fly';
+                s.textContent = Kit.pick(['🎵', '🎶', '♪', '♫']);
+                s.style.left = x + 'px';
+                s.style.top = y - 20 + 'px';
+                s.style.setProperty('--dx', `${(Math.random() - 0.5) * 140}px`);
+                s.style.setProperty('--r', `${(Math.random() - 0.5) * 60}deg`);
+                s.style.animationDelay = `${i * 0.18}s`;
+                s.style.color = Kit.pick(['#FF6B8B', '#A66BFF', '#3FC9C0', '#FF9F43']);
+                document.body.appendChild(s);
+                setTimeout(() => s.remove(), 1900 + i * 180);
+            }
         }
 
-        function playSound(item, e) {
-            // Visuals
-            if (item.icon) {
-                bigEmoji.innerHTML = `<img src="${item.icon}" style="width: 200px; height: 200px; object-fit: contain;">`;
-            } else {
-                bigEmoji.textContent = item.emoji;
-            }
-            bigName.textContent = nameOf(item);
-            overlay.classList.add('active');
-            
-            // Audio
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-            }
-            
-            // Speak the name first, then play the instrument sound after a small delay
-            const msg = lang.speak(item.name, item.fr, { pitch: 1.2 }) || {};
-
-            const audio = new Audio(SOUND_BASE + item.file);
-            audio.loop = true;
-            currentAudio = audio;
-            // Only start if this instrument is still the one showing (closing or picking another cancels it).
-            const token = ++playToken;
-            const start = () => {
-                if (token !== playToken || currentAudio !== audio || !audio.paused) return;
-                audio.play().catch(() => {});
-            };
-            msg.onend = start;
-            // Fallback play if onend doesn't fire
-            setTimeout(start, 1500);
-
-            // Particles
-            const rect = e.currentTarget.getBoundingClientRect();
-            createExplosion(rect.left + rect.width/2, rect.top + rect.height/2, item.color);
-        }
-
-        overlay.onclick = () => {
+        // ---------------- 🎺 INSTRUMENTS ----------------
+        let audio = null, playToken = 0;
+        function stopInstrument() {
             playToken++;
-            overlay.classList.remove('active');
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-            }
-            window.speechSynthesis.cancel();
-        };
-
-        // --- Particles ---
-        let particles = [];
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            if (audio) { audio.pause(); audio = null; }
+            document.querySelectorAll('.inst.playing').forEach(b => b.classList.remove('playing'));
         }
-
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x; this.y = y;
-                this.color = color;
-                this.size = Math.random() * 15 + 5;
-                this.speedX = Math.random() * 10 - 5;
-                this.speedY = Math.random() * 10 - 5;
-                this.life = 1.0;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.life -= 0.02;
-                this.size *= 0.95;
-            }
-            draw() {
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
+        $('#inst-grid').addEventListener('click', event => {
+            const btn = event.target.closest('.inst');
+            if (!btn) return;
+            const item = INSTRUMENTS[Number(btn.dataset.i)];
+            stopInstrument();
+            btn.classList.add('playing');
+            notes(btn, 4);
+            Kit.burstFrom(btn, ['#FFD54A', '#fff'], 12, 0.7);
+            say(item.name, item.fr, { pitch: 1.2 });
+            // Plays once (no endless loop), right after the name.
+            const token = playToken;
+            Kit.later(() => {
+                if (token !== playToken || Kit.muted) return;
+                const a = new Audio(`play/${item.file}.mp3`);
+                audio = a;
+                a.onended = () => { if (token === playToken) btn.classList.remove('playing'); };
+                a.play().catch(() => btn.classList.remove('playing'));
+                notes(btn, 5);
+            }, 700);
+        });
+        function openInst() {
+            Kit.show(inst);
+            $('#inst-grid').innerHTML = INSTRUMENTS.map((x, i) =>
+                `<button type="button" class="inst" data-i="${i}" style="--bg:${x.bg};animation-delay:${i * 0.03}s" aria-label="${nameOf(x)}"><span class="pic" aria-hidden="true">${picHtml(x)}</span><span class="name">${nameOf(x)}</span></button>`).join('');
+            say('Tap an instrument!', `Touche un instrument${NBSP}!`);
         }
+        Kit.onLeave(inst, stopInstrument);
 
-        function createExplosion(x, y, color) {
-            for(let i=0; i<20; i++) {
-                particles.push(new Particle(x, y, color));
+        // ---------------- 🌈 RAINBOW XYLOPHONE ----------------
+        const BARS = [
+            { n: 'C', fr: 'Do', f: 523.25, c: '#FF5A5F', cd: '#C9303A' }, { n: 'D', fr: 'Ré', f: 587.33, c: '#FF9A2E', cd: '#C9600A' },
+            { n: 'E', fr: 'Mi', f: 659.25, c: '#FFC93B', cd: '#C99400' }, { n: 'F', fr: 'Fa', f: 698.46, c: '#4CC26A', cd: '#2F9E4C' },
+            { n: 'G', fr: 'Sol', f: 783.99, c: '#2EC4B6', cd: '#0E857A' }, { n: 'A', fr: 'La', f: 880.0, c: '#3D9BF0', cd: '#1D6FC4' },
+            { n: 'B', fr: 'Si', f: 987.77, c: '#9B6CF0', cd: '#6A3FD1' }, { n: 'C', fr: 'Do', f: 1046.5, c: '#FF7DB8', cd: '#C93F86' }
+        ];
+        const SONGS = [
+            { id: 'free', name: ['🎨 Free play', '🎨 Jeu libre'], notes: [] },
+            { id: 'twinkle', name: ['⭐ Twinkle Twinkle', '⭐ Ah ! vous dirai-je'], notes: [0, 0, 4, 4, 5, 5, 4, 3, 3, 2, 2, 1, 1, 0] },
+            { id: 'jacques', name: ['🔔 Frère Jacques', '🔔 Frère Jacques'], notes: [0, 1, 2, 0, 0, 1, 2, 0, 2, 3, 4, 2, 3, 4] },
+            { id: 'birthday', name: ['🎂 Happy Birthday', '🎂 Bonne fête'], notes: [0, 0, 1, 0, 3, 2, 0, 0, 1, 0, 4, 3] }
+        ];
+        let song = SONGS[0], songPos = 0;
+        function mallet(f) {
+            Kit.tone(f, { dur: 0.9, vol: 0.2 });
+            Kit.tone(f * 2.76, { dur: 0.25, vol: 0.05 });
+            Kit.tone(f * 5.4, { dur: 0.08, vol: 0.02 });
+        }
+        function renderXylo() {
+            $('#xylo').innerHTML = BARS.map((b, i) => `<button type="button" class="bar" data-i="${i}" style="--c:${b.c};--cd:${b.cd};--h:${92 - i * 6}%" aria-label="${T(b.n, b.fr)}">${T(b.n, b.fr)}</button>`).join('');
+            $('#songs').innerHTML = SONGS.map(s => `<button type="button" class="song" data-id="${s.id}" aria-pressed="${s === song}">${T(...s.name)}</button>`).join('');
+            markNext();
+        }
+        function markNext() {
+            $('#xylo').querySelectorAll('.bar').forEach(b => b.classList.remove('next'));
+            if (!song.notes.length) return;
+            const b = $(`#xylo .bar[data-i="${song.notes[songPos]}"]`);
+            if (b) b.classList.add('next');
+        }
+        function hitBar(bar) {
+            const i = Number(bar.dataset.i);
+            mallet(BARS[i].f);
+            bar.classList.add('hit');
+            setTimeout(() => bar.classList.remove('hit'), 140);
+            notes(bar, 1);
+            if (!song.notes.length) return;
+            if (i === song.notes[songPos]) {
+                songPos++;
+                if (songPos >= song.notes.length) {
+                    songPos = 0;
+                    $('#xylo').querySelectorAll('.bar').forEach(b => b.classList.remove('next'));
+                    Kit.later(() => { Kit.cheer(T('🎶 Bravo, music star!', `🎶 Bravo, petite star${NBSP}!`), 2000); Kit.confetti(120); sfx.fanfare(); say('Bravo! You played the song!', `Bravo${NBSP}! Tu as joué la chanson${NBSP}!`); }, 500);
+                    Kit.later(markNext, 2600);
+                    return;
+                }
             }
+            markNext();
         }
+        // Slide a finger across the bars to play a glissando.
+        let sliding = null;
+        $('#xylo').addEventListener('pointerdown', event => {
+            const bar = event.target.closest('.bar');
+            if (!bar) return;
+            event.preventDefault();
+            sliding = { id: event.pointerId, last: bar };
+            hitBar(bar);
+        });
+        window.addEventListener('pointermove', event => {
+            if (!sliding || event.pointerId !== sliding.id) return;
+            const el = document.elementFromPoint(event.clientX, event.clientY);
+            const bar = el && el.closest && el.closest('.bar');
+            if (bar && bar !== sliding.last) { sliding.last = bar; hitBar(bar); }
+        });
+        window.addEventListener('pointerup', () => { sliding = null; });
+        window.addEventListener('pointercancel', () => { sliding = null; });
+        $('#songs').addEventListener('click', event => {
+            const b = event.target.closest('.song');
+            if (!b) return;
+            song = SONGS.find(s => s.id === b.dataset.id);
+            songPos = 0;
+            sfx.pop();
+            renderXylo();
+            if (song.notes.length) say('Tap the glowing bar!', `Touche la barre qui brille${NBSP}!`);
+        });
+        function openXylo() { Kit.show(xylo); Kit.tint('#EFE6FF'); renderXylo(); say('Tap the colors to make music!', `Touche les couleurs pour faire de la musique${NBSP}!`); }
 
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles = particles.filter(p => p.life > 0);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animate);
+        // ---------------- 🐸 ANIMAL CHOIR ----------------
+        const SINGERS = [
+            { e: '🐸', name: ['Frog', 'Grenouille'], f: 196.0, wave: 'square', cut: 900 },
+            { e: '🐶', name: ['Puppy', 'Chiot'], f: 261.63, wave: 'sawtooth', cut: 1400 },
+            { e: '🐱', name: ['Kitty', 'Minou'], f: 329.63, wave: 'triangle', cut: 2600 },
+            { e: '🐤', name: ['Chick', 'Poussin'], f: 392.0, wave: 'sine', cut: 4000 },
+            { e: '🐭', name: ['Mouse', 'Souris'], f: 523.25, wave: 'triangle', cut: 5000 }
+        ];
+        function singNote(i, dur) {
+            const s = SINGERS[i];
+            // A voice-like "laaa": a filtered oscillator with a bit of vibrato.
+            Kit.tone(s.f, { dur: dur || 0.6, vol: 0.12, type: s.wave, vibrato: s.f * 0.02 });
+            Kit.tone(s.f * 2, { dur: (dur || 0.6) * 0.8, vol: 0.03, type: 'sine' });
+            const btn = $(`#choir .singer[data-i="${i}"]`);
+            if (btn) { btn.classList.remove('sing'); void btn.offsetWidth; btn.classList.add('sing'); notes(btn, 1); }
         }
+        function renderChoir() {
+            $('#choir').innerHTML = SINGERS.map((s, i) => `<button type="button" class="singer" data-i="${i}" aria-label="${T(...s.name)}"><span class="pic" aria-hidden="true">${s.e}</span><span class="name">${T(...s.name)}</span><span class="stand"></span></button>`).join('');
+        }
+        $('#choir').addEventListener('pointerdown', event => {
+            const s = event.target.closest('.singer');
+            if (!s) return;
+            singNote(Number(s.dataset.i));
+        });
+        // The choir sings "Twinkle Twinkle" together.
+        const CHOIR_SONG = [1, 1, 3, 3, 4, 4, 3, -1, 2, 2, 1, 1, 0, 0, 1];
+        $('#choir-song').addEventListener('click', () => {
+            sfx.pop();
+            CHOIR_SONG.forEach((n, k) => Kit.later(() => { if (n >= 0) singNote(n, 0.42); }, 300 + k * 430));
+            Kit.later(() => { sfx.cheer(); Kit.burstFrom($('#choir'), ['#FFD54A', '#FF6B8B', '#4CC26A'], 40); }, 300 + CHOIR_SONG.length * 430);
+        });
+        function openChoir() { Kit.show(choir); Kit.tint('#E4F6DF'); renderChoir(); say('Tap an animal to hear it sing!', `Touche un animal pour l'entendre chanter${NBSP}!`); }
 
-        init();
+        $('#go-inst').addEventListener('click', () => { sfx.pop(); openInst(); });
+        $('#go-xylo').addEventListener('click', () => { sfx.pop(); openXylo(); });
+        $('#go-choir').addEventListener('click', () => { sfx.pop(); openChoir(); });
+        Kit.onLang(() => {
+            if (!inst.hidden) $('#inst-grid').querySelectorAll('.inst').forEach(b => { const x = INSTRUMENTS[Number(b.dataset.i)]; b.querySelector('.name').textContent = nameOf(x); b.setAttribute('aria-label', nameOf(x)); });
+            if (!xylo.hidden) renderXylo();
+            if (!choir.hidden) renderChoir();
+        });
+        goStart();
+    }());
     </script>
 </body>
 </html>

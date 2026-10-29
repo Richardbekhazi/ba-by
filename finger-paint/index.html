@@ -1,53 +1,273 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Peinture magique">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Make musical finger paintings with sparkle, neon, and bubble brushes, mirror magic, dancing stickers, and secret pictures. A creative, pressure-free toddler game.">
-    <title>Magic Finger Painting - ba-by.ca</title>
-    <link rel="stylesheet" href="/assets/css/toddler-play.css?v=20261028-lang">
-    <link rel="stylesheet" href="/assets/css/finger-paint.css?v=20261028-lang">
-    <script defer src="/assets/js/toddler-loader.js?v=20261028-lang"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Paint with your fingers: crayons, rainbow, sparkles, bubbles and stamps on white, night, brown paper or a coloring page. Music plays as you paint.">
+    <title>Finger Painting</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖌️</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
+    <script src="/assets/js/kit.js?v=20261029"></script>
+    <style>
+        :root { --tint: #FFE8F3; }
+        #paint-screen { gap: 10px; padding-left: 10px; padding-right: 10px; }
+        .studio { flex: 1; width: 100%; max-width: 1180px; min-height: 0; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; }
+        .rail { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .paper-wrap { position: relative; width: 100%; height: 100%; min-height: 0; display: grid; place-items: center; }
+        .paper { position: relative; aspect-ratio: 3 / 2; width: min(100%, calc((100vh - 200px) * 1.5)); width: min(100%, calc((100dvh - 200px) * 1.5)); border-radius: 26px; overflow: hidden; background: var(--paper, #fff); box-shadow: 0 10px 0 rgba(61,53,81,0.12), 0 0 0 8px #fff; touch-action: none; }
+        .paper.kraft { --paper: #D9B98A; background-image: radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1.5px); background-size: 7px 7px; }
+        .paper.night { --paper: #1C1F4A; }
+        .paper canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+        #lines { pointer-events: none; }
+        .tool { width: 66px; height: 66px; border: 0; border-radius: 22px; background: #fff; font-size: 34px; box-shadow: 0 5px 0 rgba(61,53,81,0.12); }
+        .tool[aria-pressed="true"] { box-shadow: 0 5px 0 var(--pink-d), 0 0 0 4px var(--pink); transform: translateY(-3px); }
+        .tool:disabled { opacity: 0.4; }
+        .colors { display: grid; grid-template-columns: repeat(2, 52px); gap: 8px; }
+        .swatch { width: 52px; height: 52px; border-radius: 50%; border: 4px solid #fff; background: var(--c); box-shadow: 0 4px 0 rgba(61,53,81,0.15); }
+        .swatch[aria-pressed="true"] { box-shadow: 0 0 0 4px var(--ink), 0 4px 0 rgba(61,53,81,0.15); transform: scale(1.1); }
+        .bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+        .stamps { display: flex; gap: 6px; }
+        .stamps button { width: 52px; height: 52px; border: 0; border-radius: 18px; background: #fff; font-size: 28px; box-shadow: 0 4px 0 rgba(61,53,81,0.12); }
+        .stamps button[aria-pressed="true"] { box-shadow: 0 4px 0 var(--purple-d), 0 0 0 4px var(--purple); }
+        @media (max-width: 760px), (max-aspect-ratio: 1/1) {
+            .studio { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
+            .rail { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+            .colors { grid-template-columns: repeat(8, 40px); }
+            .swatch { width: 40px; height: 40px; border-width: 3px; }
+            .tool { width: 52px; height: 52px; font-size: 26px; border-radius: 18px; }
+            .paper { width: min(100%, calc((100dvh - 330px) * 1.5)); }
+        }
+    </style>
 </head>
-<body data-game="painting">
-    <nav class="topbar" aria-label="Game settings">
-        <a class="home" href="/" aria-label="Back to games"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#FF7A45"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#E85A28" opacity="0.55"/><path d="M24 12.5 L35.5 22 V33.5 a2.5 2.5 0 0 1 -2.5 2.5 H28 V29 a4 4 0 0 0 -8 0 V36 H15 a2.5 2.5 0 0 1 -2.5 -2.5 V22 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg></a>
-        <div class="settings">
-            <button type="button" data-language="en" aria-label="English" aria-pressed="true">EN</button>
-            <button type="button" data-language="fr" aria-label="Français" aria-pressed="false">FR</button>
-            <button type="button" id="sound" aria-label="Sound on" aria-pressed="true">🔊</button>
-            <button type="button" id="help" aria-label="Hear instructions">💬</button>
+<body>
+    <main class="kit-screen" id="start">
+        <h1 class="kit-title" style="--title-shadow:#FF6B8B"><span class="bob" data-fr="Peinture">Finger</span> <span class="bob" style="animation-delay:-1.3s" data-fr="magique">Painting</span></h1>
+        <p class="kit-sub" data-fr="Peins avec tes doigts… et écoute la musique !">Paint with your fingers… and hear the music!</p>
+        <div class="kit-modes">
+            <button class="kit-mode" type="button" data-paper="white" style="--c:#FF6B8B"><span class="kit-mode-art"><span>🎨</span></span><span class="kit-mode-label"><b data-fr="Papier blanc">White paper</b><small data-fr="Une page toute neuve">A fresh page</small></span></button>
+            <button class="kit-mode" type="button" data-paper="night" style="--c:#5B4FD6"><span class="kit-mode-art"><span>🌙</span></span><span class="kit-mode-label"><b data-fr="Papier de nuit">Night paper</b><small data-fr="Des couleurs qui brillent">Glowing colors</small></span></button>
+            <button class="kit-mode" type="button" data-paper="kraft" style="--c:#C99A5B"><span class="kit-mode-art"><span>📦</span></span><span class="kit-mode-label"><b data-fr="Papier kraft">Brown paper</b><small data-fr="Comme un vrai carton">Like real cardboard</small></span></button>
+            <button class="kit-mode" type="button" data-paper="coloring" style="--c:#3FC9C0"><span class="kit-mode-art"><span>🦋</span></span><span class="kit-mode-label"><b data-fr="Coloriage">Coloring page</b><small data-fr="Papillon, poisson ou fleur">Butterfly, fish or flower</small></span></button>
         </div>
-    </nav>
-    <main class="game">
-        <div id="game-loading" role="status" aria-live="polite" style="padding:16px;text-align:center;background:white;color:#31415a;border-radius:16px">
-            <p id="loading-detail">Opening your game... / Le jeu arrive...</p>
-            <button type="button" style="min-height:48px;padding:12px" onclick="var url = new window.URL(location.href); url.searchParams.set('reload', Date.now()); location.replace(url.href);">Reload game / Recharger</button>
-        </div>
-        <header class="heading"><h1 id="title">Magic Finger Painting</h1><p id="instruction">Pick a color. Paint with your finger!</p></header>
-        <div id="stage" class="stage painting-stage" data-paper="white">
-            <svg id="secret" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true"></svg>
-            <canvas id="paper" width="1200" height="760" tabindex="0" role="img" aria-label="Drawing paper. Use arrow keys to move and space to paint."></canvas>
-            <canvas id="sparkles" width="1200" height="760" aria-hidden="true"></canvas>
-            <svg id="outline" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true"></svg>
-            <svg id="stickers" viewBox="0 0 600 380" preserveAspectRatio="none" aria-hidden="true"></svg>
-        </div>
-        <div id="palette" class="palette" aria-label="Paint colors"></div>
-        <div id="controls" class="toolbar" aria-label="Painting tools"></div>
-        <div id="actions" class="toolbar paint-actions" aria-label="Magic and actions"></div>
-        <p id="message" class="message" role="status" aria-live="polite"></p>
-        <noscript>Please enable JavaScript to play.</noscript>
     </main>
-    <dialog id="gallery" class="gallery" aria-labelledby="gallery-title">
-        <div class="gallery-card">
-            <h2 id="gallery-title">What a masterpiece!</h2>
-            <div class="frame"><img id="gallery-art" alt="Your painting in a golden frame"></div>
-            <div class="gallery-actions">
-                <button type="button" id="keep-painting" class="tool primary">Keep painting</button>
-                <button type="button" id="save-art" class="tool">Save picture</button>
-            </div>
-            <p id="gallery-note" class="gallery-note">The picture stays on this device. Nothing is uploaded.</p>
+
+    <main class="kit-screen fit" id="paint-screen" hidden>
+        <div class="studio">
+            <div class="rail" id="tools" role="group" aria-label="Brushes" data-fr-aria-label="Pinceaux"></div>
+            <div class="paper-wrap"><div class="paper" id="paper"><canvas id="paint" aria-label="Painting" data-fr-aria-label="Peinture"></canvas><canvas id="lines" aria-hidden="true"></canvas></div></div>
+            <div class="rail"><div class="colors" id="colors" role="group" aria-label="Colors" data-fr-aria-label="Couleurs"></div></div>
         </div>
-    </dialog>
+        <div class="bar">
+            <div class="stamps" id="stamps" hidden></div>
+            <button type="button" class="tool" id="undo" aria-label="Undo" data-fr-aria-label="Annuler">↩️</button>
+            <button type="button" class="tool" id="clear" aria-label="New page" data-fr-aria-label="Nouvelle page">🧽</button>
+            <button type="button" class="tool" id="next-page" aria-label="Another coloring page" data-fr-aria-label="Autre coloriage" hidden>🔄</button>
+        </div>
+    </main>
+
+    <script>
+    (function () {
+        'use strict';
+        const { T, $, sfx, say } = Kit;
+        const NBSP = ' ';
+        const W = 900, H = 600;
+        const COLORS = ['#FF5A5F', '#FF9A2E', '#FFD93B', '#4CC26A', '#3D9BF0', '#9B6CF0', '#FF8FC4', '#A0703F', '#33303D', '#FFFFFF'];
+        const COLOR_NAMES = [['Red', 'Rouge'], ['Orange', 'Orange'], ['Yellow', 'Jaune'], ['Green', 'Vert'], ['Blue', 'Bleu'], ['Purple', 'Violet'], ['Pink', 'Rose'], ['Brown', 'Brun'], ['Black', 'Noir'], ['White', 'Blanc']];
+        const TOOLS = [
+            { id: 'crayon', e: '🖍️', name: ['Crayon', 'Crayon'] }, { id: 'rainbow', e: '🌈', name: ['Rainbow', 'Arc-en-ciel'] },
+            { id: 'sparkle', e: '✨', name: ['Sparkles', 'Étincelles'] }, { id: 'bubbles', e: '🫧', name: ['Bubbles', 'Bulles'] },
+            { id: 'stamp', e: '🌟', name: ['Stamps', 'Tampons'] }, { id: 'eraser', e: '🧼', name: ['Eraser', 'Gomme'] }
+        ];
+        const STAMPS = ['🌟', '❤️', '🌸', '🐞', '🦋', '🐠', '🌈', '🍓'];
+        const SCALE = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25, 783.99, 880.0];
+
+        const start = $('#start'), studio = $('#paint-screen');
+        const paint = $('#paint'), pctx = paint.getContext('2d'), lines = $('#lines'), lctx = lines.getContext('2d');
+        paint.width = lines.width = W;
+        paint.height = lines.height = H;
+        Kit.topbar({ onBack: () => goStart() });
+        function goStart() { Kit.show(start, { back: false }); Kit.tint('#FFE8F3'); }
+
+        let tool = 'crayon', color = COLORS[4], stamp = STAMPS[0], paper = 'white', page = 0, hue = 0;
+        const undoStack = [];
+        function snapshot() {
+            undoStack.push(pctx.getImageData(0, 0, W, H));
+            if (undoStack.length > 10) undoStack.shift();
+            $('#undo').disabled = false;
+        }
+
+        // ---------- Coloring pages: outlines drawn on top of the paint ----------
+        const PAGES = [
+            c => { // butterfly
+                c.beginPath(); c.ellipse(450, 300, 22, 150, 0, 0, Math.PI * 2); c.stroke();
+                [[1, -1], [-1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => { c.beginPath(); c.ellipse(450 + sx * 150, 300 + sy * (sy < 0 ? 95 : 85), sy < 0 ? 140 : 105, sy < 0 ? 110 : 80, sx * sy * 0.4, 0, Math.PI * 2); c.stroke(); });
+                [[1, -1], [-1, -1]].forEach(([sx]) => { c.beginPath(); c.arc(450 + sx * 160, 205, 34, 0, Math.PI * 2); c.stroke(); });
+                c.beginPath(); c.moveTo(440, 160); c.quadraticCurveTo(400, 80, 380, 70); c.moveTo(460, 160); c.quadraticCurveTo(500, 80, 520, 70); c.stroke();
+            },
+            c => { // fish
+                c.beginPath(); c.ellipse(420, 300, 220, 140, 0, 0, Math.PI * 2); c.stroke();
+                c.beginPath(); c.moveTo(640, 300); c.lineTo(800, 190); c.lineTo(800, 410); c.closePath(); c.stroke();
+                c.beginPath(); c.arc(300, 260, 26, 0, Math.PI * 2); c.stroke();
+                c.beginPath(); c.moveTo(380, 160); c.quadraticCurveTo(450, 70, 520, 168); c.stroke();
+                [460, 540].forEach(x => { c.beginPath(); c.arc(x, 300, 60, -1.2, 1.2); c.stroke(); });
+                [[150, 120, 20], [110, 60, 14], [180, 40, 10]].forEach(([x, y, r]) => { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.stroke(); });
+            },
+            c => { // flower
+                for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2; c.beginPath(); c.ellipse(450 + Math.cos(a) * 110, 240 + Math.sin(a) * 110, 80, 52, a, 0, Math.PI * 2); c.stroke(); }
+                c.beginPath(); c.arc(450, 240, 64, 0, Math.PI * 2); c.stroke();
+                c.beginPath(); c.moveTo(450, 400); c.lineTo(450, 590); c.stroke();
+                c.beginPath(); c.ellipse(390, 500, 60, 26, -0.5, 0, Math.PI * 2); c.stroke();
+                c.beginPath(); c.ellipse(510, 520, 60, 26, 0.5, 0, Math.PI * 2); c.stroke();
+            }
+        ];
+        function drawLines() {
+            lctx.clearRect(0, 0, W, H);
+            if (paper !== 'coloring') return;
+            lctx.lineWidth = 9;
+            lctx.lineCap = lctx.lineJoin = 'round';
+            lctx.strokeStyle = '#3D3551';
+            PAGES[page % PAGES.length](lctx);
+        }
+
+        // ---------- Painting ----------
+        let pointer = null, last = null, lastNote = 0;
+        const toPaper = e => { const r = paint.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H }; };
+        function glow(on, c) { pctx.shadowBlur = on ? 18 : 0; pctx.shadowColor = on ? c : 'transparent'; }
+        function starAt(x, y, r, c) {
+            pctx.save(); pctx.translate(x, y); pctx.rotate(Math.random() * 6); pctx.fillStyle = c; pctx.beginPath();
+            for (let i = 0; i < 10; i++) { const rr = i % 2 ? r * 0.45 : r, a = i / 10 * Math.PI * 2; pctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+            pctx.closePath(); pctx.fill(); pctx.restore();
+        }
+        function dab(p, from) {
+            const night = paper === 'night';
+            pctx.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over';
+            pctx.lineCap = pctx.lineJoin = 'round';
+            if (tool === 'crayon' || tool === 'rainbow' || tool === 'eraser') {
+                const c = tool === 'rainbow' ? `hsl(${hue}, 85%, 58%)` : color;
+                hue = (hue + 5) % 360;
+                glow(night && tool !== 'eraser', c);
+                pctx.strokeStyle = tool === 'eraser' ? '#000' : c;
+                pctx.lineWidth = tool === 'eraser' ? 46 : tool === 'rainbow' ? 30 : 22;
+                pctx.beginPath(); pctx.moveTo(from.x, from.y); pctx.lineTo(p.x, p.y); pctx.stroke();
+            } else if (tool === 'sparkle') {
+                glow(true, color);
+                for (let i = 0; i < 2; i++) starAt(p.x + (Math.random() - 0.5) * 34, p.y + (Math.random() - 0.5) * 34, 5 + Math.random() * 9, Math.random() < 0.4 ? '#FFD93B' : color);
+            } else if (tool === 'bubbles') {
+                glow(night, color);
+                pctx.strokeStyle = color; pctx.lineWidth = 4;
+                pctx.beginPath(); pctx.arc(p.x + (Math.random() - 0.5) * 20, p.y + (Math.random() - 0.5) * 20, 8 + Math.random() * 18, 0, Math.PI * 2); pctx.stroke();
+                pctx.fillStyle = 'rgba(255,255,255,0.7)'; pctx.beginPath(); pctx.arc(p.x - 4, p.y - 6, 3, 0, Math.PI * 2); pctx.fill();
+            }
+            glow(false);
+            pctx.globalCompositeOperation = 'source-over';
+            const now = performance.now();
+            if (now - lastNote > 160 && tool !== 'eraser') {
+                lastNote = now;
+                const i = Math.round((1 - p.y / H) * (SCALE.length - 1));
+                Kit.tone(SCALE[Math.max(0, Math.min(SCALE.length - 1, i))], { dur: 0.25, vol: 0.07, type: tool === 'sparkle' ? 'triangle' : 'sine' });
+            }
+        }
+        function placeStamp(p) {
+            snapshot();
+            pctx.font = '72px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+            pctx.textAlign = 'center'; pctx.textBaseline = 'middle';
+            pctx.fillText(stamp, p.x, p.y);
+            sfx.pop();
+            const r = paint.getBoundingClientRect();
+            Kit.burst(r.left + p.x / W * r.width, r.top + p.y / H * r.height, ['#FFD54A', '#fff'], 10, 0.6);
+        }
+        paint.addEventListener('pointerdown', e => {
+            if (pointer !== null || !e.isPrimary) return;
+            e.preventDefault();
+            const p = toPaper(e);
+            if (tool === 'stamp') { placeStamp(p); return; }
+            snapshot();
+            pointer = e.pointerId;
+            try { paint.setPointerCapture(pointer); } catch (err) { /* ignore */ }
+            last = p;
+            dab(p, { x: p.x + 0.1, y: p.y });
+        });
+        paint.addEventListener('pointermove', e => {
+            if (e.pointerId !== pointer) return;
+            const p = toPaper(e);
+            if (Math.hypot(p.x - last.x, p.y - last.y) < (tool === 'sparkle' || tool === 'bubbles' ? 14 : 2)) return;
+            dab(p, last);
+            last = p;
+        });
+        const finish = e => { if (e.pointerId === pointer) pointer = null; };
+        paint.addEventListener('pointerup', finish);
+        paint.addEventListener('pointercancel', finish);
+
+        // ---------- Controls ----------
+        function renderTools() {
+            $('#tools').innerHTML = TOOLS.map(t => `<button type="button" class="tool" data-t="${t.id}" aria-pressed="${t.id === tool}" aria-label="${T(...t.name)}">${t.id === 'stamp' ? stamp : t.e}</button>`).join('');
+            $('#colors').innerHTML = COLORS.map((c, i) => `<button type="button" class="swatch" data-c="${c}" style="--c:${c}" aria-pressed="${c === color}" aria-label="${T(...COLOR_NAMES[i])}"></button>`).join('');
+            $('#stamps').innerHTML = STAMPS.map(s => `<button type="button" data-s="${s}" aria-pressed="${s === stamp}">${s}</button>`).join('');
+            $('#stamps').hidden = tool !== 'stamp';
+            $('#next-page').hidden = paper !== 'coloring';
+        }
+        $('#tools').addEventListener('click', e => {
+            const b = e.target.closest('.tool');
+            if (!b) return;
+            tool = b.dataset.t;
+            renderTools();
+            sfx.pop();
+            const t = TOOLS.find(x => x.id === tool);
+            say(...t.name);
+        });
+        $('#colors').addEventListener('click', e => {
+            const b = e.target.closest('.swatch');
+            if (!b) return;
+            color = b.dataset.c;
+            if (tool === 'eraser' || tool === 'stamp') tool = 'crayon';
+            renderTools();
+            sfx.boing(Kit.note(COLORS.indexOf(color)));
+            say(...COLOR_NAMES[COLORS.indexOf(color)]);
+        });
+        $('#stamps').addEventListener('click', e => {
+            const b = e.target.closest('button');
+            if (!b) return;
+            stamp = b.dataset.s;
+            renderTools();
+            sfx.pop();
+        });
+        $('#undo').addEventListener('click', () => {
+            const img = undoStack.pop();
+            if (img) { pctx.putImageData(img, 0, 0); sfx.whoosh(); }
+            $('#undo').disabled = !undoStack.length;
+        });
+        // Clearing can be undone, so a painting is never lost by accident.
+        $('#clear').addEventListener('click', () => {
+            snapshot();
+            pctx.clearRect(0, 0, W, H);
+            sfx.splash();
+            say('A fresh page! Undo brings your picture back.', `Une page toute neuve${NBSP}! Annuler retrouve ton dessin.`);
+        });
+        $('#next-page').addEventListener('click', () => { snapshot(); pctx.clearRect(0, 0, W, H); page++; drawLines(); sfx.whoosh(); });
+
+        function openPaper(kind) {
+            paper = kind;
+            Kit.show(studio);
+            $('#paper').className = 'paper' + (kind === 'night' ? ' night' : kind === 'kraft' ? ' kraft' : '');
+            Kit.tint(kind === 'night' ? '#DCDDF5' : kind === 'kraft' ? '#F6EAD8' : '#FFE8F3');
+            pctx.clearRect(0, 0, W, H);
+            undoStack.length = 0;
+            $('#undo').disabled = true;
+            if (kind === 'night') { color = '#FFD93B'; tool = 'rainbow'; }
+            else if (kind === 'coloring') { tool = 'crayon'; }
+            renderTools();
+            drawLines();
+            say(...{ white: ['Fresh white paper! Paint with your finger!', `Papier blanc${NBSP}! Peins avec ton doigt${NBSP}!`], night: ['Night paper! Your colors glow!', `Papier de nuit${NBSP}! Tes couleurs brillent${NBSP}!`],
+                kraft: ['Cozy brown paper!', `Un joli papier kraft${NBSP}!`], coloring: ['A coloring page! Fill it with color!', `Un coloriage${NBSP}! Remplis-le de couleurs${NBSP}!`] }[kind]);
+        }
+        document.querySelectorAll('[data-paper]').forEach(b => b.addEventListener('click', () => { sfx.pop(); openPaper(b.dataset.paper); }));
+        Kit.onLang(() => { if (!studio.hidden) renderTools(); });
+        goStart();
+    }());
+    </script>
 </body>
 </html>

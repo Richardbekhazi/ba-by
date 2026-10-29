@@ -2,1396 +2,439 @@
 <html lang="en" data-title-fr="Blocs rigolos">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Stack smiley jelly blocks and fill lines. Big buttons, gentle speed and no game over. English and French.">
     <title>Stacky Smiles</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧱</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
     <script src="/assets/js/site-lang.js?v=20261028"></script>
-
-    <style data-impeccable-ignore="hard-offset-shadow bounce-easing">
-        :root {
-            --text: #3D3551;
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-
-        html, body { height: 100%; }
-        body {
-            margin: 0;
-            font-family: 'Nunito', sans-serif;
-            color: var(--text);
-            background: linear-gradient(165deg, #F2FBFF 0%, #DDF0FF 55%, #E9E3FF 100%);
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-        body.playing { overflow: hidden; }
-        ::selection { background: #CFE6FF; color: var(--text); }
-
-        /* 🎈 FLOATING BUBBLES */
-        .sky {
-            position: fixed;
-            inset: 0;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 0;
-            background-image: radial-gradient(rgba(255,255,255,0.7) 2px, transparent 2.5px);
-            background-size: 30px 30px;
-        }
-        .sky span {
-            position: absolute;
-            bottom: -120px;
-            border-radius: 28%;
-            background: rgba(255,255,255,0.55);
-            animation: floatUp linear infinite;
-        }
-        .sky span:nth-child(1) { left: 6%;  width: 64px;  height: 64px;  animation-duration: 20s; }
-        .sky span:nth-child(2) { left: 26%; width: 30px;  height: 30px;  animation-duration: 14s; animation-delay: -6s; }
-        .sky span:nth-child(3) { left: 50%; width: 84px;  height: 84px;  animation-duration: 26s; animation-delay: -13s; }
-        .sky span:nth-child(4) { left: 70%; width: 42px;  height: 42px;  animation-duration: 17s; animation-delay: -3s; }
-        .sky span:nth-child(5) { left: 87%; width: 96px;  height: 96px;  animation-duration: 29s; animation-delay: -19s; }
-        @keyframes floatUp {
-            from { transform: translateY(0) rotate(0); }
-            to { transform: translateY(-130vh) rotate(120deg); }
-        }
-
-        #particles {
-            position: fixed;
-            inset: 0;
+    <script src="/assets/js/kit.js?v=20261029"></script>
+    <style>
+        :root { --tint: #E6E0FF; }
+        .title-art { width: min(320px, 80vw); height: 120px; }
+        #game { padding-left: 8px; padding-right: 8px; gap: 10px; }
+        .game-layout {
+            flex: 1;
             width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-        }
-
-        /* 🏠 ROUND TOP BUTTONS */
-        .round-btn {
-            position: fixed;
-            top: max(14px, env(safe-area-inset-top));
-            width: 52px;
-            height: 52px;
-            border: 0;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            text-decoration: none;
-            cursor: pointer;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08);
-            z-index: 100;
-            transition: transform 0.15s;
-        }
-        .round-btn:hover { transform: scale(1.08) rotate(-6deg); }
-        .round-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
-        .round-btn:focus-visible { outline: 4px solid #3D9BF0; outline-offset: 3px; }
-        .home-btn { left: max(14px, env(safe-area-inset-left)); }
-        .back-btn { left: calc(max(14px, env(safe-area-inset-left)) + 62px); }
-        .back-btn[hidden] { display: none; }
-
-        /* 📄 SCREENS */
-        .screen {
-            position: relative;
-            z-index: 1;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            justify-content: safe center;
-            padding: 80px 16px 28px;
-            text-align: center;
-        }
-        .screen[hidden] { display: none; }
-
-        h1, h2 { font-family: 'Fredoka One', cursive; font-weight: 400; line-height: 1.05; margin: 0; }
-        h1 {
-            font-size: 3.2rem;
-            color: #2370BA;
-            text-shadow: 0 4px 0 #fff, 0 8px 18px rgba(0,0,0,0.12);
-        }
-        .subtitle {
-            display: inline-block;
-            margin: 10px 0 0;
-            padding: 6px 18px;
-            border-radius: 999px;
-            background: #fff;
-            color: #6A3FD1;
-            font-weight: 800;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.06);
-        }
-
-        /* ▶️ START SCREEN */
-        #title-art {
-            width: 300px;
-            height: 150px;
-            margin-bottom: 18px;
-            animation: bob 3s ease-in-out infinite;
-        }
-        .start-main, .level-picker {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .start-main[hidden], .level-picker[hidden] { display: none; }
-        .start-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            width: min(380px, 100%);
-            margin-top: 30px;
-        }
-        .start-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            border: 0;
-            border-radius: 999px;
-            padding: 18px 24px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #fff;
-            background: #27A04B;
-            box-shadow: 0 7px 0 #1C7A38, 0 14px 24px rgba(0,0,0,0.12);
-            transition: transform 0.15s, box-shadow 0.15s;
-            animation: popUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        .start-btn[hidden] { display: none; }
-        .start-btn + .start-btn { animation-delay: 0.08s; }
-        .start-btn + .start-btn + .start-btn { animation-delay: 0.16s; }
-        .start-btn:hover { transform: translateY(-3px) scale(1.02); }
-        .start-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 #1C7A38; }
-        .start-btn:focus-visible { outline: 4px solid #3D9BF0; outline-offset: 4px; }
-        .start-btn small {
-            font-family: 'Nunito', sans-serif;
-            font-weight: 800;
-            font-size: 0.9rem;
-            background: rgba(255,255,255,0.25);
-            padding: 4px 10px;
-            border-radius: 999px;
-        }
-        .start-btn.secondary {
-            background: #fff;
-            color: #6A3FD1;
-            font-size: 1.25rem;
-            box-shadow: 0 7px 0 #DCCFFF, 0 14px 24px rgba(0,0,0,0.08);
-        }
-        .start-btn.secondary:active { box-shadow: 0 1px 0 #DCCFFF; }
-        .start-btn.choose {
-            background: #fff;
-            color: #2370BA;
-            font-size: 1.15rem;
-            box-shadow: 0 7px 0 #BFDFFF, 0 14px 24px rgba(0,0,0,0.08);
-        }
-        .start-btn.choose:active { box-shadow: 0 1px 0 #BFDFFF; }
-        .start-btn.choose.locked { color: #8A93A2; box-shadow: 0 7px 0 #DDE2EA, 0 14px 24px rgba(0,0,0,0.06); }
-        .start-btn.choose.locked::after { content: '🔒'; font-size: 1rem; }
-        .wobble { animation: wobble 0.45s ease-in-out !important; }
-
-        /* 🔢 LEVEL PICKER */
-        .level-picker h2 {
-            color: #2370BA;
-            font-size: 2.2rem;
-            margin: 0 0 20px;
-            text-shadow: 0 3px 0 #fff;
-        }
-        .level-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 128px);
-            justify-content: center;
-            gap: 20px 18px;
-            padding: 6px 4px 18px;
-        }
-        .level-tile {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1;
-            border: 0;
-            border-radius: 30%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0) 55%), var(--c);
-            color: #fff;
-            font-family: 'Fredoka One', cursive;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-            box-shadow: 0 7px 0 var(--cd), 0 12px 18px rgba(0,0,0,0.10);
-            transition: transform 0.15s;
-            animation: popUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        .tile-num { font-size: 2.8rem; line-height: 1; text-shadow: 0 3px 0 var(--cd); }
-        .tile-speed { font-size: 1.2rem; line-height: 1; }
-        .level-tile:hover { transform: translateY(-3px) scale(1.05); }
-        .level-tile:active { transform: translateY(6px); box-shadow: 0 1px 0 var(--cd); }
-        .level-tile:focus-visible { outline: 4px solid var(--cd); outline-offset: 4px; }
-        .level-tile.locked {
-            background: #E8ECF2;
-            color: #A7B0BE;
-            cursor: default;
-            box-shadow: 0 7px 0 #D2D8E1, 0 12px 18px rgba(0,0,0,0.06);
-        }
-        .level-tile.locked .tile-num { text-shadow: none; }
-        .level-tile.locked .tile-speed { filter: grayscale(1); opacity: 0.5; }
-        .tile-lock {
-            position: absolute;
-            top: -8px;
-            right: -6px;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
-        }
-        .level-picker .start-btn { width: min(320px, 100%); margin-top: 8px; }
-
-        /* 🎮 GAME */
-        #game-screen {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            grid-template-rows: minmax(0, 1fr);
-            align-items: center;
-            justify-items: center;
-            gap: 20px;
-            padding: max(80px, calc(env(safe-area-inset-top) + 72px)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
-        }
-        #game-screen[hidden] { display: none; }
-
-        .side {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 22px;
-        }
-        .side-left { grid-column: 1; }
-        .side-right { grid-column: 3; }
-        .board-area {
-            grid-column: 2;
-            grid-row: 1;
-            align-self: stretch;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            max-width: 980px;
             min-height: 0;
-            min-width: 0;
-        }
-        .board-wrap {
-            position: relative;
-            padding: 10px;
-            border-radius: 28px;
-            background: #fff;
-            box-shadow: 0 9px 0 #C9DCF2, 0 20px 36px rgba(40,60,110,0.16);
-        }
-        #board {
-            display: block;
-            border-radius: 18px;
-            touch-action: none;
-            cursor: pointer;
-        }
-
-        .info {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            grid-template-areas: "left board right";
             align-items: center;
-            gap: 10px;
-            padding: 12px;
-            border-radius: 28px;
-            background: rgba(255,255,255,0.92);
-            box-shadow: 0 6px 0 rgba(0,0,0,0.06), 0 12px 24px rgba(0,0,0,0.06);
+            gap: 14px;
         }
-        .level-badge {
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.05rem;
-            color: #fff;
-            background: #6A3FD1;
-            padding: 6px 14px;
-            border-radius: 999px;
-            box-shadow: 0 3px 0 #4C2AA3;
-            white-space: nowrap;
-        }
-        .stars { display: flex; gap: 3px; font-size: 1.35rem; line-height: 1; }
-        .stars span { display: inline-block; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s, opacity 0.3s; }
-        .stars span.off { filter: grayscale(1); opacity: 0.28; }
-        .stars span.pop { transform: scale(1.6) rotate(25deg); }
-        .next-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 0.95rem;
-            color: var(--muted, #6E6585);
-        }
-        #next {
-            width: 88px;
-            height: 88px;
-            border-radius: 20px;
-            background: #F1F6FD;
-        }
-
-        /* 🕹️ BIG BUTTONS */
-        .pad { display: flex; gap: 16px; }
-        .pad-btn {
-            --c: #3D9BF0;
-            --cd: #1D6FC4;
-            width: 92px;
-            height: 92px;
+        .side { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+        .side.left { grid-area: left; }
+        .side.right { grid-area: right; }
+        .board-wrap { grid-area: board; min-height: 0; height: 100%; display: grid; place-items: center; }
+        .board-frame { position: relative; padding: 10px; border-radius: 28px; background: #fff; box-shadow: 0 10px 0 rgba(61,53,81,0.12), 0 20px 40px rgba(61,53,81,0.12); }
+        #board { display: block; border-radius: 20px; touch-action: none; }
+        .next-box { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px; border-radius: 24px; background: #fff; box-shadow: 0 6px 0 rgba(61,53,81,0.1); font-weight: 900; color: var(--muted); }
+        #next { width: 86px; height: 86px; }
+        .pad {
+            --c: var(--blue); --cd: var(--blue-d);
+            width: 84px; height: 84px;
             border: 0;
-            padding: 0;
-            border-radius: 32%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.25), rgba(255,255,255,0) 55%), var(--c);
-            box-shadow: 0 8px 0 var(--cd), 0 14px 22px rgba(0,0,0,0.14);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            border-radius: 28px;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--c) 75%, #fff), var(--c));
+            box-shadow: 0 7px 0 var(--cd);
+            color: #fff;
+            font-size: 38px;
+            line-height: 1;
             touch-action: none;
-            transition: transform 0.08s, box-shadow 0.08s;
         }
-        .pad-btn svg { width: 58%; height: 58%; overflow: visible; }
-        .pad-btn:hover { transform: translateY(-2px); }
-        .pad-btn:active, .pad-btn.down { transform: translateY(7px); box-shadow: 0 1px 0 var(--cd), 0 4px 8px rgba(0,0,0,0.12); }
-        .pad-btn:focus-visible { outline: 4px solid var(--cd); outline-offset: 4px; }
-        .pad-btn.turn { --c: #FF9A2E; --cd: #C9600A; }
-        .pad-btn.drop { --c: #3FBF62; --cd: #1F8A3E; }
-
-        .cheer {
-            position: fixed;
-            left: 50%;
-            top: 50%;
-            z-index: 120;
-            transform: translate(-50%, -50%) scale(0);
-            padding: 22px 34px;
-            border-radius: 36px;
-            background: #fff;
-            font-family: 'Fredoka One', cursive;
-            font-size: 2.2rem;
-            color: #6A3FD1;
-            white-space: nowrap;
-            box-shadow: 0 10px 0 #9B6CF0, 0 24px 50px rgba(0,0,0,0.18);
-            pointer-events: none;
-            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .cheer.show { transform: translate(-50%, -50%) scale(1); }
-
-        @keyframes popUp {
-            from { opacity: 0; transform: translateY(24px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes bob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-        @keyframes wobble {
-            0%, 100% { transform: rotate(0); }
-            20% { transform: rotate(-7deg); }
-            40% { transform: rotate(6deg); }
-            60% { transform: rotate(-4deg); }
-            80% { transform: rotate(2deg); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .sky span, #title-art { animation: none !important; }
-        }
-
-        /* 📱 PORTRAIT: board on top, buttons in one row underneath */
-        @media (orientation: portrait), (max-width: 760px) and (min-height: 600px) {
-            #game-screen {
-                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-                grid-template-rows: auto minmax(0, 1fr) auto;
-                gap: 12px;
-                padding-top: max(76px, calc(env(safe-area-inset-top) + 70px));
-                padding-bottom: max(16px, env(safe-area-inset-bottom));
-            }
-            .board-area { grid-column: 1 / -1; grid-row: 2; }
-            .side { display: contents; }
-            .info {
-                grid-column: 1 / -1;
-                grid-row: 1;
-                flex-direction: row;
-                gap: 12px;
-                padding: 6px 8px 6px 6px;
-                border-radius: 999px;
-            }
-            .next-box { flex-direction: row; gap: 6px; }
-            #next { width: 44px; height: 44px; border-radius: 12px; }
-            .pad { grid-row: 3; gap: 12px; }
-            .side-left .pad { grid-column: 1; justify-self: start; }
-            .side-right .pad { grid-column: 2; justify-self: end; }
-            .pad-btn { width: 78px; height: 78px; }
-        }
-        @media (orientation: portrait) and (max-width: 600px) {
-            h1 { font-size: 2.5rem; }
-            .subtitle { font-size: 0.95rem; }
-            #title-art { width: 240px; height: 120px; }
-            .start-btn { font-size: 1.3rem; padding: 16px 20px; }
-            .start-btn.secondary { font-size: 1.1rem; }
-            .start-btn.choose { font-size: 1.05rem; }
-            .level-picker h2 { font-size: 1.8rem; }
-            .level-grid { grid-template-columns: repeat(3, minmax(0, 100px)); gap: 16px 14px; }
-            .tile-num { font-size: 2.3rem; }
-            .pad-btn { width: min(76px, calc((100vw - 32px - 12px * 3) / 4)); height: auto; aspect-ratio: 1; }
-            .cheer { font-size: 1.6rem; padding: 18px 24px; }
-            .level-badge { font-size: 0.9rem; padding: 4px 10px; }
-            .stars { font-size: 1.1rem; gap: 1px; }
-        }
-
-        /* 📐 SHORT LANDSCAPE SCREENS */
-        @media (orientation: landscape) and (max-height: 600px) {
-            .screen { padding: 12px 16px 14px 84px; }
-            h1 { font-size: 1.9rem; text-shadow: 0 3px 0 #fff; }
-            .subtitle { margin-top: 4px; font-size: 0.85rem; padding: 3px 12px; }
-            #title-art { width: 180px; height: 90px; margin-bottom: 6px; }
-            .start-buttons { flex-direction: row; flex-wrap: wrap; justify-content: center; width: min(640px, 100%); gap: 12px 14px; margin-top: 14px; }
-            .start-buttons .start-btn { flex: 1 1 40%; font-size: 1.15rem; padding: 12px 16px; }
-            .start-buttons #continue-btn { flex-basis: 100%; }
-            .level-picker h2 { font-size: 1.5rem; margin-bottom: 8px; }
-            .level-grid { grid-template-columns: repeat(6, 76px); gap: 10px; }
-            .tile-num { font-size: 1.7rem; }
-
-            #game-screen { padding: 10px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left)); gap: 14px; }
-            .side { gap: 12px; }
-            .side-left { padding-top: 64px; }
-            .info { padding: 8px; gap: 6px; border-radius: 22px; }
-            .level-badge { font-size: 0.85rem; padding: 3px 10px; }
-            .stars { font-size: 0.95rem; gap: 1px; }
-            #next { width: 56px; height: 56px; border-radius: 14px; }
-            .next-box { font-size: 0.8rem; }
-            .pad { gap: 10px; }
-            .pad-btn { width: 72px; height: 72px; }
-            .board-wrap { padding: 6px; border-radius: 20px; }
-            #board { border-radius: 14px; }
+        .pad.down, .pad:active { transform: translateY(6px); box-shadow: 0 1px 0 var(--cd); }
+        .pad.turn { --c: var(--purple); --cd: var(--purple-d); }
+        .pad.drop { --c: var(--pink); --cd: var(--pink-d); }
+        @media (max-width: 720px), (max-aspect-ratio: 4/5) {
+            .game-layout { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr auto; grid-template-areas: "board board" "left right"; gap: 10px; }
+            .side { flex-direction: row; justify-content: center; }
+            .pad { width: 72px; height: 72px; font-size: 32px; }
+            .next-box { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="sky" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
-    <canvas id="particles"></canvas>
+    <main class="kit-screen" id="start">
+        <canvas class="title-art" id="title-art" aria-hidden="true"></canvas>
+        <h1 class="kit-title" style="--title-shadow:#9B6CF0"><span class="bob" data-fr="Blocs">Stacky</span> <span class="bob" style="animation-delay:-1.3s" data-fr="rigolos">Smiles</span></h1>
+        <p class="kit-sub" data-fr="Empile les blocs souriants et remplis des lignes !">Stack the smiley blocks and fill a line!</p>
+        <div class="kit-modes" style="max-width:640px">
+            <button class="kit-mode" type="button" id="go-play" style="--c:#9B6CF0"><span class="kit-badge" id="play-badge"></span><span class="kit-mode-art"><span>🧱</span></span><span class="kit-mode-label"><b data-fr="On joue !">Let's stack!</b><small data-fr="5 lignes pour passer au niveau suivant">5 lines to reach the next level</small></span></button>
+            <button class="kit-mode" type="button" id="go-pick" style="--c:#FF9F43"><span class="kit-mode-art"><span>🔢</span></span><span class="kit-mode-label"><b data-fr="Choisir un niveau">Choose a level</b><small data-fr="Les niveaux finis s'ouvrent">Finished levels open up</small></span></button>
+        </div>
+    </main>
 
-    <a href="/" class="round-btn home-btn" aria-label="Back to games" title="Back to games" data-fr-aria-label="Retour aux jeux" data-fr-title="Retour aux jeux"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#FF7A45"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#E85A28" opacity="0.55"/><path d="M24 12.5 L35.5 22 V33.5 a2.5 2.5 0 0 1 -2.5 2.5 H28 V29 a4 4 0 0 0 -8 0 V36 H15 a2.5 2.5 0 0 1 -2.5 -2.5 V22 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg></a>
-    <button type="button" class="round-btn back-btn" id="back-btn" hidden aria-label="Back to start" title="Back to start" data-fr-aria-label="Retour au début" data-fr-title="Retour au début"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#3D9BF0"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#2177C9" opacity="0.55"/><path d="M25 14 L15 24 L25 34 M16 24 H34" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <main class="kit-screen" id="pick" hidden>
+        <h2 class="kit-title" style="font-size:2.4rem;--title-shadow:#FF9F43" data-fr="Choisis un niveau">Choose a level</h2>
+        <div id="picker"></div>
+    </main>
 
-    <!-- START -->
-    <section class="screen" id="start-screen">
-        <div class="start-main" id="start-main">
-            <canvas id="title-art" aria-hidden="true"></canvas>
-            <h1 data-fr="Blocs rigolos">Stacky Smiles</h1>
-            <p class="subtitle" data-fr="Empile les blocs, fais des lignes !">Stack the blocks, make a line!</p>
-            <div class="start-buttons">
-                <button type="button" class="start-btn" id="continue-btn" hidden>
-                    <span data-fr="▶ Continuer">▶ Continue</span> <small id="continue-level"></small>
-                </button>
-                <button type="button" class="start-btn" id="play-btn" data-fr="▶ Jouer !">▶ Play!</button>
-                <button type="button" class="start-btn choose" id="choose-btn">
-                    <span data-fr="🔢 Choisis ton niveau">🔢 Choose your level</span>
-                </button>
+    <main class="kit-screen fit" id="game" hidden>
+        <div class="kit-hud"><span class="kit-level" id="level-badge"></span><span class="kit-stars" id="stars"></span></div>
+        <div class="game-layout">
+            <div class="side left">
+                <button class="pad" type="button" id="btn-left" aria-label="Move left" data-fr-aria-label="Gauche">◀</button>
+                <button class="pad" type="button" id="btn-right" aria-label="Move right" data-fr-aria-label="Droite">▶</button>
+            </div>
+            <div class="board-wrap" id="board-area"><div class="board-frame"><canvas id="board" aria-label="Blocks board" data-fr-aria-label="Plateau de blocs"></canvas></div></div>
+            <div class="side right">
+                <div class="next-box"><span data-fr="Suivant">Next</span><canvas id="next" aria-hidden="true"></canvas></div>
+                <button class="pad turn" type="button" id="btn-turn" aria-label="Turn" data-fr-aria-label="Tourner">⟳</button>
+                <button class="pad drop" type="button" id="btn-drop" aria-label="Drop" data-fr-aria-label="Lâcher">▼</button>
             </div>
         </div>
-        <div class="level-picker" id="level-picker" hidden>
-            <h2 data-fr="Choisis ton niveau">Choose your level</h2>
-            <div class="level-grid" id="level-grid"></div>
-        </div>
-    </section>
-
-    <!-- GAME -->
-    <section id="game-screen" hidden>
-        <div class="side side-left">
-            <div class="info">
-                <span class="level-badge" id="level-badge"></span>
-                <div class="stars" id="stars" aria-hidden="true"></div>
-                <div class="next-box">
-                    <span data-fr="Après">Next</span>
-                    <canvas id="next" aria-hidden="true"></canvas>
-                </div>
-            </div>
-            <div class="pad">
-                <button type="button" class="pad-btn" id="btn-left" aria-label="Move left" data-fr-aria-label="Aller à gauche">
-                    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M29 11 L16 24 L29 37" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-                <button type="button" class="pad-btn" id="btn-right" aria-label="Move right" data-fr-aria-label="Aller à droite">
-                    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M19 11 L32 24 L19 37" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-            </div>
-        </div>
-        <div class="board-area" id="board-area">
-            <div class="board-wrap">
-                <canvas id="board" aria-label="Game board" data-fr-aria-label="Plateau de jeu"></canvas>
-            </div>
-        </div>
-        <div class="side side-right">
-            <div class="pad">
-                <button type="button" class="pad-btn turn" id="btn-turn" aria-label="Turn the block" data-fr-aria-label="Tourner le bloc">
-                    <svg viewBox="0 0 48 48" aria-hidden="true">
-                        <path d="M36.5 27 A13 13 0 1 1 31 13.5" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
-                        <path d="M25 7.5 L34 13.5 L26.5 21" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-                <button type="button" class="pad-btn drop" id="btn-drop" aria-label="Drop the block" data-fr-aria-label="Faire tomber le bloc">
-                    <svg viewBox="0 0 48 48" aria-hidden="true">
-                        <path d="M13 10 L24 21 L35 10" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M13 24 L24 35 L35 24" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <div class="cheer" id="cheer" aria-live="polite"></div>
+    </main>
 
     <script>
-        const lang = window.BabyLang;
-        const NBSP = ' ';
-
-        // --- BOARD & PIECES ---
-        // A narrow, short board with big cells so lines fill up quickly for small hands.
-        const COLS = 8;
-        const ROWS = 14;
-
+    (function () {
+        'use strict';
+        const { T, $, sfx, say } = Kit;
+        const NBSP = ' ';
+        const COLS = 8, ROWS = 14;
         const SHAPES = {
-            dot:    { cells: [[1]],                          c: '#FF7DB8', cd: '#C93F86' },
-            duo:    { cells: [[1, 1]],                       c: '#2EC4B6', cd: '#0E857A' },
-            tri:    { cells: [[1, 1, 1]],                    c: '#3D9BF0', cd: '#1D6FC4' },
-            corner: { cells: [[1, 0], [1, 1]],               c: '#9B6CF0', cd: '#6A3FD1' },
-            O:      { cells: [[1, 1], [1, 1]],               c: '#FFC93B', cd: '#D49A00' },
-            I:      { cells: [[1, 1, 1, 1]],                 c: '#3FBF62', cd: '#1F8A3E' },
-            T:      { cells: [[0, 1, 0], [1, 1, 1]],         c: '#FF9A2E', cd: '#C9600A' },
-            L:      { cells: [[0, 0, 1], [1, 1, 1]],         c: '#FF5A5F', cd: '#C9303A' },
-            J:      { cells: [[1, 0, 0], [1, 1, 1]],         c: '#3D9BF0', cd: '#1D6FC4' },
-            S:      { cells: [[0, 1, 1], [1, 1, 0]],         c: '#2EC4B6', cd: '#0E857A' },
-            Z:      { cells: [[1, 1, 0], [0, 1, 1]],         c: '#FF7DB8', cd: '#C93F86' }
+            dot: { cells: [[1]], c: '#FF7DB8', cd: '#C93F86' },
+            duo: { cells: [[1, 1]], c: '#2EC4B6', cd: '#0E857A' },
+            tri: { cells: [[1, 1, 1]], c: '#3D9BF0', cd: '#1D6FC4' },
+            corner: { cells: [[1, 0], [1, 1]], c: '#9B6CF0', cd: '#6A3FD1' },
+            O: { cells: [[1, 1], [1, 1]], c: '#FFC93B', cd: '#D49A00' },
+            I: { cells: [[1, 1, 1, 1]], c: '#3FBF62', cd: '#1F8A3E' },
+            T: { cells: [[0, 1, 0], [1, 1, 1]], c: '#FF9A2E', cd: '#C9600A' },
+            L: { cells: [[0, 0, 1], [1, 1, 1]], c: '#FF5A5F', cd: '#C9303A' },
+            J: { cells: [[1, 0, 0], [1, 1, 1]], c: '#3D9BF0', cd: '#1D6FC4' },
+            S: { cells: [[0, 1, 1], [1, 1, 0]], c: '#2EC4B6', cd: '#0E857A' },
+            Z: { cells: [[1, 1, 0], [0, 1, 1]], c: '#FF7DB8', cd: '#C93F86' }
         };
-        const SHAPE_IDS = Object.keys(SHAPES);
-
-        // Each level adds bigger pieces and falls a little faster; 5 lines fill the stars.
+        // Each level adds bigger pieces, falls a bit faster and has its own sky.
         const LEVELS = [
-            { pieces: ['dot', 'duo', 'tri', 'corner'],                speed: 1150, icon: '🐌' },
-            { pieces: ['duo', 'tri', 'corner', 'O'],                  speed: 1050, icon: '🐌' },
-            { pieces: ['tri', 'corner', 'O', 'I', 'T'],               speed: 950,  icon: '🐢' },
-            { pieces: ['corner', 'O', 'I', 'T', 'L', 'J'],            speed: 850,  icon: '🐢' },
-            { pieces: ['O', 'I', 'T', 'L', 'J', 'S', 'Z'],            speed: 760,  icon: '🐇' },
-            { pieces: ['O', 'I', 'T', 'L', 'J', 'S', 'Z'],            speed: 640,  icon: '🐇' }
+            { pieces: ['dot', 'duo', 'tri', 'corner'], speed: 1150, sky: ['#FFE8F2', '#FFD3E6'], tint: '#FFE3EF' },
+            { pieces: ['duo', 'tri', 'corner', 'O'], speed: 1050, sky: ['#FFF1D9', '#FFDDA8'], tint: '#FFF0D6' },
+            { pieces: ['tri', 'corner', 'O', 'I', 'T'], speed: 950, sky: ['#E3F8E6', '#BDEBC5'], tint: '#E2F6E5' },
+            { pieces: ['corner', 'O', 'I', 'T', 'L', 'J'], speed: 850, sky: ['#E2F1FF', '#B9DCFF'], tint: '#E0EEFF' },
+            { pieces: ['O', 'I', 'T', 'L', 'J', 'S', 'Z'], speed: 760, sky: ['#EFE7FF', '#D3C2FF'], tint: '#EDE5FF' },
+            { pieces: ['O', 'I', 'T', 'L', 'J', 'S', 'Z'], speed: 640, sky: ['#2B2F6B', '#16184A'], tint: '#D9DBF5', night: true }
         ];
-        const LEVEL_COUNT = LEVELS.length;
-        const LINES_PER_LEVEL = 5;
-        const LEVEL_TILES = [
-            ['#FF7A7A', '#E05555'], ['#FF9F2E', '#E07F10'], ['#4CC26A', '#2F9E4C'],
-            ['#4DA3F2', '#2B7FCC'], ['#8C6CF0', '#6A4BD1'], ['#F06CB4', '#D04A93']
-        ];
+        const LINES = 5;
+        const levelStore = Kit.levelStore('stacky-level', LEVELS.length);
+        let level = levelStore.get();
+        let cleared = Math.min(LEVELS.length, Math.max(0, Number(Kit.store.get('stacky-cleared', 0)) || 0));
+        const save = () => { levelStore.set(level); Kit.store.set('stacky-cleared', cleared); };
 
-        // --- SAVED PROGRESS ---
-        const LEVEL_KEY = 'stacky-level';
-        const CLEARED_KEY = 'stacky-cleared';
-        let level = 0;
-        let cleared = 0;
-        try {
-            const l = parseInt(localStorage.getItem(LEVEL_KEY), 10);
-            const c = parseInt(localStorage.getItem(CLEARED_KEY), 10);
-            if (l >= 0 && l < LEVEL_COUNT) level = l;
-            if (c >= 0 && c <= LEVEL_COUNT) cleared = c;
-        } catch (error) { /* start fresh */ }
-        function saveProgress() {
-            try {
-                localStorage.setItem(LEVEL_KEY, String(level));
-                localStorage.setItem(CLEARED_KEY, String(cleared));
-            } catch (error) { /* optional */ }
-        }
+        const start = $('#start'), pick = $('#pick'), game = $('#game');
+        const board = $('#board'), ctx = board.getContext('2d'), nextCv = $('#next'), nextCtx = nextCv.getContext('2d');
+        Kit.topbar({ onBack: () => goStart() });
 
-        const els = {
-            start: document.getElementById('start-screen'),
-            startMain: document.getElementById('start-main'),
-            continueBtn: document.getElementById('continue-btn'),
-            continueLevel: document.getElementById('continue-level'),
-            playBtn: document.getElementById('play-btn'),
-            chooseBtn: document.getElementById('choose-btn'),
-            picker: document.getElementById('level-picker'),
-            levelGrid: document.getElementById('level-grid'),
-            game: document.getElementById('game-screen'),
-            back: document.getElementById('back-btn'),
-            badge: document.getElementById('level-badge'),
-            stars: document.getElementById('stars'),
-            area: document.getElementById('board-area'),
-            board: document.getElementById('board'),
-            next: document.getElementById('next'),
-            cheer: document.getElementById('cheer')
-        };
-        const ctx = els.board.getContext('2d');
-        const nextCtx = els.next.getContext('2d');
-
-        // --- SOUND ---
-        let audioCtx = null;
-        function note(freq, at = 0, dur = 0.3, vol = 0.18, type = 'sine') {
-            try {
-                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const start = audioCtx.currentTime + at;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, start);
-                gain.gain.setValueAtTime(0.0001, start);
-                gain.gain.exponentialRampToValueAtTime(vol, start + 0.012);
-                gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-                osc.connect(gain).connect(audioCtx.destination);
-                osc.start(start);
-                osc.stop(start + dur + 0.02);
-            } catch (error) { /* audio is optional */ }
-        }
-        const moveSound = () => note(520, 0, 0.06, 0.07, 'triangle');
-        const turnSound = () => { note(660, 0, 0.08, 0.09, 'triangle'); note(880, 0.05, 0.08, 0.07, 'triangle'); };
-        const bumpSound = () => note(180, 0, 0.1, 0.08, 'triangle');
-        const landSound = () => { note(140, 0, 0.16, 0.16, 'sine'); note(280, 0.02, 0.1, 0.06, 'triangle'); };
-        const lineSound = n => [523.25, 659.25, 783.99, 1046.5, 1318.5].slice(0, 2 + n).forEach((f, i) => note(f, i * 0.07, 0.28, 0.15));
-        const cheerSound = () => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => note(f, i * 0.08, 0.3, 0.16));
-        const speak = (en, fr) => lang.speak(en, fr, { pitch: 1.2 });
-
-        // --- DRAWING A SMILEY JELLY BLOCK ---
-        function roundRect(c, x, y, w, h, r) {
-            c.beginPath();
-            c.moveTo(x + r, y);
-            c.arcTo(x + w, y, x + w, y + h, r);
-            c.arcTo(x + w, y + h, x, y + h, r);
-            c.arcTo(x, y + h, x, y, r);
-            c.arcTo(x, y, x + w, y, r);
-            c.closePath();
-        }
-
-        // mood: 'rest', 'awake' (falling piece), 'happy' (line clearing), 'blink'
-        function drawBlock(c, x, y, s, color, dark, mood = 'rest') {
-            const pad = Math.max(1.5, s * 0.05);
-            const w = s - pad * 2;
-            const edge = s * 0.09;
-            const r = s * 0.28;
-            const bx = x + pad;
-            const by = y + pad;
-            c.fillStyle = dark;
-            roundRect(c, bx, by + edge, w, w - edge, r);
-            c.fill();
-            c.fillStyle = color;
-            roundRect(c, bx, by, w, w - edge, r);
-            c.fill();
-            // shine
-            c.fillStyle = 'rgba(255,255,255,0.45)';
-            roundRect(c, bx + w * 0.16, by + w * 0.1, w * 0.3, w * 0.1, w * 0.05);
-            c.fill();
-            if (s < 14) return;
-
-            const face = '#2D2A38';
-            const cx = bx + w / 2;
-            const eyeY = by + w * 0.42;
-            const eyeDx = w * 0.18;
-            c.fillStyle = face;
-            c.strokeStyle = face;
+        // ---------- Smiley jelly blocks ----------
+        function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+        function block(c, x, y, s, color, dark, mood) {
+            const pad = Math.max(1.5, s * 0.05), w = s - pad * 2, edge = s * 0.09, bx = x + pad, by = y + pad;
+            c.fillStyle = dark; rr(c, bx, by + edge, w, w - edge, s * 0.28); c.fill();
+            c.fillStyle = color; rr(c, bx, by, w, w - edge, s * 0.28); c.fill();
+            c.fillStyle = 'rgba(255,255,255,0.45)'; rr(c, bx + w * 0.16, by + w * 0.1, w * 0.3, w * 0.1, w * 0.05); c.fill();
+            if (s < 16) return;
+            const cx = bx + w / 2, ey = by + w * 0.42, dx = w * 0.18;
+            c.fillStyle = c.strokeStyle = '#2D2A38';
             c.lineCap = 'round';
             c.lineWidth = Math.max(1.6, s * 0.06);
             if (mood === 'happy') {
-                [-1, 1].forEach(side => {
-                    c.beginPath();
-                    c.arc(cx + side * eyeDx, eyeY + w * 0.03, w * 0.07, Math.PI * 1.1, Math.PI * 1.9);
-                    c.stroke();
-                });
-                c.beginPath();
-                c.arc(cx, by + w * 0.55, w * 0.14, 0, Math.PI);
-                c.fill();
+                [-1, 1].forEach(sd => { c.beginPath(); c.arc(cx + sd * dx, ey + w * 0.03, w * 0.07, Math.PI * 1.1, Math.PI * 1.9); c.stroke(); });
+                c.beginPath(); c.arc(cx, by + w * 0.55, w * 0.14, 0, Math.PI); c.fill();
             } else {
-                [-1, 1].forEach(side => {
+                [-1, 1].forEach(sd => {
                     c.beginPath();
-                    if (mood === 'blink') {
-                        c.moveTo(cx + side * eyeDx - w * 0.05, eyeY);
-                        c.lineTo(cx + side * eyeDx + w * 0.05, eyeY);
-                        c.stroke();
-                    } else {
-                        const big = mood === 'awake' ? 1.2 : 1;
-                        c.ellipse(cx + side * eyeDx, eyeY, w * 0.055 * big, w * 0.07 * big, 0, 0, Math.PI * 2);
-                        c.fill();
-                    }
+                    if (mood === 'blink') { c.moveTo(cx + sd * dx - w * 0.05, ey); c.lineTo(cx + sd * dx + w * 0.05, ey); c.stroke(); }
+                    else { const big = mood === 'awake' ? 1.2 : 1; c.ellipse(cx + sd * dx, ey, w * 0.055 * big, w * 0.07 * big, 0, 0, Math.PI * 2); c.fill(); }
                 });
-                if (mood !== 'blink' && s >= 22) {
-                    c.fillStyle = '#fff';
-                    [-1, 1].forEach(side => {
-                        c.beginPath();
-                        c.arc(cx + side * eyeDx + w * 0.02, eyeY - w * 0.025, w * 0.022, 0, Math.PI * 2);
-                        c.fill();
-                    });
-                }
-                c.beginPath();
-                c.arc(cx, by + w * 0.52, w * 0.1, 0.15 * Math.PI, 0.85 * Math.PI);
-                c.stroke();
+                c.beginPath(); c.arc(cx, by + w * 0.52, w * 0.1, 0.15 * Math.PI, 0.85 * Math.PI); c.stroke();
             }
-            // cheeks
             c.fillStyle = 'rgba(255,120,160,0.45)';
-            [-1, 1].forEach(side => {
-                c.beginPath();
-                c.ellipse(cx + side * w * 0.31, by + w * 0.56, w * 0.07, w * 0.045, 0, 0, Math.PI * 2);
-                c.fill();
-            });
+            [-1, 1].forEach(sd => { c.beginPath(); c.ellipse(cx + sd * w * 0.31, by + w * 0.56, w * 0.07, w * 0.045, 0, 0, Math.PI * 2); c.fill(); });
         }
 
-        // --- GAME STATE ---
-        let grid = [];
-        let piece = null;     // { id, cells, x, y }
-        let nextId = null;
-        let cell = 40;
-        let dpr = 1;
-        let lines = 0;
-        let running = false;
-        let busy = false;     // clearing lines or tidying up: input waits
-        let fallTimer = 0;
-        let landTimer = 0;    // a short grace time before a piece settles
-        let lastTime = 0;
-        let clearingRows = [];
-        let clearingStart = 0;
-        let bag = [];
-
+        // ---------- Game state ----------
+        let grid = [], piece = null, nextId = null, bag = [], lines = 0, cell = 40, dpr = 1;
+        let running = false, busy = false, fallTimer = 0, landTimer = 0, lastTime = 0, clearing = [], clearStart = 0;
         const emptyGrid = () => Array.from({ length: ROWS }, () => new Array(COLS).fill(null));
-
-        // Delayed steps (clearing lines, the level-up sweep) belong to one game; starting a new game
-        // or going back to the menu makes any that are still waiting do nothing.
-        let session = 0;
-        const later = (fn, ms) => {
-            const mine = session;
-            return setTimeout(() => { if (mine === session) fn(); }, ms);
-        };
-
-        function nextFromBag() {
-            if (!bag.length) bag = shuffle([...LEVELS[level].pieces, ...LEVELS[level].pieces]);
-            return bag.pop();
-        }
-        const shuffle = list => list.map(v => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map(p => p[1]);
-
+        const fromBag = () => { if (!bag.length) bag = Kit.shuffle([...LEVELS[level].pieces, ...LEVELS[level].pieces]); return bag.pop(); };
         function fits(cells, x, y) {
-            for (let r = 0; r < cells.length; r++) {
-                for (let c = 0; c < cells[r].length; c++) {
-                    if (!cells[r][c]) continue;
-                    const gx = x + c;
-                    const gy = y + r;
-                    if (gx < 0 || gx >= COLS || gy >= ROWS) return false;
-                    if (gy >= 0 && grid[gy][gx]) return false;
-                }
+            for (let r = 0; r < cells.length; r++) for (let c = 0; c < cells[r].length; c++) {
+                if (!cells[r][c]) continue;
+                const gx = x + c, gy = y + r;
+                if (gx < 0 || gx >= COLS || gy >= ROWS) return false;
+                if (gy >= 0 && grid[gy][gx]) return false;
             }
             return true;
         }
-
         function spawn() {
-            const id = nextId || nextFromBag();
-            nextId = nextFromBag();
-            const cells = SHAPES[id].cells.map(row => [...row]);
+            const id = nextId || fromBag();
+            nextId = fromBag();
+            const cells = SHAPES[id].cells.map(r => [...r]);
             piece = { id, cells, x: Math.floor((COLS - cells[0].length) / 2), y: 0 };
-            fallTimer = 0;
-            landTimer = 0;
+            fallTimer = landTimer = 0;
             drawNext();
             if (!fits(piece.cells, piece.x, piece.y)) tidyUp();
         }
-
         function move(dx) {
             if (!piece || busy) return false;
-            if (fits(piece.cells, piece.x + dx, piece.y)) {
-                piece.x += dx;
-                landTimer = 0;
-                return true;
-            }
+            if (fits(piece.cells, piece.x + dx, piece.y)) { piece.x += dx; landTimer = 0; return true; }
             return false;
         }
-
-        function rotateCells(cells) {
-            return cells[0].map((_, c) => cells.map(row => row[c]).reverse());
-        }
-
+        const rotate = cells => cells[0].map((_, c) => cells.map(row => row[c]).reverse());
         function turn() {
             if (!piece || busy) return;
-            const turned = rotateCells(piece.cells);
-            // Try in place, then nudge sideways or up so turning near walls still works.
+            const t = rotate(piece.cells);
             for (const [dx, dy] of [[0, 0], [-1, 0], [1, 0], [-2, 0], [2, 0], [0, -1]]) {
-                if (fits(turned, piece.x + dx, piece.y + dy)) {
-                    piece.cells = turned;
-                    piece.x += dx;
-                    piece.y += dy;
-                    landTimer = 0;
-                    turnSound();
-                    return;
-                }
+                if (fits(t, piece.x + dx, piece.y + dy)) { piece.cells = t; piece.x += dx; piece.y += dy; landTimer = 0; Kit.tone(660, { dur: 0.08, vol: 0.08, type: 'triangle' }); Kit.tone(880, { at: 0.05, dur: 0.08, vol: 0.06, type: 'triangle' }); return; }
             }
-            bumpSound();
+            sfx.oops();
         }
-
-        function ghostY() {
-            let y = piece.y;
-            while (fits(piece.cells, piece.x, y + 1)) y++;
-            return y;
-        }
-
-        function stepDown() {
-            if (!piece || busy) return;
-            if (fits(piece.cells, piece.x, piece.y + 1)) {
-                piece.y++;
-                fallTimer = 0;
-                return true;
-            }
-            return false;
-        }
-
+        function ghostY() { let y = piece.y; while (fits(piece.cells, piece.x, y + 1)) y++; return y; }
+        function stepDown() { if (!piece || busy) return false; if (fits(piece.cells, piece.x, piece.y + 1)) { piece.y++; fallTimer = 0; return true; } return false; }
         function hardDrop() {
             if (!piece || busy) return;
             const from = piece.y;
             piece.y = ghostY();
-            if (piece.y > from) burst(piece, 6);
+            if (piece.y > from) burstPiece(piece, 4);
             settle();
         }
-
         function settle() {
             const shape = SHAPES[piece.id];
-            piece.cells.forEach((row, r) => row.forEach((v, c) => {
-                if (v && piece.y + r >= 0) grid[piece.y + r][piece.x + c] = { c: shape.c, cd: shape.cd, seed: Math.random() * 100 };
-            }));
-            landSound();
+            piece.cells.forEach((row, r) => row.forEach((v, c) => { if (v && piece.y + r >= 0) grid[piece.y + r][piece.x + c] = { c: shape.c, cd: shape.cd, seed: Math.random() * 100 }; }));
+            Kit.tone(140, { dur: 0.16, vol: 0.14 });
             piece = null;
             const full = [];
             grid.forEach((row, r) => { if (row.every(Boolean)) full.push(r); });
             if (full.length) {
                 busy = true;
-                clearingRows = full;
-                clearingStart = performance.now();
-                lineSound(full.length);
-                full.forEach(r => {
-                    for (let c = 0; c < COLS; c++) sparkleAt(c, r, grid[r][c].c, 4);
-                });
-                later(() => finishClear(full), 520);
-            } else {
-                spawn();
-            }
+                clearing = full;
+                clearStart = performance.now();
+                [523.25, 659.25, 783.99, 1046.5, 1318.5].slice(0, 2 + full.length).forEach((f, i) => Kit.tone(f, { at: i * 0.07, dur: 0.28, vol: 0.13 }));
+                full.forEach(r => { for (let c = 0; c < COLS; c++) sparkle(c, r, grid[r][c].c, 3); });
+                Kit.later(() => finishClear(full), 520);
+            } else spawn();
         }
-
         function finishClear(full) {
             grid = grid.filter((_, r) => !full.includes(r));
             while (grid.length < ROWS) grid.unshift(new Array(COLS).fill(null));
-            clearingRows = [];
+            clearing = [];
             const before = lines;
-            lines = Math.min(LINES_PER_LEVEL, lines + full.length);
+            lines = Math.min(LINES, lines + full.length);
             renderHud(before);
-            if (lines >= LINES_PER_LEVEL) {
-                levelUp();
-                return;
-            }
-            const words = [['Yay!', `Ouais${NBSP}!`], ['A line!', `Une ligne${NBSP}!`], ['Super!', `Super${NBSP}!`], ['Well done!', `Bravo${NBSP}!`]];
-            const [en, fr] = words[Math.floor(Math.random() * words.length)];
-            speak(en, fr);
+            if (lines >= LINES) { levelUp(); return; }
+            const [en, fr] = Kit.pick([['Yay!', `Ouais${NBSP}!`], ['A line!', `Une ligne${NBSP}!`], ['Super!', `Super${NBSP}!`], ['Well done!', `Bravo${NBSP}!`]]);
+            say(en, fr);
             busy = false;
             spawn();
         }
-
         function levelUp() {
             cleared = Math.max(cleared, level + 1);
-            const finishedAll = level === LEVEL_COUNT - 1;
-            if (!finishedAll) level++;
-            saveProgress();
-            cheerSound();
-            setTimeout(cheerSound, 350);
-            const label = levelLabel(level);
-            showCheer(finishedAll ? lang.t('🏆 You did it!', `🏆 Tu as réussi${NBSP}!`) : `⭐ ${lang.t('Super!', `Super${NBSP}!`)} ${label}`, 2000);
-            speak(finishedAll ? 'You did it! Amazing!' : `Super! Level ${level + 1}!`,
-                finishedAll ? `Tu as réussi${NBSP}! Génial${NBSP}!` : `Super${NBSP}! Niveau ${level + 1}${NBSP}!`);
-            confetti();
-            // A fresh, empty board for the new level.
-            later(() => sweepBoard(() => {
-                lines = 0;
-                bag = [];
-                nextId = null;
-                renderHud();
-                busy = false;
-                spawn();
-            }), 900);
+            const last = level === LEVELS.length - 1;
+            if (!last) level++;
+            save();
+            sfx.fanfare();
+            Kit.confetti(140);
+            Kit.cheer(last ? T('🏆 You did it!', `🏆 Tu as réussi${NBSP}!`) : T(`⭐ Level ${level + 1}!`, `⭐ Niveau ${level + 1}${NBSP}!`), 2000);
+            say(last ? 'You did it! Amazing!' : `Super! Level ${level + 1}!`, last ? `Tu as réussi${NBSP}! Génial${NBSP}!` : `Super${NBSP}! Niveau ${level + 1}${NBSP}!`);
+            Kit.later(() => sweep(() => { lines = 0; bag = []; nextId = null; applyLevelLook(); renderHud(); busy = false; spawn(); }), 900);
         }
-
-        // When the blocks reach the top there is no "game over": they pop away and play goes on.
+        // No game over: a tower that reaches the top pops away and play goes on.
         function tidyUp() {
             busy = true;
             piece = null;
-            speak("Wow, what a tall tower! Let's make room!", `Oh, quelle grande tour${NBSP}! On fait de la place${NBSP}!`);
-            sweepBoard(() => {
-                busy = false;
-                spawn();
-            });
+            say("Wow, what a tall tower! Let's make room!", `Oh, quelle grande tour${NBSP}! On fait de la place${NBSP}!`);
+            sweep(() => { busy = false; spawn(); });
         }
-
-        function sweepBoard(done) {
+        function sweep(done) {
             let r = 0;
             const tick = () => {
                 if (r >= ROWS) { done(); return; }
-                const row = grid[r];
-                if (row.some(Boolean)) {
-                    row.forEach((b, c) => { if (b) sparkleAt(c, r, b.c, 3); });
-                    note(300 + r * 40, 0, 0.12, 0.08, 'triangle');
-                }
+                if (grid[r].some(Boolean)) { grid[r].forEach((b, c) => { if (b) sparkle(c, r, b.c, 2); }); Kit.tone(300 + r * 40, { dur: 0.12, vol: 0.07, type: 'triangle' }); }
                 grid[r] = new Array(COLS).fill(null);
                 r++;
-                later(tick, 60);
+                Kit.later(tick, 60);
             };
             tick();
         }
 
-        // --- RENDER ---
-        function resizeBoard() {
-            if (els.game.hidden) return;
-            const box = els.area.getBoundingClientRect();
-            const wrapPad = parseFloat(getComputedStyle(els.board.parentElement).paddingLeft) * 2;
-            // In the side-by-side layout the board column is sized by the board itself,
-            // so measure the room left between the two button columns instead.
-            const gameStyle = getComputedStyle(els.game);
-            const stacked = gameStyle.gridTemplateRows.split(' ').length > 1;
-            let width = box.width;
-            if (!stacked) {
-                const gap = parseFloat(gameStyle.columnGap) || 0;
-                const inner = els.game.clientWidth - parseFloat(gameStyle.paddingLeft) - parseFloat(gameStyle.paddingRight);
-                const sides = document.querySelector('.side-left').offsetWidth + document.querySelector('.side-right').offsetWidth;
-                width = inner - sides - gap * 2;
-            }
-            cell = Math.max(14, Math.floor(Math.min((width - wrapPad) / COLS, (box.height - wrapPad - 10) / ROWS, 64)));
+        // ---------- Drawing ----------
+        function resize() {
+            if (game.hidden) return;
+            const area = $('#board-area').getBoundingClientRect();
+            cell = Math.max(16, Math.floor(Math.min((area.width - 24) / COLS, (area.height - 24) / ROWS, 60)));
             dpr = Math.min(window.devicePixelRatio || 1, 2);
-            els.board.style.width = `${cell * COLS}px`;
-            els.board.style.height = `${cell * ROWS}px`;
-            els.board.width = cell * COLS * dpr;
-            els.board.height = cell * ROWS * dpr;
-            const ns = els.next.getBoundingClientRect().width || 88;
-            els.next.width = ns * dpr;
-            els.next.height = ns * dpr;
+            board.style.width = cell * COLS + 'px';
+            board.style.height = cell * ROWS + 'px';
+            board.width = cell * COLS * dpr;
+            board.height = cell * ROWS * dpr;
+            nextCv.width = nextCv.height = 86 * dpr;
             drawNext();
         }
-
         function draw(now) {
+            const W = cell * COLS, H = cell * ROWS, sky = LEVELS[level].sky;
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            const W = cell * COLS;
-            const H = cell * ROWS;
-            ctx.clearRect(0, 0, W, H);
-            // Soft stripes help to see where a piece will land.
-            for (let c = 0; c < COLS; c++) {
-                ctx.fillStyle = c % 2 ? '#F4F8FE' : '#EAF2FC';
-                ctx.fillRect(c * cell, 0, cell, H);
+            const g = ctx.createLinearGradient(0, 0, 0, H);
+            g.addColorStop(0, sky[0]); g.addColorStop(1, sky[1]);
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, W, H);
+            if (LEVELS[level].night) {
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                for (let i = 0; i < 18; i++) { ctx.beginPath(); ctx.arc((i * 53) % W, (i * 97) % H, 1.5 + (i % 3), 0, Math.PI * 2); ctx.fill(); }
             }
+            for (let c = 1; c < COLS; c++) { ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(c * cell - 1, 0, 2, H); }
             if (piece) {
-                const gy = ghostY();
-                const shape = SHAPES[piece.id];
+                const gy = ghostY(), shape = SHAPES[piece.id];
                 ctx.save();
-                ctx.globalAlpha = 0.9;
                 piece.cells.forEach((row, r) => row.forEach((v, c) => {
                     if (!v) return;
-                    const x = (piece.x + c) * cell;
-                    const y = (gy + r) * cell;
-                    // the landing spot: a soft tinted shadow with a dashed rim
-                    ctx.fillStyle = shape.c + '33';
-                    roundRect(ctx, x + 3, y + 3, cell - 6, cell - 6, cell * 0.26);
-                    ctx.fill();
-                    ctx.setLineDash([cell * 0.14, cell * 0.1]);
-                    ctx.lineWidth = Math.max(2, cell * 0.06);
-                    ctx.strokeStyle = shape.cd;
-                    ctx.stroke();
+                    rr(ctx, (piece.x + c) * cell + 3, (gy + r) * cell + 3, cell - 6, cell - 6, cell * 0.26);
+                    ctx.fillStyle = shape.c + '33'; ctx.fill();
+                    ctx.setLineDash([cell * 0.14, cell * 0.1]); ctx.lineWidth = Math.max(2, cell * 0.06); ctx.strokeStyle = shape.cd; ctx.stroke();
                 }));
                 ctx.restore();
             }
-            const clearing = clearingRows.length > 0;
-            const flash = clearing ? Math.min(1, (now - clearingStart) / 520) : 0;
+            const flash = clearing.length ? Math.min(1, (now - clearStart) / 520) : 0;
             grid.forEach((row, r) => row.forEach((b, c) => {
                 if (!b) return;
-                const inClear = clearing && clearingRows.includes(r);
-                const blink = ((now / 1000 + b.seed) % 5) < 0.12;
-                if (inClear) {
-                    // the line jumps happily, then shrinks away
-                    const lift = Math.sin(flash * Math.PI) * cell * 0.25;
-                    const scale = 1 - Math.max(0, flash - 0.6) * 2.2;
-                    const s = cell * Math.max(0.05, scale);
-                    drawBlock(ctx, c * cell + (cell - s) / 2, r * cell + (cell - s) / 2 - lift, s, b.c, b.cd, 'happy');
-                } else {
-                    drawBlock(ctx, c * cell, r * cell, cell, b.c, b.cd, blink ? 'blink' : 'rest');
-                }
+                if (clearing.includes(r)) {
+                    const lift = Math.sin(flash * Math.PI) * cell * 0.25, s = cell * Math.max(0.05, 1 - Math.max(0, flash - 0.6) * 2.2);
+                    block(ctx, c * cell + (cell - s) / 2, r * cell + (cell - s) / 2 - lift, s, b.c, b.cd, 'happy');
+                } else block(ctx, c * cell, r * cell, cell, b.c, b.cd, ((now / 1000 + b.seed) % 5) < 0.12 ? 'blink' : 'rest');
             }));
             if (piece) {
                 const shape = SHAPES[piece.id];
-                piece.cells.forEach((row, r) => row.forEach((v, c) => {
-                    if (v && piece.y + r >= 0) drawBlock(ctx, (piece.x + c) * cell, (piece.y + r) * cell, cell, shape.c, shape.cd, 'awake');
-                }));
+                piece.cells.forEach((row, r) => row.forEach((v, c) => { if (v && piece.y + r >= 0) block(ctx, (piece.x + c) * cell, (piece.y + r) * cell, cell, shape.c, shape.cd, 'awake'); }));
             }
         }
-
-        function drawShape(c, id, size, boxW, boxH) {
-            const cells = SHAPES[id].cells;
-            const w = cells[0].length * size;
-            const h = cells.length * size;
-            const ox = (boxW - w) / 2;
-            const oy = (boxH - h) / 2;
-            cells.forEach((row, r) => row.forEach((v, col) => {
-                if (v) drawBlock(c, ox + col * size, oy + r * size, size, SHAPES[id].c, SHAPES[id].cd, 'awake');
-            }));
-        }
-
         function drawNext() {
             if (!nextId) return;
-            const size = els.next.width / dpr;
+            const size = 86, cells = SHAPES[nextId].cells, s = Math.floor(size * 0.8 / Math.max(cells.length, cells[0].length, 2));
             nextCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
             nextCtx.clearRect(0, 0, size, size);
-            const cells = SHAPES[nextId].cells;
-            const s = Math.floor((size * 0.8) / Math.max(cells.length, cells[0].length, 2));
-            drawShape(nextCtx, nextId, s, size, size);
+            const ox = (size - cells[0].length * s) / 2, oy = (size - cells.length * s) / 2;
+            cells.forEach((row, r) => row.forEach((v, c) => { if (v) block(nextCtx, ox + c * s, oy + r * s, s, SHAPES[nextId].c, SHAPES[nextId].cd, 'awake'); }));
         }
-
         function loop(now) {
             if (!running) return;
             const dt = Math.min(100, now - (lastTime || now));
             lastTime = now;
             if (piece && !busy) {
                 fallTimer += dt;
-                if (!fits(piece.cells, piece.x, piece.y + 1)) {
-                    landTimer += dt;
-                    if (landTimer > Math.max(450, LEVELS[level].speed * 0.6)) settle();
-                } else if (fallTimer >= LEVELS[level].speed) {
-                    stepDown();
-                }
+                if (!fits(piece.cells, piece.x, piece.y + 1)) { landTimer += dt; if (landTimer > Math.max(450, LEVELS[level].speed * 0.6)) settle(); }
+                else if (fallTimer >= LEVELS[level].speed) stepDown();
             }
             draw(now);
             requestAnimationFrame(loop);
         }
+        function sparkle(c, r, color, n) {
+            const rect = board.getBoundingClientRect();
+            Kit.burst(rect.left + (c + 0.5) * cell, rect.top + (r + 0.5) * cell, [color, '#fff'], n, 0.6);
+        }
+        function burstPiece(p, n) { p.cells.forEach((row, r) => row.forEach((v, c) => { if (v) sparkle(p.x + c, p.y + r, SHAPES[p.id].c, n); })); }
 
-        // --- ✨ SPARKLES (page-wide canvas) ---
-        const fx = document.getElementById('particles');
-        const fxCtx = fx.getContext('2d');
-        let particles = [];
-        function resizeFx() { fx.width = window.innerWidth; fx.height = window.innerHeight; }
-
-        function sparkleAt(c, r, color, count) {
-            const rect = els.board.getBoundingClientRect();
-            const x = rect.left + (c + 0.5) * cell;
-            const y = rect.top + (r + 0.5) * cell;
-            for (let i = 0; i < count; i++) {
-                particles.push({ x, y, vx: (Math.random() - 0.5) * 8, vy: Math.random() * -7 - 1, size: Math.random() * 6 + 3,
-                    life: 1, color: Math.random() > 0.7 ? '#FFFFFF' : color, star: Math.random() > 0.5 });
-            }
-        }
-        function burst(p, count) {
-            const color = SHAPES[p.id].c;
-            p.cells.forEach((row, r) => row.forEach((v, c) => { if (v) sparkleAt(p.x + c, p.y + r, color, Math.ceil(count / 2)); }));
-        }
-        function confetti() {
-            const colors = ['#FF5A5F', '#FF9A2E', '#FFC93B', '#3FBF62', '#3D9BF0', '#9B6CF0', '#FF7DB8'];
-            for (let i = 0; i < 90; i++) {
-                particles.push({ x: Math.random() * fx.width, y: -10, vx: (Math.random() - 0.5) * 4, vy: Math.random() * 3 + 1,
-                    size: Math.random() * 7 + 4, life: 1.6, color: colors[i % colors.length], star: Math.random() > 0.5 });
-            }
-        }
-        function drawStar(p) {
-            fxCtx.save();
-            fxCtx.translate(p.x, p.y);
-            fxCtx.rotate(p.life * 6);
-            fxCtx.beginPath();
-            for (let i = 0; i < 5; i++) {
-                fxCtx.lineTo(Math.cos((18 + i * 72) * Math.PI / 180) * p.size, -Math.sin((18 + i * 72) * Math.PI / 180) * p.size);
-                fxCtx.lineTo(Math.cos((54 + i * 72) * Math.PI / 180) * p.size / 2.2, -Math.sin((54 + i * 72) * Math.PI / 180) * p.size / 2.2);
-            }
-            fxCtx.closePath();
-            fxCtx.fill();
-            fxCtx.restore();
-        }
-        function animateFx() {
-            fxCtx.clearRect(0, 0, fx.width, fx.height);
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.22;
-                p.life -= 0.02;
-                if (p.life <= 0 || p.y > fx.height + 20) { particles.splice(i, 1); continue; }
-                fxCtx.globalAlpha = Math.min(1, p.life);
-                fxCtx.fillStyle = p.color;
-                if (p.star) drawStar(p);
-                else { fxCtx.beginPath(); fxCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2); fxCtx.fill(); }
-            }
-            fxCtx.globalAlpha = 1;
-            requestAnimationFrame(animateFx);
-        }
-
-        // --- 👆 TOUCH & MOUSE ON THE BOARD ---
-        // Drag sideways to slide the block, tap or click to turn it, flick down to drop it.
-        // With a mouse, the block also follows the pointer while it moves over the board.
+        // ---------- Controls: drag to slide, tap to turn, flick down to drop ----------
         let drag = null;
-        function columnUnder(clientX) {
-            const rect = els.board.getBoundingClientRect();
-            return Math.floor((clientX - rect.left) / cell);
-        }
-        function slideTo(targetX) {
-            if (!piece || busy) return;
-            let moved = false;
-            while (piece.x < targetX && move(1)) moved = true;
-            while (piece.x > targetX && move(-1)) moved = true;
-            if (moved) moveSound();
-        }
-        els.board.addEventListener('pointerdown', event => {
-            event.preventDefault();
-            try { els.board.setPointerCapture(event.pointerId); } catch (error) { /* not capturable */ }
-            drag = { x: event.clientX, y: event.clientY, t: performance.now(), startX: piece ? piece.x : 0, moved: false, dropped: false };
+        const colUnder = x => Math.floor((x - board.getBoundingClientRect().left) / cell);
+        function slideTo(tx) { if (!piece || busy) return; let moved = false; while (piece.x < tx && move(1)) moved = true; while (piece.x > tx && move(-1)) moved = true; if (moved) Kit.tone(520, { dur: 0.06, vol: 0.06, type: 'triangle' }); }
+        board.addEventListener('pointerdown', e => {
+            e.preventDefault();
+            try { board.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+            drag = { x: e.clientX, y: e.clientY, t: performance.now(), startX: piece ? piece.x : 0, moved: false, dropped: false };
         });
-        els.board.addEventListener('pointermove', event => {
+        board.addEventListener('pointermove', e => {
             if (!piece || busy) return;
-            if (!drag) {
-                if (event.pointerType === 'mouse') {
-                    const width = piece.cells[0].length;
-                    slideTo(Math.max(0, Math.min(COLS - width, columnUnder(event.clientX) - Math.floor((width - 1) / 2))));
-                }
-                return;
-            }
-            const dx = event.clientX - drag.x;
-            const dy = event.clientY - drag.y;
+            if (!drag) { if (e.pointerType === 'mouse') { const w = piece.cells[0].length; slideTo(Math.max(0, Math.min(COLS - w, colUnder(e.clientX) - Math.floor((w - 1) / 2)))); } return; }
+            const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
             if (Math.abs(dx) > 10 || Math.abs(dy) > 10) drag.moved = true;
             if (drag.dropped) return;
-            const elapsed = performance.now() - drag.t;
-            if (dy > cell * 1.8 && dy > Math.abs(dx) * 1.4 && elapsed < 450) {
-                drag.dropped = true;
-                hardDrop();
-                return;
-            }
+            if (dy > cell * 1.8 && dy > Math.abs(dx) * 1.4 && performance.now() - drag.t < 450) { drag.dropped = true; hardDrop(); return; }
             slideTo(drag.startX + Math.round(dx / (cell * 0.9)));
         });
-        const endDrag = event => {
-            if (!drag) return;
-            const quick = performance.now() - drag.t < 400;
-            if (!drag.moved && !drag.dropped && quick && event.type === 'pointerup') turn();
-            drag = null;
-        };
-        els.board.addEventListener('pointerup', endDrag);
-        els.board.addEventListener('pointercancel', endDrag);
-        els.board.addEventListener('contextmenu', event => event.preventDefault());
-        els.board.addEventListener('wheel', event => {
-            event.preventDefault();
-            if (event.deltaY > 0) stepDown();
-            else turn();
-        }, { passive: false });
-
-        // --- 🕹️ BIG BUTTONS (hold to keep moving) ---
-        function holdButton(btn, action, repeat) {
-            let delayTimer = null;
-            let repeatTimer = null;
-            const stop = () => {
-                btn.classList.remove('down');
-                clearTimeout(delayTimer);
-                clearInterval(repeatTimer);
-            };
-            btn.addEventListener('pointerdown', event => {
-                event.preventDefault();
-                try { btn.setPointerCapture(event.pointerId); } catch (error) { /* not capturable */ }
+        const endDrag = e => { if (!drag) return; if (!drag.moved && !drag.dropped && performance.now() - drag.t < 400 && e.type === 'pointerup') turn(); drag = null; };
+        board.addEventListener('pointerup', endDrag);
+        board.addEventListener('pointercancel', endDrag);
+        board.addEventListener('contextmenu', e => e.preventDefault());
+        function hold(btn, action, repeat) {
+            let d = 0, r = 0;
+            const stop = () => { btn.classList.remove('down'); clearTimeout(d); clearInterval(r); };
+            btn.addEventListener('pointerdown', e => {
+                e.preventDefault();
+                try { btn.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
                 btn.classList.add('down');
                 action();
-                if (repeat) delayTimer = setTimeout(() => { repeatTimer = setInterval(action, 110); }, 280);
+                if (repeat) d = setTimeout(() => { r = setInterval(action, 110); }, 280);
             });
-            ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => btn.addEventListener(type, stop));
-            // Keyboard users: Enter / Space on a focused button.
-            btn.addEventListener('click', event => { if (event.detail === 0) action(); });
+            ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(t => btn.addEventListener(t, stop));
+            btn.addEventListener('click', e => { if (e.detail === 0) action(); });
         }
-        holdButton(document.getElementById('btn-left'), () => { if (move(-1)) moveSound(); else bumpSound(); }, true);
-        holdButton(document.getElementById('btn-right'), () => { if (move(1)) moveSound(); else bumpSound(); }, true);
-        holdButton(document.getElementById('btn-turn'), turn, false);
-        holdButton(document.getElementById('btn-drop'), hardDrop, false);
-
-        // --- ⌨️ KEYBOARD ---
-        document.addEventListener('keydown', event => {
-            if (els.game.hidden) return;
-            const keys = {
-                ArrowLeft: () => { if (move(-1)) moveSound(); },
-                ArrowRight: () => { if (move(1)) moveSound(); },
-                ArrowUp: turn,
-                ArrowDown: () => stepDown(),
-                ' ': hardDrop
-            };
-            const action = keys[event.key];
-            if (!action) return;
-            if (event.key === ' ' && document.activeElement && document.activeElement.classList.contains('pad-btn')) return;
-            event.preventDefault();
-            if (event.key === 'ArrowUp' && event.repeat) return;
-            action();
+        hold($('#btn-left'), () => { if (move(-1)) Kit.tone(520, { dur: 0.06, vol: 0.06, type: 'triangle' }); else sfx.oops(); }, true);
+        hold($('#btn-right'), () => { if (move(1)) Kit.tone(520, { dur: 0.06, vol: 0.06, type: 'triangle' }); else sfx.oops(); }, true);
+        hold($('#btn-turn'), turn, false);
+        hold($('#btn-drop'), hardDrop, false);
+        document.addEventListener('keydown', e => {
+            if (game.hidden) return;
+            const keys = { ArrowLeft: () => move(-1), ArrowRight: () => move(1), ArrowUp: turn, ArrowDown: stepDown, ' ': hardDrop };
+            const act = keys[e.key];
+            if (!act) return;
+            if (e.key === ' ' && document.activeElement && document.activeElement.classList.contains('pad')) return;
+            e.preventDefault();
+            if (e.key === 'ArrowUp' && e.repeat) return;
+            act();
         });
 
-        // --- SCREENS ---
-        const levelLabel = n => lang.t(`Level ${n + 1}`, `Niveau ${n + 1}`);
-
-        function renderHud(before = lines) {
-            els.badge.textContent = levelLabel(level);
-            els.stars.innerHTML = Array.from({ length: LINES_PER_LEVEL }, (_, i) =>
-                `<span class="${i < lines ? '' : 'off'}">⭐</span>`).join('');
-            for (let i = before; i < lines; i++) {
-                const star = els.stars.children[i];
-                if (star) { star.classList.add('pop'); setTimeout(() => star.classList.remove('pop'), 350); }
-            }
+        // ---------- Screens ----------
+        function renderHud(before) {
+            $('#level-badge').textContent = T(`Level ${level + 1}`, `Niveau ${level + 1}`);
+            Kit.stars($('#stars'), LINES, lines);
+            for (let i = before === undefined ? lines : before; i < lines; i++) { const s = $('#stars').children[i]; if (s) s.classList.add('pop'); }
         }
-
-        function showCheer(text, ms) {
-            els.cheer.textContent = text;
-            els.cheer.classList.add('show');
-            setTimeout(() => els.cheer.classList.remove('show'), ms);
-        }
-
-        function show(screen) {
-            els.start.hidden = screen !== els.start;
-            els.game.hidden = screen !== els.game;
-            els.back.hidden = screen === els.start;
-            document.body.classList.toggle('playing', screen === els.game);
-            window.scrollTo(0, 0);
-            running = screen === els.game;
-            if (running) {
-                lastTime = 0;
-                requestAnimationFrame(loop);
-            } else if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-            }
-        }
-
-        function startGame(n) {
-            session++;
+        function applyLevelLook() { Kit.tint(LEVELS[level].tint); }
+        function play(n) {
             level = n;
-            lines = 0;
-            busy = false;
-            bag = [];
-            nextId = null;
-            grid = emptyGrid();
-            saveProgress();
-            show(els.game);
-            resizeBoard();
+            lines = 0; busy = false; bag = []; nextId = null; grid = emptyGrid(); piece = null;
+            save();
+            Kit.show(game);
+            applyLevelLook();
+            resize();
             renderHud();
             spawn();
-            speak(`Level ${level + 1}! Stack the blocks!`, `Niveau ${level + 1}${NBSP}! Empile les blocs${NBSP}!`);
+            running = true;
+            lastTime = 0;
+            requestAnimationFrame(loop);
+            say(`Level ${level + 1}! Stack the blocks!`, `Niveau ${level + 1}${NBSP}! Empile les blocs${NBSP}!`);
         }
-
-        function showStart() {
-            session++;
-            busy = false;
-            piece = null;
-            const hasProgress = level > 0 || cleared > 0;
-            els.continueBtn.hidden = !hasProgress;
-            els.continueLevel.textContent = levelLabel(level);
-            els.playBtn.classList.toggle('secondary', hasProgress);
-            els.playBtn.dataset.en = hasProgress ? '⭐ Start from the beginning' : '▶ Play!';
-            els.playBtn.dataset.fr = hasProgress ? '⭐ Recommencer au début' : `▶ Jouer${NBSP}!`;
-            els.chooseBtn.classList.toggle('locked', cleared === 0);
-            els.chooseBtn.setAttribute('aria-disabled', String(cleared === 0));
-            closePicker();
-            lang.apply(els.start);
-            show(els.start);
-            drawTitleArt();
+        Kit.onLeave(game, () => { running = false; piece = null; busy = false; });
+        function goStart() { Kit.show(start, { back: false }); Kit.tint('#E6E0FF'); $('#play-badge').textContent = T(`Level ${level + 1}`, `Niv. ${level + 1}`); drawTitle(); }
+        function openPick() {
+            if (cleared === 0) { Kit.bounce($('#go-pick'), 'wobble'); sfx.oops(); say('Finish level 1 first!', `Termine le niveau 1 d'abord${NBSP}!`); return; }
+            Kit.show(pick);
+            Kit.picker($('#picker'), { count: LEVELS.length, open: n => n <= cleared, onPick: play });
         }
-
-        function renderPicker() {
-            els.levelGrid.innerHTML = LEVELS.map((lv, n) => {
-                const open = n <= cleared;
-                const [c, cd] = LEVEL_TILES[n];
-                const label = `${levelLabel(n)}${open ? '' : ', ' + lang.t('locked', 'verrouillé')}`;
-                return `<button type="button" class="level-tile${open ? '' : ' locked'}" data-level="${n}"
-                        aria-label="${label}" style="--c: ${c}; --cd: ${cd}; animation-delay: ${n * 0.04}s">
-                    <span class="tile-num">${n + 1}</span>
-                    <span class="tile-speed" aria-hidden="true">${lv.icon}</span>
-                    ${open ? '' : '<span class="tile-lock" aria-hidden="true">🔒</span>'}
-                </button>`;
-            }).join('');
-        }
-
-        function openPicker() {
-            if (cleared === 0) {
-                els.chooseBtn.classList.remove('wobble');
-                void els.chooseBtn.offsetWidth;
-                els.chooseBtn.classList.add('wobble');
-                bumpSound();
-                speak('Finish level 1 first!', `Termine le niveau 1 d'abord${NBSP}!`);
-                return;
-            }
-            renderPicker();
-            els.startMain.hidden = true;
-            els.picker.hidden = false;
-            els.back.hidden = false;
-            window.scrollTo(0, 0);
-        }
-        function closePicker() {
-            els.picker.hidden = true;
-            els.startMain.hidden = false;
-            if (!els.start.hidden) els.back.hidden = true;
-        }
-
-        els.levelGrid.addEventListener('click', event => {
-            const tile = event.target.closest('.level-tile');
-            if (!tile) return;
-            if (tile.classList.contains('locked')) {
-                tile.classList.remove('wobble');
-                void tile.offsetWidth;
-                tile.classList.add('wobble');
-                bumpSound();
-                return;
-            }
-            startGame(Number(tile.dataset.level));
-        });
-
-        // Three smiley pieces stacked on the start screen.
-        function drawTitleArt() {
-            const art = document.getElementById('title-art');
-            const rect = art.getBoundingClientRect();
-            if (!rect.width) return;
+        function drawTitle() {
+            const art = $('#title-art'), r = art.getBoundingClientRect();
+            if (!r.width) return;
             const d = Math.min(window.devicePixelRatio || 1, 2);
-            art.width = rect.width * d;
-            art.height = rect.height * d;
+            art.width = r.width * d; art.height = r.height * d;
             const c = art.getContext('2d');
             c.setTransform(d, 0, 0, d, 0, 0);
-            const s = rect.height / 3;
-            const ox = (rect.width - s * 8) / 2;
-            const put = (id, cells, x, y) => cells.forEach((row, r) => row.forEach((v, col) => {
-                if (v) drawBlock(c, ox + (x + col) * s, (y + r) * s, s, SHAPES[id].c, SHAPES[id].cd, 'happy');
-            }));
-            put('L', [[1, 0], [1, 0], [1, 1]], 0, 0);
-            put('O', SHAPES.O.cells, 2, 1);
-            put('T', [[1, 1, 1], [0, 1, 0]], 4, 1);
-            put('dot', [[1]], 7, 2);
-            put('duo', [[1, 1]], 4, 0);
+            const s = r.height / 3, ox = (r.width - s * 8) / 2;
+            const put = (id, cells, x, y) => cells.forEach((row, rr2) => row.forEach((v, col) => { if (v) block(c, ox + (x + col) * s, (y + rr2) * s, s, SHAPES[id].c, SHAPES[id].cd, 'happy'); }));
+            put('L', [[1, 0], [1, 0], [1, 1]], 0, 0); put('O', SHAPES.O.cells, 2, 1); put('T', [[1, 1, 1], [0, 1, 0]], 4, 1); put('dot', [[1]], 7, 2); put('duo', [[1, 1]], 4, 0);
         }
-
-        els.continueBtn.addEventListener('click', () => startGame(level));
-        els.playBtn.addEventListener('click', () => startGame(0));
-        els.chooseBtn.addEventListener('click', openPicker);
-        // One back button: picker -> start menu, game -> start menu.
-        els.back.addEventListener('click', () => (els.picker.hidden ? showStart() : closePicker()));
-
-        // Pause while the page is hidden so blocks do not pile up.
+        $('#go-play').addEventListener('click', () => { sfx.pop(); play(level); });
+        $('#go-pick').addEventListener('click', openPick);
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) running = false;
-            else if (!els.game.hidden && !running) { running = true; lastTime = 0; requestAnimationFrame(loop); }
+            else if (!game.hidden && !running) { running = true; lastTime = 0; requestAnimationFrame(loop); }
         });
-
-        let resizeTimer = null;
-        window.addEventListener('resize', () => {
-            resizeFx();
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => { resizeBoard(); if (!els.start.hidden) drawTitleArt(); }, 80);
-        });
-
-        lang.mountToggle();
-        lang.onChange(() => {
-            els.continueLevel.textContent = levelLabel(level);
-            if (!els.picker.hidden) renderPicker();
-            if (!els.game.hidden) renderHud();
-        });
-
-        resizeFx();
-        animateFx();
-        showStart();
-        if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
+        let rt = 0;
+        window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { resize(); if (!start.hidden) drawTitle(); }, 80); });
+        Kit.onLang(() => { if (!game.hidden) renderHud(); if (!start.hidden) $('#play-badge').textContent = T(`Level ${level + 1}`, `Niv. ${level + 1}`); });
+        goStart();
+    }());
     </script>
 </body>
 </html>

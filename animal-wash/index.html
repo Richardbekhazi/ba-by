@@ -1,35 +1,324 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Le bain des animaux">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="A gentle toddler bath game. Scrub muddy animal friends with a sponge, rinse with the shower, and dry them with a towel. Pop bubbles and squeak the duck. No timers or losing.">
-    <title>Wash the Animals - ba-by.ca</title>
-    <link rel="stylesheet" href="/assets/css/toddler-play.css?v=20261028-lang">
-    <link rel="stylesheet" href="/assets/css/animal-wash.css?v=20261028-lang">
-    <script defer src="/assets/js/toddler-loader.js?v=20261028-lang"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="A gentle bath game: scrub the mud off a puppy, piglet, kitten or bunny, rinse, dry and dress them up. No timers or losing.">
+    <title>Animal Wash</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛁</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
+    <script src="/assets/js/kit.js?v=20261029"></script>
+    <style>
+        :root { --tint: #DDF3FF; }
+        .steps { display: flex; gap: 8px; }
+        .step { width: 58px; height: 58px; border-radius: 20px; display: grid; place-items: center; font-size: 30px; background: rgba(255,255,255,0.6); box-shadow: 0 4px 0 rgba(61,53,81,0.1); position: relative; }
+        .step.now { background: #fff; box-shadow: 0 4px 0 var(--blue-d), 0 0 0 4px var(--blue); transform: scale(1.08); }
+        .step.done::after { content: '✓'; position: absolute; right: -6px; top: -6px; width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; font: 400 14px/24px 'Fredoka One', system-ui; text-align: center; }
+        .stage { position: relative; width: 100%; max-width: min(760px, calc((100vh - 300px) * 1.25)); max-width: min(760px, calc((100dvh - 300px) * 1.25)); min-width: min(100%, 300px); border-radius: 34px; overflow: hidden; background: linear-gradient(180deg, #FFF7EC 0%, #FFE9D0 62%, #CFEFFF 62%, #A9E0FF 100%); box-shadow: 0 10px 0 rgba(61,53,81,0.1); touch-action: none; }
+        .stage svg { display: block; width: 100%; height: auto; }
+        .tool-cursor { position: absolute; z-index: 3; font-size: 64px; line-height: 1; pointer-events: none; transform: translate(-50%, -50%) rotate(-12deg); filter: drop-shadow(0 6px 4px rgba(61,53,81,0.25)); transition: opacity 0.2s; }
+        .tool-cursor.idle { opacity: 0; }
+        .rubbing .tool-cursor { animation: scrub 0.25s ease-in-out infinite alternate; }
+        @keyframes scrub { to { transform: translate(-46%, -54%) rotate(10deg); } }
+        .wear { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .wear button { width: 74px; height: 74px; border: 0; border-radius: 24px; background: #fff; font-size: 40px; box-shadow: 0 5px 0 rgba(61,53,81,0.12); }
+        .wear button[aria-pressed="true"] { box-shadow: 0 5px 0 var(--pink-d), 0 0 0 4px var(--pink); }
+        .pet-pick .kit-mode-art { font-size: 80px; }
+        .pet { transform-origin: 200px 250px; }
+        .pet.giggle { animation: giggle 0.6s ease-in-out; }
+        @keyframes giggle { 25% { transform: rotate(-4deg) scale(1.02); } 75% { transform: rotate(4deg) scale(1.02); } }
+        .duck { cursor: pointer; animation: bob-duck 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+        @keyframes bob-duck { 50% { transform: translateY(-6px) rotate(-6deg); } }
+        .shine { animation: shine 1.4s ease-out forwards; transform-box: fill-box; transform-origin: center; }
+        @keyframes shine { 0% { opacity: 0; transform: scale(0.2); } 40% { opacity: 1; } 100% { opacity: 0; transform: scale(1.4) rotate(40deg); } }
+    </style>
 </head>
-<body data-game="wash">
-    <nav class="topbar" aria-label="Game settings">
-        <a class="home" href="/" aria-label="Back to games"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#FF7A45"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#E85A28" opacity="0.55"/><path d="M24 12.5 L35.5 22 V33.5 a2.5 2.5 0 0 1 -2.5 2.5 H28 V29 a4 4 0 0 0 -8 0 V36 H15 a2.5 2.5 0 0 1 -2.5 -2.5 V22 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg></a>
-        <div class="settings">
-            <button type="button" data-language="en" aria-label="English" aria-pressed="true">EN</button>
-            <button type="button" data-language="fr" aria-label="Français" aria-pressed="false">FR</button>
-            <button type="button" id="sound" aria-label="Sound on" aria-pressed="true">🔊</button>
-            <button type="button" id="help" aria-label="Hear instructions">💬</button>
+<body>
+    <main class="kit-screen" id="start">
+        <h1 class="kit-title" style="--title-shadow:#4FB8FF"><span class="bob" data-fr="Le bain">Animal</span> <span class="bob" style="animation-delay:-1.3s" data-fr="des animaux">Wash</span></h1>
+        <p class="kit-sub" data-fr="Qui prend un bain aujourd'hui ?">Who is having a bath today?</p>
+        <div class="kit-modes pet-pick">
+            <button class="kit-mode" type="button" data-pet="puppy" style="--c:#FFB627"><span class="kit-mode-art"><span>🐶</span></span><span class="kit-mode-label"><b data-fr="Chiot">Puppy</b><small data-fr="Plein de boue !">So muddy!</small></span></button>
+            <button class="kit-mode" type="button" data-pet="piglet" style="--c:#FF8FB1"><span class="kit-mode-art"><span>🐷</span></span><span class="kit-mode-label"><b data-fr="Cochonnet">Piglet</b><small data-fr="Il adore la boue">Loves the mud</small></span></button>
+            <button class="kit-mode" type="button" data-pet="kitten" style="--c:#A66BFF"><span class="kit-mode-art"><span>🐱</span></span><span class="kit-mode-label"><b data-fr="Chaton">Kitten</b><small data-fr="Un bain tout doux">A gentle bath</small></span></button>
+            <button class="kit-mode" type="button" data-pet="bunny" style="--c:#3FC9C0"><span class="kit-mode-art"><span>🐰</span></span><span class="kit-mode-label"><b data-fr="Lapin">Bunny</b><small data-fr="Des oreilles à laver">Ears to wash</small></span></button>
         </div>
-    </nav>
-    <main class="game">
-        <div id="game-loading" role="status" aria-live="polite" style="padding:16px;text-align:center;background:white;color:#31415a;border-radius:16px">
-            <p id="loading-detail">Opening your game... / Le jeu arrive...</p>
-            <button type="button" style="min-height:48px;padding:12px" onclick="var url = new window.URL(location.href); url.searchParams.set('reload', Date.now()); location.replace(url.href);">Reload game / Recharger</button>
-        </div>
-        <header class="heading"><h1 id="title">Wash the Animals</h1><p id="instruction">Use the sponge. Rub off the mud!</p></header>
-        <div id="stage" class="stage rub-area" tabindex="0" role="button" aria-label="Rub the muddy animal"></div>
-        <div id="controls" class="toolbar" aria-label="Washing tools"></div>
-        <div id="palette" class="palette"></div>
-        <p id="message" class="message" role="status" aria-live="polite"></p>
-        <noscript>Please enable JavaScript to play.</noscript>
     </main>
+
+    <main class="kit-screen" id="bath" hidden>
+        <div class="steps" id="steps"></div>
+        <div class="kit-prompt"><span id="prompt"></span><button type="button" class="kit-say" id="say" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button></div>
+        <div class="stage" id="stage" role="button" tabindex="0" aria-label="Bath. Rub to clean." data-fr-aria-label="Bain. Frotte pour nettoyer."><div class="tool-cursor idle" id="cursor"></div></div>
+        <div class="wear" id="wear" hidden></div>
+        <button type="button" class="kit-btn" id="next" hidden data-fr="🛁 Un autre ami">🛁 Next friend</button>
+    </main>
+
+    <script>
+    (function () {
+        'use strict';
+        const { T, $, sfx, say } = Kit;
+        const NBSP = ' ';
+        const PETS = {
+            puppy: { name: ['Puppy', 'le chiot'], fur: '#F2B96B', dark: '#C9873E', belly: '#FFE2B5', nose: '#3D3551' },
+            piglet: { name: ['Piglet', 'le cochonnet'], fur: '#FFB3C6', dark: '#F07FA0', belly: '#FFD6E2', nose: '#F07FA0' },
+            kitten: { name: ['Kitten', 'le chaton'], fur: '#B8A9D9', dark: '#8C79C2', belly: '#EDE6FF', nose: '#FF8FB1' },
+            bunny: { name: ['Bunny', 'le lapin'], fur: '#F4F4F8', dark: '#C9C9D9', belly: '#FFFFFF', nose: '#FF8FB1' }
+        };
+        const STEPS = [
+            { id: 'scrub', icon: '🧽', tool: '🧽', say: ['Rub with the sponge! Scrub off the mud!', `Frotte avec l'éponge${NBSP}! Enlève la boue${NBSP}!`] },
+            { id: 'rinse', icon: '🚿', tool: '🚿', say: ['Rinse off the bubbles!', `Rince les bulles${NBSP}!`] },
+            { id: 'dry', icon: '🧺', tool: '🧺', say: ['Dry with the towel!', `Sèche avec la serviette${NBSP}!`] },
+            { id: 'dress', icon: '🎀', tool: '', say: ['Pick something to wear!', `Choisis quelque chose à porter${NBSP}!`] }
+        ];
+        const WEAR = [
+            { id: 'hat', e: '👒', x: 200, y: 52, s: 70 }, { id: 'bow', e: '🎀', x: 150, y: 72, s: 46 },
+            { id: 'glasses', e: '🕶️', x: 200, y: 122, s: 64 }, { id: 'crown', e: '👑', x: 200, y: 50, s: 60 },
+            { id: 'scarf', e: '🧣', x: 200, y: 182, s: 64 }, { id: 'flower', e: '🌸', x: 252, y: 78, s: 42 }
+        ];
+        const NS = 'http://www.w3.org/2000/svg';
+
+        function petSVG(kind) {
+            const p = PETS[kind];
+            const ears = {
+                puppy: `<ellipse cx="138" cy="112" rx="24" ry="48" fill="${p.dark}" transform="rotate(22 138 112)"/><ellipse cx="262" cy="112" rx="24" ry="48" fill="${p.dark}" transform="rotate(-22 262 112)"/>`,
+                piglet: `<path d="M140 78 L150 34 L184 62 Z" fill="${p.dark}"/><path d="M260 78 L250 34 L216 62 Z" fill="${p.dark}"/>`,
+                kitten: `<path d="M140 86 L146 30 L188 64 Z" fill="${p.fur}"/><path d="M152 76 L154 46 L176 64 Z" fill="${p.nose}"/><path d="M260 86 L254 30 L212 64 Z" fill="${p.fur}"/><path d="M248 76 L246 46 L224 64 Z" fill="${p.nose}"/>`,
+                bunny: `<ellipse cx="170" cy="36" rx="18" ry="56" fill="${p.fur}"/><ellipse cx="170" cy="40" rx="9" ry="40" fill="${p.nose}" opacity="0.6"/><ellipse cx="230" cy="36" rx="18" ry="56" fill="${p.fur}"/><ellipse cx="230" cy="40" rx="9" ry="40" fill="${p.nose}" opacity="0.6"/>`
+            }[kind];
+            const snout = kind === 'piglet'
+                ? `<ellipse cx="200" cy="146" rx="30" ry="20" fill="${p.dark}"/><ellipse cx="190" cy="146" rx="5" ry="7" fill="#C2557A"/><ellipse cx="210" cy="146" rx="5" ry="7" fill="#C2557A"/>`
+                : kind === 'puppy'
+                    ? `<ellipse cx="200" cy="148" rx="28" ry="20" fill="${p.belly}"/><ellipse cx="200" cy="140" rx="12" ry="8" fill="${p.nose}"/>`
+                    : `<path d="M192 138 L208 138 L200 148 Z" fill="${p.nose}"/>${kind === 'kitten' ? '<path d="M150 146 L118 140 M150 154 L118 158 M250 146 L282 140 M250 154 L282 158" stroke="#3D3551" stroke-width="3" stroke-linecap="round"/>' : ''}`;
+            return `<g class="pet" id="pet">
+                <ellipse cx="200" cy="222" rx="100" ry="76" fill="${p.fur}"/>
+                <ellipse cx="200" cy="232" rx="58" ry="46" fill="${p.belly}"/>
+                ${ears}
+                <circle cx="200" cy="120" r="72" fill="${p.fur}"/>
+                <circle cx="174" cy="114" r="10" fill="#3D3551"/><circle cx="226" cy="114" r="10" fill="#3D3551"/>
+                <circle cx="177" cy="110" r="3.5" fill="#fff"/><circle cx="229" cy="110" r="3.5" fill="#fff"/>
+                <ellipse cx="150" cy="140" rx="14" ry="9" fill="#FF8FB1" opacity="0.5"/><ellipse cx="250" cy="140" rx="14" ry="9" fill="#FF8FB1" opacity="0.5"/>
+                ${snout}
+                <path d="M186 160 Q200 172 214 160" fill="none" stroke="#3D3551" stroke-width="4" stroke-linecap="round"/>
+            </g>`;
+        }
+        function sceneSVG(kind) {
+            return `<svg viewBox="0 0 400 320" id="scene" aria-hidden="true">
+                <rect x="20" y="20" width="60" height="44" rx="10" fill="#fff" opacity="0.8"/><rect x="320" y="30" width="56" height="40" rx="10" fill="#fff" opacity="0.8"/>
+                ${petSVG(kind)}
+                <g id="mud"></g><g id="bubbles"></g><g id="drops"></g><g id="worn"></g><g id="sparkles"></g>
+                <path d="M30 240 H370 Q366 308 300 312 H100 Q34 308 30 240 Z" fill="#fff"/>
+                <path d="M30 240 H370" stroke="#BFE3F5" stroke-width="10" stroke-linecap="round"/>
+                <rect x="70" y="306" width="18" height="12" rx="4" fill="#C9D6E2"/><rect x="312" y="306" width="18" height="12" rx="4" fill="#C9D6E2"/>
+                <g class="duck" id="duck"><ellipse cx="330" cy="236" rx="22" ry="14" fill="#FFD54A"/><circle cx="342" cy="220" r="11" fill="#FFD54A"/><path d="M351 220 l10 3 l-10 3 Z" fill="#FF9F43"/><circle cx="345" cy="217" r="2" fill="#3D3551"/></g>
+            </svg>`;
+        }
+
+        const start = $('#start'), bath = $('#bath');
+        Kit.topbar({ onBack: () => goStart() });
+        function goStart() { Kit.show(start, { back: false }); Kit.tint('#DDF3FF'); }
+
+        let pet = 'puppy', stepIndex = 0, items = [], worn = new Set(), rubbing = null, giggleAt = 0;
+        const svgEl = () => $('#scene');
+        function add(parent, tag, attrs) {
+            const el = document.createElementNS(NS, tag);
+            Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+            parent.appendChild(el);
+            return el;
+        }
+        // Spots on the head and body where mud, bubbles and drops can sit.
+        function spots(n) {
+            const list = [];
+            let guard = 0;
+            while (list.length < n && guard++ < 400) {
+                const onHead = Math.random() < 0.45;
+                const x = onHead ? 200 + (Math.random() - 0.5) * 120 : 200 + (Math.random() - 0.5) * 170;
+                const y = onHead ? 120 + (Math.random() - 0.5) * 110 : 205 + Math.random() * 35;
+                if (list.every(p => Math.hypot(p.x - x, p.y - y) > 34)) list.push({ x, y });
+            }
+            return list;
+        }
+        function fill(step) {
+            items = [];
+            if (step === 'scrub') {
+                spots(11).forEach(({ x, y }, i) => {
+                    const g = $('#mud');
+                    const r = 18 + Math.random() * 10;
+                    const el = add(g, 'path', { d: `M${x - r} ${y} Q${x - r - 6} ${y - r} ${x} ${y - r + 2} Q${x + r + 8} ${y - r - 4} ${x + r} ${y + 2} Q${x + r + 4} ${y + r} ${x + 2} ${y + r - 2} Q${x - r - 4} ${y + r + 6} ${x - r} ${y} Z`, fill: i % 2 ? '#8B5E3C' : '#A47148' });
+                    items.push({ x, y, el });
+                });
+            } else if (step === 'rinse') {
+                spots(12).forEach(({ x, y }) => {
+                    const el = add($('#bubbles'), 'circle', { cx: x, cy: y, r: 12 + Math.random() * 10, fill: '#fff', 'fill-opacity': 0.75, stroke: '#9AD7F5', 'stroke-width': 3 });
+                    items.push({ x, y, el });
+                });
+            } else if (step === 'dry') {
+                spots(12).forEach(({ x, y }) => {
+                    const el = add($('#drops'), 'path', { d: `M${x} ${y - 14} Q${x + 10} ${y} ${x} ${y + 8} Q${x - 10} ${y} ${x} ${y - 14} Z`, fill: '#5BC0F5' });
+                    items.push({ x, y, el });
+                });
+            }
+        }
+        function renderSteps() {
+            $('#steps').innerHTML = STEPS.map((s, i) => `<span class="step${i === stepIndex ? ' now' : i < stepIndex ? ' done' : ''}" aria-hidden="true">${s.icon}</span>`).join('');
+            const s = STEPS[stepIndex];
+            $('#prompt').textContent = T(...s.say);
+            $('#cursor').textContent = s.tool;
+            $('#wear').hidden = s.id !== 'dress';
+            $('#next').hidden = s.id !== 'dress';
+        }
+        function sayStep() { say(...STEPS[stepIndex].say); }
+        function goStep(i) {
+            stepIndex = i;
+            renderSteps();
+            fill(STEPS[i].id);
+            sayStep();
+            if (STEPS[i].id === 'dress') renderWear();
+        }
+        function stepDone() {
+            const s = STEPS[stepIndex];
+            sfx.cheer();
+            shine(6);
+            Kit.bounce($('#pet'), 'giggle');
+            const lines = { scrub: ['No more mud!', `Plus de boue${NBSP}!`], rinse: ['Squeaky clean!', `Tout propre${NBSP}!`], dry: ['All dry and fluffy!', `Tout sec et tout doux${NBSP}!`] };
+            say(...lines[s.id]);
+            Kit.later(() => goStep(stepIndex + 1), 1500);
+        }
+        function shine(n) {
+            for (let i = 0; i < n; i++) {
+                const { x, y } = spots(1)[0] || { x: 200, y: 140 };
+                const t = add($('#sparkles'), 'text', { x, y, 'font-size': 26, class: 'shine', 'text-anchor': 'middle' });
+                t.textContent = '✨';
+                t.style.animationDelay = `${i * 0.12}s`;
+                setTimeout(() => t.remove(), 1700 + i * 120);
+            }
+        }
+
+        // ---------- Rubbing ----------
+        function toScene(event) {
+            const m = svgEl().getScreenCTM();
+            return m ? new DOMPoint(event.clientX, event.clientY).matrixTransform(m.inverse()) : { x: 0, y: 0 };
+        }
+        function moveCursor(event) {
+            const r = $('#stage').getBoundingClientRect();
+            $('#cursor').style.left = event.clientX - r.left + 'px';
+            $('#cursor').style.top = event.clientY - r.top + 'px';
+        }
+        let lastRubSound = 0;
+        function rubAt(p) {
+            const s = STEPS[stepIndex].id;
+            if (s === 'dress') return;
+            let cleaned = 0;
+            items = items.filter(it => {
+                if (Math.hypot(it.x - p.x, it.y - p.y) < 44) { it.el.remove(); cleaned++; return false; }
+                return true;
+            });
+            const now = performance.now();
+            if (now - lastRubSound > 140) {
+                lastRubSound = now;
+                if (s === 'scrub') { Kit.noise({ dur: 0.12, freq: 2400, vol: 0.05 }); if (Math.random() < 0.6) add($('#bubbles'), 'circle', { cx: p.x + (Math.random() - 0.5) * 30, cy: p.y + (Math.random() - 0.5) * 30, r: 6 + Math.random() * 8, fill: '#fff', 'fill-opacity': 0.8, stroke: '#9AD7F5', 'stroke-width': 2 }); }
+                else if (s === 'rinse') { Kit.noise({ dur: 0.18, freq: 3200, q: 0.4, vol: 0.06 }); add($('#drops'), 'circle', { cx: p.x, cy: p.y + 10, r: 4, fill: '#7FD0F7' }).animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(60px)', opacity: 0 }], { duration: 600 }).onfinish = function () { this.effect.target.remove(); }; }
+                else Kit.noise({ dur: 0.1, freq: 800, vol: 0.04 });
+            }
+            if (cleaned) {
+                sfx.plink(Math.floor(Math.random() * 8));
+                const r = svgEl().getBoundingClientRect();
+                Kit.burst(r.left + p.x / 400 * r.width, r.top + p.y / 320 * r.height, s === 'scrub' ? ['#fff', '#BFE3F5'] : ['#7FD0F7', '#fff'], 6, 0.6);
+                if (!items.length) {
+                    if (s === 'rinse') { $('#bubbles').innerHTML = ''; }
+                    stepDone();
+                }
+            }
+        }
+        $('#stage').addEventListener('pointerdown', event => {
+            const target = event.target;
+            if (target.closest && target.closest('#duck')) { sfx.squeak(); Kit.bounce($('#duck')); return; }
+            if (rubbing !== null || !event.isPrimary) return;
+            event.preventDefault();
+            rubbing = { id: event.pointerId, moved: 0, x: event.clientX, y: event.clientY };
+            try { $('#stage').setPointerCapture(event.pointerId); } catch (e) { /* ignore */ }
+            $('#stage').classList.add('rubbing');
+            $('#cursor').classList.remove('idle');
+            moveCursor(event);
+            rubAt(toScene(event));
+        });
+        $('#stage').addEventListener('pointermove', event => {
+            if (event.pointerType === 'mouse' && rubbing === null && STEPS[stepIndex].tool) { $('#cursor').classList.remove('idle'); moveCursor(event); }
+            if (!rubbing || event.pointerId !== rubbing.id) return;
+            rubbing.moved += Math.hypot(event.clientX - rubbing.x, event.clientY - rubbing.y);
+            rubbing.x = event.clientX; rubbing.y = event.clientY;
+            moveCursor(event);
+            rubAt(toScene(event));
+        });
+        const stopRub = event => {
+            if (!rubbing || (event && event.pointerId !== rubbing.id)) return;
+            // A tap (no rubbing) on the pet makes it giggle.
+            if (rubbing.moved < 8 && event && event.target.closest && event.target.closest('#pet') && performance.now() - giggleAt > 600) {
+                giggleAt = performance.now();
+                Kit.bounce($('#pet'), 'giggle');
+                Kit.tone(660, { to: 880, dur: 0.12, vol: 0.1 }); Kit.tone(880, { at: 0.12, to: 740, dur: 0.12, vol: 0.1 });
+            }
+            rubbing = null;
+            $('#stage').classList.remove('rubbing');
+            if (event && event.pointerType !== 'mouse') $('#cursor').classList.add('idle');
+        };
+        $('#stage').addEventListener('pointerup', stopRub);
+        $('#stage').addEventListener('pointercancel', stopRub);
+        $('#stage').addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !rubbing) $('#cursor').classList.add('idle'); });
+        // Keyboard: Space / Enter cleans the next spot.
+        $('#stage').addEventListener('keydown', event => {
+            if (event.key !== ' ' && event.key !== 'Enter') return;
+            event.preventDefault();
+            if (items.length) rubAt({ x: items[0].x, y: items[0].y });
+        });
+
+        // ---------- Dress up ----------
+        function renderWear() {
+            $('#wear').innerHTML = WEAR.map(w => `<button type="button" data-id="${w.id}" aria-pressed="${worn.has(w.id)}" aria-label="${w.id}">${w.e}</button>`).join('');
+            $('#worn').innerHTML = '';
+            WEAR.filter(w => worn.has(w.id)).forEach(w => { const t = add($('#worn'), 'text', { x: w.x, y: w.y, 'font-size': w.s, 'text-anchor': 'middle', 'dominant-baseline': 'middle' }); t.textContent = w.e; });
+        }
+        $('#wear').addEventListener('click', event => {
+            const b = event.target.closest('button');
+            if (!b) return;
+            const id = b.dataset.id;
+            if (worn.has(id)) worn.delete(id);
+            else {
+                worn.add(id);
+                if (id === 'hat') worn.delete('crown');
+                if (id === 'crown') worn.delete('hat');
+            }
+            renderWear();
+            sfx.pop();
+            Kit.bounce($('#pet'), 'giggle');
+            if (worn.has(id)) { shine(3); say('So cute!', `Trop mignon${NBSP}!`); }
+        });
+        $('#next').addEventListener('click', () => {
+            sfx.fanfare();
+            Kit.confetti(110);
+            Kit.cheer(T('🛁 All clean!', `🛁 Tout propre${NBSP}!`), 1600);
+            const order = Object.keys(PETS);
+            Kit.later(() => openBath(order[(order.indexOf(pet) + 1) % order.length]), 1600);
+        });
+        $('#say').addEventListener('click', sayStep);
+
+        function openBath(kind) {
+            pet = kind;
+            worn = new Set();
+            Kit.show(bath);
+            Kit.tint('#DDF3FF');
+            $('#stage').querySelectorAll('svg').forEach(s => s.remove());
+            $('#stage').insertAdjacentHTML('afterbegin', sceneSVG(kind));
+            goStep(0);
+        }
+        document.querySelectorAll('[data-pet]').forEach(b => b.addEventListener('click', () => { sfx.pop(); openBath(b.dataset.pet); }));
+        Kit.onLang(() => { if (!bath.hidden) renderSteps(); });
+        goStart();
+    }());
+    </script>
 </body>
 </html>

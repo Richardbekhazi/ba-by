@@ -1,1324 +1,563 @@
 <!DOCTYPE html>
-<html lang="en" data-title-fr="ABC">
+<html lang="en" data-title-fr="L'heure de l'ABC">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Meet the letters A to Z, find the matching picture and pop letter balloons. Spoken in English and French.">
     <title>ABC Time</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🅰️</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
     <script src="/assets/js/site-lang.js?v=20261028"></script>
+    <script src="/assets/js/kit.js?v=20261029"></script>
+    <style>
+        :root { --tint: #FFE3EC; }
 
-    <style data-impeccable-ignore="hard-offset-shadow bounce-easing">
-        :root {
-            --tint: #FFE9C7;
-            --text: #3D3551;
-            --muted: #8A7FA0;
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Nunito', sans-serif;
-            color: var(--text);
-            background: linear-gradient(165deg, #FFFBF2 0%, var(--tint) 100%);
-            transition: background 0.6s ease;
-            height: 100vh;
-            height: 100dvh;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        /* 🔤 FLOATING LETTERS */
-        .sky {
-            position: fixed;
-            inset: 0;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 0;
-            background-image: radial-gradient(rgba(255,255,255,0.7) 2px, transparent 2.5px);
-            background-size: 30px 30px;
-        }
-        .sky span {
-            position: absolute;
-            bottom: -140px;
-            font-family: 'Fredoka One', cursive;
-            line-height: 1;
-            color: #fff;
-            opacity: 0.7;
-            animation: floatUp linear infinite;
-        }
-        .sky span:nth-child(1) { left: 5%;  font-size: 84px;  animation-duration: 21s; }
-        .sky span:nth-child(2) { left: 23%; font-size: 44px;  animation-duration: 15s; animation-delay: -7s; }
-        .sky span:nth-child(3) { left: 46%; font-size: 104px; animation-duration: 27s; animation-delay: -14s; }
-        .sky span:nth-child(4) { left: 67%; font-size: 56px;  animation-duration: 18s; animation-delay: -3s; }
-        .sky span:nth-child(5) { left: 85%; font-size: 92px;  animation-duration: 30s; animation-delay: -20s; }
-        @keyframes floatUp {
-            from { transform: translateY(0) rotate(-8deg); }
-            to { transform: translateY(-130vh) rotate(10deg); }
-        }
-
-        #particles {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-        }
-
-        /* 🏠 ROUND TOP BUTTONS */
-        .round-btn {
-            position: fixed;
-            top: max(14px, env(safe-area-inset-top));
-            width: 52px;
-            height: 52px;
-            border: 0;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            text-decoration: none;
-            cursor: pointer;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.08);
-            z-index: 100;
-            transition: transform 0.15s;
-        }
-        .round-btn:hover { transform: scale(1.08) rotate(-6deg); }
-        .round-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
-        .round-btn:focus-visible { outline: 4px solid #FF8A3D; outline-offset: 3px; }
-        .home-btn { left: max(14px, env(safe-area-inset-left)); }
-        .back-btn { left: calc(max(14px, env(safe-area-inset-left)) + 62px); }
-        .back-btn[hidden] { display: none; }
-
-        ::selection { background: #FFD9A8; color: var(--text); }
-
-        /* 📄 SCREENS */
-        .screen {
-            position: relative;
-            z-index: 1;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            justify-content: safe center;
-            padding: 80px 16px 28px;
-            text-align: center;
-        }
-        .screen[hidden] { display: none; }
-
-        h1, h2 {
-            font-family: 'Fredoka One', cursive;
-            line-height: 1.05;
-            margin: 0;
-            font-weight: 400;
-        }
-        h1 {
-            font-size: 3.2rem;
-            color: #E0561A;
-            text-shadow: 0 4px 0 #fff, 0 8px 18px rgba(0,0,0,0.12);
-        }
-        .subtitle {
-            display: inline-block;
-            margin: 10px 0 0;
-            padding: 6px 18px;
-            border-radius: 999px;
-            background: #fff;
-            color: #C2531A;
-            font-weight: 800;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.06);
-        }
-
-        /* 🧱 JELLY LETTER BLOCKS */
+        /* Letter blocks: chunky jelly cubes in the letter's colour */
         .block {
-            --size: 180px;
-            --c: #FF5A5F;
-            --cd: #C9303A;
+            --c: #FF5A5F; --cd: #C9303A;
             position: relative;
-            width: var(--size);
-            height: var(--size);
-            flex: none;
             border: 0;
             padding: 0;
-            cursor: pointer;
-            border-radius: 30%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 55%), var(--c);
-            box-shadow: 0 calc(var(--size) * 0.065) 0 var(--cd), 0 calc(var(--size) * 0.12) calc(var(--size) * 0.16) rgba(60,40,90,0.18);
-            transform-origin: 50% 100%;
-            animation: idle 3.4s ease-in-out infinite;
-        }
-        .block::before {
-            content: '';
-            position: absolute;
-            left: 14%;
-            top: 9%;
-            width: 30%;
-            height: 10%;
-            border-radius: 999px;
-            background: #fff;
-            opacity: 0.5;
-        }
-        .block::after {
-            content: '';
-            position: absolute;
-            left: 49%;
-            top: 9.5%;
-            width: 7%;
-            height: 7%;
-            border-radius: 50%;
-            background: #fff;
-            opacity: 0.5;
-        }
-        .block-letter {
-            position: relative;
-            display: block;
-            font-family: 'Fredoka One', cursive;
-            font-size: calc(var(--size) * 0.66);
-            line-height: 1;
+            border-radius: 22%;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--c) 70%, #fff), var(--c));
+            box-shadow: 0 7px 0 var(--cd), 0 12px 18px rgba(61,53,81,0.16);
             color: #fff;
-            text-shadow: 0 calc(var(--size) * 0.03) 0 var(--cd);
-            transform: translateY(-2%);
-        }
-        .block:focus-visible { outline: 5px solid var(--cd); outline-offset: 6px; }
-        @keyframes idle {
-            0%, 100% { transform: scale(1, 1); }
-            50% { transform: scale(1.035, 0.965); }
-        }
-        .block.squish { animation: squish 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes squish {
-            0% { transform: scale(1, 1); }
-            25% { transform: scale(1.18, 0.8); }
-            55% { transform: scale(0.9, 1.12) translateY(-12px); }
-            80% { transform: scale(1.04, 0.97); }
-            100% { transform: scale(1, 1); }
-        }
-        .block.drop-in { animation: dropIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-        @keyframes dropIn {
-            from { transform: translateY(-70px) scale(0.6); opacity: 0; }
-            to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-
-        /* The picture friend that jumps onto the block after a right answer. */
-        .block-friend {
-            position: absolute;
-            right: -14%;
-            bottom: -8%;
-            width: 44%;
-            height: 44%;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: calc(var(--size) * 0.26);
+            font-family: 'Fredoka One', system-ui, sans-serif;
             line-height: 1;
-            box-shadow: 0 5px 0 rgba(0,0,0,0.08), 0 10px 18px rgba(0,0,0,0.12);
-            transform: scale(0);
-            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .block-friend.show { transform: scale(1) rotate(8deg); }
-
-        /* ▶️ START SCREEN */
-        .title-blocks {
-            display: flex;
-            gap: 14px;
-            margin-bottom: 26px;
-        }
-        .title-blocks .block { --size: 108px; animation: dropIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-        .title-blocks .block:nth-child(1) { rotate: -8deg; }
-        .title-blocks .block:nth-child(2) { rotate: 4deg; translate: 0 -14px; animation-delay: 0.1s; }
-        .title-blocks .block:nth-child(3) { rotate: -3deg; animation-delay: 0.2s; }
-        .title-blocks .block.idle { animation: idle 3.4s ease-in-out infinite; }
-        .title-blocks .block.idle:nth-child(2) { animation-delay: -1.1s; }
-        .title-blocks .block.idle:nth-child(3) { animation-delay: -2.2s; }
-        .title-blocks .block.squish { animation: squish 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
-
-        .start-main, .level-picker {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .start-main[hidden], .level-picker[hidden] { display: none; }
-        .start-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            width: min(380px, 100%);
-            margin-top: 30px;
-        }
-        .start-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            border: 0;
-            border-radius: 999px;
-            padding: 18px 24px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #fff;
-            background: #27A04B;
-            box-shadow: 0 7px 0 #1C7A38, 0 14px 24px rgba(0,0,0,0.12);
-            transition: transform 0.15s, box-shadow 0.15s;
-            animation: popUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        .start-btn[hidden] { display: none; }
-        .start-btn + .start-btn { animation-delay: 0.08s; }
-        .start-btn + .start-btn + .start-btn { animation-delay: 0.16s; }
-        .start-btn:hover { transform: translateY(-3px) scale(1.02); }
-        .start-btn:active { transform: translateY(6px); box-shadow: 0 1px 0 #1C7A38; }
-        .start-btn:focus-visible { outline: 4px solid #FF7A3D; outline-offset: 4px; }
-        .start-btn small {
-            font-family: 'Nunito', sans-serif;
-            font-weight: 800;
-            font-size: 0.9rem;
-            background: rgba(255,255,255,0.25);
-            padding: 4px 10px;
-            border-radius: 999px;
-        }
-        .start-btn.secondary {
-            background: #fff;
-            color: #C2531A;
-            font-size: 1.25rem;
-            box-shadow: 0 7px 0 #FFD3B0, 0 14px 24px rgba(0,0,0,0.08);
-        }
-        .start-btn.secondary:active { box-shadow: 0 1px 0 #FFD3B0; }
-        .start-btn.choose {
-            background: #fff;
-            color: #2370BA;
-            font-size: 1.15rem;
-            box-shadow: 0 7px 0 #BFDFFF, 0 14px 24px rgba(0,0,0,0.08);
-        }
-        .start-btn.choose:active { box-shadow: 0 1px 0 #BFDFFF; }
-        .start-btn.choose.locked { color: #9AA3B2; box-shadow: 0 7px 0 #DDE2EA, 0 14px 24px rgba(0,0,0,0.06); }
-        .start-btn.choose.locked::after { content: '🔒'; font-size: 1rem; }
-        .wobble { animation: wobble 0.45s ease-in-out !important; }
-
-        /* 🔢 LEVEL PICKER */
-        .level-picker h2 {
-            color: #2370BA;
-            font-size: 2.2rem;
-            margin: 0 0 20px;
-            text-shadow: 0 3px 0 #fff;
-        }
-        .level-grid {
             display: grid;
-            grid-template-columns: repeat(4, 128px);
-            justify-content: center;
-            gap: 20px 18px;
-            width: 100%;
-            padding: 6px 4px 18px;
+            place-items: center;
+            -webkit-text-stroke: 2px rgba(0,0,0,0.08);
+            text-shadow: 0 3px 0 var(--cd);
+            transition: transform 0.15s;
         }
-        .level-tile {
-            --c: #FF7A7A;
-            --cd: #E05555;
-            position: relative;
+        .block::before { content: ''; position: absolute; left: 14%; top: 10%; width: 32%; height: 11%; border-radius: 99px; background: rgba(255,255,255,0.5); }
+        .block:active { transform: translateY(6px); box-shadow: 0 1px 0 var(--cd); }
+
+        /* ---- Meet the letters ---- */
+        .meet-stage {
             width: 100%;
-            aspect-ratio: 1;
+            max-width: 760px;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 18px;
+            align-items: center;
+            padding: 18px;
+            border-radius: 34px;
+            background: #fff;
+            box-shadow: 0 8px 0 rgba(61,53,81,0.08);
+        }
+        .meet-stage .block { width: clamp(120px, 28vw, 180px); height: clamp(120px, 28vw, 180px); font-size: clamp(4.5rem, 14vw, 7.5rem); }
+        .meet-stage .block small { position: absolute; right: 12%; bottom: 8%; font-size: 0.38em; text-shadow: none; opacity: 0.95; }
+        .meet-friend { display: flex; flex-direction: column; align-items: center; gap: 6px; border: 0; background: none; padding: 0; }
+        .meet-friend .pic { font-size: clamp(4.5rem, 16vw, 7rem); line-height: 1; filter: drop-shadow(0 8px 6px rgba(61,53,81,0.18)); }
+        .meet-friend .word { font-family: 'Fredoka One', system-ui, sans-serif; font-size: clamp(1.8rem, 7vw, 2.8rem); }
+        .first { color: var(--wc, var(--pink)); }
+        .meet-friend .more { font-weight: 900; color: var(--muted); font-size: 0.95rem; }
+        .alphabet {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+            gap: 12px;
+        }
+        .alphabet .block { aspect-ratio: 1; font-size: 2.2rem; animation: kit-rise 0.4s backwards; }
+        .alphabet .block.seen::after { content: '⭐'; position: absolute; top: -10px; right: -8px; font-size: 1.1rem; text-shadow: none; -webkit-text-stroke: 0; }
+
+        /* ---- Find the picture ---- */
+        .find-top { display: flex; align-items: center; gap: 16px; }
+        .find-top .block { width: clamp(96px, 22vw, 140px); height: clamp(96px, 22vw, 140px); font-size: clamp(3.6rem, 11vw, 5.6rem); }
+        .find-top .friend-spot { position: absolute; right: -26px; bottom: -18px; font-size: 3rem; text-shadow: none; -webkit-text-stroke: 0; transform: scale(0); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+        .find-top .friend-spot.show { transform: scale(1); }
+        .cards { width: 100%; max-width: 900px; display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 14px; }
+        .pic-card {
             border: 0;
-            border-radius: 30%;
-            background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0) 55%), var(--c);
-            color: #fff;
-            font-family: 'Fredoka One', cursive;
+            border-radius: 28px;
+            background: var(--plate, #FFF1DC);
+            padding: 14px 8px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-            box-shadow: 0 7px 0 var(--cd), 0 12px 18px rgba(0,0,0,0.10);
-            transition: transform 0.15s;
-            animation: popUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            gap: 4px;
+            box-shadow: 0 7px 0 rgba(61,53,81,0.1);
+            animation: kit-rise 0.45s cubic-bezier(0.34,1.56,0.64,1) backwards;
+            transition: transform 0.15s, opacity 0.3s;
         }
-        .tile-num { font-size: 2.8rem; line-height: 1; text-shadow: 0 3px 0 var(--cd); }
-        .tile-cards { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; max-width: 76%; }
-        .tile-cards i {
-            width: 13px;
-            height: 15px;
-            border-radius: 4px;
-            background: #fff;
-            box-shadow: 0 2px 0 var(--cd);
+        .pic-card .pic { font-size: clamp(3.4rem, 12vw, 5.2rem); line-height: 1.1; }
+        .pic-card .word { font-family: 'Fredoka One', system-ui, sans-serif; font-size: clamp(1rem, 3.6vw, 1.4rem); }
+        .pic-card.dim { opacity: 0.35; transform: scale(0.94); }
+        .pic-card.right { box-shadow: 0 7px 0 var(--green-d), 0 0 0 5px var(--green); }
+
+        /* ---- Letter balloons ---- */
+        .sky {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            flex: 1;
+            min-height: 360px;
+            border-radius: 34px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #9BDCFF 0%, #D6F1FF 70%, #EAF9E5 100%);
+            box-shadow: inset 0 -26px 0 #9BDB8A, 0 8px 0 rgba(61,53,81,0.08);
+            touch-action: manipulation;
         }
-        .level-tile:hover { transform: translateY(-3px) scale(1.05); }
-        .level-tile:active { transform: translateY(6px); box-shadow: 0 1px 0 var(--cd); }
-        .level-tile:focus-visible { outline: 4px solid var(--cd); outline-offset: 4px; }
-        .level-tile.locked {
-            background: #E8ECF2;
-            color: #A7B0BE;
-            cursor: default;
-            box-shadow: 0 7px 0 #D2D8E1, 0 12px 18px rgba(0,0,0,0.06);
-        }
-        .level-tile.locked .tile-num { text-shadow: none; }
-        .level-tile.locked .tile-cards i { background: #F6F8FB; box-shadow: 0 2px 0 #D2D8E1; }
-        .tile-lock {
+        .sky::before, .sky::after {
+            content: '';
             position: absolute;
-            top: -8px;
-            right: -6px;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            width: 140px; height: 46px;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 40px -22px 0 6px rgba(255,255,255,0.9);
+            animation: drift 40s linear infinite;
         }
-        .level-picker .start-btn { width: min(320px, 100%); margin-top: 8px; }
-
-        /* 🎮 GAME */
-        #game-screen { padding-top: 84px; }
-        .hud {
-            position: fixed;
-            top: max(14px, env(safe-area-inset-top));
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 90;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 14px 6px 6px;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.92);
-            box-shadow: 0 5px 0 rgba(0,0,0,0.06), 0 10px 20px rgba(0,0,0,0.06);
-        }
-        .hud[hidden] { display: none; }
-        .level-badge {
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.05rem;
+        .sky::before { top: 12%; left: -160px; }
+        .sky::after { top: 34%; left: -160px; animation-duration: 55s; animation-delay: -25s; transform: scale(0.7); }
+        @keyframes drift { to { left: calc(100% + 160px); } }
+        .balloon {
+            --c: #FF5A5F; --cd: #C9303A;
+            position: absolute;
+            bottom: -170px;
+            width: clamp(78px, 15vw, 110px);
+            aspect-ratio: 0.82;
+            border: 0;
+            padding: 0;
+            border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+            background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.75) 0 8%, transparent 9%), radial-gradient(circle at 40% 35%, color-mix(in srgb, var(--c) 65%, #fff), var(--c) 70%);
+            box-shadow: inset -8px -10px 0 color-mix(in srgb, var(--cd) 40%, transparent);
             color: #fff;
-            background: #FF7A3D;
-            padding: 6px 14px;
-            border-radius: 999px;
-            box-shadow: 0 3px 0 #C2531A;
-            white-space: nowrap;
+            font-family: 'Fredoka One', system-ui, sans-serif;
+            font-size: clamp(2.3rem, 7vw, 3.3rem);
+            text-shadow: 0 3px 0 var(--cd);
+            animation: rise var(--t, 8s) linear forwards;
         }
-        .stars { display: flex; gap: 3px; font-size: 1.45rem; line-height: 1; }
-        .stars span { display: inline-block; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s, opacity 0.3s; }
-        .stars span.off { filter: grayscale(1); opacity: 0.28; }
-        .stars span.pop { transform: scale(1.6) rotate(25deg); }
-
-        .stage {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 22px;
-            width: 100%;
-        }
-        .letter-side {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 26px;
-        }
-        .prompt {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 8px 8px 22px;
-            border-radius: 999px;
-            background: #fff;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.06), 0 12px 24px rgba(0,0,0,0.08);
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.55rem;
-            color: var(--text);
-        }
-        .prompt .first { color: var(--cd); }
-        .say-again {
-            width: 48px;
-            height: 48px;
-            flex: none;
-            border: 0;
-            border-radius: 50%;
-            background: #FFF1E3;
-            font-size: 22px;
-            cursor: pointer;
-            transition: transform 0.15s;
-        }
-        .say-again:active { transform: scale(0.9); }
-        .say-again:focus-visible { outline: 4px solid #FF7A3D; outline-offset: 2px; }
-
-        /* 🃏 PICTURE CARDS */
-        .choices {
-            --card: 190px;
-            --gap: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: var(--gap);
-            width: 100%;
-            max-width: calc(var(--card) * 4 + var(--gap) * 3);
-            padding-bottom: 10px;
-        }
-        .choices.n2 { --card: 210px; }
-        .choices.n3 { --card: 196px; }
-        .choices.n4 { --card: 176px; }
-        .choices.n5, .choices.n6 { --card: 160px; max-width: calc(var(--card) * 3 + var(--gap) * 2); }
-        .card {
-            position: relative;
-            width: var(--card);
-            border: 0;
-            padding: calc(var(--card) * 0.07) calc(var(--card) * 0.07) calc(var(--card) * 0.08);
-            border-radius: calc(var(--card) * 0.2);
-            background: #fff;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: calc(var(--card) * 0.05);
-            font: inherit;
-            color: inherit;
-            box-shadow: 0 8px 0 #EADFD3, 0 16px 26px rgba(80,50,30,0.10);
-            transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s, opacity 0.35s, filter 0.35s;
-            animation: popUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-        }
-        .card:hover { transform: translateY(-5px) rotate(-1.5deg); }
-        .card:active { transform: translateY(7px) scale(0.97); box-shadow: 0 1px 0 #EADFD3, 0 6px 12px rgba(80,50,30,0.08); }
-        .card:focus-visible { outline: 5px solid #FF7A3D; outline-offset: 4px; }
-        .card-pic {
-            width: 100%;
-            aspect-ratio: 1.15;
-            border-radius: calc(var(--card) * 0.15);
-            background:
-                radial-gradient(circle at 22% 20%, rgba(255,255,255,0.85) 0 10%, transparent 11%),
-                radial-gradient(circle at 82% 84%, rgba(255,255,255,0.6) 0 7%, transparent 8%),
-                var(--plate, #FFF1DC);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: calc(var(--card) * 0.44);
-            line-height: 1;
-        }
-        .card-pic span { display: inline-block; animation: bob 2.8s ease-in-out infinite; }
-        .card:nth-child(2n) .card-pic span { animation-delay: -0.9s; }
-        .card:nth-child(3n) .card-pic span { animation-delay: -1.8s; }
-        .card-word {
-            font-family: 'Fredoka One', cursive;
-            font-size: calc(var(--card) * 0.12);
-            line-height: 1.1;
-            color: var(--text);
-            overflow-wrap: anywhere;
-        }
-        .card-word .first {
-            color: var(--cd);
-            font-size: 1.3em;
-        }
-        .card.in { animation: none; }
-        .card.wrong-try { animation: wobble 0.45s ease-in-out; }
-        .card.dim {
-            opacity: 0.42;
-            filter: saturate(0.35);
-            transform: scale(0.92);
-            pointer-events: none;
-            box-shadow: 0 3px 0 #EADFD3;
-        }
-        .card.right {
-            transform: translateY(-10px) scale(1.06);
-            box-shadow: 0 10px 0 var(--cd), 0 22px 34px rgba(80,50,30,0.16);
-        }
-        .card.right .card-pic span { animation: hop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .choices.done .card:not(.right) { opacity: 0.42; filter: saturate(0.35); transform: scale(0.92); }
-
-        .flyer {
-            position: fixed;
-            z-index: 110;
-            pointer-events: none;
-            line-height: 1;
-            transform: translate(-50%, -50%);
-        }
-
-        .cheer {
-            position: fixed;
+        .balloon::after {
+            content: '';
+            position: absolute;
             left: 50%;
-            top: 50%;
-            z-index: 120;
-            transform: translate(-50%, -50%) scale(0);
-            padding: 22px 34px;
-            border-radius: 36px;
-            background: #fff;
-            font-family: 'Fredoka One', cursive;
-            font-size: 2.2rem;
-            color: #FF7A3D;
-            white-space: nowrap;
-            box-shadow: 0 10px 0 #FF7A3D, 0 24px 50px rgba(0,0,0,0.18);
-            pointer-events: none;
-            transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+            top: 100%;
+            width: 2px;
+            height: 70px;
+            background: rgba(61,53,81,0.35);
         }
-        .cheer.show { transform: translate(-50%, -50%) scale(1); }
+        .balloon > span { display: inline-block; pointer-events: none; }
+        .balloon.popped { animation: popped 0.25s ease-out forwards; }
+        @keyframes rise { to { transform: translateY(calc(-1 * (var(--sky-h, 600px) + 260px))) rotate(var(--sway, 4deg)); } }
+        @keyframes popped { to { scale: 1.6; opacity: 0; } }
 
-        @keyframes popUp {
-            from { opacity: 0; transform: translateY(24px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes bob {
-            0%, 100% { transform: translateY(0) rotate(-3deg); }
-            50% { transform: translateY(-5px) rotate(3deg); }
-        }
-        @keyframes hop {
-            0% { transform: scale(1); }
-            40% { transform: scale(1.3) translateY(-10px) rotate(-8deg); }
-            100% { transform: scale(1); }
-        }
-        @keyframes wobble {
-            0%, 100% { transform: rotate(0); }
-            20% { transform: rotate(-7deg); }
-            40% { transform: rotate(6deg); }
-            60% { transform: rotate(-4deg); }
-            80% { transform: rotate(2deg); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .sky span, .block, .title-blocks .block.idle, .card-pic span { animation: none !important; }
-        }
-
-        /* 📱 PHONES */
-        @media (max-width: 600px) {
-            h1 { font-size: 2.5rem; }
-            .subtitle { font-size: 0.95rem; }
-            .title-blocks { gap: 10px; margin-bottom: 20px; }
-            .title-blocks .block { --size: 84px; }
-            .start-btn { font-size: 1.3rem; padding: 16px 20px; }
-            .start-btn.secondary { font-size: 1.1rem; }
-            .start-btn.choose { font-size: 1.05rem; }
-            .level-picker h2 { font-size: 1.8rem; }
-            .level-grid { grid-template-columns: repeat(3, minmax(0, 100px)); gap: 16px 14px; }
-            .tile-num { font-size: 2.3rem; }
-            .tile-cards i { width: 10px; height: 12px; }
-
-            #game-screen { padding: 124px 12px 20px; }
-            .hud { gap: 6px; padding: 5px 10px 5px 5px; left: auto; right: max(12px, env(safe-area-inset-right)); transform: none; top: calc(max(14px, env(safe-area-inset-top)) + 58px); }
-            .level-badge { font-size: 0.9rem; padding: 4px 10px; }
-            .stars { font-size: 1.1rem; gap: 1px; }
-            .stage { gap: 18px; }
-            .letter-side { gap: 18px; }
-            .stage .block { --size: 132px; }
-            .prompt { font-size: 1.2rem; padding: 6px 6px 6px 16px; }
-            .say-again { width: 42px; height: 42px; font-size: 19px; }
-            .choices { --gap: 12px; }
-            .choices.n2 { --card: 148px; }
-            .choices.n3, .choices.n5, .choices.n6 { --card: calc((100vw - 24px - 24px) / 3); max-width: none; }
-            .choices.n4 { --card: 146px; max-width: calc(146px * 2 + 12px); }
-            .card { box-shadow: 0 6px 0 #EADFD3, 0 12px 20px rgba(80,50,30,0.10); }
-            .card.right { box-shadow: 0 8px 0 var(--cd), 0 16px 26px rgba(80,50,30,0.16); }
-            .card-word { font-size: max(0.82rem, calc(var(--card) * 0.12)); }
-            .cheer { font-size: 1.6rem; padding: 18px 24px; }
-        }
-        @media (max-width: 600px) and (max-height: 700px) {
-            .stage .block { --size: 108px; }
-            .title-blocks .block { --size: 70px; }
-            .start-buttons { margin-top: 20px; gap: 14px; }
-        }
-
-        /* 💻 LAPTOP / PC SCREENS: letter on the left, cards on the right, sized to the screen height */
-        @media (orientation: landscape) and (min-width: 860px) and (min-height: 601px) and (max-height: 920px) {
-            .title-blocks { margin-bottom: min(26px, 2.6vh); }
-            .title-blocks .block { --size: min(108px, 14vh); }
-            .start-buttons { margin-top: min(30px, 3vh); gap: min(18px, 2.2vh); }
-            .start-btn { padding-top: min(18px, 2.2vh); padding-bottom: min(18px, 2.2vh); }
-            .level-grid { grid-template-columns: repeat(4, min(128px, 15vh)); gap: min(20px, 2.4vh) 18px; }
-            .tile-num { font-size: min(2.8rem, 5.5vh); }
-
-            #game-screen { padding: 84px 28px 24px; }
-            .stage { flex-direction: row; justify-content: center; gap: 48px; }
-            .letter-side { gap: 20px; flex: none; }
-            .stage .block { --size: min(200px, 30vh); }
-            .choices { --gap: 18px; flex: 0 1 auto; width: auto; }
-            .choices.n2 { --card: min(210px, calc((100vh - 140px) / 1.3), calc((100vw - 460px) / 2)); max-width: none; }
-            .choices.n3 { --card: min(196px, calc((100vh - 140px) / 1.3), calc((100vw - 500px) / 3)); max-width: none; }
-            .choices.n4 { --card: min(176px, calc((100vh - 160px) / 2.5)); max-width: calc(var(--card) * 2 + var(--gap)); }
-            .choices.n5, .choices.n6 { --card: min(170px, calc((100vh - 160px) / 2.5), calc((100vw - 500px) / 3)); max-width: calc(var(--card) * 3 + var(--gap) * 2); }
-        }
-
-        /* 📐 SHORT LANDSCAPE SCREENS */
-        @media (orientation: landscape) and (max-height: 600px) {
-            .screen { padding: 12px 16px 14px 84px; }
-            h1 { font-size: 1.9rem; text-shadow: 0 3px 0 #fff; }
-            .subtitle { margin-top: 4px; font-size: 0.85rem; padding: 3px 12px; }
-            .title-blocks { margin-bottom: 10px; }
-            .title-blocks .block { --size: 62px; }
-            .start-buttons { flex-direction: row; flex-wrap: wrap; justify-content: center; width: min(640px, 100%); gap: 12px 14px; margin-top: 16px; }
-            .start-buttons .start-btn { flex: 1 1 40%; font-size: 1.15rem; padding: 12px 16px; }
-            .start-buttons #continue-btn { flex-basis: 100%; }
-            .level-picker { padding-right: 60px; }
-            .level-picker h2 { font-size: 1.5rem; margin-bottom: 8px; }
-            .level-grid { grid-template-columns: repeat(8, 76px); gap: 10px; }
-            .tile-num { font-size: 1.7rem; }
-            .tile-cards i { width: 8px; height: 10px; }
-
-            #game-screen { padding: 12px 16px 12px 84px; }
-            .hud { top: auto; bottom: max(10px, env(safe-area-inset-bottom)); left: max(14px, env(safe-area-inset-left)); right: auto; transform: none; flex-direction: column; padding: 6px; gap: 6px; border-radius: 26px; }
-            .level-badge { font-size: 0.8rem; padding: 3px 8px; }
-            .stars { flex-direction: column; font-size: 0.95rem; }
-            .stage { flex-direction: row; justify-content: center; gap: 28px; }
-            .letter-side { gap: 14px; }
-            .stage .block { --size: 120px; }
-            .prompt { font-size: 1.05rem; padding: 4px 4px 4px 14px; }
-            .say-again { width: 38px; height: 38px; font-size: 17px; }
-            .choices { --gap: 12px; flex: 0 1 auto; width: auto; max-width: calc(100vw - 340px); }
-            .choices.n2, .choices.n3 { --card: min(150px, calc((100vh - 50px) / 1.4)); }
-            .choices.n4, .choices.n5, .choices.n6 { --card: min(118px, calc((100vh - 60px) / 2.6)); max-width: calc(var(--card) * 3 + var(--gap) * 2); }
-            .choices.n4 { max-width: calc(var(--card) * 2 + var(--gap)); }
+        @media (max-width: 560px) {
+            .meet-stage { grid-template-columns: 1fr; justify-items: center; }
+            .alphabet { grid-template-columns: repeat(6, 1fr); gap: 8px; }
+            .alphabet .block { font-size: 1.6rem; }
+            .cards { gap: 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="sky" aria-hidden="true"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span></div>
-    <canvas id="particles"></canvas>
-
-    <a href="/" class="round-btn home-btn" aria-label="Back to games" title="Back to games" data-fr-aria-label="Retour aux jeux" data-fr-title="Retour aux jeux"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#FF7A45"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#E85A28" opacity="0.55"/><path d="M24 12.5 L35.5 22 V33.5 a2.5 2.5 0 0 1 -2.5 2.5 H28 V29 a4 4 0 0 0 -8 0 V36 H15 a2.5 2.5 0 0 1 -2.5 -2.5 V22 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg></a>
-    <button type="button" class="round-btn back-btn" id="back-btn" hidden aria-label="Back to start" title="Back to start" data-fr-aria-label="Retour au début" data-fr-title="Retour au début"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#3D9BF0"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#2177C9" opacity="0.55"/><path d="M25 14 L15 24 L25 34 M16 24 H34" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-
-    <!-- START -->
-    <section class="screen" id="start-screen">
-        <div class="start-main" id="start-main">
-            <div class="title-blocks" id="title-blocks"></div>
-            <h1 data-fr="L'heure de l'ABC">ABC Time</h1>
-            <p class="subtitle" data-fr="Trouve l'ami de chaque lettre !">Find each letter's friend!</p>
-            <div class="start-buttons">
-                <button type="button" class="start-btn" id="continue-btn" hidden>
-                    <span data-fr="▶ Continuer">▶ Continue</span> <small id="continue-level"></small>
-                </button>
-                <button type="button" class="start-btn" id="play-btn" data-fr="▶ Jouer !">▶ Play!</button>
-                <button type="button" class="start-btn choose" id="choose-btn">
-                    <span data-fr="🔢 Choisis ton niveau">🔢 Choose your level</span>
-                </button>
-            </div>
+    <!-- 🌟 Start -->
+    <main class="kit-screen" id="start">
+        <h1 class="kit-title"><span class="bob" data-fr="L'heure">ABC</span> <span class="bob" style="animation-delay:-1.3s" data-fr="de l'ABC">Time</span></h1>
+        <p class="kit-sub" data-fr="Les lettres, leurs amis et des ballons à faire éclater !">Letters, their picture friends and balloons to pop!</p>
+        <div class="kit-modes">
+            <button class="kit-mode" type="button" id="go-meet" style="--c:#FF6B8B"><span class="kit-mode-art"><span>🔤</span></span><span class="kit-mode-label"><b data-fr="Les lettres">Meet the letters</b><small data-fr="Touche une lettre pour l'entendre">Tap a letter to hear it</small></span></button>
+            <button class="kit-mode" type="button" id="go-find" style="--c:#4FB8FF"><span class="kit-badge" id="find-badge"></span><span class="kit-mode-art"><span>🔍</span></span><span class="kit-mode-label"><b data-fr="Trouve l'image">Find the picture</b><small data-fr="Quelle image commence par la lettre ?">Which picture starts with the letter?</small></span></button>
+            <button class="kit-mode" type="button" id="go-pop" style="--c:#FFB627"><span class="kit-badge" id="pop-badge"></span><span class="kit-mode-art"><span>🎈</span></span><span class="kit-mode-label"><b data-fr="Ballons lettres">Letter balloons</b><small data-fr="Fais éclater la bonne lettre">Pop the letter you hear</small></span></button>
         </div>
-        <div class="level-picker" id="level-picker" hidden>
-            <h2 data-fr="Choisis ton niveau">Choose your level</h2>
-            <div class="level-grid" id="level-grid"></div>
-        </div>
-    </section>
+    </main>
 
-    <!-- GAME -->
-    <div class="hud" id="hud" hidden>
-        <span class="level-badge" id="level-badge"></span>
-        <div class="stars" id="stars" aria-hidden="true"></div>
-    </div>
-    <section class="screen" id="game-screen" hidden>
-        <div class="stage">
-            <div class="letter-side">
-                <button type="button" class="block" id="letter-block">
-                    <span class="block-letter" id="letter"></span>
-                    <span class="block-friend" id="letter-friend" aria-hidden="true"></span>
-                </button>
-                <div class="prompt" id="prompt" aria-live="polite">
-                    <span id="prompt-text"></span>
-                    <button type="button" class="say-again" id="say-again" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button>
-                </div>
-            </div>
-            <div class="choices" id="choices"></div>
-        </div>
-    </section>
+    <!-- 🔤 Meet -->
+    <main class="kit-screen" id="meet" hidden>
+        <section class="meet-stage" aria-live="polite">
+            <button type="button" class="block" id="meet-block" aria-label="A"><span id="meet-letter">A</span><small id="meet-lower">a</small></button>
+            <button type="button" class="meet-friend" id="meet-friend">
+                <span class="pic" id="meet-pic">🍎</span>
+                <span class="word" id="meet-word"></span>
+                <span class="more" data-fr="Touche l'image pour un autre ami">Tap the picture for another friend</span>
+            </button>
+        </section>
+        <div class="alphabet" id="alphabet"></div>
+    </main>
 
-    <div class="cheer" id="cheer" aria-live="polite"></div>
+    <!-- 🔍 Find -->
+    <main class="kit-screen" id="find" hidden>
+        <div class="kit-hud"><span class="kit-level" id="find-level"></span><span class="kit-stars" id="find-stars"></span></div>
+        <div class="find-top">
+            <button type="button" class="block" id="find-block"><span id="find-letter">A</span><span class="friend-spot" id="find-friend"></span></button>
+            <div class="kit-prompt"><span id="find-prompt"></span><button type="button" class="kit-say" id="find-say" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button></div>
+        </div>
+        <div class="cards" id="cards"></div>
+    </main>
+
+    <!-- 🎈 Balloons -->
+    <main class="kit-screen fit" id="pop" hidden>
+        <div class="kit-hud"><span class="kit-level" id="pop-level"></span><span class="kit-stars" id="pop-stars"></span></div>
+        <div class="kit-prompt"><span id="pop-prompt"></span><button type="button" class="kit-say" id="pop-say" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button></div>
+        <div class="sky" id="sky"></div>
+    </main>
 
     <script>
-        const lang = window.BabyLang;
-        const NBSP = ' ';
+    (function () {
+        'use strict';
+        const { T, $, sfx, say } = Kit;
+        const NBSP = ' ';
 
-        /* Separate data per language - words start with the correct letter */
+        // Words per language always start with their letter.
         const DATA = {
-          en: [
-            { L:'A', items:[{e:'🍎',w:'Apple'},{e:'✈️',w:'Airplane'}] },
-            { L:'B', items:[{e:'🐻',w:'Bear'},{e:'🦋',w:'Butterfly'}] },
-            { L:'C', items:[{e:'🐱',w:'Cat'},{e:'🚗',w:'Car'}] },
-            { L:'D', items:[{e:'🐶',w:'Dog'},{e:'🦆',w:'Duck'}] },
-            { L:'E', items:[{e:'🐘',w:'Elephant'},{e:'🥚',w:'Egg'}] },
-            { L:'F', items:[{e:'🐟',w:'Fish'},{e:'🌸',w:'Flower'}] },
-            { L:'G', items:[{e:'🍇',w:'Grapes'},{e:'🦒',w:'Giraffe'}] },
-            { L:'H', items:[{e:'🏠',w:'House'},{e:'❤️',w:'Heart'}] },
-            { L:'I', items:[{e:'🍦',w:'Ice Cream'},{e:'🏝️',w:'Island'}] },
-            { L:'J', items:[{e:'🚙',w:'Jeep'},{e:'🧃',w:'Juice'}] },
-            { L:'K', items:[{e:'🔑',w:'Key'},{e:'🦘',w:'Kangaroo'}] },
-            { L:'L', items:[{e:'🦁',w:'Lion'},{e:'🍃',w:'Leaf'}] },
-            { L:'M', items:[{e:'🌙',w:'Moon'},{e:'🐒',w:'Monkey'}] },
-            { L:'N', items:[{e:'👃',w:'Nose'},{e:'🪹',w:'Nest'}] },
-            { L:'O', items:[{e:'🍊',w:'Orange'},{e:'🦉',w:'Owl'}] },
-            { L:'P', items:[{e:'🐷',w:'Pig'},{e:'🐧',w:'Penguin'}] },
-            { L:'Q', items:[{e:'👑',w:'Queen'}] },
-            { L:'R', items:[{e:'🌈',w:'Rainbow'},{e:'🐰',w:'Rabbit'}] },
-            { L:'S', items:[{e:'⭐',w:'Star'},{e:'☀️',w:'Sun'}] },
-            { L:'T', items:[{e:'🚂',w:'Train'},{e:'🐢',w:'Turtle'}] },
-            { L:'U', items:[{e:'☂️',w:'Umbrella'},{e:'🦄',w:'Unicorn'}] },
-            { L:'V', items:[{e:'🎻',w:'Violin'},{e:'🌋',w:'Volcano'}] },
-            { L:'W', items:[{e:'🐳',w:'Whale'},{e:'🍉',w:'Watermelon'}] },
-            { L:'X', items:[{e:'🎵',w:'Xylophone'}] },
-            { L:'Y', items:[{e:'🪀',w:'Yo-yo'},{e:'🧶',w:'Yarn'}] },
-            { L:'Z', items:[{e:'🦓',w:'Zebra'},{e:'💤',w:'Zzz'}] }
-          ],
-          fr: [
-            { L:'A', items:[{e:'✈️',w:'Avion',art:"l'"},{e:'🐝',w:'Abeille',art:"l'"}] },
-            { L:'B', items:[{e:'🐋',w:'Baleine',art:'la '},{e:'🍌',w:'Banane',art:'la '}] },
-            { L:'C', items:[{e:'🐱',w:'Chat',art:'le '},{e:'🦆',w:'Canard',art:'le '}] },
-            { L:'D', items:[{e:'🐬',w:'Dauphin',art:'le '},{e:'🦕',w:'Dinosaure',art:'le '}] },
-            { L:'E', items:[{e:'🐘',w:'Éléphant',art:"l'"},{e:'⭐',w:'Étoile',art:"l'"}] },
-            { L:'F', items:[{e:'🌸',w:'Fleur',art:'la '},{e:'🍓',w:'Fraise',art:'la '}] },
-            { L:'G', items:[{e:'🦒',w:'Girafe',art:'la '},{e:'🐸',w:'Grenouille',art:'la '}] },
-            { L:'H', items:[{e:'🦉',w:'Hibou',art:'le '},{e:'🦔',w:'Hérisson',art:'le '}] },
-            { L:'I', items:[{e:'🏝️',w:'Île',art:"l'"},{e:'🧊',w:'Igloo',art:"l'"}] },
-            { L:'J', items:[{e:'🧃',w:'Jus',art:'le '},{e:'🧸',w:'Jouet',art:'le '}] },
-            { L:'K', items:[{e:'🦘',w:'Kangourou',art:'le '},{e:'🐨',w:'Koala',art:'le '}] },
-            { L:'L', items:[{e:'🦁',w:'Lion',art:'le '},{e:'🌙',w:'Lune',art:'la '},{e:'🐰',w:'Lapin',art:'le '}] },
-            { L:'M', items:[{e:'🏠',w:'Maison',art:'la '},{e:'🐑',w:'Mouton',art:'le '}] },
-            { L:'N', items:[{e:'👃',w:'Nez',art:'le '},{e:'🪹',w:'Nid',art:'le '}] },
-            { L:'O', items:[{e:'🍊',w:'Orange',art:"l'"},{e:'🐻',w:'Ours',art:"l'"}] },
-            { L:'P', items:[{e:'🦋',w:'Papillon',art:'le '},{e:'🍎',w:'Pomme',art:'la '}] },
-            { L:'Q', items:[{e:'4️⃣',w:'Quatre',art:'le '}] },
-            { L:'R', items:[{e:'🍇',w:'Raisin',art:'le '},{e:'🤖',w:'Robot',art:'le '}] },
-            { L:'S', items:[{e:'☀️',w:'Soleil',art:'le '},{e:'🐍',w:'Serpent',art:'le '}] },
-            { L:'T', items:[{e:'🚂',w:'Train',art:'le '},{e:'🐢',w:'Tortue',art:'la '}] },
-            { L:'U', items:[{e:'1️⃣',w:'Un',art:''},{e:'🏭',w:'Usine',art:"l'"}] },
-            { L:'V', items:[{e:'🚗',w:'Voiture',art:'la '},{e:'🐄',w:'Vache',art:'la '}] },
-            { L:'W', items:[{e:'🚃',w:'Wagon',art:'le '}] },
-            { L:'X', items:[{e:'🎵',w:'Xylophone',art:'le '}] },
-            { L:'Y', items:[{e:'🥛',w:'Yaourt',art:'le '},{e:'🪀',w:'Yo-yo',art:'le '}] },
-            { L:'Z', items:[{e:'🦓',w:'Zèbre',art:'le '},{e:'0️⃣',w:'Zéro',art:'le '}] }
-          ]
+            en: [
+                { L:'A', items:[{e:'🍎',w:'Apple'},{e:'✈️',w:'Airplane'}] },
+                { L:'B', items:[{e:'🐻',w:'Bear'},{e:'🦋',w:'Butterfly'}] },
+                { L:'C', items:[{e:'🐱',w:'Cat'},{e:'🚗',w:'Car'}] },
+                { L:'D', items:[{e:'🐶',w:'Dog'},{e:'🦆',w:'Duck'}] },
+                { L:'E', items:[{e:'🐘',w:'Elephant'},{e:'🥚',w:'Egg'}] },
+                { L:'F', items:[{e:'🐟',w:'Fish'},{e:'🌸',w:'Flower'}] },
+                { L:'G', items:[{e:'🍇',w:'Grapes'},{e:'🦒',w:'Giraffe'}] },
+                { L:'H', items:[{e:'🏠',w:'House'},{e:'❤️',w:'Heart'}] },
+                { L:'I', items:[{e:'🍦',w:'Ice cream'},{e:'🏝️',w:'Island'}] },
+                { L:'J', items:[{e:'🚙',w:'Jeep'},{e:'🧃',w:'Juice'}] },
+                { L:'K', items:[{e:'🔑',w:'Key'},{e:'🦘',w:'Kangaroo'}] },
+                { L:'L', items:[{e:'🦁',w:'Lion'},{e:'🍃',w:'Leaf'}] },
+                { L:'M', items:[{e:'🌙',w:'Moon'},{e:'🐒',w:'Monkey'}] },
+                { L:'N', items:[{e:'👃',w:'Nose'},{e:'🪹',w:'Nest'}] },
+                { L:'O', items:[{e:'🍊',w:'Orange'},{e:'🦉',w:'Owl'}] },
+                { L:'P', items:[{e:'🐷',w:'Pig'},{e:'🐧',w:'Penguin'}] },
+                { L:'Q', items:[{e:'👑',w:'Queen'}] },
+                { L:'R', items:[{e:'🌈',w:'Rainbow'},{e:'🐰',w:'Rabbit'}] },
+                { L:'S', items:[{e:'⭐',w:'Star'},{e:'☀️',w:'Sun'}] },
+                { L:'T', items:[{e:'🚂',w:'Train'},{e:'🐢',w:'Turtle'}] },
+                { L:'U', items:[{e:'☂️',w:'Umbrella'},{e:'🦄',w:'Unicorn'}] },
+                { L:'V', items:[{e:'🎻',w:'Violin'},{e:'🌋',w:'Volcano'}] },
+                { L:'W', items:[{e:'🐳',w:'Whale'},{e:'🍉',w:'Watermelon'}] },
+                { L:'X', items:[{e:'🎵',w:'Xylophone'}] },
+                { L:'Y', items:[{e:'🪀',w:'Yo-yo'},{e:'🧶',w:'Yarn'}] },
+                { L:'Z', items:[{e:'🦓',w:'Zebra'},{e:'💤',w:'Zzz'}] }
+            ],
+            fr: [
+                { L:'A', items:[{e:'✈️',w:'Avion',art:"l'"},{e:'🐝',w:'Abeille',art:"l'"}] },
+                { L:'B', items:[{e:'🐋',w:'Baleine',art:'la '},{e:'🍌',w:'Banane',art:'la '}] },
+                { L:'C', items:[{e:'🐱',w:'Chat',art:'le '},{e:'🦆',w:'Canard',art:'le '}] },
+                { L:'D', items:[{e:'🐬',w:'Dauphin',art:'le '},{e:'🦕',w:'Dinosaure',art:'le '}] },
+                { L:'E', items:[{e:'🐘',w:'Éléphant',art:"l'"},{e:'⭐',w:'Étoile',art:"l'"}] },
+                { L:'F', items:[{e:'🌸',w:'Fleur',art:'la '},{e:'🍓',w:'Fraise',art:'la '}] },
+                { L:'G', items:[{e:'🦒',w:'Girafe',art:'la '},{e:'🐸',w:'Grenouille',art:'la '}] },
+                { L:'H', items:[{e:'🦉',w:'Hibou',art:'le '},{e:'🦔',w:'Hérisson',art:'le '}] },
+                { L:'I', items:[{e:'🏝️',w:'Île',art:"l'"},{e:'🧊',w:'Igloo',art:"l'"}] },
+                { L:'J', items:[{e:'🧃',w:'Jus',art:'le '},{e:'🧸',w:'Jouet',art:'le '}] },
+                { L:'K', items:[{e:'🦘',w:'Kangourou',art:'le '},{e:'🐨',w:'Koala',art:'le '}] },
+                { L:'L', items:[{e:'🦁',w:'Lion',art:'le '},{e:'🌙',w:'Lune',art:'la '},{e:'🐰',w:'Lapin',art:'le '}] },
+                { L:'M', items:[{e:'🏠',w:'Maison',art:'la '},{e:'🐑',w:'Mouton',art:'le '}] },
+                { L:'N', items:[{e:'👃',w:'Nez',art:'le '},{e:'🪹',w:'Nid',art:'le '}] },
+                { L:'O', items:[{e:'🍊',w:'Orange',art:"l'"},{e:'🐻',w:'Ours',art:"l'"}] },
+                { L:'P', items:[{e:'🦋',w:'Papillon',art:'le '},{e:'🍎',w:'Pomme',art:'la '}] },
+                { L:'Q', items:[{e:'4️⃣',w:'Quatre',art:'le '}] },
+                { L:'R', items:[{e:'🍇',w:'Raisin',art:'le '},{e:'🤖',w:'Robot',art:'le '}] },
+                { L:'S', items:[{e:'☀️',w:'Soleil',art:'le '},{e:'🐍',w:'Serpent',art:'le '}] },
+                { L:'T', items:[{e:'🚂',w:'Train',art:'le '},{e:'🐢',w:'Tortue',art:'la '}] },
+                { L:'U', items:[{e:'1️⃣',w:'Un',art:''},{e:'🏭',w:'Usine',art:"l'"}] },
+                { L:'V', items:[{e:'🚗',w:'Voiture',art:'la '},{e:'🐄',w:'Vache',art:'la '}] },
+                { L:'W', items:[{e:'🚃',w:'Wagon',art:'le '}] },
+                { L:'X', items:[{e:'🎵',w:'Xylophone',art:'le '}] },
+                { L:'Y', items:[{e:'🥛',w:'Yaourt',art:'le '},{e:'🪀',w:'Yo-yo',art:'le '}] },
+                { L:'Z', items:[{e:'🦓',w:'Zèbre',art:'le '},{e:'0️⃣',w:'Zéro',art:'le '}] }
+            ]
         };
+        const letters = () => DATA[Kit.lang.lang];
+        const entry = L => letters().find(d => d.L === L);
+        const ALPHABET = DATA.en.map(d => d.L);
 
-        // Each letter keeps its own colour; the deep tone is also used for the first letter of its words.
-        const PALETTE = [
-            ['#FF5A5F', '#C9303A'], ['#FF9A2E', '#C9600A'], ['#3FBF62', '#1F8A3E'], ['#3D9BF0', '#1D6FC4'],
-            ['#9B6CF0', '#6A3FD1'], ['#FF7DB8', '#C93F86'], ['#2EC4B6', '#0E857A']
-        ];
-        const letterColor = letter => PALETTE[(letter.charCodeAt(0) - 65) % PALETTE.length];
-        const PLATES = ['#FFF1DC', '#E3F6E8', '#E2F0FF', '#EFE7FF', '#FFE6F1', '#E0F7F4'];
-
-        // Levels like the puzzles game: the number of pictures to choose from grows slowly.
-        const LEVEL_CARDS = [2, 2, 3, 3, 4, 4, 5, 6];
-        const LEVEL_COUNT = LEVEL_CARDS.length;
-        const ROUNDS_PER_LEVEL = 5;
-        const LEVEL_TILES = [
-            ['#FF7A7A', '#E05555'], ['#FF9F2E', '#E07F10'], ['#4CC26A', '#2F9E4C'], ['#2EC4B6', '#1E9C90'],
-            ['#4DA3F2', '#2B7FCC'], ['#8C6CF0', '#6A4BD1'], ['#F06CB4', '#D04A93'], ['#FF7A7A', '#E05555']
-        ];
-
-        // --- SAVED PROGRESS ---
-        const LEVEL_KEY = 'abc-level';
-        const CLEARED_KEY = 'abc-cleared';
-        let level = 0;
-        let cleared = 0;
-        function loadProgress() {
-            try {
-                const savedLevel = localStorage.getItem(LEVEL_KEY);
-                if (savedLevel === null && localStorage.getItem('abc-max-difficulty') !== null) {
-                    // Old version: 4 levels of 3, 4, 5 and 6 choices.
-                    const oldMax = Math.min(3, Math.max(0, parseInt(localStorage.getItem('abc-max-difficulty'), 10) || 0));
-                    cleared = [0, 4, 6, 7][oldMax];
-                    level = cleared;
-                    ['abc-lang', 'abc-max-difficulty', 'abc-current-difficulty', 'abc-correct-answers'].forEach(k => localStorage.removeItem(k));
-                    saveProgress();
-                    return;
-                }
-                const l = parseInt(savedLevel, 10);
-                const c = parseInt(localStorage.getItem(CLEARED_KEY), 10);
-                if (l >= 0 && l < LEVEL_COUNT) level = l;
-                if (c >= 0 && c <= LEVEL_COUNT) cleared = c;
-            } catch (error) { /* start fresh */ }
-        }
-        function saveProgress() {
-            try {
-                localStorage.setItem(LEVEL_KEY, String(level));
-                localStorage.setItem(CLEARED_KEY, String(cleared));
-            } catch (error) { /* optional */ }
-        }
-        loadProgress();
-
-        const els = {
-            start: document.getElementById('start-screen'),
-            startMain: document.getElementById('start-main'),
-            titleBlocks: document.getElementById('title-blocks'),
-            continueBtn: document.getElementById('continue-btn'),
-            continueLevel: document.getElementById('continue-level'),
-            playBtn: document.getElementById('play-btn'),
-            chooseBtn: document.getElementById('choose-btn'),
-            picker: document.getElementById('level-picker'),
-            levelGrid: document.getElementById('level-grid'),
-            game: document.getElementById('game-screen'),
-            hud: document.getElementById('hud'),
-            back: document.getElementById('back-btn'),
-            badge: document.getElementById('level-badge'),
-            stars: document.getElementById('stars'),
-            block: document.getElementById('letter-block'),
-            letter: document.getElementById('letter'),
-            friend: document.getElementById('letter-friend'),
-            prompt: document.getElementById('prompt'),
-            promptText: document.getElementById('prompt-text'),
-            choices: document.getElementById('choices'),
-            cheer: document.getElementById('cheer')
-        };
-
-        // --- SOUND ---
-        let audioCtx = null;
-        function note(freq, at = 0, dur = 0.35, vol = 0.2, type = 'sine') {
-            try {
-                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const start = audioCtx.currentTime + at;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, start);
-                gain.gain.setValueAtTime(0.0001, start);
-                gain.gain.exponentialRampToValueAtTime(vol, start + 0.015);
-                gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-                osc.connect(gain).connect(audioCtx.destination);
-                osc.start(start);
-                osc.stop(start + dur + 0.02);
-            } catch (error) { /* audio is optional */ }
-        }
-        // Jelly "boing": a note bending up.
-        function boing(freq) {
-            try {
-                note(freq, 0, 0.35, 0.2);
-                const start = audioCtx.currentTime;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq / 2, start);
-                osc.frequency.exponentialRampToValueAtTime(freq, start + 0.12);
-                gain.gain.setValueAtTime(0.12, start);
-                gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
-                osc.connect(gain).connect(audioCtx.destination);
-                osc.start(start);
-                osc.stop(start + 0.2);
-            } catch (error) { /* audio is optional */ }
-        }
-        const PENTATONIC = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
-        const letterNote = letter => PENTATONIC[(letter.charCodeAt(0) - 65) % PENTATONIC.length];
-        const cheerSound = () => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => note(f, i * 0.08, 0.3, 0.16));
-        const whoosh = () => [0, 0.05, 0.1, 0.15, 0.2].forEach((at, i) => note(500 + i * 120, at, 0.12, 0.06, 'triangle'));
-        const oopsSound = () => note(196, 0, 0.18, 0.14, 'triangle');
-        const speak = (en, fr) => lang.speak(en, fr, { pitch: 1.15, rate: 0.92 });
-
-        function bounce(el, cls) {
-            el.classList.remove('squish', 'wobble', 'wrong-try', 'drop-in');
-            void el.offsetWidth;
-            el.classList.add(cls);
-            el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
-        }
-
-        // --- SCREENS ---
-        let roundTimer = null;
-        let speakTimer = null;
-        let cheerTimer = null;
-        function show(screen) {
-            els.start.hidden = screen !== els.start;
-            els.game.hidden = screen !== els.game;
-            els.hud.hidden = screen !== els.game;
-            els.back.hidden = screen === els.start;
-            window.scrollTo(0, 0);
-            if (screen !== els.game) {
-                clearTimeout(roundTimer);
-                clearTimeout(speakTimer);
-                clearTimeout(cheerTimer);
-                els.cheer.classList.remove('show');
-                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-            }
-        }
-
-        const levelLabel = n => lang.t(`Level ${n + 1}`, `Niveau ${n + 1}`);
-
-        function setBlock(block, letter) {
-            const [c, cd] = letterColor(letter);
-            block.style.setProperty('--c', c);
-            block.style.setProperty('--cd', cd);
-        }
-
-        function renderTitleBlocks() {
-            els.titleBlocks.innerHTML = ['A', 'B', 'C'].map(L =>
-                `<button type="button" class="block" data-letter="${L}" aria-label="${L}"><span class="block-letter">${L}</span></button>`).join('');
-            els.titleBlocks.querySelectorAll('.block').forEach(block => {
-                setBlock(block, block.dataset.letter);
-                block.addEventListener('animationend', () => block.classList.add('idle'), { once: true });
-            });
-        }
-        els.titleBlocks.addEventListener('click', event => {
-            const block = event.target.closest('.block');
-            if (!block) return;
-            const L = block.dataset.letter;
-            bounce(block, 'squish');
-            boing(letterNote(L));
-            speak(L, L);
-            const r = block.getBoundingClientRect();
-            createExplosion(r.left + r.width / 2, r.top + r.height / 2, letterColor(L)[0], 14);
-        });
-
-        function showStart() {
-            const hasProgress = level > 0 || cleared > 0;
-            els.continueBtn.hidden = !hasProgress;
-            els.continueLevel.textContent = levelLabel(level);
-            // With saved progress the second button starts over; otherwise it is the only "Play" button.
-            els.playBtn.classList.toggle('secondary', hasProgress);
-            els.playBtn.dataset.en = hasProgress ? '⭐ Start from the beginning' : '▶ Play!';
-            els.playBtn.dataset.fr = hasProgress ? '⭐ Recommencer au début' : `▶ Jouer${NBSP}!`;
-            els.chooseBtn.classList.toggle('locked', cleared === 0);
-            els.chooseBtn.setAttribute('aria-disabled', String(cleared === 0));
-            closePicker();
-            lang.apply(els.start);
-            show(els.start);
-        }
-
-        function renderPicker() {
-            let html = '';
-            for (let n = 0; n < LEVEL_COUNT; n++) {
-                const open = n <= cleared;
-                const cards = LEVEL_CARDS[n];
-                const [c, cd] = LEVEL_TILES[n];
-                const detail = lang.t(`${cards} pictures`, `${cards} images`);
-                const label = `${levelLabel(n)}, ${detail}${open ? '' : ', ' + lang.t('locked', 'verrouillé')}`;
-                html += `<button type="button" class="level-tile${open ? '' : ' locked'}" data-level="${n}"
-                        aria-label="${label}" style="--c: ${c}; --cd: ${cd}; animation-delay: ${n * 0.04}s">
-                    <span class="tile-num">${n + 1}</span>
-                    <span class="tile-cards" aria-hidden="true">${'<i></i>'.repeat(cards)}</span>
-                    ${open ? '' : '<span class="tile-lock" aria-hidden="true">🔒</span>'}
-                </button>`;
-            }
-            els.levelGrid.innerHTML = html;
-        }
-
-        function openPicker() {
-            if (cleared === 0) {
-                bounce(els.chooseBtn, 'wobble');
-                oopsSound();
-                speak('Finish level 1 first!', `Termine le niveau 1 d'abord${NBSP}!`);
-                return;
-            }
-            renderPicker();
-            els.startMain.hidden = true;
-            els.picker.hidden = false;
-            els.back.hidden = false;
-            window.scrollTo(0, 0);
-            const latest = els.levelGrid.querySelector(`[data-level="${Math.min(cleared, LEVEL_COUNT - 1)}"]`);
-            if (latest) latest.focus({ preventScroll: true });
-        }
-
-        function closePicker() {
-            els.picker.hidden = true;
-            els.startMain.hidden = false;
-            if (!els.start.hidden) els.back.hidden = true;
-        }
-
-        els.levelGrid.addEventListener('click', event => {
-            const tile = event.target.closest('.level-tile');
-            if (!tile) return;
-            if (tile.classList.contains('locked')) {
-                bounce(tile, 'wobble');
-                oopsSound();
-                return;
-            }
-            startGame(Number(tile.dataset.level));
-        });
-
-        // --- 🔤 GAME ---
-        let roundsWon = 0;
-        let target = null;
-        let targetLetter = null;
-        let recentLetters = [];
-        let locked = true;
-
-        const letters = () => DATA[lang.lang];
+        // Each letter keeps its own colour and note.
+        const PALETTE = [['#FF5A5F', '#C9303A'], ['#FF9A2E', '#C9600A'], ['#3FBF62', '#1F8A3E'], ['#3D9BF0', '#1D6FC4'],
+            ['#9B6CF0', '#6A3FD1'], ['#FF7DB8', '#C93F86'], ['#2EC4B6', '#0E857A']];
+        const colorOf = L => PALETTE[(L.charCodeAt(0) - 65) % PALETTE.length];
+        const noteOf = L => Kit.note(L.charCodeAt(0) - 65);
+        function paintBlock(el, L) { const [c, cd] = colorOf(L); el.style.setProperty('--c', c); el.style.setProperty('--cd', cd); }
+        const wordHtml = (word, L) => { const first = [...word][0]; return `<span class="first" style="--wc:${colorOf(L)[1]}">${first}</span>${word.slice(first.length)}`; };
         const article = item => item.art || '';
 
-        function startGame(n) {
-            level = n;
-            roundsWon = 0;
-            saveProgress();
-            show(els.game);
-            boing(523.25);
-            newRound();
+        const start = $('#start'), meet = $('#meet'), find = $('#find'), pop = $('#pop');
+        Kit.topbar({ onBack: () => goStart() });
+        function goStart() { Kit.show(start, { back: false }); renderBadges(); }
+
+        // ---------------- 🔤 MEET THE LETTERS ----------------
+        let meetL = 'A', meetIndex = 0;
+        const seen = new Set(Kit.store.json('abc-seen', []));
+        function renderAlphabet() {
+            $('#alphabet').innerHTML = ALPHABET.map((L, i) =>
+                `<button type="button" class="block${seen.has(L) ? ' seen' : ''}" data-l="${L}" style="animation-delay:${i * 0.015}s" aria-label="${L}">${L}</button>`).join('');
+            $('#alphabet').querySelectorAll('.block').forEach(b => paintBlock(b, b.dataset.l));
         }
+        function showLetter(L, speak) {
+            meetL = L;
+            const e = entry(L);
+            const item = e.items[meetIndex % e.items.length];
+            paintBlock($('#meet-block'), L);
+            $('#meet-letter').textContent = L;
+            $('#meet-lower').textContent = L.toLowerCase();
+            $('#meet-block').setAttribute('aria-label', T(`Letter ${L}`, `Lettre ${L}`));
+            $('#meet-pic').textContent = item.e;
+            $('#meet-word').innerHTML = wordHtml(item.w, L);
+            Kit.tint(`color-mix(in srgb, ${colorOf(L)[0]} 20%, #FFF8F0)`);
+            Kit.bounce($('#meet-block'));
+            Kit.bounce($('#meet-pic'), 'dance');
+            if (speak) {
+                Kit.sfx.boing(noteOf(L));
+                say(`${L}. ${L} is for ${item.w}.`, `${L}. ${L} comme ${item.w}.`, { rate: 0.9 });
+            }
+            if (!seen.has(L)) {
+                seen.add(L);
+                Kit.store.setJson('abc-seen', [...seen]);
+                const b = $(`#alphabet [data-l="${L}"]`);
+                if (b) b.classList.add('seen');
+                if (seen.size === 26) Kit.later(() => { Kit.cheer(T('🎉 All 26 letters!', `🎉 Les 26 lettres${NBSP}!`), 2200); Kit.confetti(); Kit.sfx.fanfare(); }, 900);
+            }
+        }
+        $('#alphabet').addEventListener('click', event => {
+            const b = event.target.closest('.block');
+            if (!b) return;
+            Kit.bounce(b);
+            meetIndex = 0;
+            showLetter(b.dataset.l, true);
+            Kit.burstFrom(b, colorOf(b.dataset.l), 14, 0.8);
+        });
+        $('#meet-block').addEventListener('click', () => { showLetter(meetL, true); Kit.burstFrom($('#meet-block'), colorOf(meetL), 20); });
+        $('#meet-friend').addEventListener('click', () => {
+            meetIndex++;
+            const e = entry(meetL);
+            const item = e.items[meetIndex % e.items.length];
+            showLetter(meetL, false);
+            Kit.sfx.pop();
+            say(item.w, `${article(item)}${item.w.toLowerCase()}`);
+            Kit.burstFrom($('#meet-pic'), colorOf(meetL), 16);
+        });
+        // On a computer, pressing a letter key shows that letter.
+        window.addEventListener('keydown', event => {
+            if (meet.hidden || event.ctrlKey || event.metaKey || event.altKey || event.repeat) return;
+            const L = event.key.toUpperCase();
+            if (/^[A-Z]$/.test(L)) { meetIndex = 0; showLetter(L, true); const b = $(`#alphabet [data-l="${L}"]`); if (b) Kit.bounce(b); }
+        });
+        function openMeet() {
+            Kit.show(meet);
+            renderAlphabet();
+            meetIndex = 0;
+            showLetter(meetL, false);
+            say('Tap a letter!', `Touche une lettre${NBSP}!`);
+        }
+
+        // ---------------- 🔍 FIND THE PICTURE ----------------
+        const FIND_CARDS = [2, 2, 3, 3, 4, 4, 5, 6];
+        const ROUNDS = 5;
+        const findStore = Kit.levelStore('abc-level', FIND_CARDS.length);
+        let findLevel = findStore.get(), findWon = 0, target = null, targetL = 'A', recent = [], findLocked = false;
+        const PLATES = ['#FFF1DC', '#E3F6E8', '#E2F0FF', '#EFE7FF', '#FFE6F1', '#E0F7F4'];
 
         function pickLetter() {
-            const data = letters();
-            const weights = data.map(d => (recentLetters.includes(d.L) ? 0.05 : 1));
-            let r = Math.random() * weights.reduce((a, b) => a + b, 0);
-            for (let i = 0; i < data.length; i++) {
-                r -= weights[i];
-                if (r <= 0) return data[i];
-            }
-            return data[data.length - 1];
+            const pool = ALPHABET.filter(L => !recent.includes(L));
+            const L = Kit.pick(pool);
+            recent.push(L);
+            if (recent.length > 8) recent.shift();
+            return L;
         }
-
-        const shuffle = list => list.map(v => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map(p => p[1]);
-        const pickItem = entry => entry.items[Math.floor(Math.random() * entry.items.length)];
-
-        function wordHtml(word) {
-            const first = [...word][0];
-            return `<span class="first">${first}</span>${word.slice(first.length)}`;
+        function findPromptText() {
+            return T(`Find the ${wordHtml(target.w, targetL)}`, `Trouve ${article(target)}${wordHtml(target.w, targetL)}`);
         }
-
-        function renderHud() {
-            els.badge.textContent = levelLabel(level);
-            els.stars.innerHTML = Array.from({ length: ROUNDS_PER_LEVEL }, (_, i) =>
-                `<span class="${i < roundsWon ? '' : 'off'}">⭐</span>`).join('');
+        function sayFind() {
+            say(`${targetL} is for ${target.w}. Find the ${target.w.toLowerCase()}!`,
+                `${targetL} comme ${target.w}. Trouve ${article(target)}${target.w.toLowerCase()}${NBSP}!`, { rate: 0.9 });
         }
-
-        function renderPrompt() {
-            if (!target) return;
-            els.promptText.innerHTML = lang.t(`Find the ${wordHtml(target.w)}`, `Trouve ${article(target)}${wordHtml(target.w)}`);
-            els.block.setAttribute('aria-label', lang.t(`Letter ${targetLetter.L}`, `Lettre ${targetLetter.L}`));
+        function renderFindHud(popIndex) {
+            $('#find-level').textContent = T(`Level ${findLevel + 1}`, `Niveau ${findLevel + 1}`);
+            Kit.stars($('#find-stars'), ROUNDS, findWon, popIndex);
         }
-
-        function sayPrompt() {
-            const L = targetLetter.L;
-            const w = target.w;
-            speak(`${L} is for ${w}. Can you find the ${w.toLowerCase()}?`,
-                `${L} comme ${w}. Peux-tu trouver ${article(target)}${w.toLowerCase()}${NBSP}?`);
+        function newFind(keepLetter) {
+            findLocked = false;
+            targetL = keepLetter || pickLetter();
+            const e = entry(targetL);
+            target = Kit.pick(e.items);
+            const count = FIND_CARDS[findLevel];
+            const others = Kit.shuffle(letters().filter(d => d.L !== targetL)).slice(0, count - 1).map(d => ({ item: Kit.pick(d.items), L: d.L }));
+            const choices = Kit.shuffle([{ item: target, L: targetL }, ...others]);
+            paintBlock($('#find-block'), targetL);
+            $('#find-letter').textContent = targetL;
+            $('#find-friend').classList.remove('show');
+            Kit.bounce($('#find-block'));
+            Kit.tint(`color-mix(in srgb, ${colorOf(targetL)[0]} 18%, #FFF8F0)`);
+            $('#find-prompt').innerHTML = findPromptText();
+            const plates = Kit.shuffle(PLATES);
+            $('#cards').style.setProperty('--n', count <= 3 ? count : count === 4 ? 2 : 3);
+            $('#cards').innerHTML = choices.map((c, i) =>
+                `<button type="button" class="pic-card" data-i="${i}" style="--plate:${plates[i % plates.length]};animation-delay:${0.1 + i * 0.06}s" aria-label="${c.item.w}">
+                    <span class="pic" aria-hidden="true">${c.item.e}</span><span class="word" aria-hidden="true">${wordHtml(c.item.w, c.L)}</span></button>`).join('');
+            $('#cards')._choices = choices;
+            renderFindHud();
+            Kit.later(sayFind, 400);
         }
-
-        // keepLetter: replay the same letter (used when the language changes) with words from the new language.
-        function newRound(keepLetter = null) {
-            clearTimeout(roundTimer);
-            clearTimeout(speakTimer);
-            locked = false;
-            const data = letters();
-            targetLetter = keepLetter ? data.find(d => d.L === keepLetter) : pickLetter();
-            if (!keepLetter) {
-                recentLetters.push(targetLetter.L);
-                if (recentLetters.length > 8) recentLetters.shift();
-            }
-            target = pickItem(targetLetter);
-
-            const count = LEVEL_CARDS[level];
-            const others = shuffle(data.filter(d => d.L !== targetLetter.L)).slice(0, count - 1).map(pickItem);
-            const choices = shuffle([target, ...others]);
-
-            setBlock(els.block, targetLetter.L);
-            els.prompt.style.setProperty('--cd', letterColor(targetLetter.L)[1]);
-            els.letter.textContent = targetLetter.L;
-            els.friend.classList.remove('show');
-            bounce(els.block, keepLetter ? 'squish' : 'drop-in');
-            document.documentElement.style.setProperty('--tint', `color-mix(in srgb, ${letterColor(targetLetter.L)[0]} 22%, #FFFBF2)`);
-
-            els.choices.className = `choices n${count}`;
-            els.choices.innerHTML = '';
-            const plates = shuffle(PLATES);
-            choices.forEach((item, i) => {
-                const owner = data.find(d => d.items.includes(item));
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'card';
-                btn.style.animationDelay = `${0.15 + i * 0.06}s`;
-                btn.style.setProperty('--cd', letterColor(owner.L)[1]);
-                btn.style.setProperty('--plate', plates[i % plates.length]);
-                btn.setAttribute('aria-label', item.w);
-                btn.innerHTML = `<span class="card-pic" aria-hidden="true"><span>${item.e}</span></span>
-                    <span class="card-word" aria-hidden="true">${wordHtml(item.w)}</span>`;
-                btn._item = item;
-                // Once it has popped in, drop the entrance so state styles (dim, right) can take over.
-                btn.addEventListener('animationend', () => btn.classList.add('in'), { once: true });
-                els.choices.appendChild(btn);
-            });
-
-            renderHud();
-            renderPrompt();
-            speakTimer = setTimeout(sayPrompt, 450);
-        }
-
-        // The right picture jumps from its card onto the letter block.
-        function flyToBlock(card) {
-            const from = card.querySelector('.card-pic span').getBoundingClientRect();
-            const to = els.friend.getBoundingClientRect();
-            const flyer = document.createElement('div');
-            flyer.className = 'flyer';
-            flyer.textContent = target.e;
-            flyer.style.left = `${from.left + from.width / 2}px`;
-            flyer.style.top = `${from.top + from.height / 2}px`;
-            flyer.style.fontSize = getComputedStyle(card.querySelector('.card-pic')).fontSize;
-            document.body.appendChild(flyer);
-            const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
-            const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
-            const endScale = parseFloat(getComputedStyle(els.friend).fontSize) / parseFloat(flyer.style.fontSize);
-            const animation = flyer.animate([
-                { transform: 'translate(-50%, -50%) scale(1) rotate(0)' },
-                { transform: `translate(calc(-50% + ${dx * 0.5}px), calc(-50% + ${dy * 0.5 - 90}px)) scale(1.35) rotate(-14deg)`, offset: 0.45 },
-                { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${endScale}) rotate(8deg)` }
-            ], { duration: 650, easing: 'cubic-bezier(0.45, 0, 0.2, 1)', fill: 'forwards' });
-            whoosh();
-            animation.onfinish = () => {
-                flyer.remove();
-                els.friend.textContent = target.e;
-                els.friend.classList.add('show');
-                bounce(els.block, 'squish');
-                boing(letterNote(targetLetter.L));
-                const r = els.block.getBoundingClientRect();
-                createExplosion(r.left + r.width / 2, r.top + r.height / 2, letterColor(targetLetter.L)[0], 30);
-            };
-        }
-
-        els.choices.addEventListener('click', event => {
-            const card = event.target.closest('.card');
-            if (!card || locked) return;
-            const item = card._item;
-            if (item !== target) {
-                bounce(card, 'wrong-try');
-                oopsSound();
-                speak(item.w, `${article(item)}${item.w.toLowerCase()}`);
-                setTimeout(() => card.classList.add('dim'), 450);
+        $('#cards').addEventListener('click', event => {
+            const card = event.target.closest('.pic-card');
+            if (!card || findLocked) return;
+            const choice = $('#cards')._choices[Number(card.dataset.i)];
+            if (choice.item !== target) {
+                Kit.bounce(card, 'wobble');
+                Kit.sfx.oops();
+                say(choice.item.w, `${article(choice.item)}${choice.item.w.toLowerCase()}`);
+                Kit.later(() => card.classList.add('dim'), 400);
                 return;
             }
-
-            locked = true;
+            findLocked = true;
             card.classList.add('right');
-            els.choices.classList.add('done');
-            cheerSound();
-            const pic = card.querySelector('.card-pic').getBoundingClientRect();
-            createExplosion(pic.left + pic.width / 2, pic.top + pic.height / 2, letterColor(targetLetter.L)[0], 24);
-            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (reduceMotion) {
-                els.friend.textContent = target.e;
-                els.friend.classList.add('show');
-            } else {
-                setTimeout(() => flyToBlock(card), 250);
-            }
-
-            roundsWon++;
-            renderHud();
-            const star = els.stars.children[roundsWon - 1];
-            if (star) { star.classList.add('pop'); setTimeout(() => star.classList.remove('pop'), 350); }
-
-            const L = targetLetter.L;
-            const w = target.w;
-            let delay = 2600;
-            if (roundsWon >= ROUNDS_PER_LEVEL) {
-                roundsWon = 0;
-                cleared = Math.max(cleared, level + 1);
-                if (level < LEVEL_COUNT - 1) level++;
-                saveProgress();
-                speak(`Yes! ${L} is for ${w}! Super! Level ${level + 1}!`,
-                    `Oui${NBSP}! ${L} comme ${w}${NBSP}! Super${NBSP}! Niveau ${level + 1}${NBSP}!`);
-                cheerTimer = setTimeout(() => {
-                    showCheer(lang.t(`⭐ Super! ${levelLabel(level)}`, `⭐ Super${NBSP}! ${levelLabel(level)}`), 1900);
-                    cheerSound();
-                    setTimeout(cheerSound, 350);
-                    const r = els.cheer.getBoundingClientRect();
-                    createExplosion(r.left + r.width / 2, r.top + r.height / 2, '#FFC93B', 40);
-                }, 1300);
-                delay = 4000;
-            } else {
-                speak(`Yes! ${L} is for ${w}!`, `Oui${NBSP}! ${L} comme ${w}${NBSP}!`);
-            }
-            roundTimer = setTimeout(newRound, delay);
-        });
-
-        els.block.addEventListener('click', () => {
-            if (!targetLetter) return;
-            bounce(els.block, 'squish');
-            boing(letterNote(targetLetter.L));
-            speak(`${targetLetter.L}. ${targetLetter.L} is for ${target.w}.`, `${targetLetter.L}. ${targetLetter.L} comme ${target.w}.`);
-        });
-
-        document.getElementById('say-again').addEventListener('click', () => target && sayPrompt());
-
-        function showCheer(text, ms) {
-            els.cheer.textContent = text;
-            els.cheer.classList.add('show');
-            setTimeout(() => els.cheer.classList.remove('show'), ms);
-        }
-
-        // --- NAVIGATION ---
-        els.continueBtn.addEventListener('click', () => startGame(level));
-        els.playBtn.addEventListener('click', () => startGame(0));
-        els.chooseBtn.addEventListener('click', openPicker);
-        // One back button: picker -> start menu, game -> start menu.
-        els.back.addEventListener('click', () => (els.picker.hidden ? showStart() : closePicker()));
-
-        lang.mountToggle();
-        lang.onChange(() => {
-            if (!els.start.hidden) {
-                els.continueLevel.textContent = levelLabel(level);
-                if (!els.picker.hidden) renderPicker();
-            } else if (!locked) {
-                // Words differ per language: keep the same letter and swap in words from the new language.
-                newRound(targetLetter.L);
-            } else {
-                renderHud();
-            }
-        });
-
-        // --- ✨ PARTICLES ---
-        const canvas = document.getElementById('particles');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        function createExplosion(x, y, color, count) {
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x, y,
-                    vx: (Math.random() - 0.5) * 9,
-                    vy: Math.random() * -8 - 1,
-                    size: Math.random() * 8 + 4,
-                    life: 1,
-                    color: Math.random() > 0.75 ? '#FFFFFF' : color,
-                    star: Math.random() > 0.6
-                });
-            }
-        }
-
-        function drawStar(p) {
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.life * 6);
-            ctx.beginPath();
-            for (let i = 0; i < 5; i++) {
-                ctx.lineTo(Math.cos((18 + i * 72) * Math.PI / 180) * p.size, -Math.sin((18 + i * 72) * Math.PI / 180) * p.size);
-                ctx.lineTo(Math.cos((54 + i * 72) * Math.PI / 180) * p.size / 2.2, -Math.sin((54 + i * 72) * Math.PI / 180) * p.size / 2.2);
-            }
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.25;
-                p.life -= 0.02;
-                if (p.life <= 0) { particles.splice(i, 1); continue; }
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                if (p.star) {
-                    drawStar(p);
-                } else {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fill();
+            Kit.sfx.cheer();
+            Kit.burstFrom(card, colorOf(targetL), 26);
+            Kit.flyTo(target.e, card.querySelector('.pic'), $('#find-friend'), {
+                size: 64, done: () => {
+                    $('#find-friend').textContent = target.e;
+                    $('#find-friend').classList.add('show');
+                    Kit.bounce($('#find-block'));
+                    Kit.sfx.boing(noteOf(targetL));
                 }
+            });
+            findWon++;
+            renderFindHud(findWon - 1);
+            let wait = 2400;
+            if (findWon >= ROUNDS) {
+                findWon = 0;
+                if (findLevel < FIND_CARDS.length - 1) findLevel++;
+                findStore.set(findLevel);
+                say(`Yes! ${targetL} is for ${target.w}! Super! Level ${findLevel + 1}!`, `Oui${NBSP}! ${targetL} comme ${target.w}${NBSP}! Super${NBSP}! Niveau ${findLevel + 1}${NBSP}!`);
+                Kit.later(() => { Kit.cheer(T(`⭐ Level ${findLevel + 1}!`, `⭐ Niveau ${findLevel + 1}${NBSP}!`), 1800); Kit.confetti(90); Kit.sfx.fanfare(); }, 1200);
+                wait = 3800;
+            } else {
+                say(`Yes! ${targetL} is for ${target.w}!`, `Oui${NBSP}! ${targetL} comme ${target.w}${NBSP}!`);
             }
-            ctx.globalAlpha = 1;
-            requestAnimationFrame(animateParticles);
-        }
+            Kit.later(() => newFind(), wait);
+        });
+        $('#find-say').addEventListener('click', () => target && sayFind());
+        $('#find-block').addEventListener('click', () => { Kit.bounce($('#find-block')); Kit.sfx.boing(noteOf(targetL)); say(targetL, targetL); });
+        function openFind() { Kit.show(find); findWon = 0; newFind(); }
 
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        animateParticles();
-        renderTitleBlocks();
-        showStart();
-        if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
+        // ---------------- 🎈 LETTER BALLOONS ----------------
+        const POP_LEVELS = [
+            { n: 3, t: 10, set: 'ABCDEFGH' },
+            { n: 4, t: 9, set: 'ABCDEFGHIJKLMNOP' },
+            { n: 4, t: 8.5, set: ALPHABET.join('') },
+            { n: 5, t: 8, set: ALPHABET.join('') },
+            { n: 6, t: 7.5, set: ALPHABET.join('') }
+        ];
+        const popStore = Kit.levelStore('abc-pop-level', POP_LEVELS.length);
+        let popLevel = popStore.get(), popWon = 0, popTarget = 'A', popTimer = 0, popLocked = false;
+        const sky = $('#sky');
+        function sayPop() { say(`Pop the letter ${popTarget}!`, `Fais éclater la lettre ${popTarget}${NBSP}!`); }
+        function renderPopHud(popIndex) {
+            $('#pop-level').textContent = T(`Level ${popLevel + 1}`, `Niveau ${popLevel + 1}`);
+            Kit.stars($('#pop-stars'), ROUNDS, popWon, popIndex);
+            $('#pop-prompt').innerHTML = T(`Pop the <span class="kit-word" style="--wc:${colorOf(popTarget)[1]}">${popTarget}</span>!`,
+                `Fais éclater le <span class="kit-word" style="--wc:${colorOf(popTarget)[1]}">${popTarget}</span>${NBSP}!`);
+        }
+        function liveBalloons() { return [...sky.querySelectorAll('.balloon:not(.popped)')]; }
+        function spawnBalloon() {
+            if (pop.hidden) return;
+            const cfg = POP_LEVELS[popLevel];
+            const live = liveBalloons();
+            if (live.length >= cfg.n) return;
+            const hasTarget = live.some(b => b.dataset.l === popTarget);
+            const L = !hasTarget && Math.random() < 0.75 ? popTarget : Kit.pick(cfg.set.split('').filter(x => x !== popTarget));
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'balloon';
+            b.dataset.l = L;
+            b.innerHTML = `<span>${L}</span>`;
+            b.setAttribute('aria-label', L);
+            paintBlock(b, L);
+            // Spread balloons across the sky so they never stack.
+            const lanes = cfg.n + 1;
+            const used = live.map(x => Number(x.dataset.lane));
+            const free = Array.from({ length: lanes }, (_, i) => i).filter(i => !used.includes(i));
+            const lane = Kit.pick(free.length ? free : [0]);
+            b.dataset.lane = lane;
+            b.style.left = `calc(${(lane + 0.5) / lanes * 100}% - clamp(39px, 7.5vw, 55px))`;
+            b.style.setProperty('--t', `${cfg.t * (0.85 + Math.random() * 0.3)}s`);
+            b.style.setProperty('--sway', `${(Math.random() - 0.5) * 16}deg`);
+            b.addEventListener('animationend', event => { if (event.animationName === 'rise' || event.animationName === 'popped') b.remove(); });
+            sky.appendChild(b);
+        }
+        function popLoop() {
+            spawnBalloon();
+            clearTimeout(popTimer);
+            popTimer = setTimeout(popLoop, 900 + Math.random() * 700);
+        }
+        sky.addEventListener('pointerdown', event => {
+            const b = event.target.closest('.balloon');
+            if (!b || b.classList.contains('popped') || popLocked) return;
+            const L = b.dataset.l;
+            if (L !== popTarget) {
+                Kit.bounce(b.firstElementChild, 'wobble');
+                Kit.sfx.oops();
+                say(`That's ${L}.`, `C'est ${L}.`);
+                return;
+            }
+            const rect = b.getBoundingClientRect();
+            // Freeze it where it is, then burst.
+            b.style.transform = getComputedStyle(b).transform;
+            b.classList.add('popped');
+            Kit.sfx.pop();
+            Kit.sfx.boing(noteOf(L));
+            Kit.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, colorOf(L), 30, 1.1);
+            popWon++;
+            popLocked = true;
+            let wait = 1200;
+            if (popWon >= ROUNDS) {
+                popWon = 0;
+                if (popLevel < POP_LEVELS.length - 1) popLevel++;
+                popStore.set(popLevel);
+                say(`Pop! ${L}! Super! Level ${popLevel + 1}!`, `Pop${NBSP}! ${L}${NBSP}! Super${NBSP}! Niveau ${popLevel + 1}${NBSP}!`);
+                Kit.cheer(T(`⭐ Level ${popLevel + 1}!`, `⭐ Niveau ${popLevel + 1}${NBSP}!`), 1800);
+                Kit.confetti(90);
+                Kit.sfx.fanfare();
+                wait = 2600;
+                renderPopHud(ROUNDS - 1);
+            } else {
+                say(`Pop! ${L}!`, `Pop${NBSP}! ${L}${NBSP}!`);
+                renderPopHud(popWon - 1);
+            }
+            Kit.later(() => {
+                popLocked = false;
+                const set = POP_LEVELS[popLevel].set.split('');
+                popTarget = Kit.pick(set.filter(x => x !== popTarget));
+                renderPopHud();
+                sayPop();
+            }, wait);
+        });
+        $('#pop-say').addEventListener('click', sayPop);
+        function openPop() {
+            Kit.show(pop);
+            popWon = 0;
+            popLocked = false;
+            sky.innerHTML = '';
+            sky.style.setProperty('--sky-h', `${sky.clientHeight || 600}px`);
+            popTarget = Kit.pick(POP_LEVELS[popLevel].set.split(''));
+            renderPopHud();
+            Kit.later(sayPop, 300);
+            popLoop();
+        }
+        Kit.onLeave(pop, () => { clearTimeout(popTimer); sky.innerHTML = ''; });
+        window.addEventListener('resize', () => sky.style.setProperty('--sky-h', `${sky.clientHeight || 600}px`));
+
+        // ---------------- START ----------------
+        function renderBadges() {
+            $('#find-badge').textContent = T(`Level ${findLevel + 1}`, `Niv. ${findLevel + 1}`);
+            $('#pop-badge').textContent = T(`Level ${popLevel + 1}`, `Niv. ${popLevel + 1}`);
+            Kit.tint('#FFE3EC');
+        }
+        $('#go-meet').addEventListener('click', () => { Kit.sfx.pop(); openMeet(); });
+        $('#go-find').addEventListener('click', () => { Kit.sfx.pop(); openFind(); });
+        $('#go-pop').addEventListener('click', () => { Kit.sfx.pop(); openPop(); });
+
+        Kit.onLang(() => {
+            renderBadges();
+            if (!meet.hidden) showLetter(meetL, false);
+            if (!find.hidden && !findLocked) newFind(targetL);
+            if (!pop.hidden) renderPopHud();
+        });
+        goStart();
+    }());
     </script>
 </body>
 </html>

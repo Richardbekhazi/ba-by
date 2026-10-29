@@ -1,35 +1,259 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-title-fr="Mon petit jardin">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Plant seeds, water them with a watering can, pull up carrots, and meet a bee, a bird, and a hungry bunny. No timers or losing.">
-    <title>My Tiny Garden - ba-by.ca</title>
-    <link rel="stylesheet" href="/assets/css/toddler-play.css?v=20261028-lang">
-    <link rel="stylesheet" href="/assets/css/tiny-garden.css?v=20261028-lang">
-    <script defer src="/assets/js/toddler-loader.js?v=20261028-lang"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Plant seeds, water them, give them sunshine and harvest flowers, strawberries, sunflowers, carrots and tomatoes. Gentle play, no timers.">
+    <title>My Tiny Garden</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
+    <script src="/assets/js/kit.js?v=20261029"></script>
+    <style>
+        :root { --tint: #E6F7DC; }
+        .garden {
+            position: relative;
+            width: 100%;
+            max-width: 980px;
+            flex: 1;
+            min-height: 360px;
+            border-radius: 36px;
+            overflow: hidden;
+            background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 58%, #9BD67F 58%, #7DC062 100%);
+            box-shadow: 0 10px 0 rgba(61,53,81,0.1);
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 0 2% 4%;
+            --sky1: #8ED6FF; --sky2: #E2F6FF;
+            transition: background 0.6s;
+        }
+        .garden.night { --sky1: #121A44; --sky2: #3D3F80; }
+        .sky-thing { position: absolute; top: 6%; right: 6%; font-size: 64px; animation: kit-bob 4s ease-in-out infinite; transition: opacity 0.4s; }
+        .cloud { position: absolute; top: 14%; left: -120px; font-size: 64px; animation: drift 38s linear infinite; }
+        .cloud.two { top: 4%; animation-duration: 52s; animation-delay: -20s; font-size: 48px; }
+        @keyframes drift { to { left: calc(100% + 120px); } }
+        .garden.night .cloud { opacity: 0.25; }
+        .firefly { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #FFF59A; box-shadow: 0 0 14px 6px rgba(255,240,120,0.7); opacity: 0; animation: fly 6s ease-in-out infinite; }
+        .garden.night .firefly { opacity: 1; }
+        @keyframes fly { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(40px, -30px); } 66% { transform: translate(-30px, -60px); } }
+
+        .pot { position: relative; width: 28%; max-width: 240px; border: 0; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        .plant { position: relative; height: clamp(120px, 26vh, 220px); width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+        .plant .pic { font-size: var(--s, 40px); line-height: 1; transform-origin: bottom center; transition: font-size 0.5s cubic-bezier(0.34,1.56,0.64,1); animation: sway 3.4s ease-in-out infinite; }
+        @keyframes sway { 50% { transform: rotate(4deg); } }
+        .plant .pic.grow { animation: grow 0.7s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes grow { 0% { transform: scale(0.4); } 70% { transform: scale(1.15); } }
+        .mound { width: 64%; height: 22px; margin-bottom: -6px; border-radius: 50% 50% 0 0; background: #7A5129; }
+        .pot-body { width: 76%; aspect-ratio: 1.2; clip-path: polygon(0 0, 100% 0, 86% 100%, 14% 100%); background: linear-gradient(180deg, #E8895A 0 18%, #D4703F 18% 100%); box-shadow: inset 0 -12px 0 rgba(0,0,0,0.12); display: grid; place-items: center; font-family: 'Fredoka One', system-ui, sans-serif; font-size: clamp(1.2rem, 4vw, 1.8rem); color: rgba(255,255,255,0.9); }
+        .need { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); padding: 6px 12px; border-radius: 18px; background: #fff; font-size: 30px; line-height: 1; box-shadow: 0 4px 0 rgba(61,53,81,0.15); animation: kit-bob 1.8s ease-in-out infinite; pointer-events: none; }
+        .need::after { content: ''; position: absolute; left: 50%; bottom: -8px; margin-left: -8px; border: 8px solid transparent; border-top-color: #fff; border-bottom: 0; }
+        .visitor { position: absolute; top: 10%; font-size: 34px; animation: visit 4s ease-in-out infinite; pointer-events: none; }
+        @keyframes visit { 0%, 100% { transform: translate(-40px, 0) rotate(-8deg); } 50% { transform: translate(40px, -20px) rotate(8deg); } }
+        .drop { position: absolute; font-size: 26px; animation: rain 0.8s ease-in forwards; pointer-events: none; }
+        @keyframes rain { from { transform: translateY(-40px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(80px); opacity: 0; } }
+        .ray { position: absolute; top: -10px; font-size: 54px; animation: beam 0.9s ease-out forwards; pointer-events: none; }
+        @keyframes beam { from { transform: scale(0.4); opacity: 0; } 40% { opacity: 1; } to { transform: scale(1.3) translateY(30px); opacity: 0; } }
+
+        .tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .tool { width: 74px; height: 74px; border: 0; border-radius: 24px; background: #fff; font-size: 40px; box-shadow: 0 5px 0 rgba(61,53,81,0.12); position: relative; }
+        .tool[aria-pressed="true"] { transform: translateY(-4px); box-shadow: 0 5px 0 var(--green-d), 0 0 0 4px var(--green); }
+        .tool.packet { background: linear-gradient(180deg, #fff 60%, #F3E8D7 60%); }
+        .basket { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+        .basket span { padding: 4px 12px; border-radius: 999px; background: #fff; font-family: 'Fredoka One', system-ui, sans-serif; font-size: 1.15rem; box-shadow: 0 3px 0 rgba(61,53,81,0.1); }
+        @media (max-width: 560px) { .tool { width: 58px; height: 58px; font-size: 32px; border-radius: 18px; } .sky-thing { font-size: 44px; } }
+    </style>
 </head>
-<body data-game="garden">
-    <nav class="topbar" aria-label="Game settings">
-        <a class="home" href="/" aria-label="Back to games"><svg class="nav-icon" width="42" height="42" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="23" fill="#FF7A45"/><path d="M2 26 A22 22 0 0 0 46 26 A23 20 0 0 1 2 26 Z" fill="#E85A28" opacity="0.55"/><path d="M24 12.5 L35.5 22 V33.5 a2.5 2.5 0 0 1 -2.5 2.5 H28 V29 a4 4 0 0 0 -8 0 V36 H15 a2.5 2.5 0 0 1 -2.5 -2.5 V22 Z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></svg></a>
-        <div class="settings">
-            <button type="button" data-language="en" aria-label="English" aria-pressed="true">EN</button>
-            <button type="button" data-language="fr" aria-label="Français" aria-pressed="false">FR</button>
-            <button type="button" id="sound" aria-label="Sound on" aria-pressed="true">🔊</button>
-            <button type="button" id="help" aria-label="Hear instructions">💬</button>
+<body>
+    <main class="kit-screen" id="start">
+        <h1 class="kit-title" style="--title-shadow:#4CC26A"><span class="bob" data-fr="Mon petit">My Tiny</span> <span class="bob" style="animation-delay:-1.3s" data-fr="jardin">Garden</span></h1>
+        <p class="kit-sub" data-fr="Plante, arrose, donne du soleil et récolte !">Plant, water, give sunshine and harvest!</p>
+        <div class="kit-modes" style="max-width:640px">
+            <button class="kit-mode" type="button" id="go-garden" style="--c:#4CC26A"><span class="kit-mode-art"><span>🌻</span></span><span class="kit-mode-label"><b data-fr="Au jardin !">To the garden!</b><small data-fr="Trois pots attendent leurs graines">Three pots are waiting for seeds</small></span></button>
         </div>
-    </nav>
-    <main class="game">
-        <div id="game-loading" role="status" aria-live="polite" style="padding:16px;text-align:center;background:white;color:#31415a;border-radius:16px">
-            <p id="loading-detail">Opening your game... / Le jeu arrive...</p>
-            <button type="button" style="min-height:48px;padding:12px" onclick="var url = new window.URL(location.href); url.searchParams.set('reload', Date.now()); location.replace(url.href);">Reload game / Recharger</button>
-        </div>
-        <header class="heading"><h1 id="title">My Tiny Garden</h1><p id="instruction">Tap the soil to plant a seed!</p></header>
-        <div id="stage" class="stage" role="img" aria-label="Your little garden"></div>
-        <div id="controls" class="toolbar" aria-label="Garden tools"></div>
-        <div id="palette" class="palette" aria-label="Seeds"></div>
-        <p id="message" class="message" role="status" aria-live="polite"></p>
-        <noscript>Please enable JavaScript to play.</noscript>
+        <div class="basket" id="start-basket"></div>
     </main>
+
+    <main class="kit-screen" id="garden-screen" hidden>
+        <div class="kit-prompt"><span id="prompt"></span><button type="button" class="kit-say" id="say" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button></div>
+        <section class="garden" id="garden">
+            <span class="cloud" aria-hidden="true">☁️</span><span class="cloud two" aria-hidden="true">☁️</span>
+            <span class="sky-thing" id="sky-thing" aria-hidden="true">🌞</span>
+            <span class="firefly" style="left:20%;top:40%" aria-hidden="true"></span><span class="firefly" style="left:60%;top:30%;animation-delay:-2s" aria-hidden="true"></span><span class="firefly" style="left:80%;top:50%;animation-delay:-4s" aria-hidden="true"></span>
+            <div id="pots" style="display:contents"></div>
+        </section>
+        <div class="tools" id="tools"></div>
+        <div class="basket" id="basket"></div>
+    </main>
+
+    <script>
+    (function () {
+        'use strict';
+        const { T, $, sfx, say } = Kit;
+        const NBSP = ' ';
+        const SEEDS = [
+            { id: 'tulip', e: '🌷', name: ['tulip', 'tulipe'], plural: ['tulips', 'tulipes'], visitor: '🦋' },
+            { id: 'strawberry', e: '🍓', name: ['strawberry', 'fraise'], plural: ['strawberries', 'fraises'], visitor: '🐞' },
+            { id: 'sunflower', e: '🌻', name: ['sunflower', 'tournesol'], plural: ['sunflowers', 'tournesols'], visitor: '🐝' },
+            { id: 'carrot', e: '🥕', name: ['carrot', 'carotte'], plural: ['carrots', 'carottes'], visitor: '🐰' },
+            { id: 'tomato', e: '🍅', name: ['tomato', 'tomate'], plural: ['tomatoes', 'tomates'], visitor: '🐌' }
+        ];
+        // Each pot grows in 4 steps; it asks for water and sunshine in turn.
+        const NEEDS = ['water', 'sun', 'water', 'sun'];
+        const STAGE_PIC = ['', '🌱', '🌿', null, null];
+        const STAGE_SIZE = [40, 52, 70, 64, 104];
+        const basket = Kit.store.json('garden-basket', {});
+        let pots = [null, null, null], tool = null, night = false;
+
+        const start = $('#start'), screen = $('#garden-screen');
+        Kit.topbar({ onBack: () => goStart() });
+        function goStart() { Kit.show(start, { back: false }); Kit.tint('#E6F7DC'); renderBasket($('#start-basket')); }
+        const seedOf = id => SEEDS.find(s => s.id === id);
+
+        function renderBasket(el) {
+            const entries = SEEDS.filter(s => basket[s.id]);
+            el.innerHTML = entries.length ? `<span>🧺</span>` + entries.map(s => `<span>${s.e} ${basket[s.id]}</span>`).join('') : '';
+        }
+        function renderTools() {
+            $('#tools').innerHTML = SEEDS.map(s => `<button type="button" class="tool packet" data-t="seed:${s.id}" aria-pressed="${tool === 'seed:' + s.id}" aria-label="${T(...s.name)}">${s.e}</button>`).join('')
+                + `<button type="button" class="tool" data-t="water" aria-pressed="${tool === 'water'}" aria-label="${T('Watering can', 'Arrosoir')}">💧</button>`
+                + `<button type="button" class="tool" data-t="sun" aria-pressed="${tool === 'sun'}" aria-label="${T('Sunshine', 'Soleil')}">☀️</button>`
+                + `<button type="button" class="tool" data-t="night" aria-label="${T('Day or night', 'Jour ou nuit')}">${night ? '🌞' : '🌙'}</button>`;
+        }
+        function plantPic(p) {
+            if (!p) return '';
+            const seed = seedOf(p.seed);
+            return p.stage >= 3 ? seed.e : STAGE_PIC[p.stage] || '';
+        }
+        function renderPots(grownIndex) {
+            $('#pots').innerHTML = pots.map((p, i) => {
+                const need = !p ? '🌰' : p.stage >= 4 ? '🧺' : NEEDS[p.stage] === 'water' ? '💧' : '☀️';
+                const size = p ? STAGE_SIZE[p.stage] : 0;
+                const visitor = p && p.stage >= 4 ? `<span class="visitor" aria-hidden="true">${seedOf(p.seed).visitor}</span>` : '';
+                return `<button type="button" class="pot" data-i="${i}" aria-label="${potLabel(p)}">
+                    <span class="plant"><span class="need" aria-hidden="true">${need}</span>${visitor}<span class="pic${grownIndex === i ? ' grow' : ''}" style="--s:clamp(${size * 0.6}px, ${size / 9}vw, ${size * 1.4}px)">${plantPic(p)}</span></span>
+                    <span class="mound"></span><span class="pot-body">${i + 1}</span></button>`;
+            }).join('');
+        }
+        function potLabel(p) {
+            if (!p) return T('Empty pot. Plant a seed!', `Pot vide. Plante une graine${NBSP}!`);
+            if (p.stage >= 4) return T(`Ready! Tap to pick the ${seedOf(p.seed).name[0]}`, `Prêt${NBSP}! Touche pour cueillir`);
+            return NEEDS[p.stage] === 'water' ? T('Needs water', "A besoin d'eau") : T('Needs sunshine', 'A besoin de soleil');
+        }
+        function setPrompt() {
+            const empty = pots.some(p => !p), ready = pots.some(p => p && p.stage >= 4);
+            const line = ready ? ['Tap a grown plant to pick it!', `Touche une plante pour la cueillir${NBSP}!`]
+                : empty ? ['Pick a seed, then tap a pot!', `Choisis une graine, puis touche un pot${NBSP}!`]
+                    : ['Give water 💧 and sunshine ☀️!', `Donne de l'eau 💧 et du soleil ☀️${NBSP}!`];
+            $('#prompt').textContent = T(...line);
+            return line;
+        }
+        function effect(potEl, cls, emoji, n) {
+            const plant = potEl.querySelector('.plant');
+            for (let k = 0; k < n; k++) {
+                const s = document.createElement('span');
+                s.className = cls;
+                s.textContent = emoji;
+                s.style.left = `${20 + Math.random() * 60}%`;
+                s.style.animationDelay = `${k * 0.12}s`;
+                plant.appendChild(s);
+                setTimeout(() => s.remove(), 1200 + k * 120);
+            }
+        }
+        function act(i, chosen) {
+            const p = pots[i];
+            const potEl = $(`#pots .pot[data-i="${i}"]`);
+            if (!p) {
+                // Plant the chosen seed (or a surprise seed).
+                const seed = chosen && chosen.startsWith('seed:') ? chosen.slice(5) : (chosen ? null : Kit.pick(SEEDS).id);
+                if (!seed) { Kit.bounce(potEl, 'wobble'); sfx.oops(); say('Plant a seed first!', `Plante d'abord une graine${NBSP}!`); return; }
+                pots[i] = { seed, stage: 0 };
+                sfx.drum(220);
+                Kit.later(sfx.pop, 120);
+                renderPots(i);
+                const s = seedOf(seed);
+                say(`A ${s.name[0]} seed!`, `Une graine de ${s.name[1]}${NBSP}!`);
+                afterChange();
+                return;
+            }
+            if (p.stage >= 4) { harvest(i); return; }
+            const need = NEEDS[p.stage];
+            if (chosen && chosen !== need) {
+                Kit.bounce(potEl, 'wobble');
+                sfx.oops();
+                say(...(need === 'water' ? ['It needs water!', `Elle a besoin d'eau${NBSP}!`] : ['It needs sunshine!', `Elle a besoin de soleil${NBSP}!`]));
+                return;
+            }
+            if (need === 'water') { effect(potEl, 'drop', '💧', 5); sfx.splash(); }
+            else { effect(potEl, 'ray', '☀️', 1); sfx.sparkle(); }
+            Kit.later(() => {
+                p.stage++;
+                sfx.grow();
+                renderPots(i);
+                const el = $(`#pots .pot[data-i="${i}"]`);
+                Kit.burstFrom(el.querySelector('.pic'), ['#4CC26A', '#FFD54A', '#fff'], 14, 0.7);
+                if (p.stage >= 4) { const s = seedOf(p.seed); say(`Wow! A ${s.name[0]}!`, `Oh${NBSP}! ${s.name[1].replace(/^./, c => c.toUpperCase())}${NBSP}!`); Kit.later(sfx.cheer, 300); }
+                afterChange();
+            }, 700);
+        }
+        function harvest(i) {
+            const p = pots[i], s = seedOf(p.seed);
+            const potEl = $(`#pots .pot[data-i="${i}"]`);
+            basket[p.seed] = (basket[p.seed] || 0) + 1;
+            Kit.store.setJson('garden-basket', basket);
+            Kit.flyTo(s.e, potEl.querySelector('.pic'), $('#basket'), { size: 70, done: () => { renderBasket($('#basket')); Kit.bounce($('#basket')); } });
+            sfx.cheer();
+            Kit.burstFrom(potEl, ['#FF6B8B', '#FFD54A', '#4CC26A'], 24);
+            pots[i] = null;
+            renderPots();
+            const total = Object.values(basket).reduce((a, b) => a + b, 0);
+            say(`Yum! ${basket[p.seed]} ${basket[p.seed] === 1 ? s.name[0] : s.plural[0]} in the basket!`, `Miam${NBSP}! ${basket[p.seed]} ${basket[p.seed] === 1 ? s.name[1] : s.plural[1]} dans le panier${NBSP}!`);
+            if (total % 10 === 0) Kit.later(() => { Kit.cheer(T(`🧺 ${total} treasures!`, `🧺 ${total} trésors${NBSP}!`), 2000); Kit.confetti(110); sfx.fanfare(); }, 800);
+            afterChange();
+        }
+        function afterChange() { setPrompt(); }
+
+        $('#pots').addEventListener('click', e => {
+            const pot = e.target.closest('.pot');
+            if (!pot) return;
+            act(Number(pot.dataset.i), tool);
+        });
+        $('#tools').addEventListener('click', e => {
+            const b = e.target.closest('.tool');
+            if (!b) return;
+            const t = b.dataset.t;
+            if (t === 'night') {
+                night = !night;
+                $('#garden').classList.toggle('night', night);
+                $('#sky-thing').textContent = night ? '🌙' : '🌞';
+                sfx.sparkle();
+                say(night ? 'Good night, little garden!' : 'Good morning, sunshine!', night ? `Bonne nuit, petit jardin${NBSP}!` : `Bonjour, soleil${NBSP}!`);
+                renderTools();
+                return;
+            }
+            tool = tool === t ? null : t;
+            sfx.pop();
+            renderTools();
+            if (t.startsWith('seed:')) { const s = seedOf(t.slice(5)); say(s.name[0], s.name[1]); }
+        });
+        $('#say').addEventListener('click', () => say(...setPrompt()));
+        $('#sky-thing').addEventListener('click', () => sfx.sparkle());
+
+        function openGarden() {
+            Kit.show(screen);
+            Kit.tint('#E6F7DC');
+            renderTools();
+            renderPots();
+            renderBasket($('#basket'));
+            say(...setPrompt());
+        }
+        $('#go-garden').addEventListener('click', () => { sfx.pop(); openGarden(); });
+        Kit.onLang(() => { if (!screen.hidden) { renderTools(); renderPots(); setPrompt(); } });
+        goStart();
+    }());
+    </script>
 </body>
 </html>
