@@ -216,13 +216,16 @@ the tool follows the finger, and spoken instructions can be repeated with 🔊.
   dry the drops with the towel, dress up (hat, bow, glasses, crown, scarf, flower) or splash mud back on.
   The tool that helps next gently pulses and is picked for the child when a part is done. Tap the pet
   to make it giggle and the duck to squeak.
-- **Little Car Garage** (`/car-garage/`): pick a car, bus or truck. Rub off the mud, tap each wobbly wheel
-  with the wrench to fix it, choose a paint colour and stickers, then drive along a rolling road with a
-  horn and headlights (which also turn on the night sky).
-- **My Tiny Garden** (`/tiny-garden/`): three pots; pick a seed (tulip, strawberry, sunflower, carrot or
-  tomato) and tap a pot. A bubble shows what each plant needs next (💧 or ☀️); tapping a pot does it.
-  Grown plants get a visitor and can be picked into the basket (`garden-basket`). Day / night switch
-  with fireflies.
+- **Little Car Garage** (`/car-garage/`): opens straight into the garage. The car, bus and truck wait
+  in a row beside it; tap one to swap (each keeps its own mud, wheels, paint and stickers). Every tool
+  works at any time: rub off the mud with the sponge, tap each wobbly wheel with the wrench, paint it and
+  add stickers, splash mud back on, or go for a drive along a rolling road with a horn and headlights
+  (which also turn on the night sky). The tool that helps next gently pulses.
+- **My Tiny Garden** (`/tiny-garden/`): opens straight into the garden. Three pots; pick a seed (tulip,
+  strawberry, sunflower, carrot or tomato) and tap a pot, or tap an empty pot for a surprise seed. A bubble
+  shows what each plant needs next (💧 or ☀️); tapping a pot with any tool gives it what it needs, so
+  there are no wrong answers. Grown plants get a visitor and can be picked into the basket. The pots and
+  basket are saved (`garden-pots`, `garden-basket`). Day / night switch with fireflies.
 - **Finger Painting** (`/finger-paint/`): opens straight onto white paper. Crayon, rainbow, sparkles,
   bubbles, eight stamps and an eraser. The paper buttons switch between white, night (glowing colours),
   brown paper and a coloring page (butterfly, fish, flower) without erasing the painting. Notes play
@@ -243,7 +246,7 @@ Nothing is uploaded; progress is kept in the browser's `localStorage`:
 | `numbers-voice` | Numbers: Tagalog / Arabic / Ilokano number voice |
 | `stacky-level`, `stacky-cleared` | Stacky Smiles: level to continue and levels cleared |
 | `animals-quiz-level` | Animal Safari: "Who says that?" level |
-| `garden-basket` | My Tiny Garden: what has been picked |
+| `garden-basket`, `garden-pots` | My Tiny Garden: what has been picked, what is growing |
 | `baby-muted` | Kit games: sound on or off |
 | `bubbles-save`, `bubbles-best` | Bubble Hero: saved run to continue, best level |
 | `jump-stars`, `jump-friend`, `jump-endless-best` | Jump!: stars per level, chosen friend, best Endless fish |

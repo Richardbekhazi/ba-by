@@ -68,16 +68,7 @@
     </style>
 </head>
 <body>
-    <main class="kit-screen" id="start">
-        <h1 class="kit-title" style="--title-shadow:#4CC26A"><span class="bob" data-fr="Mon petit">My Tiny</span> <span class="bob" style="animation-delay:-1.3s" data-fr="jardin">Garden</span></h1>
-        <p class="kit-sub" data-fr="Plante, arrose, donne du soleil et récolte !">Plant, water, give sunshine and harvest!</p>
-        <div class="kit-modes" style="max-width:640px">
-            <button class="kit-mode" type="button" id="go-garden" style="--c:#4CC26A"><span class="kit-mode-art"><span>🌻</span></span><span class="kit-mode-label"><b data-fr="Au jardin !">To the garden!</b><small data-fr="Trois pots attendent leurs graines">Three pots are waiting for seeds</small></span></button>
-        </div>
-        <div class="basket" id="start-basket"></div>
-    </main>
-
-    <main class="kit-screen" id="garden-screen" hidden>
+    <main class="kit-screen" id="garden-screen">
         <div class="kit-prompt"><span id="prompt"></span><button type="button" class="kit-say" id="say" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button></div>
         <section class="garden" id="garden">
             <span class="cloud" aria-hidden="true">☁️</span><span class="cloud two" aria-hidden="true">☁️</span>
@@ -106,11 +97,16 @@
         const STAGE_PIC = ['', '🌱', '🌿', null, null];
         const STAGE_SIZE = [40, 52, 70, 64, 104];
         const basket = Kit.store.json('garden-basket', {});
-        let pots = [null, null, null], tool = null, night = false;
+        // The pots are saved too, so the garden is still growing next time.
+        const savedPots = Kit.store.json('garden-pots', null);
+        let pots = Array.isArray(savedPots) && savedPots.length === 3
+            ? savedPots.map(p => (p && SEEDS.some(s => s.id === p.seed) && p.stage >= 0 && p.stage <= 4 ? p : null))
+            : [null, null, null];
+        let tool = null, night = false;
+        const savePots = () => Kit.store.setJson('garden-pots', pots);
 
-        const start = $('#start'), screen = $('#garden-screen');
-        Kit.topbar({ onBack: () => goStart() });
-        function goStart() { Kit.show(start, { back: false }); Kit.tint('#E6F7DC'); renderBasket($('#start-basket')); }
+        const screen = $('#garden-screen');
+        Kit.topbar();
         const seedOf = id => SEEDS.find(s => s.id === id);
 
         function renderBasket(el) {
@@ -168,8 +164,7 @@
             const potEl = $(`#pots .pot[data-i="${i}"]`);
             if (!p) {
                 // Plant the chosen seed (or a surprise seed).
-                const seed = chosen && chosen.startsWith('seed:') ? chosen.slice(5) : (chosen ? null : Kit.pick(SEEDS).id);
-                if (!seed) { Kit.bounce(potEl, 'wobble'); sfx.oops(); say('Plant a seed first!', `Plante d'abord une graine${NBSP}!`); return; }
+                const seed = chosen && chosen.startsWith('seed:') ? chosen.slice(5) : Kit.pick(SEEDS).id;
                 pots[i] = { seed, stage: 0 };
                 sfx.drum(220);
                 Kit.later(sfx.pop, 120);
@@ -181,11 +176,9 @@
             }
             if (p.stage >= 4) { harvest(i); return; }
             const need = NEEDS[p.stage];
+            // No wrong answers: whatever is in hand, the pot gets what it needs, and the voice says what that was.
             if (chosen && chosen !== need) {
-                Kit.bounce(potEl, 'wobble');
-                sfx.oops();
-                say(...(need === 'water' ? ['It needs water!', `Elle a besoin d'eau${NBSP}!`] : ['It needs sunshine!', `Elle a besoin de soleil${NBSP}!`]));
-                return;
+                say(...(need === 'water' ? ['It wanted water!', `Elle voulait de l'eau${NBSP}!`] : ['It wanted sunshine!', `Elle voulait du soleil${NBSP}!`]));
             }
             if (need === 'water') { effect(potEl, 'drop', '💧', 5); sfx.splash(); }
             else { effect(potEl, 'ray', '☀️', 1); sfx.sparkle(); }
@@ -214,7 +207,7 @@
             if (total % 10 === 0) Kit.later(() => { Kit.cheer(T(`🧺 ${total} treasures!`, `🧺 ${total} trésors${NBSP}!`), 2000); Kit.confetti(110); sfx.fanfare(); }, 800);
             afterChange();
         }
-        function afterChange() { setPrompt(); }
+        function afterChange() { savePots(); setPrompt(); }
 
         $('#pots').addEventListener('click', e => {
             const pot = e.target.closest('.pot');
@@ -243,16 +236,15 @@
         $('#sky-thing').addEventListener('click', () => sfx.sparkle());
 
         function openGarden() {
-            Kit.show(screen);
+            Kit.show(screen, { back: false });
             Kit.tint('#E6F7DC');
             renderTools();
             renderPots();
             renderBasket($('#basket'));
             say(...setPrompt());
         }
-        $('#go-garden').addEventListener('click', () => { sfx.pop(); openGarden(); });
-        Kit.onLang(() => { if (!screen.hidden) { renderTools(); renderPots(); setPrompt(); } });
-        goStart();
+        Kit.onLang(() => { renderTools(); renderPots(); setPrompt(); });
+        openGarden();
     }());
     </script>
 </body>

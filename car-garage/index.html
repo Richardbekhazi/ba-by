@@ -14,15 +14,20 @@
     <script src="/assets/js/kit.js?v=20261029"></script>
     <style>
         :root { --tint: #FFEBD6; }
-        .steps { display: flex; gap: 8px; }
-        .step { width: 58px; height: 58px; border-radius: 20px; display: grid; place-items: center; font-size: 30px; background: rgba(255,255,255,0.6); box-shadow: 0 4px 0 rgba(61,53,81,0.1); position: relative; }
-        .step.now { background: #fff; box-shadow: 0 4px 0 var(--orange-d), 0 0 0 4px var(--orange); transform: scale(1.08); }
-        .step.done::after { content: '✓'; position: absolute; right: -6px; top: -6px; width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; font: 400 14px/24px 'Fredoka One', system-ui; text-align: center; }
-        .stage { position: relative; width: 100%; max-width: min(820px, calc((100vh - 300px) * 1.55)); max-width: min(820px, calc((100dvh - 300px) * 1.55)); min-width: min(100%, 300px); border-radius: 34px; overflow: hidden; touch-action: none; box-shadow: 0 10px 0 rgba(61,53,81,0.1);
+        #garage { gap: 12px; }
+        /* The vehicles: always on screen, tap one to drive it into the garage. */
+        .rides { display: flex; gap: 10px; justify-content: center; }
+        .ride { width: 66px; height: 66px; border: 0; border-radius: 50%; background: #fff; font-size: 38px; line-height: 1; display: grid; place-items: center; padding: 0; box-shadow: 0 5px 0 rgba(61,53,81,0.12); transition: transform 0.15s; }
+        .ride:hover { transform: translateY(-3px) rotate(-6deg); }
+        .ride[aria-pressed="true"] { box-shadow: 0 5px 0 var(--c-d), 0 0 0 4px var(--c); transform: scale(1.1); }
+        .ride[aria-pressed="true"] span { animation: kit-bob 2.4s ease-in-out infinite; display: inline-block; }
+        .stage { position: relative; width: 100%; max-width: min(820px, calc((100vh - 330px) * 1.55)); max-width: min(820px, calc((100dvh - 330px) * 1.55)); min-width: min(100%, 280px); border-radius: 34px; overflow: hidden; touch-action: none; box-shadow: 0 10px 0 rgba(61,53,81,0.1);
             background: linear-gradient(180deg, #E9E4F6 0%, #F7F3FF 66%, #B9B2CC 66%, #A39BBA 100%); }
         .stage.road { background: linear-gradient(180deg, var(--sky1, #8ED6FF) 0%, var(--sky2, #DDF3FF) 52%, #8FD27A 52%, #78C062 64%, #5C5F73 64%, #4A4D60 100%); }
         .stage.road.night { --sky1: #121A44; --sky2: #3B3F7A; }
         .stage svg.vehicle { position: relative; z-index: 2; display: block; width: 100%; height: auto; }
+        .stage svg.vehicle.drive-in { animation: drive-in 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+        @keyframes drive-in { from { transform: translateX(-70%); } }
         .scenery { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
         .lane { position: absolute; left: 0; width: 200%; display: flex; justify-content: space-around; animation: roll var(--t, 6s) linear infinite; }
         .lane span { font-size: var(--s, 48px); line-height: 1; }
@@ -34,7 +39,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .vehicle.hop { animation: hop 0.6s cubic-bezier(0.34,1.56,0.64,1) !important; }
         @keyframes hop { 40% { transform: translateY(-14%) rotate(-3deg); } }
-        .wheel.loose { animation: loose 0.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; cursor: pointer; }
+        .stage:not(.road) .wheel.loose { animation: loose 0.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; cursor: pointer; }
         @keyframes loose { 25% { transform: rotate(-12deg) translateY(-2px); } 75% { transform: rotate(12deg) translateY(2px); } }
         .beam { opacity: 0; transition: opacity 0.3s; }
         .lights-on .beam { opacity: 0.85; }
@@ -42,52 +47,93 @@
         .tool-cursor.idle { opacity: 0; }
         .rubbing .tool-cursor { animation: scrub 0.25s ease-in-out infinite alternate; }
         @keyframes scrub { to { transform: translate(-46%, -54%) rotate(10deg); } }
+        /* Tools: any one, any time. The one that helps next gently pulses. */
+        .side { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .tools { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .tool { position: relative; width: 74px; height: 74px; border: 0; border-radius: 24px; background: #fff; font-size: 40px; line-height: 1; padding: 0; box-shadow: 0 5px 0 rgba(61,53,81,0.12); transition: transform 0.15s; }
+        .tool[aria-pressed="true"] { box-shadow: 0 5px 0 var(--orange-d), 0 0 0 4px var(--orange); transform: translateY(-3px); }
+        .tool.hint:not([aria-pressed="true"])::after { content: ''; position: absolute; inset: -6px; border-radius: 28px; border: 4px solid var(--sun); animation: hint 1.4s ease-out infinite; pointer-events: none; }
+        @keyframes hint { 0% { opacity: 0.9; transform: scale(0.92); } 100% { opacity: 0; transform: scale(1.15); } }
         .controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .swatch { width: 60px; height: 60px; border-radius: 50%; border: 5px solid #fff; background: var(--c); box-shadow: 0 5px 0 rgba(61,53,81,0.15); }
+        .swatch { width: 56px; height: 56px; border-radius: 50%; border: 5px solid #fff; background: var(--c); padding: 0; box-shadow: 0 5px 0 rgba(61,53,81,0.15); }
         .swatch[aria-pressed="true"] { box-shadow: 0 0 0 5px var(--ink), 0 5px 0 rgba(61,53,81,0.15); }
-        .sticker { width: 64px; height: 64px; border: 0; border-radius: 22px; background: #fff; font-size: 34px; box-shadow: 0 5px 0 rgba(61,53,81,0.12); }
-        .sticker[aria-pressed="true"] { box-shadow: 0 5px 0 var(--pink-d), 0 0 0 4px var(--pink); }
+        .sticker, .drive-btn { width: 60px; height: 60px; border: 0; border-radius: 20px; background: #fff; font-size: 32px; line-height: 1; padding: 0; box-shadow: 0 5px 0 rgba(61,53,81,0.12); }
+        .sticker[aria-pressed="true"], .drive-btn[aria-pressed="true"] { box-shadow: 0 5px 0 var(--pink-d), 0 0 0 4px var(--pink); }
+        .drive-btn:active, .sticker:active { transform: translateY(4px); }
         .shine { animation: shine 1.4s ease-out forwards; transform-box: fill-box; transform-origin: center; }
         @keyframes shine { 0% { opacity: 0; transform: scale(0.2); } 40% { opacity: 1; } 100% { opacity: 0; transform: scale(1.4) rotate(40deg); } }
+        @media (max-width: 560px) {
+            .ride { width: 58px; height: 58px; font-size: 32px; }
+            .tool { width: 58px; height: 58px; font-size: 32px; border-radius: 20px; }
+            .swatch { width: 44px; height: 44px; border-width: 4px; }
+            .sticker, .drive-btn { width: 50px; height: 50px; font-size: 26px; border-radius: 16px; }
+            .stage { max-width: 100%; }
+        }
+        /* Wide screens: vehicles on the left, tools on the right, a big garage in the middle. */
+        @media (orientation: landscape) and (min-width: 640px) {
+            #garage { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); align-items: center; justify-items: center; column-gap: 18px; row-gap: 10px; padding: calc(var(--safe-top) + 4px) var(--safe-right) var(--safe-bottom) var(--safe-left); height: 100vh; height: 100dvh; }
+            #garage .kit-prompt { grid-column: 2; grid-row: 1; max-width: min(100%, 560px); }
+            .rides { grid-column: 1; grid-row: 1 / 3; flex-direction: column; padding-top: 56px; }
+            .stage { grid-column: 2; grid-row: 2; max-width: min(100%, 940px, calc((100vh - 130px) * 1.55)); max-width: min(100%, 940px, calc((100dvh - 130px) * 1.55)); }
+            .side { grid-column: 3; grid-row: 1 / 3; padding-top: 56px; max-width: 220px; }
+            .tools { display: grid; grid-template-columns: repeat(2, 74px); }
+        }
+        @media (orientation: landscape) and (max-height: 600px) {
+            #garage { column-gap: 14px; row-gap: 6px; padding-bottom: 8px; }
+            .stage { max-width: min(100%, calc((100dvh - 90px) * 1.55)); }
+            .tools { grid-template-columns: repeat(2, 56px); gap: 8px; }
+            .tool { width: 56px; height: 56px; font-size: 30px; border-radius: 18px; }
+            .swatch { width: 38px; height: 38px; border-width: 3px; }
+            .sticker, .drive-btn { width: 44px; height: 44px; font-size: 24px; border-radius: 14px; }
+            .controls { gap: 6px; }
+            .ride { width: 52px; height: 52px; font-size: 30px; }
+        }
     </style>
 </head>
 <body>
-    <main class="kit-screen" id="start">
-        <h1 class="kit-title" style="--title-shadow:#FF9F43"><span class="bob" data-fr="Petit">Little</span> <span class="bob" style="animation-delay:-1.3s" data-fr="garage">Garage</span></h1>
-        <p class="kit-sub" data-fr="Lave, répare, peins… et en route !">Wash, fix, paint… and off we go!</p>
-        <div class="kit-modes">
-            <button class="kit-mode" type="button" data-v="car" style="--c:#FF5A5F"><span class="kit-mode-art"><span>🚗</span></span><span class="kit-mode-label"><b data-fr="Auto">Car</b><small data-fr="Petite et rapide">Small and zippy</small></span></button>
-            <button class="kit-mode" type="button" data-v="bus" style="--c:#FFB627"><span class="kit-mode-art"><span>🚌</span></span><span class="kit-mode-label"><b data-fr="Autobus">Bus</b><small data-fr="Plein d'amis">Full of friends</small></span></button>
-            <button class="kit-mode" type="button" data-v="truck" style="--c:#4FB8FF"><span class="kit-mode-art"><span>🚚</span></span><span class="kit-mode-label"><b data-fr="Camion">Truck</b><small data-fr="Gros et fort">Big and strong</small></span></button>
-        </div>
-    </main>
-
-    <main class="kit-screen" id="garage" hidden>
-        <div class="steps" id="steps"></div>
+    <main class="kit-screen" id="garage">
+        <div class="rides" id="rides" role="group" aria-label="Vehicles" data-fr-aria-label="Véhicules"></div>
         <div class="kit-prompt"><span id="prompt"></span><button type="button" class="kit-say" id="say" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button></div>
         <div class="stage" id="stage" tabindex="0" role="button" aria-label="Garage" data-fr-aria-label="Garage"><div class="scenery" id="scenery"></div><div class="tool-cursor idle" id="cursor"></div></div>
-        <div class="controls" id="controls"></div>
+        <div class="side">
+            <div class="tools" id="tools" role="group" aria-label="Garage tools" data-fr-aria-label="Outils du garage"></div>
+            <div class="controls" id="controls"></div>
+        </div>
     </main>
 
     <script>
     (function () {
         'use strict';
         const { T, $, sfx, say } = Kit;
-        const NBSP = ' ';
+        const NBSP = ' ';
         const NS = 'http://www.w3.org/2000/svg';
         const PAINTS = [['#FF5A5F', 'Red', 'Rouge'], ['#FF9A2E', 'Orange', 'Orange'], ['#FFC93B', 'Yellow', 'Jaune'], ['#4CC26A', 'Green', 'Vert'], ['#3D9BF0', 'Blue', 'Bleu'], ['#9B6CF0', 'Purple', 'Violet'], ['#FF8FC4', 'Pink', 'Rose']];
         const STICKERS = [{ id: 'star', e: '⭐' }, { id: 'heart', e: '💖' }, { id: 'flame', e: '🔥' }, { id: 'bolt', e: '⚡' }];
         const VEHICLES = {
-            car: { color: '#FF5A5F', name: ['car', "l'auto"], wheels: [[118, 206], [290, 206]], stickerAt: [200, 150],
+            car: { e: '🚗', c: '#FF5A5F', cd: '#D93A40', color: '#FF5A5F', name: ['Car', 'Auto'], hi: ['Beep beep! Here comes the car!', `Bip bip${NBSP}! Voici l'auto${NBSP}!`], wheels: [[118, 206], [290, 206]], stickerAt: [200, 150],
                 body: '<path class="paint" d="M40 196 Q40 150 80 146 L120 140 Q150 92 210 90 Q262 90 292 140 L338 148 Q366 154 366 196 Z"/><path d="M134 140 Q160 104 206 102 L206 140 Z M220 102 Q258 104 280 140 L220 140 Z" fill="#CDEBFF" stroke="#3D3551" stroke-width="5" stroke-linejoin="round"/>',
-                light: [360, 166] },
-            bus: { color: '#FFC93B', name: ['bus', "l'autobus"], wheels: [[96, 210], [304, 210]], stickerAt: [200, 168],
+                light: [360, 166], box: [40, 90, 366, 200] },
+            bus: { e: '🚌', c: '#FFB627', cd: '#D99100', color: '#FFC93B', name: ['Bus', 'Autobus'], hi: ['Here comes the bus, full of friends!', `Voici l'autobus, plein d'amis${NBSP}!`], wheels: [[96, 210], [304, 210]], stickerAt: [200, 168],
                 body: '<rect class="paint" x="26" y="70" width="350" height="130" rx="26"/>' + [0, 1, 2, 3].map(i => `<rect x="${48 + i * 70}" y="88" width="56" height="44" rx="10" fill="#CDEBFF" stroke="#3D3551" stroke-width="5"/>`).join('') + '<rect x="330" y="88" width="34" height="80" rx="8" fill="#CDEBFF" stroke="#3D3551" stroke-width="5"/>'
                     + '<text x="76" y="122" font-size="28" stroke="none">🐻</text><text x="146" y="122" font-size="28" stroke="none">🐰</text><text x="216" y="122" font-size="28" stroke="none">🐱</text>',
-                light: [372, 180] },
-            truck: { color: '#3D9BF0', name: ['truck', 'le camion'], wheels: [[100, 210], [300, 210]], stickerAt: [140, 140],
+                light: [372, 180], box: [26, 70, 376, 200] },
+            truck: { e: '🚚', c: '#4FB8FF', cd: '#2E8FD6', color: '#3D9BF0', name: ['Truck', 'Camion'], hi: ['Here comes the big truck!', `Voici le gros camion${NBSP}!`], wheels: [[100, 210], [300, 210]], stickerAt: [140, 140],
                 body: '<rect class="paint" x="22" y="64" width="232" height="136" rx="16"/><path class="paint" d="M260 200 V108 Q260 96 272 96 H322 Q340 96 350 114 L372 152 V200 Z"/><path d="M278 110 H318 Q330 110 336 122 L352 150 H278 Z" fill="#CDEBFF" stroke="#3D3551" stroke-width="5" stroke-linejoin="round"/>',
-                light: [370, 180] }
+                light: [370, 180], box: [22, 64, 372, 200] }
+        };
+        const TOOLS = [
+            { id: 'sponge', e: '🧽', name: ['Sponge', 'Éponge'] },
+            { id: 'wrench', e: '🔧', name: ['Wrench', 'Clé'] },
+            { id: 'paint', e: '🎨', name: ['Paint', 'Peinture'] },
+            { id: 'drive', e: '🛣️', name: ['Drive', 'Promenade'] },
+            { id: 'mud', e: '🟤', name: ['Mud', 'Boue'] }
+        ];
+        const LINES = {
+            sponge: ['Rub off the mud with the sponge!', `Frotte la boue avec l'éponge${NBSP}!`],
+            wrench: ['Tap the wobbly wheels with the wrench!', `Touche les roues qui bougent avec la clé${NBSP}!`],
+            paint: ['Pick a color and some stickers!', `Choisis une couleur et des autocollants${NBSP}!`],
+            drive: ['Vroom! Time for a drive!', `Vroum${NBSP}! On part en promenade${NBSP}!`],
+            mud: ['Splat! Make it muddy!', `Splat${NBSP}! Plein de boue${NBSP}!`]
         };
 
         function vehicleSVG(kind, color) {
@@ -102,122 +148,168 @@
                 <g id="stickers"></g>${wheels}<g id="mud"></g><g id="sparkles"></g></svg>`;
         }
 
-        const STEPS = [
-            { id: 'wash', icon: '🧽', tool: '🧽', say: ['Rub off the mud!', `Frotte pour enlever la boue${NBSP}!`] },
-            { id: 'fix', icon: '🔧', tool: '🔧', say: ['Tap the wobbly wheels to fix them!', `Touche les roues qui bougent pour les réparer${NBSP}!`] },
-            { id: 'paint', icon: '🎨', tool: '', say: ['Pick a color and some stickers!', `Choisis une couleur et des autocollants${NBSP}!`] },
-            { id: 'drive', icon: '🛣️', tool: '', say: ['Vroom! Time for a drive!', `Vroum${NBSP}! On part en promenade${NBSP}!`] }
-        ];
-        const start = $('#start'), garage = $('#garage');
-        Kit.topbar({ onBack: () => goStart() });
-        function goStart() { Kit.show(start, { back: false }); Kit.tint('#FFEBD6'); }
+        Kit.topbar();
+        Kit.tint('#FFEBD6');
 
-        let kind = 'car', color = '#FF5A5F', stepIndex = 0, items = [], fixes = [], stickers = new Set(), rubbing = null;
+        // Each vehicle remembers its own mud, wheels, paint and stickers while the child swaps between them.
+        const state = {};
+        let kind = 'car', tool = 'sponge', rubbing = null, driving = false, readyCheered = false;
+        const S = () => state[kind];
         const svgEl = () => $('#stage svg.vehicle');
         function add(parent, tag, attrs) { const el = document.createElementNS(NS, tag); Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v)); parent.appendChild(el); return el; }
+        const mudPath = (x, y, r) => `M${x - r} ${y} Q${x - r} ${y - r} ${x} ${y - r} Q${x + r + 6} ${y - r} ${x + r} ${y} Q${x + r} ${y + r} ${x} ${y + r} Q${x - r - 6} ${y + r} ${x - r} ${y} Z`;
         function sparkle(x, y, n) {
+            const g = $('#sparkles');
+            if (!g) return;
             for (let i = 0; i < n; i++) {
-                const t = add($('#sparkles'), 'text', { x: x + (Math.random() - 0.5) * 160, y: y + (Math.random() - 0.5) * 80, 'font-size': 26, class: 'shine', 'text-anchor': 'middle' });
+                const t = add(g, 'text', { x: x + (Math.random() - 0.5) * 160, y: y + (Math.random() - 0.5) * 80, 'font-size': 26, class: 'shine', 'text-anchor': 'middle' });
                 t.textContent = '✨';
                 t.style.animationDelay = `${i * 0.1}s`;
                 setTimeout(() => t.remove(), 1600 + i * 100);
             }
         }
-        function renderVehicle() {
+        function freshVehicle(k) {
+            const v = VEHICLES[k], mud = [];
+            for (let i = 0; i < 10; i++) mud.push({ x: v.box[0] + 30 + Math.random() * (v.box[2] - v.box[0] - 60), y: v.box[1] + 20 + Math.random() * (v.box[3] - v.box[1] - 40), r: 16 + Math.random() * 10, shade: i % 2 ? '#8B5E3C' : '#A47148' });
+            return { mud, fixes: v.wheels.map(() => 0), color: v.color, stickers: new Set() };
+        }
+        function drawMud() {
+            $('#mud').innerHTML = '';
+            S().mud.forEach(m => { m.el = add($('#mud'), 'path', { d: mudPath(m.x, m.y, m.r), fill: m.shade }); });
+        }
+        function renderVehicle(animateIn) {
             $('#stage').querySelectorAll('svg.vehicle').forEach(s => s.remove());
-            $('#stage').insertAdjacentHTML('beforeend', vehicleSVG(kind, color));
+            $('#stage').insertAdjacentHTML('beforeend', vehicleSVG(kind, S().color));
+            svgEl().querySelectorAll('.wheel').forEach((w, i) => w.classList.toggle('loose', S().fixes[i] < 3));
+            drawMud();
             renderStickers();
+            if (animateIn && !driving) { svgEl().classList.add('drive-in'); svgEl().addEventListener('animationend', () => svgEl() && svgEl().classList.remove('drive-in'), { once: true }); }
         }
         function renderStickers() {
             const g = $('#stickers');
             if (!g) return;
             g.innerHTML = '';
             const [sx, sy] = VEHICLES[kind].stickerAt;
-            [...stickers].forEach((id, i) => { const t = add(g, 'text', { x: sx - 50 + i * 44, y: sy, 'font-size': 40, 'text-anchor': 'middle', 'dominant-baseline': 'middle' }); t.textContent = STICKERS.find(s => s.id === id).e; });
-        }
-        function renderSteps() {
-            $('#steps').innerHTML = STEPS.map((s, i) => `<span class="step${i === stepIndex ? ' now' : i < stepIndex ? ' done' : ''}" aria-hidden="true">${s.icon}</span>`).join('');
-            $('#prompt').textContent = T(...STEPS[stepIndex].say);
-            $('#cursor').textContent = STEPS[stepIndex].tool;
-            renderControls();
-        }
-        function renderControls() {
-            const s = STEPS[stepIndex].id, c = $('#controls');
-            if (s === 'paint') {
-                c.innerHTML = PAINTS.map(([hex, en, fr]) => `<button type="button" class="swatch" data-c="${hex}" style="--c:${hex}" aria-label="${T(en, fr)}" aria-pressed="${hex === color}"></button>`).join('')
-                    + STICKERS.map(st => `<button type="button" class="sticker" data-s="${st.id}" aria-pressed="${stickers.has(st.id)}" aria-label="${st.id}">${st.e}</button>`).join('')
-                    + `<button type="button" class="kit-btn small" id="to-drive" style="--c:#4CC26A;--cd:#2F9E4C">${T('🛣️ Drive!', `🛣️ En route${NBSP}!`)}</button>`;
-            } else if (s === 'drive') {
-                c.innerHTML = `<button type="button" class="kit-btn small" id="honk" style="--c:#FFB627;--cd:#E08A00">${T('📯 Honk', '📯 Klaxon')}</button>
-                    <button type="button" class="kit-btn small" id="lights" style="--c:#9B6CF0;--cd:#7B45D6">${T('💡 Lights', '💡 Phares')}</button>
-                    <button type="button" class="kit-btn small" id="finish" style="--c:#4CC26A;--cd:#2F9E4C">${T('🏁 Back to the garage', '🏁 Retour au garage')}</button>`;
-            } else c.innerHTML = '';
-        }
-        function sayStep() { say(...STEPS[stepIndex].say); }
-        function goStep(i) {
-            stepIndex = i;
-            const s = STEPS[i].id;
-            $('#stage').classList.toggle('road', s === 'drive');
-            $('#stage').classList.remove('night', 'lights-on');
-            $('#scenery').innerHTML = '';
-            renderSteps();
-            items = [];
-            if (s === 'wash') {
-                for (let k = 0; k < 10; k++) {
-                    const x = 60 + Math.random() * 290, y = 100 + Math.random() * 90, r = 16 + Math.random() * 10;
-                    const el = add($('#mud'), 'path', { d: `M${x - r} ${y} Q${x - r} ${y - r} ${x} ${y - r} Q${x + r + 6} ${y - r} ${x + r} ${y} Q${x + r} ${y + r} ${x} ${y + r} Q${x - r - 6} ${y + r} ${x - r} ${y} Z`, fill: k % 2 ? '#8B5E3C' : '#A47148' });
-                    items.push({ x, y, el });
-                }
-            } else if (s === 'fix') {
-                fixes = VEHICLES[kind].wheels.map(() => 0);
-                svgEl().querySelectorAll('.wheel').forEach(w => w.classList.add('loose'));
-            } else if (s === 'drive') {
-                $('#scenery').innerHTML = `<div class="lane" style="top:6%;--t:24s;--s:46px"><span>☁️</span><span></span><span>☁️</span><span></span><span>☁️</span><span></span><span>☁️</span><span></span></div>
-                    <div class="lane" style="top:30%;--t:9s;--s:54px"><span>🌳</span><span>🏡</span><span>🌲</span><span>🌻</span><span>🌳</span><span>🏡</span><span>🌲</span><span>🌻</span></div>
-                    <div class="lane stripes" style="--t:1.2s"></div>`;
-                sfx.honk();
-            }
-            sayStep();
-        }
-        function stepDone() {
-            sfx.cheer();
-            sparkle(200, 150, 6);
-            const lines = { wash: ['Shiny and clean!', `Propre et brillant${NBSP}!`], fix: ['All the wheels are fixed!', `Toutes les roues sont réparées${NBSP}!`] };
-            say(...lines[STEPS[stepIndex].id]);
-            Kit.later(() => goStep(stepIndex + 1), 1500);
+            [...S().stickers].forEach((id, i) => { const t = add(g, 'text', { x: sx - 50 + i * 44, y: sy, 'font-size': 40, 'text-anchor': 'middle', 'dominant-baseline': 'middle' }); t.textContent = STICKERS.find(s => s.id === id).e; });
         }
 
-        // ---------- Wash: rub. Fix: tap wheels ----------
+        // What would help next: mud → sponge, wobbly wheels → wrench, then paint and drive.
+        function nextTool() {
+            if (S().mud.length) return 'sponge';
+            if (S().fixes.some(f => f < 3)) return 'wrench';
+            return driving ? 'drive' : 'paint';
+        }
+        function renderPrompt() {
+            const n = driving ? 'drive' : nextTool();
+            $('#prompt').textContent = T(...(n === 'paint' && readyCheered ? ['All fixed! Paint it, or go for a drive!', `Tout est réparé${NBSP}! Peins-le, ou pars en promenade${NBSP}!`] : LINES[n]));
+            document.querySelectorAll('.tool').forEach(b => b.classList.toggle('hint', b.dataset.t === (n === 'paint' && readyCheered ? 'drive' : n)));
+        }
+        function renderRides() {
+            $('#rides').innerHTML = Object.entries(VEHICLES).map(([id, v]) => `<button type="button" class="ride" data-v="${id}" style="--c:${v.c};--c-d:${v.cd}" aria-pressed="${id === kind}" aria-label="${T(...v.name)}"><span>${v.e}</span></button>`).join('');
+        }
+        function renderTools() {
+            const active = driving ? 'drive' : tool;
+            $('#tools').innerHTML = TOOLS.map(t => `<button type="button" class="tool" data-t="${t.id}" aria-pressed="${t.id === active}" aria-label="${T(...t.name)}">${t.e}</button>`).join('');
+            $('#cursor').textContent = driving || tool === 'paint' ? '' : TOOLS.find(t => t.id === tool).e;
+            renderControls();
+            renderPrompt();
+        }
+        function renderControls() {
+            const c = $('#controls');
+            if (driving) {
+                const lights = $('#stage').classList.contains('lights-on');
+                c.innerHTML = `<button type="button" class="drive-btn" id="honk" aria-label="${T('Honk', 'Klaxon')}">📯</button>
+                    <button type="button" class="drive-btn" id="lights" aria-pressed="${lights}" aria-label="${T('Lights', 'Phares')}">💡</button>`;
+            } else if (tool === 'paint') {
+                c.innerHTML = PAINTS.map(([hex, en, fr]) => `<button type="button" class="swatch" data-c="${hex}" style="--c:${hex}" aria-label="${T(en, fr)}" aria-pressed="${hex === S().color}"></button>`).join('')
+                    + STICKERS.map(st => `<button type="button" class="sticker" data-s="${st.id}" aria-pressed="${S().stickers.has(st.id)}" aria-label="${st.id}">${st.e}</button>`).join('');
+            } else c.innerHTML = '';
+        }
+
+        function setDriving(on) {
+            driving = on;
+            $('#stage').classList.toggle('road', on);
+            $('#stage').classList.remove('night', 'lights-on');
+            $('#scenery').innerHTML = on ? `<div class="lane" style="top:6%;--t:24s;--s:46px"><span>☁️</span><span></span><span>☁️</span><span></span><span>☁️</span><span></span><span>☁️</span><span></span></div>
+                <div class="lane" style="top:30%;--t:9s;--s:54px"><span>🌳</span><span>🏡</span><span>🌲</span><span>🌻</span><span>🌳</span><span>🏡</span><span>🌲</span><span>🌻</span></div>
+                <div class="lane stripes" style="--t:1.2s"></div>` : '';
+        }
+        function setTool(id, speak) {
+            if (id === 'drive') {
+                setDriving(true);
+                sfx.honk();
+                renderTools();
+                if (speak) say(...LINES.drive);
+                return;
+            }
+            if (driving) setDriving(false);
+            tool = id;
+            renderTools();
+            if (speak) say(...LINES[id]);
+        }
+
+        // A part of the job is done: cheer, then hand over the tool that helps next.
+        function partDone(line) {
+            sfx.cheer();
+            sparkle(200, 150, 6);
+            say(...line);
+            if (!S().mud.length && S().fixes.every(f => f >= 3) && !readyCheered) {
+                readyCheered = true;
+                Kit.later(() => { sfx.fanfare(); Kit.confetti(90); Kit.cheer(T('🔧 Good as new!', `🔧 Comme neuf${NBSP}!`), 1500); }, 300);
+            }
+            const was = tool;
+            setTimeout(() => { if (!driving && tool === was) setTool(nextTool(), false); else renderPrompt(); }, 900);
+        }
+
+        // ---------- Rub, splat and fix ----------
         function toScene(e) { const m = svgEl().getScreenCTM(); return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()) : { x: 0, y: 0 }; }
         function moveCursor(e) { const r = $('#stage').getBoundingClientRect(); $('#cursor').style.left = e.clientX - r.left + 'px'; $('#cursor').style.top = e.clientY - r.top + 'px'; }
-        let lastSound = 0;
+        const onBody = p => { const b = VEHICLES[kind].box; return p.x > b[0] && p.x < b[2] && p.y > b[1] && p.y < b[3]; };
+        let lastSound = 0, lastSplat = 0;
         function rubAt(p) {
-            let cleaned = 0;
-            items = items.filter(it => { if (Math.hypot(it.x - p.x, it.y - p.y) < 42) { it.el.remove(); cleaned++; return false; } return true; });
             const now = performance.now();
+            if (tool === 'mud') {
+                if (!onBody(p) || now - lastSplat < 120) return;
+                lastSplat = now;
+                const m = { x: p.x + (Math.random() - 0.5) * 16, y: p.y + (Math.random() - 0.5) * 16, r: 14 + Math.random() * 10, shade: Math.random() < 0.5 ? '#8B5E3C' : '#A47148' };
+                S().mud.push(m);
+                m.el = add($('#mud'), 'path', { d: mudPath(m.x, m.y, m.r), fill: m.shade });
+                m.el.style.transformBox = 'fill-box';
+                m.el.style.transformOrigin = 'center';
+                m.el.animate([{ transform: 'scale(0.2)' }, { transform: 'scale(1)' }], { duration: 250, easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' });
+                Kit.noise({ dur: 0.12, freq: 500, q: 1.2, vol: 0.12 });
+                readyCheered = false;
+                renderPrompt();
+                return;
+            }
+            if (tool !== 'sponge') return;
+            let cleaned = 0;
+            S().mud = S().mud.filter(m => { if (Math.hypot(m.x - p.x, m.y - p.y) < 42) { m.el.remove(); cleaned++; return false; } return true; });
             if (now - lastSound > 140) { lastSound = now; Kit.noise({ dur: 0.12, freq: 2400, vol: 0.05 }); }
             if (cleaned) {
                 sfx.plink(Math.floor(Math.random() * 8));
                 const r = svgEl().getBoundingClientRect();
                 Kit.burst(r.left + p.x / 400 * r.width, r.top + p.y / 260 * r.height, ['#fff', '#BFE3F5'], 6, 0.6);
-                if (!items.length) stepDone();
+                if (!S().mud.length) partDone(['Shiny and clean!', `Propre et brillant${NBSP}!`]);
+                else renderPrompt();
             }
         }
         function tapWheel(w) {
-            const i = Number(w.dataset.w);
+            const i = Number(w.dataset.w), fixes = S().fixes;
             if (fixes[i] >= 3) { sfx.click(); return; }
             fixes[i]++;
             Kit.tone(1200, { dur: 0.05, vol: 0.08, type: 'square' }); Kit.tone(1700, { at: 0.06, dur: 0.05, vol: 0.06, type: 'square' });
             const [x, y] = VEHICLES[kind].wheels[i];
             sparkle(x, y, 1);
             if (fixes[i] >= 3) { w.classList.remove('loose'); sfx.boing(Kit.note(4 + i)); }
-            if (fixes.every(f => f >= 3)) stepDone();
+            if (fixes.every(f => f >= 3)) partDone(['All the wheels are fixed!', `Toutes les roues sont réparées${NBSP}!`]);
         }
+        function hop() { const v = svgEl(); v.classList.remove('hop'); void v.getBoundingClientRect(); v.classList.add('hop'); setTimeout(() => v.classList.remove('hop'), 650); sfx.boing(330); }
         $('#stage').addEventListener('pointerdown', e => {
-            const s = STEPS[stepIndex].id;
-            if (s === 'fix') { const w = e.target.closest && e.target.closest('.wheel'); if (w) { moveCursor(e); $('#cursor').classList.remove('idle'); tapWheel(w); } return; }
-            if (s === 'drive') { const v = svgEl(); v.classList.remove('hop'); void v.getBoundingClientRect(); v.classList.add('hop'); setTimeout(() => v.classList.remove('hop'), 650); sfx.boing(330); return; }
-            if (s !== 'wash' || rubbing || !e.isPrimary) return;
+            if (driving || tool === 'paint') { hop(); return; }
+            const w = e.target.closest && e.target.closest('.wheel');
+            if (tool === 'wrench') { if (w) { moveCursor(e); $('#cursor').classList.remove('idle'); tapWheel(w); } else hop(); return; }
+            if (rubbing || !e.isPrimary) return;
             e.preventDefault();
             rubbing = e.pointerId;
             try { $('#stage').setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
@@ -227,7 +319,7 @@
             rubAt(toScene(e));
         });
         $('#stage').addEventListener('pointermove', e => {
-            if (e.pointerType === 'mouse' && STEPS[stepIndex].tool) { $('#cursor').classList.remove('idle'); moveCursor(e); }
+            if (e.pointerType === 'mouse' && !driving && tool !== 'paint') { $('#cursor').classList.remove('idle'); moveCursor(e); }
             if (rubbing !== e.pointerId) return;
             moveCursor(e);
             rubAt(toScene(e));
@@ -235,61 +327,79 @@
         const stop = e => { if (rubbing !== e.pointerId) return; rubbing = null; $('#stage').classList.remove('rubbing'); if (e.pointerType !== 'mouse') $('#cursor').classList.add('idle'); };
         $('#stage').addEventListener('pointerup', stop);
         $('#stage').addEventListener('pointercancel', stop);
+        $('#stage').addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !rubbing) $('#cursor').classList.add('idle'); });
         $('#stage').addEventListener('keydown', e => {
             if (e.key !== ' ' && e.key !== 'Enter') return;
             e.preventDefault();
-            const s = STEPS[stepIndex].id;
-            if (s === 'wash' && items.length) rubAt({ x: items[0].x, y: items[0].y });
-            if (s === 'fix') { const w = [...svgEl().querySelectorAll('.wheel')].find((_, i) => fixes[i] < 3); if (w) tapWheel(w); }
+            if (driving || tool === 'paint') { hop(); return; }
+            if (tool === 'sponge' && S().mud.length) rubAt({ x: S().mud[0].x, y: S().mud[0].y });
+            if (tool === 'wrench') { const w = [...svgEl().querySelectorAll('.wheel')].find((_, i) => S().fixes[i] < 3); if (w) tapWheel(w); }
+            if (tool === 'mud') { const b = VEHICLES[kind].box; rubAt({ x: b[0] + Math.random() * (b[2] - b[0]), y: b[1] + Math.random() * (b[3] - b[1]) }); }
         });
 
-        // ---------- Paint & drive controls ----------
+        // ---------- Tools, paint and drive controls ----------
+        $('#tools').addEventListener('click', e => {
+            const b = e.target.closest('.tool');
+            if (!b) return;
+            sfx.pop();
+            if (b.dataset.t === 'drive' && driving) { setTool(nextTool() === 'drive' ? 'paint' : nextTool(), true); return; }
+            setTool(b.dataset.t, true);
+        });
         $('#controls').addEventListener('click', e => {
             const sw = e.target.closest('.swatch'), st = e.target.closest('.sticker');
             if (sw) {
-                color = sw.dataset.c;
-                $('#body').setAttribute('fill', color);
+                S().color = sw.dataset.c;
+                $('#body').setAttribute('fill', S().color);
                 $('#controls').querySelectorAll('.swatch').forEach(b => b.setAttribute('aria-pressed', String(b === sw)));
                 sfx.splash();
                 sparkle(200, 140, 4);
-                const p = PAINTS.find(x => x[0] === color);
+                const p = PAINTS.find(x => x[0] === S().color);
                 say(p[1], p[2]);
                 return;
             }
             if (st) {
-                const id = st.dataset.s;
-                if (stickers.has(id)) stickers.delete(id); else stickers.add(id);
-                st.setAttribute('aria-pressed', String(stickers.has(id)));
+                const id = st.dataset.s, set = S().stickers;
+                if (set.has(id)) set.delete(id); else set.add(id);
+                st.setAttribute('aria-pressed', String(set.has(id)));
                 renderStickers();
                 sfx.pop();
                 return;
             }
-            if (e.target.closest('#to-drive')) { sfx.pop(); goStep(3); return; }
-            if (e.target.closest('#honk')) { sfx.honk(); return; }
-            if (e.target.closest('#lights')) { $('#stage').classList.toggle('lights-on'); $('#stage').classList.toggle('night'); sfx.click(); return; }
-            if (e.target.closest('#finish')) {
-                sfx.fanfare();
-                Kit.confetti(110);
-                Kit.cheer(T('🏁 What a ride!', `🏁 Quelle balade${NBSP}!`), 1600);
-                say('What a ride! Let’s fix another one!', `Quelle balade${NBSP}! On en répare un autre${NBSP}!`);
-                const order = Object.keys(VEHICLES);
-                Kit.later(() => openGarage(order[(order.indexOf(kind) + 1) % order.length]), 1700);
+            if (e.target.closest('#honk')) { sfx.honk(); hop(); return; }
+            if (e.target.closest('#lights')) {
+                $('#stage').classList.toggle('lights-on');
+                $('#stage').classList.toggle('night');
+                sfx.click();
+                renderControls();
             }
         });
-        $('#say').addEventListener('click', sayStep);
+        $('#say').addEventListener('click', () => say(...LINES[driving ? 'drive' : nextTool()]));
 
-        function openGarage(v) {
-            kind = v;
-            color = VEHICLES[v].color;
-            stickers = new Set();
-            Kit.show(garage);
-            Kit.tint('#FFEBD6');
-            renderVehicle();
-            goStep(0);
+        // ---------- Vehicles ----------
+        function openVehicle(k, greet) {
+            kind = k;
+            if (!state[k]) state[k] = freshVehicle(k);
+            readyCheered = !S().mud.length && S().fixes.every(f => f >= 3);
+            renderRides();
+            renderVehicle(greet);
+            if (driving) renderTools();
+            else setTool(nextTool(), false);
+            if (greet) {
+                sfx.honk();
+                say(VEHICLES[k].hi[0] + ' ' + LINES[driving ? 'drive' : nextTool()][0], VEHICLES[k].hi[1] + ' ' + LINES[driving ? 'drive' : nextTool()][1]);
+            }
         }
-        document.querySelectorAll('[data-v]').forEach(b => b.addEventListener('click', () => { sfx.pop(); openGarage(b.dataset.v); }));
-        Kit.onLang(() => { if (!garage.hidden) renderSteps(); });
-        goStart();
+        $('#rides').addEventListener('click', e => {
+            const b = e.target.closest('.ride');
+            if (!b) return;
+            if (b.dataset.v === kind) { hop(); return; }
+            sfx.pop();
+            openVehicle(b.dataset.v, true);
+        });
+
+        Kit.onLang(() => { renderRides(); renderTools(); });
+        Kit.show($('#garage'), { back: false });
+        openVehicle('car', false);
     }());
     </script>
 </body>
