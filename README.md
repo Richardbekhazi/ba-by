@@ -164,6 +164,19 @@ activities) save their choice to the same shared setting.
   purple, pink, sky blue, light yellow), saved in `localStorage` key `colors-mixes`, with a celebration
   when all are found.
 
+### Numbers (`/numbers/`)
+
+- Same style as Colors: three picture cards on the start screen (Play, Count, Feed).
+- Number blocks 1-10 show the digit plus the same number of dots.
+- **Play**: tap a block to hear the number; that many numbered balloons float up with rising notes.
+  The number voice can be English, French (site language), Tagalog (browser voice), or Arabic and
+  Ilokano (recordings in `numbers/sounds/`).
+- **Count**: "How many?" Tap each thing to count it out loud, then tap the matching number block.
+  Levels go 1-3 (2 choices), 1-5, 1-7, 1-10 (4 choices).
+- **Feed**: "Give the bunny 3 carrots!" Tap food into the bowl (it counts out loud; tap food in the
+  bowl to take it back). The animal hops happily at the right number. Levels go up to 3, 5, 7, 10.
+- Five right answers earn the next level in Count and Feed; wrong taps only wobble (no voice).
+
 ### Bubble Hero (`/bubbles/`)
 
 - A star hero shoots bubbles to calm the Grumpies. Touch steering is relative (drag anywhere to move).
@@ -255,6 +268,8 @@ Nothing is uploaded; progress is kept in the browser's `localStorage`:
 | `puzzles-progress` | Puzzles: furthest puzzle reached |
 | `colors-find-level` | Colors: Find the color level |
 | `colors-mixes` | Colors: mixes discovered |
+| `numbers-count-level`, `numbers-feed-level` | Numbers: Count and Feed levels |
+| `numbers-voice` | Numbers: Tagalog / Arabic / Ilokano number voice |
 | `stacky-level`, `stacky-cleared` | Stacky Smiles: level to continue and levels cleared |
 | `rr_coins`, `rr_skins`, `rr_current_skin` | Jump! (Rooftop Rush): coins and unlocked skins |
 
