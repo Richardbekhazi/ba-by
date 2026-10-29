@@ -531,6 +531,7 @@
                 <div><span>🫧</span><em style="font-style:normal" data-fr="Les bulles partent toutes seules">Bubbles fire by themselves</em></div>
                 <div><span>⭐</span><em style="font-style:normal" data-fr="Attrape les étoiles">Grab the stars</em></div>
             </div>
+            <button class="big-btn" id="continue-btn" type="button" hidden></button>
             <button class="big-btn" id="play-btn" type="button" data-fr="On joue !">Play!</button>
             <div class="best" id="best-start"></div>
         </div>
@@ -549,6 +550,7 @@
     <div id="pause-overlay" class="overlay">
         <div class="overlay-inner">
             <h2 class="title" data-fr="Pause">Paused</h2>
+            <p class="subtitle" data-fr="Ta partie est sauvegardée 💾">Your game is saved 💾</p>
             <div class="btn-row">
                 <button class="big-btn" type="button" id="resume-btn" data-fr="Continuer">Keep Playing</button>
             </div>
@@ -1642,10 +1644,86 @@
 
             function startGame() {
                 ensureAudio();
+                clearSave();
                 reset();
                 setState('play');
                 show(null);
                 banner(T('Go, little star!', 'Vas-y, petite étoile !'));
+            }
+
+            // ---------- Save & continue ----------
+            // The run is saved every few seconds and whenever the game is paused or left,
+            // so closing the tab or a phone call never loses progress.
+            const SAVE_KEY = 'bubbles-save';
+            function saveGame() {
+                if (state !== 'play' && state !== 'paused' && state !== 'levelup') return;
+                const alive = enemies.filter(e => !e.dead);
+                store.set(SAVE_KEY, JSON.stringify({
+                    v: 1, w: W, h: H,
+                    game: { level: game.level, xp: game.xp, xpToNext: game.xpToNext, time: game.time, pops: game.pops },
+                    player,
+                    enemies: alive,
+                    boss: game.boss ? alive.indexOf(game.boss) : -1,
+                    gems: gems.map(g => ({ x: g.x, y: g.y, value: g.value, kind: g.kind })),
+                    pending: pendingLevelUps + (state === 'levelup' ? 1 : 0),
+                    spawnTimer
+                }));
+            }
+            function loadSave() {
+                try {
+                    const data = JSON.parse(store.get(SAVE_KEY, 'null'));
+                    return data && data.v === 1 && data.game ? data : null;
+                } catch (e) { return null; }
+            }
+            function clearSave() {
+                try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* storage blocked */ }
+                renderContinue();
+            }
+            function continueGame() {
+                const data = loadSave();
+                if (!data) { startGame(); return; }
+                ensureAudio();
+                reset();
+                const sx = W / (data.w || W), sy = H / (data.h || H);
+                Object.assign(game, data.game, { boss: null });
+                Object.assign(player, data.player, { vx: 0, vy: 0 });
+                player.x = clamp(player.x * sx, player.r, W - player.r);
+                player.y = clamp(player.y * sy, player.r, H - player.r);
+                target = { x: player.x, y: player.y };
+                enemies = (data.enemies || []).map(e => Object.assign(e, { x: e.x * sx, y: e.y * sy, flash: 0, kx: 0, ky: 0, born: 1 }));
+                if (data.boss >= 0 && enemies[data.boss]) {
+                    game.boss = enemies[data.boss];
+                    $('boss-bar').classList.add('show');
+                    lastBossPct = -1;
+                    updateBossBar();
+                }
+                gems = (data.gems || []).map(g => Object.assign(g, { x: g.x * sx, y: g.y * sy, vx: 0, vy: 0, spin: Math.random() * TAU, pulled: false, age: 20 }));
+                pendingLevelUps = data.pending || 0;
+                spawnTimer = data.spawnTimer || 30;
+                renderChips();
+                updateHud();
+                setState('play');
+                show(null);
+                grace(150);
+                banner(T('Welcome back!', 'Te revoilà !'));
+            }
+            function renderContinue() {
+                const data = loadSave();
+                const btn = $('continue-btn'), play = $('play-btn');
+                btn.hidden = !data;
+                if (data) {
+                    btn.dataset.en = `▶ Continue · Level ${data.game.level}`;
+                    btn.dataset.fr = `▶ Continuer · niveau ${data.game.level}`;
+                    play.dataset.en = 'New game';
+                    play.dataset.fr = 'Nouvelle partie';
+                } else {
+                    play.dataset.en = 'Play!';
+                    play.dataset.fr = 'On joue !';
+                }
+                play.classList.toggle('alt', !!data);
+                play.classList.toggle('small', !!data);
+                btn.textContent = T(btn.dataset.en || '', btn.dataset.fr || '');
+                play.textContent = T(play.dataset.en, play.dataset.fr);
             }
 
             let currentChoices = [];
@@ -1713,12 +1791,14 @@
                 show(null);
                 setState('play');
                 grace(150);
+                saveGame();
             }
 
             function pause() {
                 if (state !== 'play') return;
                 setState('paused');
                 show('pause-overlay');
+                saveGame();
             }
 
             function resume() {
@@ -1730,6 +1810,7 @@
 
             function gameOver() {
                 setState('over');
+                clearSave();
                 sound('over');
                 addShake(14);
                 confetti(player.x, player.y, 24);
@@ -1799,8 +1880,11 @@
             });
             window.addEventListener('keyup', e => keys.delete(e.code));
             window.addEventListener('blur', () => { keys.clear(); pause(); });
-            document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+            document.addEventListener('visibilitychange', () => { if (document.hidden) { pause(); saveGame(); } });
+            window.addEventListener('pagehide', saveGame);
+            setInterval(saveGame, 2000);
 
+            $('continue-btn').addEventListener('click', continueGame);
             $('play-btn').addEventListener('click', startGame);
             $('again-btn').addEventListener('click', startGame);
             $('resume-btn').addEventListener('click', resume);
@@ -1810,6 +1894,7 @@
 
             BabyLang.onChange(() => {
                 renderBest();
+                renderContinue();
                 renderChips();
                 if (state === 'levelup') {
                     renderCards();
@@ -1849,6 +1934,7 @@
             reset();
             setMuted(muted);
             renderBest();
+            renderContinue();
             window.addEventListener('resize', resize);
             requestAnimationFrame(frame);
         }());
