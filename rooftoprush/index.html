@@ -240,8 +240,17 @@
 
     let currentBg = BIOMES.CITY.bg;
 
-    let totalCoins = parseInt(localStorage.getItem('rr_coins')) || 0;
-    let unlockedSkins = JSON.parse(localStorage.getItem('rr_skins')) || ['🐱'];
+    // Saving is optional: if the browser blocks storage the game still plays.
+    const store = {
+      get(key) { try { return localStorage.getItem(key); } catch (e) { return null; } },
+      set(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* not saved this time */ } }
+    };
+    let totalCoins = parseInt(store.get('rr_coins'), 10) || 0;
+    let unlockedSkins = ['🐱'];
+    try {
+      const savedSkins = JSON.parse(store.get('rr_skins'));
+      if (Array.isArray(savedSkins) && savedSkins.length) unlockedSkins = savedSkins;
+    } catch (e) { /* keep the cat */ }
     let score = 0;
     let particles = [];
     let platforms = [];
@@ -256,7 +265,7 @@
       w: 60,
       h: 60,
       vy: 0,
-      emoji: localStorage.getItem('rr_current_skin') || '🐱',
+      emoji: store.get('rr_current_skin') || '🐱',
       rotation: 0
     };
 
@@ -264,13 +273,13 @@
       resize();
       updateCoinDisplay();
       updateShopUI();
-      animate();
+      requestAnimationFrame(animate);
     }
 
     function updateCoinDisplay() {
       totalCoinsEl.innerText = totalCoins;
       if(menuCoinsEl) menuCoinsEl.innerText = totalCoins;
-      localStorage.setItem('rr_coins', totalCoins);
+      store.set('rr_coins', totalCoins);
     }
 
     function updateShopUI() {
@@ -293,7 +302,7 @@
       } else if (totalCoins >= price) {
         totalCoins -= price;
         unlockedSkins.push(skin);
-        localStorage.setItem('rr_skins', JSON.stringify(unlockedSkins));
+        store.set('rr_skins', JSON.stringify(unlockedSkins));
         updateCoinDisplay();
         selectSkin(skin);
       } else {
@@ -303,7 +312,7 @@
 
     function selectSkin(skin) {
       cat.emoji = skin;
-      localStorage.setItem('rr_current_skin', skin);
+      store.set('rr_current_skin', skin);
       updateShopUI();
     }
 
@@ -454,12 +463,13 @@
       return '#' + ((1 << 24) + (Math.round(rr) << 16) + (Math.round(rg) << 8) + Math.round(rb)).toString(16).slice(1);
     }
 
-    function update() {
+    // k is how many 60 fps frames have passed, so 120 Hz screens play at the same speed.
+    function update(k) {
       if (!gameActive) return;
       
       // Update Background
       const targetBiome = getCurrentBiome();
-      currentBg = lerpColor(currentBg, targetBiome.bg, 0.02);
+      currentBg = lerpColor(currentBg, targetBiome.bg, Math.min(1, 0.02 * k));
 
       // Weather Logic (Changes every 100 score after the first 100)
       const weatherCycle = Math.floor(score / 100);
@@ -475,9 +485,9 @@
       }
       
       // Cat Physics
-      cat.vy += GRAVITY;
-      cat.y += cat.vy;
-      cat.rotation *= 0.9;
+      cat.vy += GRAVITY * k;
+      cat.y += cat.vy * k;
+      cat.rotation *= Math.pow(0.9, k);
 
       // Infinite Fall Protection (For 2 year olds) - Bouncy safety net!
       if (cat.y > canvas.height) {
@@ -493,7 +503,7 @@
 
       // Platform Logic
       platforms.forEach(p => {
-        p.x -= SPEED;
+        p.x -= SPEED * k;
 
         // Collision Detection (Landing)
         if (cat.vy > 0 && 
@@ -517,7 +527,7 @@
 
       // Coin Logic
       coins.forEach((c, i) => {
-        c.x -= SPEED;
+        c.x -= SPEED * k;
         
         // Collision with cat
         const dist = Math.hypot(cat.x + cat.w/2 - c.x, cat.y + cat.h/2 - c.y);
@@ -543,9 +553,9 @@
 
       // Particles
       particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= 0.05;
+        p.x += p.vx * k;
+        p.y += p.vy * k;
+        p.life -= 0.05 * k;
       });
       particles = particles.filter(p => p.life > 0);
     }
@@ -679,7 +689,7 @@
 
       // Draw Coins
       coins.forEach(c => {
-        c.pulse += 0.1;
+        c.pulse += 0.1 * frameK;
         const baseSize = 18 + (c.value > 1 ? Math.sqrt(c.value) * 5 : 0);
         const s = (1 + Math.sin(c.pulse) * 0.1);
         
@@ -752,8 +762,13 @@
       ctx.restore();
     }
 
-    function animate() {
-      update();
+    let lastFrame = 0;
+    let frameK = 1;
+    function animate(now) {
+      // Cap the step so a hidden tab or a slow frame never jumps the cat through a roof.
+      frameK = lastFrame ? Math.min(3, Math.max(0, (now - lastFrame) / (1000 / 60))) : 1;
+      lastFrame = now;
+      update(frameK);
       draw();
       requestAnimationFrame(animate);
     }

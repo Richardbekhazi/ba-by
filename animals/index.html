@@ -572,15 +572,18 @@
                 stageSub.textContent = lang.t(`${animal.name} sound finished`, `Fini : ${nameOf(animal)}`);
                 replayBtn.disabled = false;
             };
-            audio.onerror = () => showAudioError(request);
+            audio.onerror = () => showAudioError(request, animal);
 
-            audio.play().catch(() => showAudioError(request));
+            audio.play().catch(() => showAudioError(request, animal));
         }
 
-        function showAudioError(request) {
+        // The real recordings are hosted by Google. If they cannot load (offline, blocked or moved),
+        // the voice still says the animal's name so the tap is never silent.
+        function showAudioError(request, animal) {
             if (request !== state.playRequest) return;
-            stageSub.textContent = lang.t("Sound unavailable — please try again", "Son indisponible — réessaie");
+            stageSub.textContent = lang.t(`${animal.name} 🗣️`, `${nameOf(animal)} 🗣️`);
             replayBtn.disabled = false;
+            lang.speak(animal.name, animal.fr, { pitch: 1.2 });
         }
 
         function stopAudio() {

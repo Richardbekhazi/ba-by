@@ -1519,7 +1519,6 @@
             setState('over');
             sfx('over');
             const score = Math.floor(run.score);
-            store.set('santa-total-gifts', String(totalGifts));
             const isBest = score > bestScore;
             if (isBest) { bestScore = score; store.set('santa-best-score', String(bestScore)); }
             $('sum-gifts').textContent = run.gifts;
@@ -1587,6 +1586,8 @@
                 run.gifts++;
                 run.score += 10;
                 totalGifts++;
+                // Saved straight away, so quitting mid-run still counts these presents.
+                store.set('santa-total-gifts', String(totalGifts));
                 sfx('gift');
                 bump('gifts-stat', 'pop');
                 burst(c.position, [u.color, '#ffd700', '#ffffff'], 6, 0.8);

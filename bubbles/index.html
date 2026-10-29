@@ -1876,7 +1876,10 @@
                     if (p) choose(p);
                 } else if ((e.code === 'Escape' || e.code === 'KeyP') && state === 'play') pause();
                 else if ((e.code === 'Escape' || e.code === 'KeyP') && state === 'paused') resume();
-                else if ((e.code === 'Enter' || e.code === 'Space') && state === 'menu' && document.activeElement === document.body) startGame();
+                // Keyboard mashing on the menu resumes a saved game rather than wiping it.
+                else if ((e.code === 'Enter' || e.code === 'Space') && state === 'menu' && document.activeElement === document.body) {
+                    if (loadSave()) continueGame(); else startGame();
+                }
             });
             window.addEventListener('keyup', e => keys.delete(e.code));
             window.addEventListener('blur', () => { keys.clear(); pause(); });

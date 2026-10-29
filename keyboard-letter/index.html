@@ -472,7 +472,7 @@
             setupCanvas();
             updateLangUI();
             
-            if (speechSynthesis.onvoiceschanged !== undefined) {
+            if ('speechSynthesis' in window && speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = setupVoice;
             }
 
@@ -507,10 +507,17 @@
         }
 
         // --- Audio Logic ---
+        // Any voice of the chosen language works (Canadian first, then France, then any region),
+        // so French is never read by an English voice.
         function setupVoice() {
+            if (!('speechSynthesis' in window)) return;
             const voices = window.speechSynthesis.getVoices();
-            const langCode = state.lang === 'fr' ? 'fr-FR' : 'en-US';
-            state.voice = voices.find(v => v.lang.startsWith(langCode)) || voices[0];
+            const code = state.lang === 'fr' ? 'fr' : 'en';
+            const preferred = state.lang === 'fr' ? ['fr-ca', 'fr-fr'] : ['en-ca', 'en-us'];
+            const byLang = v => v.lang.toLowerCase().replace('_', '-');
+            state.voice = preferred.map(p => voices.find(v => byLang(v).startsWith(p))).find(Boolean)
+                || voices.find(v => byLang(v).startsWith(code))
+                || null;
         }
 
         function updateLangUI() {
@@ -521,8 +528,10 @@
 
         function speak(text, force = false, rate = 0.85) {
             if (state.isMuted && !force) return;
+            if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = state.lang === 'fr' ? 'fr-CA' : 'en-US';
             if (state.voice) utterance.voice = state.voice;
             utterance.rate = rate; 
             utterance.pitch = 1.15; 
@@ -613,7 +622,7 @@
             
             // 1. Visual Chaos
             els.stage.classList.add('celebrate');
-            els.status.innerHTML = "🎉 YOU DID IT! 🎉";
+            els.status.textContent = state.lang === 'fr' ? "🎉 TU AS RÉUSSI ! 🎉" : "🎉 YOU DID IT! 🎉";
             els.big.textContent = "A-Z";
             els.small.textContent = "✨";
             

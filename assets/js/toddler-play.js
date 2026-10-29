@@ -3,8 +3,12 @@ export const controls = document.getElementById('controls');
 export const palette = document.getElementById('palette');
 export const NS = 'http://www.w3.org/2000/svg';
 const LANGUAGE_KEY = 'baby-lang';
+// Same rule as the rest of the site: the saved choice, otherwise the browser language.
 function savedLanguage() {
-    try { return localStorage.getItem(LANGUAGE_KEY) === 'fr' ? 'fr' : 'en'; } catch (error) { return 'en'; }
+    let saved = null;
+    try { saved = localStorage.getItem(LANGUAGE_KEY); } catch (error) { /* storage blocked */ }
+    if (saved === 'en' || saved === 'fr') return saved;
+    return (navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en';
 }
 export let language = savedLanguage();
 let soundEnabled = true;

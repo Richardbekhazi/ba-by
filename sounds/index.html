@@ -230,6 +230,7 @@
         const ctx = canvas.getContext('2d');
 
         let currentAudio = null;
+        let playToken = 0;
         const lang = window.BabyLang;
         const nameOf = item => lang.t(item.name, item.fr);
 
@@ -286,21 +287,18 @@
             // Speak the name first, then play the instrument sound after a small delay
             const msg = lang.speak(item.name, item.fr, { pitch: 1.2 }) || {};
 
-            currentAudio = new Audio(SOUND_BASE + item.file);
-            currentAudio.loop = true;
-
-            // Delay the instrument sound slightly so the name finishes first
-            msg.onend = () => {
-                currentAudio.play().catch((err) => {
-                    console.log("Audio play failed:", err);
-                });
+            const audio = new Audio(SOUND_BASE + item.file);
+            audio.loop = true;
+            currentAudio = audio;
+            // Only start if this instrument is still the one showing (closing or picking another cancels it).
+            const token = ++playToken;
+            const start = () => {
+                if (token !== playToken || currentAudio !== audio || !audio.paused) return;
+                audio.play().catch(() => {});
             };
+            msg.onend = start;
             // Fallback play if onend doesn't fire
-            setTimeout(() => {
-                if (currentAudio && currentAudio.paused) {
-                    currentAudio.play().catch(() => {});
-                }
-            }, 1500);
+            setTimeout(start, 1500);
 
             // Particles
             const rect = e.currentTarget.getBoundingClientRect();
@@ -308,6 +306,7 @@
         }
 
         overlay.onclick = () => {
+            playToken++;
             overlay.classList.remove('active');
             if (currentAudio) {
                 currentAudio.pause();

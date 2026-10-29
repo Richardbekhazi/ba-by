@@ -981,6 +981,8 @@
         let activePointerId = null;
         let currentPos = { x: 0, y: 0 };
         let hintTimeout = null;
+        // The short pause before the victory screen; cancelled if the child leaves or starts another puzzle.
+        let victoryTimer = null;
         let offset = { x: 0, y: 0 };
 
         const els = {
@@ -1055,6 +1057,7 @@
 
         function loadLevel(idx) {
             cancelActiveDrag();
+            clearTimeout(victoryTimer);
             const level = LEVELS[idx];
             els.title.textContent = lang.t(level.name, level.nameFr);
             els.body.style.background = level.bg;
@@ -1161,6 +1164,7 @@
         const levelLabel = level => lang.t(`Level ${level + 1}`, `Niveau ${level + 1}`);
 
         function showStart() {
+            clearTimeout(victoryTimer);
             const hasProgress = bestStep > 0;
             els.continueBtn.hidden = !hasProgress;
             els.continueLevel.textContent = levelLabel(levelOf(resumeStep()));
@@ -1445,7 +1449,9 @@
             resetHint();
             piecesPlaced++;
             if (piecesPlaced === document.querySelectorAll('.slot').length) {
-                setTimeout(triggerVictory, 1000);
+                // Count the solve right away, even if the child leaves before the victory screen.
+                saveSolved();
+                victoryTimer = setTimeout(triggerVictory, 1000);
             }
         }
 

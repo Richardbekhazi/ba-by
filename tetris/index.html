@@ -764,6 +764,14 @@
 
         const emptyGrid = () => Array.from({ length: ROWS }, () => new Array(COLS).fill(null));
 
+        // Delayed steps (clearing lines, the level-up sweep) belong to one game; starting a new game
+        // or going back to the menu makes any that are still waiting do nothing.
+        let session = 0;
+        const later = (fn, ms) => {
+            const mine = session;
+            return setTimeout(() => { if (mine === session) fn(); }, ms);
+        };
+
         function nextFromBag() {
             if (!bag.length) bag = shuffle([...LEVELS[level].pieces, ...LEVELS[level].pieces]);
             return bag.pop();
@@ -866,7 +874,7 @@
                 full.forEach(r => {
                     for (let c = 0; c < COLS; c++) sparkleAt(c, r, grid[r][c].c, 4);
                 });
-                setTimeout(() => finishClear(full), 520);
+                later(() => finishClear(full), 520);
             } else {
                 spawn();
             }
@@ -903,7 +911,7 @@
                 finishedAll ? `Tu as réussi${NBSP}! Génial${NBSP}!` : `Super${NBSP}! Niveau ${level + 1}${NBSP}!`);
             confetti();
             // A fresh, empty board for the new level.
-            setTimeout(() => sweepBoard(() => {
+            later(() => sweepBoard(() => {
                 lines = 0;
                 bag = [];
                 nextId = null;
@@ -935,7 +943,7 @@
                 }
                 grid[r] = new Array(COLS).fill(null);
                 r++;
-                setTimeout(tick, 60);
+                later(tick, 60);
             };
             tick();
         }
@@ -1251,6 +1259,7 @@
         }
 
         function startGame(n) {
+            session++;
             level = n;
             lines = 0;
             busy = false;
@@ -1266,6 +1275,9 @@
         }
 
         function showStart() {
+            session++;
+            busy = false;
+            piece = null;
             const hasProgress = level > 0 || cleared > 0;
             els.continueBtn.hidden = !hasProgress;
             els.continueLevel.textContent = levelLabel(level);

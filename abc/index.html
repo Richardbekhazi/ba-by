@@ -916,6 +916,7 @@
         // --- SCREENS ---
         let roundTimer = null;
         let speakTimer = null;
+        let cheerTimer = null;
         function show(screen) {
             els.start.hidden = screen !== els.start;
             els.game.hidden = screen !== els.game;
@@ -925,6 +926,8 @@
             if (screen !== els.game) {
                 clearTimeout(roundTimer);
                 clearTimeout(speakTimer);
+                clearTimeout(cheerTimer);
+                els.cheer.classList.remove('show');
                 if ('speechSynthesis' in window) window.speechSynthesis.cancel();
             }
         }
@@ -1200,7 +1203,7 @@
                 saveProgress();
                 speak(`Yes! ${L} is for ${w}! Super! Level ${level + 1}!`,
                     `Oui${NBSP}! ${L} comme ${w}${NBSP}! Super${NBSP}! Niveau ${level + 1}${NBSP}!`);
-                setTimeout(() => {
+                cheerTimer = setTimeout(() => {
                     showCheer(lang.t(`⭐ Super! ${levelLabel(level)}`, `⭐ Super${NBSP}! ${levelLabel(level)}`), 1900);
                     cheerSound();
                     setTimeout(cheerSound, 350);
