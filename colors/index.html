@@ -40,13 +40,14 @@
         @keyframes jump-out { 0% { transform: translateY(70%) scale(0.2); } 100% { transform: translateY(-8%) scale(1); } }
         .result .jelly { width: 100%; }
         .mix-name { min-height: 2.6rem; margin-top: 8px; font-family: 'Fredoka One', system-ui, sans-serif; font-size: clamp(1.8rem, 5vh, 2.6rem); color: var(--cd, var(--ink)); }
-        .paints { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(10px, 2vw, 22px); }
-        .paint { border: 0; background: #fff; border-radius: 30px; padding: 12px; width: clamp(84px, 13vh, 122px); aspect-ratio: 1; box-shadow: 0 7px 0 var(--cd), 0 14px 20px rgba(61,53,81,0.1); transition: transform 0.15s; }
-        .paint svg { width: 100%; height: 100%; animation: drip-bob 2.6s ease-in-out infinite; }
+        .paints { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(4px, 2vw, 22px); }
+        .paint { width: clamp(58px, min(15vw, 14vh), 132px); transition: transform 0.15s; }
+        .paint .jelly-name { font-size: clamp(0.75rem, 2.6vw, 1rem); }
+        .paint svg { animation: drip-bob 2.6s ease-in-out infinite; }
         .paint:nth-child(2n) svg { animation-delay: -1.2s; }
         @keyframes drip-bob { 50% { transform: translateY(-5px) rotate(4deg); } }
         .paint:hover { transform: translateY(-4px) rotate(-3deg); }
-        .paint:active { transform: translateY(6px); box-shadow: 0 1px 0 var(--cd); }
+        .paint:active { transform: translateY(6px) scale(0.94, 0.9); }
         .flying-drop { position: fixed; z-index: 76; width: 64px; height: 64px; pointer-events: none; translate: -50% -50%; }
         .recipes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 900px; }
         .recipe { display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 999px; background: #fff; font-weight: 900; color: var(--muted); box-shadow: 0 3px 0 rgba(61,53,81,0.08); }
@@ -292,7 +293,7 @@
         function openMix() {
             Kit.show(mix);
             emptyBowl();
-            $('#paints').innerHTML = PAINTS.map(c => `<button type="button" class="paint" data-id="${c.id}" style="--cd:${c.id === 'white' ? '#DCE1EA' : c.dark}" aria-label="${nameOf(c)}">${dropArt(c)}</button>`).join('');
+            $('#paints').innerHTML = PAINTS.map((c, i) => `<button type="button" class="jelly paint" data-id="${c.id}" style="--cd:${c.label || c.dark};animation-delay:${i * 0.04}s" aria-label="${nameOf(c)}">${jellyArt(c, i)}<span class="jelly-name">${nameOf(c)}</span></button>`).join('');
             renderRecipes();
             say('Tap two colors to mix them!', `Touche deux couleurs pour les mélanger${NBSP}!`);
         }
@@ -319,6 +320,7 @@
             if (picks.length === 2) emptyBowl();
             const c = byId(btn.dataset.id);
             Kit.bounce(btn);
+            smile(btn, 1200);
             sfx.boing(Kit.note(c.note));
             sayColor(c);
             picks.push(c);
