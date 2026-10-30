@@ -111,6 +111,28 @@
         return utterance;
     }
 
+    // Friendly mouse pointers for the whole site (this script is on every page): a chunky pink arrow,
+    // and a teal arrow with a little star over things to tap. Pages can use var(--cursor-tap) too.
+    // Games that set their own cursor on an element (grab, crosshair, none) keep it.
+    function injectCursor() {
+        if (document.getElementById('site-cursor-style')) return;
+        const arrow = 'M5 4 L5 25 L10.5 20 L14.5 28.5 L19 26.5 L15 18.5 L22.5 18.5 Z';
+        const svg = (fill, extra) => 'url("data:image/svg+xml,' + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">'
+            + '<path d="' + arrow + '" fill="none" stroke="#3D3551" stroke-width="5" stroke-linejoin="round"/>'
+            + '<path d="' + arrow + '" fill="' + fill + '" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>'
+            + (extra || '') + '</svg>') + '") 5 4';
+        const star = '<path d="M25 2.5 L26.6 6 L30.3 6.4 L27.5 8.9 L28.3 12.6 L25 10.7 L21.7 12.6 L22.5 8.9 L19.7 6.4 L23.4 6 Z" fill="#FFD54A" stroke="#3D3551" stroke-width="1.3" stroke-linejoin="round"/>';
+        const style = document.createElement('style');
+        style.id = 'site-cursor-style';
+        style.textContent = ':root{--cursor-arrow:' + svg('#FF6B8B') + ',auto;--cursor-tap:' + svg('#3FC9C0', star) + ',pointer}'
+            + 'html{cursor:var(--cursor-arrow)}'
+            + 'a[href],button,[role="button"],label,select,summary,input[type="checkbox"],input[type="radio"]{cursor:var(--cursor-tap)}'
+            + 'button:disabled{cursor:var(--cursor-arrow)}';
+        (document.head || document.documentElement).appendChild(style);
+    }
+    injectCursor();
+
     // Keep tabs in sync when the language is changed in another tab.
     window.addEventListener('storage', event => {
         if (event.key === KEY && (event.newValue === 'en' || event.newValue === 'fr') && event.newValue !== lang) {
