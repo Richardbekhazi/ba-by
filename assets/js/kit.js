@@ -32,13 +32,27 @@
     }
 
     // ---------- Sound ----------
-    let ac = null;
+    let ac = null, out = null;
     let muted = store.get('baby-muted', '0') === '1';
     const muteListeners = [];
     function audio() {
         if (muted) return null;
         try {
-            ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+            if (!ac) {
+                ac = new (window.AudioContext || window.webkitAudioContext)();
+                // Every sound goes through one soft bus: a gentle treble cut and a limiter,
+                // so stacked beeps never sound harsh or clip.
+                const soften = ac.createBiquadFilter();
+                soften.type = 'lowpass';
+                soften.frequency.value = 3200;
+                const limit = ac.createDynamicsCompressor();
+                limit.threshold.value = -18;
+                limit.ratio.value = 6;
+                const master = ac.createGain();
+                master.gain.value = 0.8;
+                soften.connect(limit).connect(master).connect(ac.destination);
+                out = soften;
+            }
             if (ac.state === 'suspended') ac.resume();
             return ac;
         } catch (e) { return null; }
@@ -65,7 +79,7 @@
         gain.gain.setValueAtTime(0.0001, t0);
         gain.gain.exponentialRampToValueAtTime(o.vol, t0 + 0.015);
         gain.gain.exponentialRampToValueAtTime(0.0001, t0 + o.dur);
-        osc.connect(gain).connect(a.destination);
+        osc.connect(gain).connect(out);
         osc.start(t0);
         osc.stop(t0 + o.dur + 0.05);
     }
@@ -87,7 +101,7 @@
         filter.Q.value = o.q;
         const gain = a.createGain();
         gain.gain.value = o.vol;
-        src.connect(filter).connect(gain).connect(a.destination);
+        src.connect(filter).connect(gain).connect(out);
         src.start(t0);
     }
     const PENTA = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25, 783.99, 880.0, 1046.5];
@@ -96,8 +110,8 @@
         pop: () => { tone(520, { to: 1040, dur: 0.12, vol: 0.18 }); tone(1560, { at: 0.03, dur: 0.06, vol: 0.05, type: 'triangle' }); },
         boing: (f = 440) => { tone(f, { dur: 0.32, vol: 0.18 }); tone(f / 2, { to: f, dur: 0.16, vol: 0.12, type: 'triangle' }); },
         plink: i => tone(note(i), { dur: 0.22, vol: 0.13, type: 'triangle' }),
-        cheer: () => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, { at: i * 0.08, dur: 0.32, vol: 0.14, type: 'triangle' })),
-        fanfare: () => [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.5].forEach((f, i) => tone(f, { at: i * 0.1, dur: 0.34, vol: 0.13, type: 'triangle' })),
+        cheer: () => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, { at: i * 0.08, dur: 0.32, vol: 0.12 })),
+        fanfare: () => [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.5].forEach((f, i) => tone(f, { at: i * 0.1, dur: 0.34, vol: 0.11 })),
         oops: () => tone(300, { to: 220, dur: 0.18, vol: 0.1, type: 'triangle' }),
         whoosh: () => noise({ dur: 0.35, freq: 900, q: 0.6, vol: 0.1 }),
         splash: () => { noise({ dur: 0.4, freq: 1800, q: 0.5, vol: 0.12 }); tone(380, { to: 520, dur: 0.15, vol: 0.06 }); },
@@ -119,7 +133,7 @@
     // ---------- Voice ----------
     function say(en, fr, opts) {
         if (muted) return null;
-        return lang.speak(en, fr, Object.assign({ pitch: 1.15, rate: 0.95 }, opts));
+        return lang.speak(en, fr, Object.assign({ pitch: 1.1, rate: 0.92 }, opts));
     }
     function hush() { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); }
 

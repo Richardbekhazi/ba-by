@@ -93,6 +93,27 @@
         return box;
     }
 
+    // Pick the nicest voice the device has: natural / neural / Google voices first,
+    // the old robotic desktop voices (David, Zira, Mark, Hortense…) last.
+    const isNatural = v => /natural|neural|online|google|enhanced|premium|siri/i.test(v.name);
+    let voiceCache = {};
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.addEventListener && window.speechSynthesis.addEventListener('voiceschanged', () => { voiceCache = {}; });
+    }
+    function bestVoice(code, exact) {
+        if (voiceCache[exact] !== undefined) return voiceCache[exact];
+        const voices = window.speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().replace('_', '-').startsWith(code));
+        const score = v => (isNatural(v) ? 100 : 0)
+            + (/natural|neural/i.test(v.name) ? 20 : 0)
+            + (v.lang.toLowerCase().replace('_', '-') === exact.toLowerCase() ? 10 : 0)
+            + (/aria|jenny|ava|emma|samantha|sylvie|amelie|amélie|denise|chantal|google/i.test(v.name) ? 8 : 0)
+            - (/david|zira|mark|hortense|julie|paul|microsoft (?!.*(online|natural))/i.test(v.name) ? 15 : 0)
+            + (v.localService ? 0 : 2);
+        const best = voices.sort((a, b) => score(b) - score(a))[0] || null;
+        if (voices.length) voiceCache[exact] = best;
+        return best;
+    }
+
     function speak(en, fr, options) {
         if (!('speechSynthesis' in window)) return null;
         const opts = options || {};
@@ -100,12 +121,11 @@
         const utterance = new SpeechSynthesisUtterance(text);
         const code = lang === 'fr' ? 'fr' : 'en';
         utterance.lang = code === 'fr' ? 'fr-CA' : 'en-US';
-        const voices = window.speechSynthesis.getVoices();
-        const voice = voices.find(v => v.lang.toLowerCase() === utterance.lang.toLowerCase())
-            || voices.find(v => v.lang.toLowerCase().startsWith(code));
+        const voice = bestVoice(code, utterance.lang);
         if (voice) utterance.voice = voice;
         utterance.rate = opts.rate || 1;
-        utterance.pitch = opts.pitch || 1.15;
+        // Natural voices already sound warm; raising their pitch makes them sound like a cartoon robot.
+        utterance.pitch = voice && isNatural(voice) ? 1 : (opts.pitch || 1.15);
         if (opts.cancel !== false) window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
         return utterance;
