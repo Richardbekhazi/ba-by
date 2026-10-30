@@ -83,16 +83,14 @@
         .pic-card.right { box-shadow: 0 7px 0 var(--green-d), 0 0 0 5px var(--green); }
 
         /* ---- Letter balloons ---- */
+        /* Balloons fill the whole screen: no box inside the page. */
+        #pop { padding: 0; }
         .sky {
-            position: relative;
-            width: 100%;
-            max-width: 1000px;
-            flex: 1;
-            min-height: 360px;
-            border-radius: 34px;
+            position: fixed;
+            inset: 0;
             overflow: hidden;
             background: linear-gradient(180deg, #9BDCFF 0%, #D6F1FF 70%, #EAF9E5 100%);
-            box-shadow: inset 0 -26px 0 #9BDB8A, 0 8px 0 rgba(61,53,81,0.08);
+            box-shadow: inset 0 -34px 0 #9BDB8A;
             touch-action: manipulation;
         }
         .sky::before, .sky::after {
@@ -111,7 +109,7 @@
             --c: #FF5A5F; --cd: #C9303A;
             position: absolute;
             bottom: -170px;
-            width: clamp(78px, 15vw, 110px);
+            width: clamp(90px, 13vw, 150px);
             aspect-ratio: 0.82;
             border: 0;
             padding: 0;
@@ -120,7 +118,7 @@
             box-shadow: inset -8px -10px 0 color-mix(in srgb, var(--cd) 40%, transparent);
             color: #fff;
             font-family: 'Fredoka One', system-ui, sans-serif;
-            font-size: clamp(2.3rem, 7vw, 3.3rem);
+            font-size: clamp(2.8rem, 6.5vw, 4.4rem);
             text-shadow: 0 3px 0 var(--cd);
             animation: rise var(--t, 8s) linear forwards;
         }
@@ -158,7 +156,7 @@
         <div class="kit-modes">
             <button class="kit-mode" type="button" id="go-meet" style="--c:#FF6B8B"><span class="kit-mode-art"><span>🔤</span></span><span class="kit-mode-label"><b data-fr="Les lettres">Meet the letters</b><small data-fr="Touche une lettre pour l'entendre">Tap a letter to hear it</small></span></button>
             <button class="kit-mode" type="button" id="go-find" style="--c:#4FB8FF"><span class="kit-badge" id="find-badge"></span><span class="kit-mode-art"><span>🔍</span></span><span class="kit-mode-label"><b data-fr="Trouve l'image">Find the picture</b><small data-fr="Quelle image commence par la lettre ?">Which picture starts with the letter?</small></span></button>
-            <button class="kit-mode" type="button" id="go-pop" style="--c:#FFB627"><span class="kit-badge" id="pop-badge"></span><span class="kit-mode-art"><span>🎈</span></span><span class="kit-mode-label"><b data-fr="Ballons lettres">Letter balloons</b><small data-fr="Fais éclater la bonne lettre">Pop the letter you hear</small></span></button>
+            <button class="kit-mode" type="button" id="go-pop" style="--c:#FFB627"><span class="kit-mode-art"><span>🎈</span></span><span class="kit-mode-label"><b data-fr="Ballons lettres">Letter balloons</b><small data-fr="Fais éclater les lettres">Pop the letters</small></span></button>
         </div>
     </main>
 
@@ -186,9 +184,7 @@
 
     <!-- 🎈 Balloons -->
     <main class="kit-screen fit" id="pop" hidden>
-        <div class="kit-hud"><span class="kit-level" id="pop-level"></span><span class="kit-stars" id="pop-stars"></span></div>
-        <div class="kit-prompt"><span id="pop-prompt"></span><button type="button" class="kit-say" id="pop-say" aria-label="Say it again" data-fr-aria-label="Répéter">🔊</button></div>
-        <div class="sky" id="sky"></div>
+        <div class="sky" id="sky" role="group" aria-label="Letter balloons" data-fr-aria-label="Ballons lettres"></div>
     </main>
 
     <script>
@@ -450,31 +446,17 @@
         function openFind() { Kit.show(find); findWon = 0; newFind(); }
 
         // ---------------- 🎈 LETTER BALLOONS ----------------
-        const POP_LEVELS = [
-            { n: 3, t: 10, set: 'ABCDEFGH' },
-            { n: 4, t: 9, set: 'ABCDEFGHIJKLMNOP' },
-            { n: 4, t: 8.5, set: ALPHABET.join('') },
-            { n: 5, t: 8, set: ALPHABET.join('') },
-            { n: 6, t: 7.5, set: ALPHABET.join('') }
-        ];
-        const popStore = Kit.levelStore('abc-pop-level', POP_LEVELS.length);
-        let popLevel = popStore.get(), popWon = 0, popTarget = 'A', popTimer = 0, popLocked = false;
+        // Free play: balloons float up all over the screen; pop any one and it says its letter.
+        const MAX_BALLOONS = 7;
+        let popTimer = 0;
         const sky = $('#sky');
-        function sayPop() { say(`Pop the letter ${popTarget}!`, `Fais éclater la lettre ${popTarget}${NBSP}!`); }
-        function renderPopHud(popIndex) {
-            $('#pop-level').textContent = T(`Level ${popLevel + 1}`, `Niveau ${popLevel + 1}`);
-            Kit.stars($('#pop-stars'), ROUNDS, popWon, popIndex);
-            $('#pop-prompt').innerHTML = T(`Pop the <span class="kit-word" style="--wc:${colorOf(popTarget)[1]}">${popTarget}</span>!`,
-                `Fais éclater le <span class="kit-word" style="--wc:${colorOf(popTarget)[1]}">${popTarget}</span>${NBSP}!`);
-        }
         function liveBalloons() { return [...sky.querySelectorAll('.balloon:not(.popped)')]; }
         function spawnBalloon() {
             if (pop.hidden) return;
-            const cfg = POP_LEVELS[popLevel];
             const live = liveBalloons();
-            if (live.length >= cfg.n) return;
-            const hasTarget = live.some(b => b.dataset.l === popTarget);
-            const L = !hasTarget && Math.random() < 0.75 ? popTarget : Kit.pick(cfg.set.split('').filter(x => x !== popTarget));
+            if (live.length >= MAX_BALLOONS) return;
+            const showing = live.map(x => x.dataset.l);
+            const L = Kit.pick(ALPHABET.filter(x => !showing.includes(x)));
             const b = document.createElement('button');
             b.type = 'button';
             b.className = 'balloon';
@@ -483,13 +465,13 @@
             b.setAttribute('aria-label', L);
             paintBlock(b, L);
             // Spread balloons across the sky so they never stack.
-            const lanes = cfg.n + 1;
+            const lanes = MAX_BALLOONS;
             const used = live.map(x => Number(x.dataset.lane));
             const free = Array.from({ length: lanes }, (_, i) => i).filter(i => !used.includes(i));
             const lane = Kit.pick(free.length ? free : [0]);
             b.dataset.lane = lane;
-            b.style.left = `calc(${(lane + 0.5) / lanes * 100}% - clamp(39px, 7.5vw, 55px))`;
-            b.style.setProperty('--t', `${cfg.t * (0.85 + Math.random() * 0.3)}s`);
+            b.style.left = `calc(${(lane + 0.5) / lanes * 100}% - clamp(45px, 6.5vw, 75px))`;
+            b.style.setProperty('--t', `${9 * (0.85 + Math.random() * 0.35)}s`);
             b.style.setProperty('--sway', `${(Math.random() - 0.5) * 16}deg`);
             b.addEventListener('animationend', event => { if (event.animationName === 'rise' || event.animationName === 'popped') b.remove(); });
             sky.appendChild(b);
@@ -497,60 +479,26 @@
         function popLoop() {
             spawnBalloon();
             clearTimeout(popTimer);
-            popTimer = setTimeout(popLoop, 900 + Math.random() * 700);
+            popTimer = setTimeout(popLoop, 700 + Math.random() * 600);
         }
         sky.addEventListener('pointerdown', event => {
             const b = event.target.closest('.balloon');
-            if (!b || b.classList.contains('popped') || popLocked) return;
+            if (!b || b.classList.contains('popped')) return;
             const L = b.dataset.l;
-            if (L !== popTarget) {
-                Kit.bounce(b.firstElementChild, 'wobble');
-                Kit.sfx.oops();
-                say(`That's ${L}.`, `C'est ${L}.`);
-                return;
-            }
             const rect = b.getBoundingClientRect();
             // Freeze it where it is, then burst.
             b.style.transform = getComputedStyle(b).transform;
             b.classList.add('popped');
             Kit.sfx.pop();
-            Kit.sfx.boing(noteOf(L));
             Kit.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, colorOf(L), 30, 1.1);
-            popWon++;
-            popLocked = true;
-            let wait = 1200;
-            if (popWon >= ROUNDS) {
-                popWon = 0;
-                if (popLevel < POP_LEVELS.length - 1) popLevel++;
-                popStore.set(popLevel);
-                say(`Pop! ${L}! Super! Level ${popLevel + 1}!`, `Pop${NBSP}! ${L}${NBSP}! Super${NBSP}! Niveau ${popLevel + 1}${NBSP}!`);
-                Kit.cheer(T(`⭐ Level ${popLevel + 1}!`, `⭐ Niveau ${popLevel + 1}${NBSP}!`), 1800);
-                Kit.confetti(90);
-                Kit.sfx.fanfare();
-                wait = 2600;
-                renderPopHud(ROUNDS - 1);
-            } else {
-                say(`Pop! ${L}!`, `Pop${NBSP}! ${L}${NBSP}!`);
-                renderPopHud(popWon - 1);
-            }
-            Kit.later(() => {
-                popLocked = false;
-                const set = POP_LEVELS[popLevel].set.split('');
-                popTarget = Kit.pick(set.filter(x => x !== popTarget));
-                renderPopHud();
-                sayPop();
-            }, wait);
+            say(L, L);
+            Kit.later(spawnBalloon, 400);
         });
-        $('#pop-say').addEventListener('click', sayPop);
         function openPop() {
             Kit.show(pop);
-            popWon = 0;
-            popLocked = false;
             sky.innerHTML = '';
             sky.style.setProperty('--sky-h', `${sky.clientHeight || 600}px`);
-            popTarget = Kit.pick(POP_LEVELS[popLevel].set.split(''));
-            renderPopHud();
-            Kit.later(sayPop, 300);
+            for (let i = 0; i < 3; i++) Kit.later(spawnBalloon, i * 350);
             popLoop();
         }
         Kit.onLeave(pop, () => { clearTimeout(popTimer); sky.innerHTML = ''; });
@@ -559,7 +507,6 @@
         // ---------------- START ----------------
         function renderBadges() {
             $('#find-badge').textContent = T(`Level ${findLevel + 1}`, `Niv. ${findLevel + 1}`);
-            $('#pop-badge').textContent = T(`Level ${popLevel + 1}`, `Niv. ${popLevel + 1}`);
             Kit.tint('#FFE3EC');
         }
         $('#go-meet').addEventListener('click', () => { Kit.sfx.pop(); openMeet(); });
@@ -570,7 +517,6 @@
             renderBadges();
             if (!meet.hidden) showLetter(meetL, false);
             if (!find.hidden && !findLocked) newFind(targetL);
-            if (!pop.hidden) renderPopHud();
         });
         goStart();
     }());

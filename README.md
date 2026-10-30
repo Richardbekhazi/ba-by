@@ -1,4 +1,4 @@
-﻿# 🍼 ba-by.ca – Baby-Friendly Games Website
+# 🍼 ba-by.ca – Baby-Friendly Games Website
 
 Welcome to **ba-by.ca**, a collection of simple, fun, touch-friendly baby games designed for toddlers and young children.
 It is a plain static site (HTML, CSS and JavaScript, no build step) hosted on **GitHub Pages**.
@@ -16,7 +16,7 @@ with its own `index.html`, so its address is `https://ba-by.ca/<folder>/`.
 | --- | --- | --- |
 | ABC Time | `/abc/` | Meet the letters, find the picture and pop letter balloons (see below) |
 | Colors | `/colors/` | Jelly colour friends: meet, find, mix and paint a picture (see below) |
-| Numbers | `/numbers/` | Tap & count, How many?, Feed the friend (see below) |
+| Numbers | `/numbers/` | Play (tap numbers for a burst of fun), Count and Feed (see below) |
 | Shapes | `/shapes/` | Pop the shapes |
 | Music Box | `/sounds/` | Real instruments, a rainbow xylophone with songs, an animal choir |
 | Animal Safari | `/animals/` | Farm, wild and faraway animals with real sounds, plus a listening game |
@@ -133,35 +133,49 @@ shared setting; the 🔊 button there mutes every kit game (`baby-muted`).
 
 ### ABC Time (`/abc/`)
 
-- **Meet the letters**: tap any of the 26 jelly blocks (or press a letter key) to hear "B. B is for Bear."
-  Tap the picture for another friend of that letter. Letters already met get a star (`abc-seen`), with a
-  party when all 26 are found.
-- **Find the picture**: "A is for Apple. Find the apple!" with 2 up to 6 pictures. The right picture hops onto
-  the letter block; a wrong tap says that word and fades. Five stars earn a level (`abc-level`).
-- **Letter balloons**: "Pop the letter B!" Balloons float up; popping the right one bursts it with
-  sparkles, a wrong one just wiggles and says its letter. Levels add more balloons and letters
-  (`abc-pop-level`). Words always start with their letter in both English and French.
+- **Meet the letters**: one big letter at a time, A to Z, with its picture friends as big cards below.
+  Tapping a picture says "U is for umbrella!"; once every friend of the letter is met, the next letter
+  comes by itself. Big arrows (or the arrow keys / any letter key) go back and forward, and a small A-Z
+  strip shows the letters already met (`abc-seen`), with a party when all 26 are found.
+- **Find the picture**: the letter sits above "A is for apple. Find the apple!" with 2 up to 6 pictures
+  (in one row on wide screens). The right picture hops onto the letter block; a wrong tap says that word
+  and fades. Five stars earn a level (`abc-level`).
+- **Letter balloons**: free play over the whole screen. Balloons with letters float up; pop any one and it
+  says its letter. No orders, levels or wrong answers. Words always start with their letter in both
+  English and French.
 
 ### Colors (`/colors/`)
 
-- 11 jelly colour friends with faces and matching examples (🍎, 🐸, 🐳...).
-- **Meet the colors**: tap a jelly to hear its name; it squishes, smiles and tints the page.
-- **Find the color**: "Where is red?" with 2, 3, 4 then 6 jellies; five right answers earn a level
+- 11 basic jelly colour friends with faces and matching examples (🍎, 🐸, 🐳...).
+- **Meet the colors**: 25 jellies (the 11 basic ones plus light blue, dark blue, turquoise, light and dark
+  green, gold, light yellow, peach, coral, dark red, magenta, lavender, beige and silver). Tap one to hear
+  its name; it squishes, smiles and tints the page.
+- **Find the color**: "Where is red?" with 2, 3, 4 then 6 basic jellies; five right answers earn a level
   (`colors-find-level`).
-- **Mix colors**: tap two paint drops; they swirl into a new jelly ("Red and yellow make orange!").
-  The recipe book tracks the 6 mixes (`colors-mixes`).
-- **Paint the picture**: pick a colour, tap a part of a house, a fish or a rainbow to fill it; a
-  finished picture gets a celebration. White works as an eraser.
+- **Mix colors**: tap a paint (red, yellow, blue, white, black) and a drop flies into the big bowl; tap a
+  second one and the bowl swirls, then a jelly of the new colour jumps out ("Red and yellow make
+  orange!"). Pairs that are not a recipe make muddy brown. The recipe book tracks the 7 mixes
+  (`colors-mixes`).
+- **Paint the picture**: a random picture (house, fish, rainbow, flower, car, ice cream, butterfly,
+  balloons, rocket or kitty) with a colour already picked, so the first tap paints. Tap a part to fill it;
+  tapping a part that already has that colour moves on to the next colour, and tapping anywhere outside
+  the picture paints a part that is still white. A finished picture gets a celebration.
 
 ### Numbers (`/numbers/`)
 
-- **Tap & count**: tap a number block (digit plus dots) and that many friends hop onto the meadow one by
-  one, each counted out loud with a number tag. The counting voice can be English, French, Tagalog
-  (browser voice), or Arabic and Ilokano (recordings in `numbers/sounds/`), and is used in every mode.
-- **How many?**: tap each thing to count it, then tap the number; choices are always 1 up to the level's
-  biggest number (1-2 at level 1, up to 1-10).
-- **Feed the friend**: "Give the bunny 3 carrots!" Food hops into the bowl and is counted; tap the bowl
-  to take one back. The friend munches and dances at the right number. Levels go up to 3, 5, 7, 10.
+- Same style as Colors: three picture cards on the start screen (Play, Count, Feed).
+- Number blocks 1-10 show the digit plus the same number of dots.
+- **Play**: tap a block to hear the number; that many numbered items come out one by one with rising
+  notes. The number voice can be English, French (site language), Tagalog (browser voice), or Arabic and
+  Ilokano (recordings in `numbers/sounds/`), and each voice has its own effect: English balloons float
+  up, French bouncy balls bounce on the floor, Tagalog butterflies flutter away, Arabic stars burst like
+  fireworks, Ilokano fish swim across the screen.
+- **Count**: "How many?" Tap each thing to count it out loud, then tap the matching number block below.
+  The choices are always every number from 1 up, in order: level 1 shows 1-2, level 2 shows 1-3, and
+  each level adds the next number up to 1-10 at level 9.
+- **Feed**: "Give the bunny 3 carrots!" Tap food into the bowl (it counts out loud; tap food in the
+  bowl to take it back). The animal hops happily at the right number. Levels go up to 3, 5, 7, 10.
+- Five right answers earn the next level in Count and Feed; wrong taps only wobble (no voice).
 
 ### Jump! (`/rooftoprush/`)
 
@@ -238,7 +252,7 @@ Nothing is uploaded; progress is kept in the browser's `localStorage`:
 | Key | Used by |
 | --- | --- |
 | `baby-lang` | Whole site: chosen language |
-| `abc-level`, `abc-pop-level`, `abc-seen` | ABC Time: Find level, Balloons level, letters met |
+| `abc-level`, `abc-seen` | ABC Time: Find level, letters met |
 | `puzzles-progress`, `puzzles-picture-level` | Puzzles: furthest shape puzzle, picture puzzle size |
 | `colors-find-level` | Colors: Find the color level |
 | `colors-mixes` | Colors: mixes discovered |

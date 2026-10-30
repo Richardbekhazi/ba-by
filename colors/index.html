@@ -26,21 +26,31 @@
         .jelly-grid { width: 100%; max-width: 960px; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 16px 12px; }
         .find-grid { width: 100%; max-width: 760px; display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 16px; }
 
-        /* Mix */
-        .mix-row { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 3vw, 22px); font-family: 'Fredoka One', system-ui, sans-serif; font-size: 2.4rem; color: var(--muted); }
-        .slot { width: clamp(84px, 22vw, 130px); aspect-ratio: 1; border-radius: 30px; background: #fff; box-shadow: inset 0 0 0 5px #EFE8F6, 0 6px 0 rgba(61,53,81,0.08); display: grid; place-items: center; font-size: 2.6rem; color: #CFC6DD; }
-        .slot svg { width: 80%; }
-        .slot.result { width: clamp(110px, 28vw, 170px); }
-        .slot.swirl { background: conic-gradient(var(--a), var(--b), var(--a)); animation: spin 0.95s linear; }
+        /* Mix: a big bowl; drops fly in, swirl, and a jelly of the new colour jumps out */
+        .bowl-wrap { position: relative; width: clamp(240px, 36vh, 380px); aspect-ratio: 1.45; margin-top: clamp(60px, 10vh, 110px); }
+        .rim { position: absolute; left: -5%; right: -5%; top: 0; height: 24%; border-radius: 50%; background: #fff; box-shadow: inset 0 -8px 0 #EFE8F6, 0 4px 0 rgba(61,53,81,0.08); z-index: 2; }
+        .bowl { position: absolute; inset: 12% 0 0 0; border-radius: 0 0 50% 50% / 0 0 100% 100%; background: linear-gradient(180deg, #fff, #F1EBFA); overflow: hidden; box-shadow: 0 12px 0 rgba(61,53,81,0.1), 0 22px 30px rgba(61,53,81,0.12); }
+        .liquid { position: absolute; left: 0; right: 0; bottom: 0; height: var(--level, 0%); background: var(--mix, transparent); transition: height 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.6s; }
+        .liquid::before { content: ''; position: absolute; left: 6%; right: 6%; top: -10px; height: 20px; border-radius: 50%; background: inherit; filter: brightness(1.15); }
+        .swirl { position: absolute; left: 50%; top: 70%; width: 190%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; background: conic-gradient(var(--a), var(--b), var(--a), var(--b), var(--a), var(--b), var(--a)); opacity: 0; transition: opacity 0.3s; }
+        .swirl.on { opacity: 1; animation: spin 0.5s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .mix-name { min-height: 2.2rem; font-family: 'Fredoka One', system-ui, sans-serif; font-size: 2rem; color: var(--cd, var(--ink)); }
-        .paints { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
-        .paint { border: 0; background: #fff; border-radius: 26px; padding: 10px; width: clamp(78px, 20vw, 104px); aspect-ratio: 1; box-shadow: 0 6px 0 rgba(61,53,81,0.1); }
-        .paint svg { width: 100%; height: 100%; }
-        .paint:active { transform: translateY(5px); box-shadow: none; }
-        .recipes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 760px; }
+        .result { position: absolute; left: 50%; bottom: 46%; width: 58%; translate: -50% 0; z-index: 3; transform: scale(0); pointer-events: none; }
+        .result.out { animation: jump-out 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes jump-out { 0% { transform: translateY(70%) scale(0.2); } 100% { transform: translateY(-8%) scale(1); } }
+        .result .jelly { width: 100%; }
+        .mix-name { min-height: 2.6rem; margin-top: 8px; font-family: 'Fredoka One', system-ui, sans-serif; font-size: clamp(1.8rem, 5vh, 2.6rem); color: var(--cd, var(--ink)); }
+        .paints { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(10px, 2vw, 22px); }
+        .paint { border: 0; background: #fff; border-radius: 30px; padding: 12px; width: clamp(84px, 13vh, 122px); aspect-ratio: 1; box-shadow: 0 7px 0 var(--cd), 0 14px 20px rgba(61,53,81,0.1); transition: transform 0.15s; }
+        .paint svg { width: 100%; height: 100%; animation: drip-bob 2.6s ease-in-out infinite; }
+        .paint:nth-child(2n) svg { animation-delay: -1.2s; }
+        @keyframes drip-bob { 50% { transform: translateY(-5px) rotate(4deg); } }
+        .paint:hover { transform: translateY(-4px) rotate(-3deg); }
+        .paint:active { transform: translateY(6px); box-shadow: 0 1px 0 var(--cd); }
+        .flying-drop { position: fixed; z-index: 76; width: 64px; height: 64px; pointer-events: none; translate: -50% -50%; }
+        .recipes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 900px; }
         .recipe { display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 999px; background: #fff; font-weight: 900; color: var(--muted); box-shadow: 0 3px 0 rgba(61,53,81,0.08); }
-        .recipe i { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 2px rgba(0,0,0,0.08); font-style: normal; text-align: center; line-height: 22px; }
+        .recipe i { display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 2px rgba(0,0,0,0.08); font-style: normal; text-align: center; line-height: 24px; }
         .recipe i.unknown { background: #EEE8F5; color: #A79EBC; }
         .recipe.new { animation: kit-pop 0.6s; background: #FFF6CC; }
 
@@ -48,7 +58,7 @@
         .paint-wrap { width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
         .picture { width: 100%; border-radius: 30px; background: #fff; padding: 12px; box-shadow: 0 8px 0 rgba(61,53,81,0.08); }
         .picture svg { width: 100%; height: auto; display: block; border-radius: 22px; touch-action: manipulation; }
-        .picture [data-r] { cursor: pointer; transition: fill 0.25s; stroke: #3D3551; stroke-width: 4; stroke-linejoin: round; }
+        .picture [data-r] { cursor: var(--cursor-tap, pointer); transition: fill 0.25s; stroke: #3D3551; stroke-width: 4; stroke-linejoin: round; }
         .picture [data-r].splash { animation: kit-pop 0.4s; transform-box: fill-box; transform-origin: center; }
         .palette { display: grid; grid-template-columns: repeat(2, 64px); gap: 10px; }
         .swatch { width: 64px; height: 64px; border-radius: 50%; border: 5px solid #fff; background: var(--c); box-shadow: 0 5px 0 rgba(61,53,81,0.15); }
@@ -70,7 +80,7 @@
             <button class="kit-mode" type="button" id="go-explore" style="--c:#FF5A5F"><span class="kit-mode-art" id="art-explore"></span><span class="kit-mode-label"><b data-fr="Les couleurs">Meet the colors</b><small data-fr="Touche une gelée">Tap a jelly</small></span></button>
             <button class="kit-mode" type="button" id="go-find" style="--c:#3D9BF0"><span class="kit-badge" id="find-badge"></span><span class="kit-mode-art"><span>🔍</span></span><span class="kit-mode-label"><b data-fr="Trouve la couleur">Find the color</b><small data-fr="Où est le rouge ?">Where is red?</small></span></button>
             <button class="kit-mode" type="button" id="go-mix" style="--c:#9B6CF0"><span class="kit-mode-art"><span>🧪</span></span><span class="kit-mode-label"><b data-fr="Mélange">Mix colors</b><small data-fr="Deux couleurs en font une nouvelle">Two colors make a new one</small></span></button>
-            <button class="kit-mode" type="button" id="go-paint" style="--c:#4CC26A"><span class="kit-mode-art"><span>🖌️</span></span><span class="kit-mode-label"><b data-fr="Peins l'image">Paint the picture</b><small data-fr="Choisis une couleur, touche l'image">Pick a color, tap the picture</small></span></button>
+            <button class="kit-mode" type="button" id="go-paint" style="--c:#4CC26A"><span class="kit-mode-art"><span>🖌️</span></span><span class="kit-mode-label"><b data-fr="Peins l'image">Paint the picture</b><small data-fr="Touche l'image pour la peindre">Tap the picture to paint it</small></span></button>
         </div>
     </main>
 
@@ -83,7 +93,11 @@
     </main>
 
     <main class="kit-screen" id="mix" hidden>
-        <div class="mix-row"><div class="slot" id="slot-a">?</div>+<div class="slot" id="slot-b">?</div>=<div class="slot result" id="slot-r">?</div></div>
+        <div class="bowl-wrap" id="bowl-wrap">
+            <div class="rim" aria-hidden="true"></div>
+            <div class="bowl" aria-hidden="true"><div class="liquid" id="liquid"></div><div class="swirl" id="swirl"></div></div>
+            <div class="result" id="result" aria-live="polite"></div>
+        </div>
         <div class="mix-name" id="mix-name"></div>
         <div class="paints" id="paints"></div>
         <div class="kit-level" id="recipes-title"></div>
@@ -123,7 +137,25 @@
             sky:   { id: 'sky',   name: 'Sky blue',     fr: 'Bleu ciel',  hex: '#8FD0FF', dark: '#5AAEE8', note: 9, label: '#3A8FD0' },
             cream: { id: 'cream', name: 'Light yellow', fr: 'Jaune pâle', hex: '#FFF0A0', dark: '#E8D266', note: 10, label: '#B89A00' }
         };
-        const byId = id => COLORS.find(c => c.id === id) || EXTRA[id];
+        // Meet the colors shows many more colours; the other games keep the basic ones.
+        const MORE = [
+            { id: 'lightblue', name: 'Light blue', fr: 'Bleu clair', hex: '#8FD0FF', dark: '#5AAEE8', emoji: '🐬', label: '#2F86C9' },
+            { id: 'navy', name: 'Dark blue', fr: 'Bleu foncé', hex: '#2B4BB3', dark: '#1B3283', emoji: '👖' },
+            { id: 'turquoise', name: 'Turquoise', fr: 'Turquoise', hex: '#2EC4B6', dark: '#1E9C90', emoji: '🐠' },
+            { id: 'lightgreen', name: 'Light green', fr: 'Vert clair', hex: '#A8E05F', dark: '#7DB83A', emoji: '🥝', label: '#5E9426' },
+            { id: 'darkgreen', name: 'Dark green', fr: 'Vert foncé', hex: '#2E7D4F', dark: '#1E5A37', emoji: '🌲' },
+            { id: 'gold', name: 'Gold', fr: 'Doré', hex: '#F2B705', dark: '#C48F00', emoji: '👑', label: '#A87A00' },
+            { id: 'lightyellow', name: 'Light yellow', fr: 'Jaune pâle', hex: '#FFF0A0', dark: '#E8D266', emoji: '🍋', label: '#A88B00' },
+            { id: 'peach', name: 'Peach', fr: 'Pêche', hex: '#FFB38A', dark: '#E88E60', emoji: '🍑', label: '#C96A3A' },
+            { id: 'coral', name: 'Coral', fr: 'Corail', hex: '#FF7F6B', dark: '#E05A47', emoji: '🪸' },
+            { id: 'darkred', name: 'Dark red', fr: 'Rouge foncé', hex: '#A3263B', dark: '#7A1A2B', emoji: '🍒' },
+            { id: 'magenta', name: 'Magenta', fr: 'Magenta', hex: '#E0399E', dark: '#B21F7A', emoji: '🌺' },
+            { id: 'lavender', name: 'Lavender', fr: 'Lavande', hex: '#C9B3F5', dark: '#A08AD6', emoji: '🪻', label: '#7A5FC0' },
+            { id: 'beige', name: 'Beige', fr: 'Beige', hex: '#E8D3B0', dark: '#C7AE84', emoji: '🥜', label: '#9A7C4C' },
+            { id: 'silver', name: 'Silver', fr: 'Argenté', hex: '#C9CFD8', dark: '#9AA3B0', emoji: '🥄', label: '#6F7889' }
+        ].map((c, i) => Object.assign(c, { note: 11 + i }));
+        const MEET = [...COLORS, ...MORE];
+        const byId = id => COLORS.find(c => c.id === id) || EXTRA[id] || MORE.find(c => c.id === id);
         const nameOf = c => T(c.name, c.fr);
         const sayColor = c => say(c.name, c.fr);
 
@@ -161,7 +193,7 @@
         // ---------------- 🎨 EXPLORE ----------------
         function openExplore() {
             Kit.show(explore);
-            $('#explore-grid').innerHTML = COLORS.map((c, i) => jellyButton(c, i, { name: true, hint: true })).join('');
+            $('#explore-grid').innerHTML = MEET.map((c, i) => jellyButton(c, i, { name: true, hint: true })).join('');
             say('Tap a jelly!', `Touche une gelée${NBSP}!`);
         }
         $('#explore-grid').addEventListener('click', event => {
@@ -230,10 +262,13 @@
         function openFind() { Kit.show(find); findWon = 0; newFind(); }
 
         // ---------------- 🧪 MIX ----------------
-        const PAINTS = ['red', 'yellow', 'blue', 'white'].map(byId);
+        // Tap a paint: a drop flies into the bowl. Tap a second one: the bowl swirls and a jelly
+        // of the new colour jumps out. The next tap starts a fresh bowl.
+        const PAINTS = ['red', 'yellow', 'blue', 'white', 'black'].map(byId);
         const RECIPES = [
             { mix: ['red', 'yellow'], result: 'orange' }, { mix: ['yellow', 'blue'], result: 'green' }, { mix: ['red', 'blue'], result: 'purple' },
-            { mix: ['red', 'white'], result: 'pink' }, { mix: ['blue', 'white'], result: 'sky' }, { mix: ['yellow', 'white'], result: 'cream' }
+            { mix: ['red', 'white'], result: 'pink' }, { mix: ['blue', 'white'], result: 'sky' }, { mix: ['yellow', 'white'], result: 'cream' },
+            { mix: ['black', 'white'], result: 'gray' }
         ];
         const key = (a, b) => [a, b].sort().join('+');
         const found = new Set(Kit.store.json('colors-mixes', []));
@@ -246,51 +281,79 @@
                 return `<div class="recipe${k === newKey ? ' new' : ''}"><i style="--c:${a.hex}"></i>+<i style="--c:${b.hex}"></i>=${known ? `<i style="--c:${res.hex}"></i>` : '<i class="unknown">?</i>'}</div>`;
             }).join('');
         }
-        function clearMix() {
+        function emptyBowl() {
             picks = [];
-            ['#slot-a', '#slot-b', '#slot-r'].forEach(s => { $(s).className = 'slot' + (s === '#slot-r' ? ' result' : ''); $(s).textContent = '?'; });
+            $('#liquid').style.setProperty('--level', '0%');
+            $('#swirl').classList.remove('on');
+            $('#result').className = 'result';
+            $('#result').innerHTML = '';
             $('#mix-name').textContent = '';
         }
         function openMix() {
             Kit.show(mix);
-            clearMix();
-            $('#paints').innerHTML = PAINTS.map(c => `<button type="button" class="paint" data-id="${c.id}" aria-label="${nameOf(c)}">${dropArt(c)}</button>`).join('');
+            emptyBowl();
+            $('#paints').innerHTML = PAINTS.map(c => `<button type="button" class="paint" data-id="${c.id}" style="--cd:${c.id === 'white' ? '#DCE1EA' : c.dark}" aria-label="${nameOf(c)}">${dropArt(c)}</button>`).join('');
             renderRecipes();
             say('Tap two colors to mix them!', `Touche deux couleurs pour les mélanger${NBSP}!`);
+        }
+        // A paint drop flies from its pot into the bowl.
+        function flyDrop(fromEl, c, done) {
+            const from = fromEl.getBoundingClientRect(), to = $('#bowl-wrap').getBoundingClientRect();
+            if (Kit.reduceMotion()) { done(); return; }
+            const el = document.createElement('div');
+            el.className = 'flying-drop';
+            el.innerHTML = dropArt(c);
+            el.style.left = from.left + from.width / 2 + 'px';
+            el.style.top = from.top + from.height / 2 + 'px';
+            document.body.appendChild(el);
+            const dx = to.left + to.width / 2 - (from.left + from.width / 2), dy = to.top + to.height * 0.35 - (from.top + from.height / 2);
+            el.animate([
+                { transform: 'translate(0, 0) scale(1)' },
+                { transform: `translate(${dx / 2}px, ${dy / 2 - 120}px) scale(1.2) rotate(-15deg)`, offset: 0.5 },
+                { transform: `translate(${dx}px, ${dy}px) scale(0.7)` }
+            ], { duration: 600, easing: 'cubic-bezier(0.45, 0, 0.2, 1)' }).onfinish = () => { el.remove(); done(); };
         }
         $('#paints').addEventListener('click', event => {
             const btn = event.target.closest('.paint');
             if (!btn || mixing) return;
-            if (picks.length === 2) clearMix();
+            if (picks.length === 2) emptyBowl();
             const c = byId(btn.dataset.id);
             Kit.bounce(btn);
             sfx.boing(Kit.note(c.note));
+            sayColor(c);
             picks.push(c);
-            const slot = picks.length === 1 ? $('#slot-a') : $('#slot-b');
-            slot.innerHTML = dropArt(c);
-            Kit.bounce(slot);
-            if (picks.length === 2) mixColors();
+            const first = picks.length === 1;
+            if (!first) mixing = true;
+            flyDrop(btn, c, () => {
+                sfx.splash();
+                const liquid = $('#liquid');
+                liquid.style.setProperty('--level', first ? '34%' : '62%');
+                if (first) liquid.style.setProperty('--mix', c.hex);
+                else mixColors();
+            });
         });
         function mixColors() {
-            mixing = true;
             const [a, b] = picks;
             const recipe = RECIPES.find(r => key(...r.mix) === key(a.id, b.id));
-            const result = a.id === b.id || !recipe ? a : byId(recipe.result);
+            // Same + same stays the same; any other pair that is not a recipe makes a muddy brown.
+            const result = a.id === b.id ? a : recipe ? byId(recipe.result) : byId('brown');
             const k = key(a.id, b.id);
             const isNew = recipe && !found.has(k);
-            const r = $('#slot-r');
-            r.textContent = '';
-            r.style.setProperty('--a', a.hex);
-            r.style.setProperty('--b', b.hex);
-            r.classList.add('swirl');
+            const swirl = $('#swirl');
+            swirl.style.setProperty('--a', a.hex);
+            swirl.style.setProperty('--b', b.hex);
+            swirl.classList.add('on');
             sfx.whoosh();
+            [0, 0.15, 0.3, 0.45, 0.6].forEach((at, i) => Kit.tone(Kit.note(a.note + i), { at, dur: 0.15, vol: 0.06 }));
             Kit.later(() => {
-                r.classList.remove('swirl');
-                r.innerHTML = `<span class="jelly happy" style="animation:none">${jellyArt(result, 1)}</span>`;
-                Kit.bounce(r);
+                swirl.classList.remove('on');
+                $('#liquid').style.setProperty('--mix', result.hex);
+                const res = $('#result');
+                res.innerHTML = `<span class="jelly happy" style="animation:none">${jellyArt(result, 1)}</span>`;
+                res.classList.add('out');
                 sfx.cheer();
                 tintFor(result);
-                Kit.burstFrom(r, [result.hex, '#fff', '#FFD54A'], 36);
+                Kit.burstFrom($('#bowl-wrap'), [result.hex, '#fff', '#FFD54A'], 40);
                 $('#mix-name').style.setProperty('--cd', result.label || result.dark);
                 $('#mix-name').textContent = nameOf(result);
                 if (a.id === b.id) say(`${a.name} and ${b.name.toLowerCase()} stay ${a.name.toLowerCase()}!`, `${a.fr} et ${b.fr.toLowerCase()}, ça reste ${a.fr.toLowerCase()}${NBSP}!`);
@@ -302,7 +365,7 @@
                     if (found.size === RECIPES.length) Kit.later(() => { Kit.cheer(T('🌈 You found all the colors!', `🌈 Toutes les couleurs${NBSP}!`), 2400); Kit.confetti(); sfx.fanfare(); }, 2000);
                 }
                 mixing = false;
-            }, 950);
+            }, 1100);
         }
 
         // ---------------- 🖌️ PAINT THE PICTURE ----------------
@@ -336,7 +399,62 @@
              ${[0, 1, 2, 3, 4, 5].map(i => { const r2 = 170 - i * 20, r1 = r2 - 20; return `<path data-r="band${i}" d="M${200 - r2} 250 A${r2} ${r2} 0 0 1 ${200 + r2} 250 L${200 + r1} 250 A${r1} ${r1} 0 0 0 ${200 - r1} 250 Z"/>`; }).join('')}
              <path data-r="cloud1" d="M10 262 Q8 226 44 230 Q56 200 86 216 Q112 208 112 240 Q128 262 100 270 H24 Q8 270 10 262 Z"/>
              <path data-r="cloud2" d="M290 262 Q288 226 324 230 Q336 200 366 216 Q392 208 392 240 Q398 262 380 270 H304 Q288 270 290 262 Z"/>
-             <circle data-r="sun" cx="352" cy="58" r="30"/>`
+             <circle data-r="sun" cx="352" cy="58" r="30"/>`,
+            // A flower in a pot.
+            `<rect data-r="sky" x="2" y="2" width="396" height="296" rx="18"/>
+             <rect data-r="stem" x="194" y="120" width="12" height="114" rx="6"/>
+             <ellipse data-r="leaf1" cx="168" cy="196" rx="30" ry="13" transform="rotate(-25 168 196)"/>
+             <ellipse data-r="leaf2" cx="232" cy="178" rx="30" ry="13" transform="rotate(25 232 178)"/>
+             ${[0, 1, 2, 3, 4, 5].map(i => { const a = i * Math.PI / 3; return `<circle data-r="petal${i}" cx="${200 + Math.cos(a) * 42}" cy="${96 + Math.sin(a) * 42}" r="30"/>`; }).join('')}
+             <circle data-r="middle" cx="200" cy="96" r="28"/>
+             <polygon data-r="pot" points="140,226 260,226 244,294 156,294"/>`,
+            // A car on the road.
+            `<rect data-r="sky" x="2" y="2" width="396" height="296" rx="18"/>
+             <rect data-r="road" x="2" y="236" width="396" height="62"/>
+             <circle data-r="sun" cx="348" cy="54" r="28"/>
+             <path data-r="car" d="M52 226 L52 178 Q52 162 70 160 L114 154 L146 112 Q152 104 166 104 L262 104 Q276 104 284 114 L316 154 L334 158 Q352 162 352 180 L352 226 Z"/>
+             <path data-r="window1" d="M156 152 L174 120 L212 120 L212 152 Z"/>
+             <path data-r="window2" d="M226 152 L226 120 L266 120 L294 152 Z"/>
+             <circle data-r="wheel1" cx="118" cy="226" r="30"/>
+             <circle data-r="wheel2" cx="288" cy="226" r="30"/>`,
+            // An ice cream cone.
+            `<rect data-r="sky" x="2" y="2" width="396" height="296" rx="18"/>
+             <circle data-r="scoop1" cx="160" cy="160" r="44"/>
+             <circle data-r="scoop2" cx="240" cy="160" r="44"/>
+             <circle data-r="scoop3" cx="200" cy="100" r="48"/>
+             <polygon data-r="cone" points="136,172 264,172 200,294"/>
+             <circle data-r="cherry" cx="200" cy="42" r="17"/>`,
+            // A butterfly.
+            `<rect data-r="sky" x="2" y="2" width="396" height="296" rx="18"/>
+             <ellipse data-r="wing1" cx="138" cy="110" rx="82" ry="64"/>
+             <ellipse data-r="wing2" cx="262" cy="110" rx="82" ry="64"/>
+             <ellipse data-r="wing3" cx="150" cy="214" rx="62" ry="48"/>
+             <ellipse data-r="wing4" cx="250" cy="214" rx="62" ry="48"/>
+             <ellipse data-r="body" cx="200" cy="160" rx="18" ry="98"/>
+             <path d="M192 70 Q172 32 150 26 M208 70 Q228 32 250 26" fill="none" ${S} stroke-linecap="round"/>`,
+            // Three balloons.
+            `<rect data-r="sky" x="2" y="2" width="396" height="296" rx="18"/>
+             <rect data-r="grass" x="2" y="252" width="396" height="46"/>
+             <path d="M110 178 Q126 220 200 262 M200 150 Q192 210 200 262 M290 178 Q276 220 200 262" fill="none" ${S}/>
+             <ellipse data-r="balloon1" cx="110" cy="118" rx="48" ry="60"/>
+             <ellipse data-r="balloon2" cx="200" cy="90" rx="48" ry="60"/>
+             <ellipse data-r="balloon3" cx="290" cy="118" rx="48" ry="60"/>`,
+            // A rocket in space.
+            `<rect data-r="space" x="2" y="2" width="396" height="296" rx="18"/>
+             ${[[60, 60], [330, 70], [80, 230], [320, 240]].map(([x, y], i) => `<polygon data-r="star${i}" points="${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(k => { const r = k % 2 ? 9 : 22, a = k * Math.PI / 5 - Math.PI / 2; return `${(x + Math.cos(a) * r).toFixed(1)},${(y + Math.sin(a) * r).toFixed(1)}`; }).join(' ')}"/>`).join('')}
+             <path data-r="flame" d="M170 206 Q200 296 230 206 Z"/>
+             <polygon data-r="fin1" points="154,156 112,222 154,210"/>
+             <polygon data-r="fin2" points="246,156 288,222 246,210"/>
+             <path data-r="rocket" d="M200 26 Q252 80 248 210 L152 210 Q148 80 200 26 Z"/>
+             <circle data-r="window" cx="200" cy="112" r="24"/>`,
+            // A kitty face.
+            `<rect data-r="sky" x="2" y="2" width="396" height="296" rx="18"/>
+             <polygon data-r="ear1" points="116,120 132,26 196,84"/>
+             <polygon data-r="ear2" points="284,120 268,26 204,84"/>
+             <circle data-r="head" cx="200" cy="164" r="104"/>
+             <circle cx="162" cy="146" r="12" fill="#3D3551"/><circle cx="238" cy="146" r="12" fill="#3D3551"/>
+             <polygon data-r="nose" points="186,178 214,178 200,194"/>
+             <path d="M200 194 Q186 214 172 204 M200 194 Q214 214 228 204 M150 186 L96 176 M150 196 L98 204 M250 186 L304 176 M250 196 L302 204" fill="none" ${S} stroke-linecap="round"/>`
         ];
         const PAINT_COLORS = COLORS.filter(c => c.id !== 'gray');
         let picIndex = 0, brush = byId('red');
@@ -347,36 +465,55 @@
         function renderPalette() {
             $('#palette').innerHTML = PAINT_COLORS.map(c => `<button type="button" class="swatch" data-id="${c.id}" style="--c:${c.hex}" aria-label="${nameOf(c)}" aria-pressed="${c === brush}"></button>`).join('');
         }
+        function setBrush(c, speak) {
+            brush = c;
+            $('#palette').querySelectorAll('.swatch').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === c.id)));
+            const sw = $(`#palette .swatch[data-id="${c.id}"]`);
+            if (sw) Kit.bounce(sw);
+            if (speak) { sfx.boing(Kit.note(brush.note)); sayColor(brush); }
+        }
         $('#palette').addEventListener('click', event => {
             const sw = event.target.closest('.swatch');
-            if (!sw) return;
-            brush = byId(sw.dataset.id);
-            $('#palette').querySelectorAll('.swatch').forEach(b => b.setAttribute('aria-pressed', String(b === sw)));
-            Kit.bounce(sw);
-            sfx.boing(Kit.note(brush.note));
-            sayColor(brush);
+            if (sw) setBrush(byId(sw.dataset.id), true);
         });
-        $('#picture').addEventListener('click', event => {
-            const part = event.target.closest('[data-r]');
-            if (!part) return;
+        function fillPart(part, x, y) {
+            // Tapping a part that already has this colour moves on to the next colour,
+            // so every single tap changes something.
+            if (part.getAttribute('fill') === brush.hex) setBrush(PAINT_COLORS[(PAINT_COLORS.indexOf(brush) + 1) % PAINT_COLORS.length], false);
             part.setAttribute('fill', brush.hex);
             part.classList.remove('splash'); void part.getBoundingClientRect(); part.classList.add('splash');
             sfx.splash();
-            Kit.burst(event.clientX, event.clientY, [brush.id === 'white' ? '#DCE1EA' : brush.hex, '#fff'], 14, 0.7);
+            Kit.burst(x, y, [brush.id === 'white' ? '#DCE1EA' : brush.hex, '#fff'], 14, 0.7);
             const parts = [...$('#picture').querySelectorAll('[data-r]')];
             if (parts.every(p => p.getAttribute('fill') !== '#FFFFFF') && !$('#picture')._done) {
                 $('#picture')._done = true;
                 Kit.later(() => { Kit.cheer(T('🎨 What a masterpiece!', `🎨 Quel chef-d'œuvre${NBSP}!`), 2000); Kit.confetti(110); sfx.fanfare(); say('What a beautiful picture!', `Quelle belle image${NBSP}!`); }, 300);
             }
+        }
+        // Little ones tap everywhere: a tap on the picture paints that part, and a tap anywhere
+        // else on the screen paints a part that is still white (or any part once all are painted).
+        paint.addEventListener('pointerdown', event => {
+            if (event.target.closest('button, a, .palette')) return;
+            const part = event.target.closest('#picture [data-r]');
+            if (part) { fillPart(part, event.clientX, event.clientY); return; }
+            const parts = [...$('#picture').querySelectorAll('[data-r]')];
+            const white = parts.filter(p => p.getAttribute('fill') === '#FFFFFF');
+            const pick = Kit.pick(white.length ? white : parts);
+            if (!pick) return;
+            const [x, y] = Kit.centerOf(pick);
+            fillPart(pick, x, y);
         });
-        $('#next-pic').addEventListener('click', () => { picIndex = (picIndex + 1) % PICTURES.length; $('#picture')._done = false; renderPicture(); sfx.whoosh(); });
+        const randomPicture = () => { let n; do { n = Math.floor(Math.random() * PICTURES.length); } while (n === picIndex && PICTURES.length > 1); return n; };
+        $('#next-pic').addEventListener('click', () => { picIndex = randomPicture(); $('#picture')._done = false; renderPicture(); sfx.whoosh(); });
         $('#clear-pic').addEventListener('click', () => { $('#picture')._done = false; renderPicture(); sfx.splash(); });
         function openPaint() {
             Kit.show(paint);
             $('#picture')._done = false;
+            picIndex = randomPicture();
+            brush = Kit.pick(PAINT_COLORS.filter(c => c.id !== 'white' && c.id !== 'black'));
             renderPicture();
             renderPalette();
-            say('Pick a color, then tap the picture!', `Choisis une couleur, puis touche l'image${NBSP}!`);
+            say(`Tap the picture to paint it ${brush.name.toLowerCase()}!`, `Touche l'image pour la peindre en ${brush.fr.toLowerCase()}${NBSP}!`);
         }
 
         // ---------------- START ----------------
@@ -387,7 +524,7 @@
         $('#go-paint').addEventListener('click', () => { sfx.pop(); openPaint(); });
         Kit.onLang(() => {
             renderBadges();
-            if (!explore.hidden) $('#explore-grid').innerHTML = COLORS.map((c, i) => jellyButton(c, i, { name: true, hint: true })).join('');
+            if (!explore.hidden) $('#explore-grid').innerHTML = MEET.map((c, i) => jellyButton(c, i, { name: true, hint: true })).join('');
             if (!find.hidden) renderFind();
             if (!mix.hidden) renderRecipes();
             if (!paint.hidden) renderPalette();
