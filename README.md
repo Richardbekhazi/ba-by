@@ -39,6 +39,7 @@ with its own `index.html`, so its address is `https://ba-by.ca/<folder>/`.
 | Bubble Hero | `/bubbles/` | Pop the Grumpies with bubbles (see below) |
 | Jump! | `/rooftoprush/` | Kitty's rooftop adventure: run, jump and collect fish across 5 worlds |
 | Rooftop Santa | `/rooftopsanta/` | Run the snowy rooftops and grab presents (see below) |
+| Fruit Slice | `/fruit-slice/` | Swipe to slice flying fruit: Arcade and Zen (see below) |
 | Tetris (Stacky Smiles) | `/tetris/` | Stack the smiley blocks to make lines, 6 levels (see below) |
 
 ---
@@ -57,7 +58,7 @@ ba-by/
 │  └─ badges1/         → Badge/reward icons used by Bubble Hero
 ├─ abc/  colors/  numbers/  shapes/  sounds/  animals/  puzzles/  keyboard-letter/
 ├─ animal-wash/  car-garage/  tiny-garden/  finger-paint/
-└─ bubbles/  rooftoprush/  rooftopsanta/  tetris/
+└─ bubbles/  rooftoprush/  rooftopsanta/  tetris/  fruit-slice/
 ```
 
 Each game is one `index.html` built on the shared kit. `numbers/` and `sounds/` also have
@@ -208,6 +209,18 @@ shared setting; the 🔊 button there mutes every kit game (`baby-muted`).
   Cozy and Speedy modes, first-time hints and English/French menus.
 - The best score and all-time presents collected are saved in the browser.
 
+### Fruit Slice (`/fruit-slice/`)
+
+An ad-free fruit-slicing arcade game. Fruit is tossed up from the bottom of a wooden board; swipe a finger
+(or the mouse) through it to cut it in two, with juice splashes that slowly fade. Several fingers work at
+once. Slicing 3 or more fruit in one swipe gives a combo bonus.
+
+- **Arcade**: 60 seconds. Bombs take away 10 points (no game over). Glowing bonus bananas: blue **Freeze**
+  slows everything and the clock, orange **Frenzy** throws fruit in from the sides, pink **Double score**.
+  Each lasts 6 seconds.
+- **Zen**: 90 seconds, no bombs and no bananas.
+- Best score per mode: `fruit-best-arcade`, `fruit-best-zen`.
+
 ### Stacky Smiles (`/tetris/`)
 
 A gentle falling-blocks game for about age 4, on a narrow 8 x 14 board with big smiley jelly blocks.
@@ -259,6 +272,7 @@ Nothing is uploaded; progress is kept in the browser's `localStorage`:
 | `numbers-count-level`, `numbers-feed-level` | Numbers: Count and Feed levels |
 | `numbers-voice` | Numbers: Tagalog / Arabic / Ilokano number voice |
 | `stacky-level`, `stacky-cleared` | Stacky Smiles: level to continue and levels cleared |
+| `fruit-best-arcade`, `fruit-best-zen` | Fruit Slice: best scores |
 | `animals-quiz-level` | Animal Safari: "Who says that?" level |
 | `garden-basket`, `garden-pots` | My Tiny Garden: what has been picked, what is growing |
 | `baby-muted` | Kit games: sound on or off |

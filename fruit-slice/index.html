@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" data-title-fr="Tranche les fruits">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Swipe to slice flying fruit! Arcade mode with bonus bananas, or calm Zen mode with no bombs. No ads. English and French.">
+    <title>Fruit Slice</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍉</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
+    <script src="/assets/js/kit.js?v=20261029"></script>
+    <style>
+        :root { --tint: #FFE3C8; }
+        .fruit-row { display: flex; gap: 6px; font-size: clamp(2.4rem, 9vw, 3.6rem); }
+        .fruit-row span { display: inline-block; animation: kit-bob 2.4s ease-in-out infinite; filter: drop-shadow(0 6px 5px rgba(61,53,81,0.2)); }
+        .fruit-row span:nth-child(2) { animation-delay: -0.5s; }
+        .fruit-row span:nth-child(3) { animation-delay: -1s; }
+        .fruit-row span:nth-child(4) { animation-delay: -1.5s; }
+        .fruit-row span:nth-child(5) { animation-delay: -2s; }
+        .kit-modes { max-width: 640px; }
+
+        /* The play screen: a wooden board over the whole screen. */
+        #play { padding: 0; }
+        .board {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            touch-action: none;
+            cursor: crosshair;
+            background:
+                radial-gradient(120% 90% at 50% 40%, rgba(255,214,150,0.25), rgba(40,20,5,0.45)),
+                repeating-linear-gradient(90deg, rgba(0,0,0,0.18) 0 3px, transparent 3px 16.66%),
+                repeating-linear-gradient(90deg, #A86B3A 0 8.33%, #9A5F31 8.33% 16.66%);
+        }
+        .board.zen {
+            background:
+                radial-gradient(120% 90% at 50% 40%, rgba(220,255,220,0.25), rgba(10,40,20,0.45)),
+                repeating-linear-gradient(90deg, rgba(0,0,0,0.16) 0 3px, transparent 3px 16.66%),
+                repeating-linear-gradient(90deg, #6E9A4E 0 8.33%, #638E45 8.33% 16.66%);
+        }
+        .board canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .board.shake { animation: shake 0.4s; }
+        @keyframes shake { 20% { transform: translate(-10px, 6px); } 40% { transform: translate(9px, -7px); } 60% { transform: translate(-6px, -4px); } 80% { transform: translate(5px, 4px); } }
+        .flash { position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 5; }
+        .flash.on { animation: flash 0.5s ease-out; }
+        @keyframes flash { 0% { opacity: 0.9; } 100% { opacity: 0; } }
+        .board.freeze::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 120px 30px rgba(120,210,255,0.75); }
+        .board.frenzy::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 120px 30px rgba(255,160,40,0.7); }
+        .board.double::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 120px 30px rgba(255,80,120,0.6); }
+
+        .hud {
+            position: fixed;
+            left: var(--safe-left);
+            right: var(--safe-right);
+            top: calc(var(--safe-top) + 66px);
+            z-index: 6;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+            font-family: 'Fredoka One', system-ui, sans-serif;
+            color: #fff;
+        }
+        .score { font-size: clamp(2.2rem, 7vw, 3.4rem); line-height: 1; text-shadow: 0 4px 0 #C9600A, 0 8px 16px rgba(0,0,0,0.35); display: flex; align-items: center; gap: 8px; }
+        .score.bump { animation: bump 0.25s; }
+        @keyframes bump { 50% { transform: scale(1.18); } }
+        .best { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1rem; opacity: 0.9; text-shadow: 0 2px 4px rgba(0,0,0,0.4); margin-top: 4px; }
+        .timer { font-size: clamp(2rem, 6vw, 3rem); line-height: 1; padding: 6px 16px; border-radius: 999px; background: rgba(0,0,0,0.28); }
+        .timer.low { color: #FFD54A; animation: bump 0.5s infinite; }
+        .powers { display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px; font-size: 1.6rem; }
+
+        .results {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            z-index: 8;
+            translate: -50% -50%;
+            width: min(92vw, 420px);
+            padding: 26px 22px 22px;
+            border-radius: 34px;
+            background: #fff;
+            text-align: center;
+            box-shadow: 0 10px 0 rgba(61,53,81,0.15), 0 30px 60px rgba(0,0,0,0.35);
+            animation: kit-rise 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+        }
+        .results h2 { margin: 0; font-family: 'Fredoka One', system-ui, sans-serif; font-weight: 400; font-size: 2.2rem; color: var(--orange); }
+        .results .big { font-family: 'Fredoka One', system-ui, sans-serif; font-size: 4.4rem; line-height: 1.1; color: var(--ink); }
+        .results p { margin: 4px 0 0; font-weight: 900; color: var(--muted); font-size: 1.1rem; }
+        .results .new-best { color: var(--pink); font-size: 1.3rem; animation: bump 0.6s 3; }
+        .results .row { display: flex; gap: 12px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+        .results button { border: 0; border-radius: 22px; padding: 14px 22px; font-family: 'Fredoka One', system-ui, sans-serif; font-size: 1.3rem; color: #fff; background: var(--c); box-shadow: 0 6px 0 var(--cd); }
+        .results button:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--cd); }
+        .banner {
+            position: fixed;
+            left: 50%;
+            top: 42%;
+            z-index: 7;
+            translate: -50% -50%;
+            pointer-events: none;
+            font-family: 'Fredoka One', system-ui, sans-serif;
+            font-size: clamp(2.6rem, 10vw, 5rem);
+            color: #fff;
+            white-space: nowrap;
+            text-shadow: 0 6px 0 var(--bc, #E04870), 0 14px 30px rgba(0,0,0,0.4);
+            animation: banner 1.4s ease-out forwards;
+        }
+        @keyframes banner { 0% { transform: scale(0.3); opacity: 0; } 15% { transform: scale(1.12); opacity: 1; } 25% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: scale(1.05) translateY(-20px); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <main class="kit-screen" id="start">
+        <div class="fruit-row" aria-hidden="true"><span>🍉</span><span>🍊</span><span>🍓</span><span>🍍</span><span>🥝</span></div>
+        <h1 class="kit-title" style="--title-shadow:#FF5A5F"><span class="bob" data-fr="Tranche">Fruit</span> <span class="bob" style="animation-delay:-1.3s" data-fr="les fruits">Slice</span></h1>
+        <p class="kit-sub" data-fr="Glisse ton doigt pour couper les fruits !">Swipe your finger to slice the fruit!</p>
+        <div class="kit-modes">
+            <button class="kit-mode" type="button" id="go-arcade" style="--c:#FF9F43"><span class="kit-badge" id="arcade-best"></span><span class="kit-mode-art"><span>🍌</span></span><span class="kit-mode-label"><b>Arcade</b><small data-fr="60 secondes, bananas bonus, attention aux bombes">60 seconds, bonus bananas, watch the bombs</small></span></button>
+            <button class="kit-mode" type="button" id="go-zen" style="--c:#4CC26A"><span class="kit-badge" id="zen-best"></span><span class="kit-mode-art"><span>🍃</span></span><span class="kit-mode-label"><b>Zen</b><small data-fr="90 secondes, pas de bombes">90 seconds, no bombs</small></span></button>
+        </div>
+    </main>
+
+    <main class="kit-screen fit" id="play" hidden>
+        <div class="board" id="board" aria-label="Fruit board: swipe to slice" data-fr-aria-label="Planche à fruits : glisse pour couper">
+            <canvas id="stains" aria-hidden="true"></canvas>
+            <canvas id="cv" aria-hidden="true"></canvas>
+        </div>
+        <div class="flash" id="flash"></div>
+        <div class="hud">
+            <div><div class="score" id="score">🍉 0</div><div class="best" id="best"></div></div>
+            <div><div class="timer" id="timer">60</div><div class="powers" id="powers"></div></div>
+        </div>
+        <div id="results-slot"></div>
+    </main>
+
+    <script>
+    (function () {
+        'use strict';
+        const { T, $, say } = Kit;
+        const NBSP = ' ';
+
+        // ---------- Things that fly ----------
+        const FRUITS = [
+            { e: '🍉', juice: '#E8344E', flesh: '#FF6F7F', pts: 1 },
+            { e: '🍊', juice: '#FF9A1F', flesh: '#FFC266', pts: 1 },
+            { e: '🍎', juice: '#E0313B', flesh: '#FFF4D6', pts: 1 },
+            { e: '🍋', juice: '#FFE14A', flesh: '#FFF2A8', pts: 1 },
+            { e: '🍓', juice: '#E8243C', flesh: '#FF8090', pts: 1 },
+            { e: '🥝', juice: '#8BC34A', flesh: '#C5E88A', pts: 1 },
+            { e: '🍑', juice: '#FF9A6A', flesh: '#FFD0A8', pts: 1 },
+            { e: '🍍', juice: '#FFD23F', flesh: '#FFE88A', pts: 1 },
+            { e: '🥥', juice: '#F5F0E6', flesh: '#FFFFFF', pts: 1 },
+            { e: '🍐', juice: '#C8DB5A', flesh: '#F2F7C8', pts: 1 },
+            { e: '🍇', juice: '#8E44AD', flesh: '#C79BE0', pts: 1 },
+            { e: '🥭', juice: '#FFB300', flesh: '#FFD466', pts: 1 }
+        ];
+        const BANANAS = {
+            freeze: { e: '🍌', glow: '#6FD3FF', en: 'Freeze!', fr: `Gel${NBSP}!`, icon: '❄️', juice: '#FFE680', flesh: '#FFF6C8' },
+            frenzy: { e: '🍌', glow: '#FFA62B', en: 'Frenzy!', fr: `Folie${NBSP}!`, icon: '🔥', juice: '#FFE680', flesh: '#FFF6C8' },
+            double: { e: '🍌', glow: '#FF5C8A', en: 'Double score!', fr: `Points doublés${NBSP}!`, icon: '✖️2', juice: '#FFE680', flesh: '#FFF6C8' }
+        };
+        const POWER_TIME = 6;
+
+        const MODES = {
+            arcade: { time: 60, bombs: true, bananas: true },
+            zen: { time: 90, bombs: false, bananas: false }
+        };
+
+        const start = $('#start'), play = $('#play'), board = $('#board');
+        const cv = $('#cv'), ctx = cv.getContext('2d'), stains = $('#stains'), sctx = stains.getContext('2d');
+        Kit.topbar({ onBack: () => goStart() });
+
+        const bestKey = m => `fruit-best-${m}`;
+        const getBest = m => Number(Kit.store.get(bestKey(m), 0)) || 0;
+
+        // ---------- Sizes ----------
+        let W = 0, H = 0, DPR = 1, R = 50, G = 1000;
+        function resize() {
+            DPR = Math.min(2, window.devicePixelRatio || 1);
+            W = window.innerWidth; H = window.innerHeight;
+            for (const c of [cv, stains]) { c.width = Math.round(W * DPR); c.height = Math.round(H * DPR); }
+            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            sctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            R = Math.max(34, Math.min(72, Math.min(W, H) * 0.085));
+            G = H * 1.15;
+            sprites.clear();
+        }
+
+        // Emoji are drawn once into a small canvas, then reused every frame.
+        const sprites = new Map();
+        function sprite(e, size) {
+            const k = e + size;
+            if (sprites.has(k)) return sprites.get(k);
+            const c = document.createElement('canvas');
+            const px = Math.ceil(size * 2.4 * DPR);
+            c.width = c.height = px;
+            const g = c.getContext('2d');
+            g.textAlign = 'center';
+            g.textBaseline = 'middle';
+            g.font = `${Math.round(size * 2 * DPR)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+            g.fillText(e, px / 2, px / 2 + size * 0.12 * DPR);
+            sprites.set(k, c);
+            return c;
+        }
+
+        // ---------- Game state ----------
+        let mode = 'arcade', cfg = MODES.arcade;
+        let items = [], halves = [], drops = [], popups = [];
+        let score = 0, timeLeft = 60, running = false, ending = false, raf = 0, last = 0;
+        let spawnIn = 0, bananaIn = 0, elapsed = 0, lastTick = 0;
+        const power = { freeze: 0, frenzy: 0, double: 0 };
+        let frenzyIn = 0;
+
+        function launch(kind, opts) {
+            const o = opts || {};
+            const fromSide = o.side;
+            let x, y, vx, vy;
+            if (fromSide) {
+                x = fromSide < 0 ? -R : W + R;
+                y = H * (0.45 + Math.random() * 0.35);
+                vx = -fromSide * (W * (0.45 + Math.random() * 0.3));
+                vy = -Math.sqrt(2 * G * H * (0.25 + Math.random() * 0.25));
+            } else {
+                x = W * (0.15 + Math.random() * 0.7);
+                y = H + R;
+                const peak = H * (0.45 + Math.random() * 0.38);
+                vy = -Math.sqrt(2 * G * peak);
+                const flight = 2 * -vy / G;
+                const targetX = W * (0.2 + Math.random() * 0.6);
+                vx = (targetX - x) / flight;
+            }
+            let item;
+            if (kind === 'bomb') item = { type: 'bomb', e: '💣' };
+            else if (kind && BANANAS[kind]) item = Object.assign({ type: 'banana', power: kind }, BANANAS[kind]);
+            else item = Object.assign({ type: 'fruit' }, Kit.pick(FRUITS));
+            Object.assign(item, { x, y, vx, vy, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 5, r: item.type === 'bomb' ? R * 0.92 : R, born: elapsed });
+            items.push(item);
+            Kit.tone(160 + Math.random() * 60, { to: 260, dur: 0.12, vol: 0.06, type: 'triangle' });
+        }
+
+        function wave() {
+            // Waves get busier as the round goes on.
+            const t = elapsed / cfg.time;
+            const n = 1 + Math.floor(Math.random() * (2 + t * 3.2));
+            const burst = Math.random() < 0.35;
+            for (let i = 0; i < n; i++) setTimeoutGame(() => launch(), burst ? 0 : i * 180);
+            if (cfg.bombs && elapsed > 4 && Math.random() < 0.18 + t * 0.2) setTimeoutGame(() => launch('bomb'), 120 + Math.random() * 400);
+            spawnIn = Math.max(0.75, 1.9 - t * 1.0) + Math.random() * 0.7;
+        }
+        // Timers that follow game time (so Freeze slows them too) and stop with the round.
+        let gameTimers = [];
+        function setTimeoutGame(fn, ms) { gameTimers.push({ at: elapsed + ms / 1000, fn }); }
+
+        // ---------- Slicing ----------
+        let trail = [], swipeHits = 0, swipeTimer = 0, swipeX = 0, swipeY = 0, lastWhoosh = 0;
+        const pointers = new Map();
+
+        function segDist(px, py, ax, ay, bx, by) {
+            const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+            let t = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+            t = Math.max(0, Math.min(1, t));
+            const cx = ax + t * dx - px, cy = ay + t * dy - py;
+            return Math.sqrt(cx * cx + cy * cy);
+        }
+        function addPoints(n, x, y, color) {
+            const pts = power.double > 0 ? n * 2 : n;
+            score = Math.max(0, score + pts);
+            popups.push({ text: (pts > 0 ? '+' : '') + pts, x, y, life: 0.9, color: color || '#fff', size: 1 });
+            renderScore(true);
+        }
+        function slice(it, ax, ay, bx, by) {
+            const angle = Math.atan2(by - ay, bx - ax);
+            items.splice(items.indexOf(it), 1);
+            if (it.type === 'bomb') return boom(it);
+            const nx = -Math.sin(angle), ny = Math.cos(angle);
+            const sp = R * 2.2;
+            for (const side of [-1, 1]) {
+                halves.push({ e: it.e, flesh: it.flesh, x: it.x, y: it.y, vx: it.vx * 0.6 + nx * side * sp, vy: Math.min(it.vy, 0) * 0.4 + ny * side * sp - R * 2,
+                    rot: 0, vr: side * (3 + Math.random() * 3), cut: angle, side, r: it.r, life: 3 });
+            }
+            for (let i = 0; i < 16; i++) {
+                const a = Math.random() * Math.PI * 2, v = R * (2 + Math.random() * 6);
+                drops.push({ x: it.x, y: it.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - R * 2, r: 2 + Math.random() * R * 0.12, color: it.juice, life: 0.5 + Math.random() * 0.5 });
+            }
+            stain(it.x, it.y, it.juice);
+            Kit.noise({ dur: 0.16, freq: 2600 + Math.random() * 800, q: 0.9, vol: 0.14 });
+            Kit.noise({ at: 0.03, dur: 0.22, freq: 500, q: 0.7, vol: 0.12 });
+            if (it.type === 'banana') {
+                const first = power[it.power] <= 0;
+                power[it.power] = POWER_TIME;
+                if (it.power === 'frenzy') frenzyIn = 0;
+                board.classList.add(it.power);
+                Kit.sfx.sparkle();
+                if (first) banner(T(it.en, it.fr), it.glow);
+                addPoints(1, it.x, it.y - R, it.glow);
+                renderPowers();
+            } else addPoints(it.pts, it.x, it.y - R);
+            swipeHits++;
+            swipeX = it.x; swipeY = it.y;
+            clearTimeout(swipeTimer);
+            swipeTimer = setTimeout(endCombo, 260);
+        }
+        function endCombo() {
+            if (swipeHits >= 3) {
+                const bonus = swipeHits;
+                popups.push({ text: T(`${swipeHits} fruit combo! +${bonus}`, `Combo ${swipeHits} fruits${NBSP}! +${bonus}`), x: Math.min(W - 160, Math.max(160, swipeX)), y: swipeY - R * 1.6, life: 1.4, color: '#FFD54A', size: 1.35 });
+                score += power.double > 0 ? bonus * 2 : bonus;
+                renderScore(true);
+                [0, 4, 7, 12].forEach((n, i) => Kit.tone(Kit.note(n + swipeHits), { at: i * 0.06, dur: 0.18, vol: 0.09 }));
+            }
+            swipeHits = 0;
+        }
+        function boom(it) {
+            Kit.noise({ dur: 0.9, freq: 220, q: 0.4, vol: 0.32, type: 'lowpass' });
+            Kit.tone(90, { to: 40, dur: 0.6, vol: 0.25 });
+            $('#flash').classList.remove('on'); void $('#flash').offsetWidth; $('#flash').classList.add('on');
+            if (!Kit.reduceMotion()) { board.classList.remove('shake'); void board.offsetWidth; board.classList.add('shake'); }
+            for (let i = 0; i < 26; i++) {
+                const a = Math.random() * Math.PI * 2, v = R * (3 + Math.random() * 7);
+                drops.push({ x: it.x, y: it.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: 3 + Math.random() * 6, color: Math.random() < 0.5 ? '#FFB020' : '#FF5A2A', life: 0.6 + Math.random() * 0.4 });
+            }
+            score = Math.max(0, score - 10);
+            popups.push({ text: '-10', x: it.x, y: it.y - R, life: 1.1, color: '#FF5A5F', size: 1.5 });
+            renderScore(true);
+        }
+        function stain(x, y, color) {
+            sctx.save();
+            sctx.globalAlpha = 0.55;
+            sctx.fillStyle = color;
+            for (let i = 0; i < 9; i++) {
+                const a = Math.random() * Math.PI * 2, d = Math.random() * R * 1.3, rr = R * (0.12 + Math.random() * (i ? 0.25 : 0.6));
+                sctx.beginPath();
+                sctx.arc(x + Math.cos(a) * d * (i ? 1 : 0), y + Math.sin(a) * d * (i ? 1 : 0), rr, 0, Math.PI * 2);
+                sctx.fill();
+            }
+            sctx.restore();
+        }
+
+        function pointerPos(e) { const r = board.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+        board.addEventListener('pointerdown', e => {
+            if (!running) return;
+            try { board.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
+            const p = pointerPos(e);
+            pointers.set(e.pointerId, p);
+            trail.push({ x: p.x, y: p.y, t: performance.now(), id: e.pointerId, start: true });
+        });
+        board.addEventListener('pointermove', e => {
+            const prev = pointers.get(e.pointerId);
+            if (!prev || !running) return;
+            const p = pointerPos(e), now = performance.now();
+            trail.push({ x: p.x, y: p.y, t: now, id: e.pointerId });
+            const dist = Math.hypot(p.x - prev.x, p.y - prev.y);
+            if (dist > 30 && now - lastWhoosh > 180) { lastWhoosh = now; Kit.noise({ dur: 0.18, freq: 1400, q: 0.5, vol: 0.05 }); }
+            for (const it of items.slice()) if (segDist(it.x, it.y, prev.x, prev.y, p.x, p.y) < it.r * 0.95) slice(it, prev.x, prev.y, p.x, p.y);
+            pointers.set(e.pointerId, p);
+        });
+        const lift = e => pointers.delete(e.pointerId);
+        board.addEventListener('pointerup', lift);
+        board.addEventListener('pointercancel', lift);
+
+        // ---------- Loop ----------
+        function step(now) {
+            raf = requestAnimationFrame(step);
+            const realDt = Math.min(0.05, (now - last) / 1000 || 0);
+            last = now;
+            const slow = power.freeze > 0 ? 0.4 : 1;
+            const dt = realDt * slow;
+
+            if (running) {
+                elapsed += dt;
+                timeLeft -= power.freeze > 0 ? realDt * 0.4 : realDt;
+                for (const k in power) if (power[k] > 0) {
+                    power[k] -= realDt;
+                    if (power[k] <= 0) { power[k] = 0; board.classList.remove(k); renderPowers(); }
+                }
+                gameTimers = gameTimers.filter(t => { if (t.at <= elapsed) { t.fn(); return false; } return true; });
+                spawnIn -= dt;
+                if (spawnIn <= 0 && power.frenzy <= 0) wave();
+                if (power.frenzy > 0) {
+                    frenzyIn -= dt;
+                    if (frenzyIn <= 0) { launch(null, { side: Math.random() < 0.5 ? -1 : 1 }); frenzyIn = 0.16; }
+                }
+                if (cfg.bananas) {
+                    bananaIn -= dt;
+                    if (bananaIn <= 0 && timeLeft > 8) { launch(Kit.pick(Object.keys(BANANAS))); bananaIn = 9 + Math.random() * 6; }
+                }
+                const secs = Math.ceil(timeLeft);
+                if (secs <= 5 && secs !== lastTick && secs > 0) { lastTick = secs; Kit.sfx.click(); }
+                renderTimer();
+                if (timeLeft <= 0) finish();
+            }
+
+            for (const it of items) { it.vy += G * dt; it.x += it.vx * dt; it.y += it.vy * dt; it.rot += it.vr * dt; }
+            items = items.filter(it => it.y < H + it.r * 2 && it.x > -W && it.x < W * 2);
+            for (const h of halves) { h.vy += G * dt; h.x += h.vx * dt; h.y += h.vy * dt; h.rot += h.vr * dt; h.life -= dt; }
+            halves = halves.filter(h => h.y < H + h.r * 2 && h.life > 0);
+            for (const d of drops) { d.vy += G * dt; d.x += d.vx * dt; d.y += d.vy * dt; d.life -= dt; }
+            drops = drops.filter(d => d.life > 0);
+            for (const p of popups) { p.y -= 40 * realDt; p.life -= realDt; }
+            popups = popups.filter(p => p.life > 0);
+            const cut = now - 140;
+            trail = trail.filter(p => p.t > cut);
+
+            // Juice stains slowly fade away.
+            sctx.save();
+            sctx.globalCompositeOperation = 'destination-out';
+            sctx.globalAlpha = 0.6 * realDt;
+            sctx.fillRect(0, 0, W, H);
+            sctx.restore();
+            draw(now);
+        }
+
+        function draw(now) {
+            ctx.clearRect(0, 0, W, H);
+            for (const h of halves) {
+                const img = sprite(h.e, h.r);
+                const s = img.width / DPR;
+                ctx.save();
+                ctx.translate(h.x, h.y);
+                ctx.rotate(h.rot + h.cut);
+                ctx.beginPath();
+                ctx.rect(-s, h.side > 0 ? 0 : -s, s * 2, s);
+                ctx.clip();
+                ctx.rotate(-h.cut);
+                ctx.globalAlpha = Math.min(1, h.life);
+                ctx.drawImage(img, -s / 2, -s / 2, s, s);
+                ctx.rotate(h.cut);
+                ctx.fillStyle = h.flesh;
+                ctx.globalAlpha *= 0.85;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, h.r * 0.82, h.r * 0.16, 0, h.side > 0 ? 0 : Math.PI, h.side > 0 ? Math.PI : Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+            for (const it of items) {
+                if (it.type === 'banana') {
+                    const pulse = 1 + Math.sin(now / 120) * 0.08;
+                    const g = ctx.createRadialGradient(it.x, it.y, it.r * 0.3, it.x, it.y, it.r * 1.5 * pulse);
+                    g.addColorStop(0, it.glow);
+                    g.addColorStop(1, 'rgba(255,255,255,0)');
+                    ctx.fillStyle = g;
+                    ctx.beginPath(); ctx.arc(it.x, it.y, it.r * 1.5 * pulse, 0, Math.PI * 2); ctx.fill();
+                }
+                const img = sprite(it.e, it.r);
+                const s = img.width / DPR;
+                ctx.save();
+                ctx.translate(it.x, it.y);
+                ctx.rotate(it.rot * (it.type === 'bomb' ? 0.3 : 1));
+                ctx.drawImage(img, -s / 2, -s / 2, s, s);
+                ctx.restore();
+                if (it.type === 'bomb') {
+                    // A fizzing fuse.
+                    for (let i = 0; i < 3; i++) {
+                        ctx.fillStyle = Math.random() < 0.5 ? '#FFE14A' : '#FF7A1A';
+                        ctx.beginPath();
+                        ctx.arc(it.x + it.r * 0.55 + (Math.random() - 0.5) * 14, it.y - it.r * 0.75 + (Math.random() - 0.5) * 14, 2 + Math.random() * 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+            for (const d of drops) {
+                ctx.globalAlpha = Math.min(1, d.life * 2);
+                ctx.fillStyle = d.color;
+                ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+            drawTrail(now);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            for (const p of popups) {
+                ctx.globalAlpha = Math.min(1, p.life * 2.5);
+                ctx.font = `${Math.round(R * 0.62 * p.size)}px "Fredoka One", system-ui, sans-serif`;
+                ctx.lineWidth = 6;
+                ctx.strokeStyle = 'rgba(61,40,20,0.75)';
+                ctx.strokeText(p.text, p.x, p.y);
+                ctx.fillStyle = p.color;
+                ctx.fillText(p.text, p.x, p.y);
+            }
+            ctx.globalAlpha = 1;
+        }
+        function drawTrail(now) {
+            // One glowing blade per finger, thick at the tip and thin at the tail.
+            const byId = new Map();
+            for (const p of trail) {
+                if (p.start || !byId.has(p.id)) byId.set(p.id, []);
+                byId.get(p.id).push(p);
+            }
+            ctx.lineCap = 'round';
+            for (const pts of byId.values()) {
+                if (pts.length < 2) continue;
+                for (let i = 1; i < pts.length; i++) {
+                    const a = pts[i - 1], b = pts[i];
+                    const k = 1 - (now - b.t) / 140;
+                    ctx.strokeStyle = power.frenzy > 0 ? 'rgba(255,190,90,0.9)' : power.freeze > 0 ? 'rgba(170,230,255,0.95)' : 'rgba(255,255,255,0.95)';
+                    ctx.shadowColor = ctx.strokeStyle;
+                    ctx.shadowBlur = 12;
+                    ctx.lineWidth = Math.max(1, 12 * k * (i / pts.length));
+                    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                }
+            }
+            ctx.shadowBlur = 0;
+        }
+
+        // ---------- HUD ----------
+        function renderScore(bump) {
+            const el = $('#score');
+            el.textContent = `🍉 ${score}`;
+            if (bump) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+        }
+        function renderTimer() {
+            const el = $('#timer'), secs = Math.max(0, Math.ceil(timeLeft));
+            const txt = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
+            if (el.textContent !== txt) el.textContent = txt;
+            el.classList.toggle('low', secs <= 5);
+        }
+        function renderPowers() {
+            $('#powers').innerHTML = Object.keys(power).filter(k => power[k] > 0).map(k => `<span>${BANANAS[k].icon}</span>`).join('');
+        }
+        function banner(text, color) {
+            const el = document.createElement('div');
+            el.className = 'banner';
+            el.textContent = text;
+            el.style.setProperty('--bc', color);
+            play.appendChild(el);
+            el.addEventListener('animationend', () => el.remove());
+        }
+
+        // ---------- Rounds ----------
+        function startRound(m) {
+            mode = m; cfg = MODES[m];
+            Kit.show(play);
+            board.classList.toggle('zen', m === 'zen');
+            resize();
+            items = []; halves = []; drops = []; popups = []; trail = []; gameTimers = [];
+            score = 0; timeLeft = cfg.time; elapsed = 0; lastTick = 0;
+            spawnIn = 1.2; bananaIn = 8 + Math.random() * 4; frenzyIn = 0;
+            for (const k in power) { power[k] = 0; board.classList.remove(k); }
+            sctx.clearRect(0, 0, W, H);
+            $('#results-slot').innerHTML = '';
+            $('#best').textContent = T(`Best: ${getBest(m)}`, `Record${NBSP}: ${getBest(m)}`);
+            renderScore(); renderTimer(); renderPowers();
+            running = true; ending = false;
+            last = performance.now();
+            cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(step);
+            banner(T('Go!', `C'est parti${NBSP}!`), '#FF9F43');
+            say('Slice the fruit!', `Coupe les fruits${NBSP}!`);
+        }
+        function finish() {
+            if (ending) return;
+            running = false; ending = true;
+            timeLeft = 0; renderTimer();
+            for (const k in power) { power[k] = 0; board.classList.remove(k); }
+            renderPowers();
+            pointers.clear();
+            banner(T(`Time's up!`, `Terminé${NBSP}!`), '#3D9BF0');
+            Kit.sfx.fanfare();
+            const best = getBest(mode), isBest = score > best;
+            if (isBest) Kit.store.set(bestKey(mode), score);
+            Kit.later(() => showResults(isBest, Math.max(best, score)), 1500);
+        }
+        function showResults(isBest, best) {
+            items = [];
+            $('#results-slot').innerHTML = `<div class="results" role="dialog" aria-label="${T('Results', 'Résultats')}">
+                <h2>${T('Great slicing!', `Bien coupé${NBSP}!`)}</h2>
+                <div class="big">🍉 ${score}</div>
+                ${isBest ? `<p class="new-best">${T('New best score! 🏆', `Nouveau record${NBSP}! 🏆`)}</p>` : `<p>${T(`Best: ${best}`, `Record${NBSP}: ${best}`)}</p>`}
+                <div class="row">
+                    <button type="button" id="again" style="--c:var(--orange);--cd:var(--orange-d)">${T('Play again', 'Rejouer')}</button>
+                    <button type="button" id="menu" style="--c:var(--blue);--cd:var(--blue-d)">${T('Menu', 'Menu')}</button>
+                </div></div>`;
+            $('#again').addEventListener('click', () => startRound(mode));
+            $('#menu').addEventListener('click', () => goStart());
+            if (isBest) { Kit.confetti(); say(`New best score! ${score}!`, `Nouveau record${NBSP}! ${score}${NBSP}!`); }
+            else say(`You got ${score}!`, `Tu as ${score}${NBSP}!`);
+            $('#again').focus();
+        }
+        Kit.onLeave(play, () => { running = false; cancelAnimationFrame(raf); clearTimeout(swipeTimer); board.className = 'board'; });
+
+        function goStart() {
+            Kit.show(start, { back: false });
+            $('#arcade-best').textContent = getBest('arcade') ? `🏆 ${getBest('arcade')}` : '';
+            $('#zen-best').textContent = getBest('zen') ? `🏆 ${getBest('zen')}` : '';
+            $('#arcade-best').hidden = !getBest('arcade');
+            $('#zen-best').hidden = !getBest('zen');
+        }
+        $('#go-arcade').addEventListener('click', () => startRound('arcade'));
+        $('#go-zen').addEventListener('click', () => startRound('zen'));
+        window.addEventListener('resize', () => { if (!play.hidden) resize(); });
+        // Pause the clock while the tab is hidden.
+        document.addEventListener('visibilitychange', () => { last = performance.now(); });
+        Kit.onLang(() => { if (!start.hidden) goStart(); });
+        goStart();
+    })();
+    </script>
+</body>
+</html>
