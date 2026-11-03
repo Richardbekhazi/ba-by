@@ -39,7 +39,7 @@ with its own `index.html`, so its address is `https://ba-by.ca/<folder>/`.
 | Bubble Hero | `/bubbles/` | Pop the Grumpies with bubbles (see below) |
 | Jump! | `/rooftoprush/` | Kitty's rooftop adventure: run, jump and collect fish across 5 worlds |
 | Rooftop Santa | `/rooftopsanta/` | Run the snowy rooftops and grab presents (see below) |
-| Fruit Slice | `/fruit-slice/` | Swipe to slice flying fruit: Arcade and Zen (see below) |
+| Fruit Slice | `/fruit-slice/` | Swipe to slice flying fruit: Fruit Rush and Picnic (see below) |
 | Tetris (Stacky Smiles) | `/tetris/` | Stack the smiley blocks to make lines, 6 levels (see below) |
 
 ---
@@ -211,15 +211,15 @@ shared setting; the 🔊 button there mutes every kit game (`baby-muted`).
 
 ### Fruit Slice (`/fruit-slice/`)
 
-An ad-free fruit-slicing arcade game. Fruit is tossed up from the bottom of a wooden board; swipe a finger
-(or the mouse) through it to cut it in two, with juice splashes that slowly fade. Several fingers work at
-once. Slicing 3 or more fruit in one swipe gives a combo bonus.
+An ad-free fruit-slicing game with its own name, look and rules. Fruit is tossed up over a picnic blanket;
+swipe a finger (or the mouse) through it to cut it in two, with juice splashes that slowly fade. Several
+fingers work at once. Slicing 3 or more fruit in one swipe gives a combo bonus.
 
-- **Arcade**: 60 seconds. Bombs take away 10 points (no game over). Glowing bonus bananas: blue **Freeze**
-  slows everything and the clock, orange **Frenzy** throws fruit in from the sides, pink **Double score**.
-  Each lasts 6 seconds.
-- **Zen**: 90 seconds, no bombs and no bananas.
-- Best score per mode: `fruit-best-arcade`, `fruit-best-zen`.
+- **Fruit Rush**: 60 seconds. Hot peppers are "too spicy" and take away 5 points (no game over). Bonus
+  items last 6 seconds: ❄️ **Slow motion** slows everything and the clock, 🌈 **Fruit party** throws fruit
+  in from the sides, ⭐ **Double points**.
+- **Picnic**: 90 seconds on a green blanket, no peppers and no bonus items.
+- Best score per mode: `fruit-best-arcade` (Fruit Rush), `fruit-best-zen` (Picnic).
 
 ### Stacky Smiles (`/tetris/`)
 
