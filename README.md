@@ -39,6 +39,7 @@ with its own `index.html`, so its address is `https://ba-by.ca/<folder>/`.
 | Bubble Hero | `/bubbles/` | Pop the Grumpies with bubbles (see below) |
 | Jump! | `/rooftoprush/` | Kitty's rooftop adventure: run, jump and collect fish across 5 worlds |
 | Rooftop Santa | `/rooftopsanta/` | Run the snowy rooftops and grab presents (see below) |
+| Bunny Hop | `/bunny-hop/` | Endless meadow run: tap to hop over mushrooms and snails (see below) |
 | Fruit Slice | `/fruit-slice/` | Swipe to slice flying fruit: Fruit Rush and Picnic (see below) |
 | Tetris (Stacky Smiles) | `/tetris/` | Stack the smiley blocks to make lines, 6 levels (see below) |
 
@@ -58,7 +59,7 @@ ba-by/
 │  └─ badges1/         → Badge/reward icons used by Bubble Hero
 ├─ abc/  colors/  numbers/  shapes/  sounds/  animals/  puzzles/  keyboard-letter/
 ├─ animal-wash/  car-garage/  tiny-garden/  finger-paint/
-└─ bubbles/  rooftoprush/  rooftopsanta/  tetris/  fruit-slice/
+└─ bubbles/  rooftoprush/  rooftopsanta/  tetris/  fruit-slice/  bunny-hop/
 ```
 
 Each game is one `index.html` built on the shared kit. `numbers/` and `sounds/` also have
@@ -209,6 +210,16 @@ shared setting; the 🔊 button there mutes every kit game (`baby-muted`).
   Cozy and Speedy modes, first-time hints and English/French menus.
 - The best score and all-time presents collected are saved in the browser.
 
+### Bunny Hop (`/bunny-hop/`)
+
+An endless runner in a meadow. Tap, click or press Space to hop; hold for a higher hop, tap again in the
+air for a double hop. Hop over mushrooms, snails, hedgehogs, logs, turtles and tulips, and grab carrots
+(+10). The run speeds up slowly and the sky turns from day to sunset to night.
+
+- **Stroll**: slow, 5 hearts. **Dash**: faster, 3 hearts, and bees fly at hop height (stay on the ground).
+- A bump costs one heart and a short blink; the round ends when the hearts run out.
+- Best score per mode: `hop-best-cozy`, `hop-best-speedy`.
+
 ### Fruit Slice (`/fruit-slice/`)
 
 An ad-free fruit-slicing game with its own name, look and rules. Fruit is tossed up over a picnic blanket;
@@ -273,6 +284,7 @@ Nothing is uploaded; progress is kept in the browser's `localStorage`:
 | `numbers-voice` | Numbers: Tagalog / Arabic / Ilokano number voice |
 | `stacky-level`, `stacky-cleared` | Stacky Smiles: level to continue and levels cleared |
 | `fruit-best-arcade`, `fruit-best-zen` | Fruit Slice: best scores |
+| `hop-best-cozy`, `hop-best-speedy` | Bunny Hop: best scores |
 | `animals-quiz-level` | Animal Safari: "Who says that?" level |
 | `garden-basket`, `garden-pots` | My Tiny Garden: what has been picked, what is growing |
 | `baby-muted` | Kit games: sound on or off |

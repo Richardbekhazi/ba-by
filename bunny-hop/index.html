@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en" data-title-fr="Saute, lapin !">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Tap to make the bunny hop over mushrooms, snails and logs, and munch carrots along the way. An endless meadow run from day to night. No ads. English and French.">
+    <title>Bunny Hop</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐇</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
+    <script src="/assets/js/kit.js?v=20261029"></script>
+    <style>
+        :root { --tint: #D8F3C4; }
+        .hop-row { display: flex; gap: 10px; align-items: flex-end; font-size: clamp(2.4rem, 9vw, 3.6rem); }
+        .hop-row span { display: inline-block; filter: drop-shadow(0 6px 5px rgba(61,53,81,0.2)); }
+        .hop-row .bun { transform: scaleX(-1); animation: hop 0.9s ease-in-out infinite; font-size: 1.3em; }
+        @keyframes hop { 0%, 100% { translate: 0 0; } 45% { translate: 0 -34px; } }
+        .kit-modes { max-width: 640px; }
+
+        #play { padding: 0; }
+        .board { position: fixed; inset: 0; overflow: hidden; touch-action: none; background: #8FD3FF; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+        .board canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .board.shake { animation: shake 0.35s; }
+        @keyframes shake { 25% { transform: translate(-7px, 4px); } 50% { transform: translate(6px, -4px); } 75% { transform: translate(-4px, -2px); } }
+
+        .hud {
+            position: fixed;
+            left: calc(var(--safe-left) + 10px);
+            right: calc(var(--safe-right) + 10px);
+            top: calc(var(--safe-top) + 66px);
+            z-index: 6;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+            font-family: 'Fredoka One', system-ui, sans-serif;
+            color: #fff;
+        }
+        .score { font-size: clamp(2rem, 7vw, 3.2rem); line-height: 1; padding: 4px 16px 6px 10px; border-radius: 999px; background: rgba(40,50,80,0.4); text-shadow: 0 4px 0 #2E8B57, 0 8px 16px rgba(0,0,0,0.3); }
+        .score.bump { animation: bump 0.25s; }
+        @keyframes bump { 50% { transform: scale(1.18); } }
+        .best { display: inline-block; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1rem; margin-top: 6px; padding: 2px 10px; border-radius: 999px; background: rgba(40,50,80,0.4); }
+        .hearts { font-size: clamp(1.5rem, 5vw, 2.2rem); line-height: 1; padding: 8px 12px; border-radius: 999px; background: rgba(40,50,80,0.4); letter-spacing: 2px; }
+        .hearts.bump { animation: bump 0.3s; }
+
+        .results {
+            position: fixed; left: 50%; top: 50%; z-index: 8; translate: -50% -50%;
+            width: min(92vw, 420px); padding: 26px 22px 22px; border-radius: 34px; background: #fff; text-align: center;
+            box-shadow: 0 10px 0 rgba(61,53,81,0.15), 0 30px 60px rgba(0,0,0,0.35);
+            animation: kit-rise 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+        }
+        .results h2 { margin: 0; font-family: 'Fredoka One', system-ui, sans-serif; font-weight: 400; font-size: 2.2rem; color: var(--green, #26C281); }
+        .results .big { font-family: 'Fredoka One', system-ui, sans-serif; font-size: 4.2rem; line-height: 1.1; color: var(--ink); }
+        .results p { margin: 4px 0 0; font-weight: 900; color: var(--muted); font-size: 1.1rem; }
+        .results .new-best { color: var(--pink); font-size: 1.3rem; animation: bump 0.6s 3; }
+        .results .row { display: flex; gap: 12px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+        .results button { border: 0; border-radius: 22px; padding: 14px 22px; font-family: 'Fredoka One', system-ui, sans-serif; font-size: 1.3rem; color: #fff; background: var(--c); box-shadow: 0 6px 0 var(--cd); cursor: pointer; }
+        .results button:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--cd); }
+        .banner {
+            position: fixed; left: 50%; top: 40%; z-index: 7; translate: -50% -50%; pointer-events: none;
+            font-family: 'Fredoka One', system-ui, sans-serif; font-size: clamp(2.2rem, 9vw, 4.6rem); color: #fff; white-space: nowrap;
+            text-shadow: 0 6px 0 var(--bc, #26A65B), 0 14px 30px rgba(0,0,0,0.4);
+            animation: banner 1.4s ease-out forwards;
+        }
+        @keyframes banner { 0% { transform: scale(0.3); opacity: 0; } 15% { transform: scale(1.12); opacity: 1; } 25% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: scale(1.05) translateY(-20px); opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { .hop-row .bun { animation: none; } }
+    </style>
+</head>
+<body>
+    <main class="kit-screen" id="start">
+        <div class="hop-row" aria-hidden="true"><span class="bun">🐇</span><span>🍄</span><span>🥕</span><span>🐌</span></div>
+        <h1 class="kit-title" style="--title-shadow:#26A65B"><span class="bob" data-fr="Saute,">Bunny</span> <span class="bob" style="animation-delay:-1.3s" data-fr="lapin !">Hop</span></h1>
+        <p class="kit-sub" data-fr="Touche l'écran pour sauter. Touche encore pour un double saut !">Tap to hop. Tap again in the air for a double hop!</p>
+        <div class="kit-modes">
+            <button class="kit-mode" type="button" id="go-cozy" style="--c:#4CC26A"><span class="kit-badge" id="cozy-best"></span><span class="kit-mode-art"><span>🌼</span></span><span class="kit-mode-label"><b data-fr="Balade">Stroll</b><small data-fr="Tout doux, 5 cœurs">Nice and slow, 5 hearts</small></span></button>
+            <button class="kit-mode" type="button" id="go-speedy" style="--c:#FF9F43"><span class="kit-badge" id="speedy-best"></span><span class="kit-mode-art"><span>⚡</span></span><span class="kit-mode-label"><b data-fr="Course">Dash</b><small data-fr="Plus vite, 3 cœurs, attention aux abeilles">Faster, 3 hearts, mind the bees</small></span></button>
+        </div>
+    </main>
+
+    <main class="kit-screen fit" id="play" hidden>
+        <div class="board" id="board" aria-label="Meadow: tap to hop" data-fr-aria-label="Prairie : touche pour sauter">
+            <canvas id="cv" aria-hidden="true"></canvas>
+        </div>
+        <div class="hud">
+            <div><div class="score" id="score">🥕 0</div><div class="best" id="best"></div></div>
+            <div class="hearts" id="hearts"></div>
+        </div>
+        <div id="results-slot"></div>
+    </main>
+
+    <script>
+    (function () {
+        'use strict';
+        const { T, $, say } = Kit;
+        const NBSP = ' ';
+
+        const MODES = {
+            cozy: { hearts: 5, v0: 270, vmax: 540, acc: 4, bees: 400 },
+            speedy: { hearts: 3, v0: 370, vmax: 820, acc: 9, bees: 80 }
+        };
+        // Things on the ground to hop over. s = size, w/h = how much of it counts as solid.
+        const GROUND = [
+            { e: '🍄', s: 50, w: 0.30, h: 0.62 },
+            { e: '🐌', s: 46, w: 0.32, h: 0.50 },
+            { e: '🦔', s: 50, w: 0.34, h: 0.52 },
+            { e: '🪵', s: 56, w: 0.36, h: 0.50 },
+            { e: '🐢', s: 52, w: 0.34, h: 0.50 },
+            { e: '🌷', s: 54, w: 0.22, h: 0.70 }
+        ];
+        // Sky colours: day, sunset, night. Each is [top, bottom].
+        const SKIES = [
+            [[96, 190, 255], [214, 242, 255]],
+            [[255, 138, 110], [255, 222, 160]],
+            [[26, 28, 84], [86, 78, 150]]
+        ];
+        const DIM = [0, 0.12, 0.38];
+
+        const start = $('#start'), play = $('#play'), board = $('#board');
+        const cv = $('#cv'), ctx = cv.getContext('2d');
+        Kit.topbar({ onBack: () => goStart() });
+
+        const bestKey = m => `hop-best-${m}`;
+        const getBest = m => Number(Kit.store.get(bestKey(m), 0)) || 0;
+
+        // ---------- Sizes ----------
+        let W = 0, H = 0, DPR = 1, S = 1, GY = 0, BX = 0;
+        function resize() {
+            DPR = Math.min(2, window.devicePixelRatio || 1);
+            W = board.clientWidth; H = board.clientHeight;
+            cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            S = Math.max(0.62, Math.min(1.35, H / 560));
+            GY = H - Math.max(84, H * 0.2);
+            BX = Math.max(74, Math.min(W * 0.2, 220));
+        }
+
+        // ---------- State ----------
+        let mode = 'cozy', cfg = MODES.cozy;
+        let running = false, ending = false, raf = 0, last = 0, clock = 0;
+        let speed = 0, dist = 0, bonus = 0, score = 0, shown = -1, hearts = 0, inv = 0, nextMile = 100;
+        let gap = 0, obstacles = [], carrots = [], parts = [], popups = [], clouds = [], starsBg = [];
+        const bunny = { y: 0, vy: 0, jumps: 0, held: false, squash: 0 };
+
+        const GRAV = 2500, JUMP = 900, JUMP2 = 780;
+
+        function jump() {
+            if (!running) return;
+            if (bunny.jumps >= 2) return;
+            const second = bunny.jumps === 1 || bunny.y > 2;
+            bunny.vy = (second ? JUMP2 : JUMP) * S;
+            bunny.jumps = second ? 2 : 1;
+            bunny.held = true;
+            bunny.squash = 0.18;
+            Kit.tone(second ? 520 : 380, { to: second ? 820 : 620, dur: 0.14, vol: 0.07, type: 'triangle' });
+            for (let i = 0; i < 5; i++) puff(BX - 6, GY - bunny.y, second ? '#fff' : '#E9D9B0');
+        }
+        function release() {
+            bunny.held = false;
+            // Letting go early makes a smaller hop.
+            if (bunny.vy > 380 * S) bunny.vy = 380 * S;
+        }
+        function puff(x, y, color) {
+            parts.push({ x, y, vx: -60 - Math.random() * 120, vy: -Math.random() * 90, r: 4 + Math.random() * 5, t: 0.45, life: 0.45, color });
+        }
+
+        function spawn() {
+            const x = W + 70;
+            const bee = dist / (40 * S) > cfg.bees && Math.random() < 0.22;
+            if (bee) {
+                // Bees fly at hop height: stay on the ground and they pass overhead.
+                obstacles.push({ x, e: '🐝', s: 42, w: 0.3, h: 0.3, alt: 128, air: true, ph: Math.random() * 6 });
+            } else {
+                const o = Object.assign({ x, alt: 0 }, Kit.pick(GROUND));
+                obstacles.push(o);
+                // Sometimes two in a row once things speed up.
+                if (speed > cfg.v0 * 1.25 * S && Math.random() < 0.3) obstacles.push(Object.assign({ x: x + o.s * S * 0.95, alt: 0 }, Kit.pick(GROUND.slice(0, 3))));
+                if (Math.random() < 0.4) carrots.push({ x, alt: 150 + Math.random() * 30 });
+            }
+            gap = speed * (0.9 + Math.random() * 0.9) + 130 * S;
+            if (Math.random() < 0.55) carrots.push({ x: x + gap * 0.5, alt: 26 + Math.random() * 70 });
+        }
+
+        function hurt(o) {
+            o.gone = true;
+            hearts--; inv = 1.6;
+            renderHearts(true);
+            Kit.tone(240, { to: 150, dur: 0.28, vol: 0.1, type: 'sine' });
+            for (let i = 0; i < 10; i++) parts.push({ x: o.x, y: GY - o.alt * S - 20, vx: (Math.random() - 0.5) * 320, vy: -Math.random() * 260, r: 5 + Math.random() * 5, t: 0.6, life: 0.6, color: '#fff' });
+            if (!Kit.reduceMotion()) { board.classList.remove('shake'); void board.offsetWidth; board.classList.add('shake'); }
+            if (hearts <= 0) finish();
+            else say('Oops! Keep hopping!', `Oups${NBSP}! Continue${NBSP}!`);
+        }
+
+        // ---------- Loop ----------
+        function step(now) {
+            raf = requestAnimationFrame(step);
+            const dt = Math.max(0, Math.min(0.034, (now - last) / 1000));
+            last = now;
+            clock += dt;
+            if (running) update(dt);
+            draw();
+        }
+        function update(dt) {
+            speed = Math.min(cfg.vmax * S, speed + cfg.acc * S * dt);
+            const dx = speed * dt;
+            dist += dx;
+
+            // Bunny
+            if (bunny.y > 0 || bunny.vy > 0) {
+                bunny.vy -= GRAV * S * dt;
+                bunny.y += bunny.vy * dt;
+                if (bunny.y <= 0) {
+                    bunny.y = 0; bunny.vy = 0; bunny.jumps = 0; bunny.squash = -0.16;
+                    for (let i = 0; i < 4; i++) puff(BX, GY, '#E9D9B0');
+                    Kit.noise({ dur: 0.07, freq: 300, q: 0.8, vol: 0.05 });
+                }
+            }
+            bunny.squash *= Math.pow(0.002, dt);
+            if (inv > 0) inv -= dt;
+
+            // Things coming at us
+            gap -= dx;
+            if (gap <= 0) spawn();
+            const bw = 17 * S, bh = 50 * S;
+            for (const o of obstacles) {
+                o.x -= dx * (o.air ? 1.25 : 1);
+                if (o.gone || inv > 0) continue;
+                const hw = o.s * S * o.w, alt = (o.air ? o.alt + Math.sin(clock * 5 + o.ph) * 8 : 0) * S;
+                const lo = o.air ? alt - o.s * S * o.h : 0, hi = o.air ? alt + o.s * S * o.h : o.s * S * o.h;
+                if (Math.abs(o.x - BX) < hw + bw && bunny.y < hi && bunny.y + bh > lo) hurt(o);
+            }
+            obstacles = obstacles.filter(o => o.x > -90 && !o.gone);
+            for (const c of carrots) {
+                c.x -= dx;
+                if (!c.got && Math.abs(c.x - BX) < 34 * S && Math.abs(c.alt * S - (bunny.y + 28 * S)) < 44 * S) {
+                    c.got = true; bonus += 10;
+                    popups.push({ x: c.x, y: GY - c.alt * S, text: '+10', t: 0.8 });
+                    Kit.tone(Kit.note(12), { dur: 0.1, vol: 0.08 });
+                    Kit.tone(Kit.note(19), { at: 0.07, dur: 0.14, vol: 0.08 });
+                }
+            }
+            carrots = carrots.filter(c => c.x > -60 && !c.got);
+
+            for (const p of parts) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 300 * dt; }
+            parts = parts.filter(p => p.t > 0);
+            for (const p of popups) { p.t -= dt; p.y -= 60 * dt; p.x -= dx * 0.5; }
+            popups = popups.filter(p => p.t > 0);
+            for (const c of clouds) { c.x -= dx * c.k; if (c.x < -140) { c.x = W + 140; c.y = 30 + Math.random() * GY * 0.4; } }
+
+            // Running dust
+            if (bunny.y === 0 && Math.random() < dt * 14) puff(BX - 14 * S, GY - 2, '#E9D9B0');
+
+            score = Math.floor(dist / (40 * S)) + bonus;
+            if (score !== shown) renderScore();
+            if (score >= nextMile) {
+                banner(`${nextMile}!`, '#FFB627');
+                Kit.sfx.sparkle();
+                nextMile += 100;
+            }
+        }
+
+        // ---------- Drawing ----------
+        const mix = (a, b, f) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * f)).join(',')})`;
+        function emoji(e, x, y, size, flip, rot) {
+            ctx.save();
+            ctx.translate(x, y);
+            if (rot) ctx.rotate(rot);
+            if (flip) ctx.scale(-1, 1);
+            ctx.font = `${size}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(e, 0, 0);
+            ctx.restore();
+        }
+        // Our own bunny, drawn with its feet at (0, 0) and facing right.
+        function blob(x, y, rx, ry, rot) {
+            ctx.beginPath(); ctx.ellipse(x * S, y * S, rx * S, ry * S, rot || 0, 0, 6.3); ctx.fill(); ctx.stroke();
+        }
+        function drawBunny(runningNow) {
+            const sw = runningNow ? Math.sin(clock * 14) * 7 : 0, air = bunny.y > 0;
+            ctx.lineWidth = 2.5 * S; ctx.strokeStyle = '#B9692A';
+            ctx.fillStyle = '#fff'; blob(-26, -26, 9, 9);
+            ctx.fillStyle = '#F2A65A';
+            blob(air ? -20 : -12 - sw, air ? -8 : -5, 12, 6, air ? 0.5 : 0);
+            blob(9, -72, 6.5, 19, -0.35); blob(24, -74, 6.5, 19, 0.05);
+            blob(0, -26, 28, 21);
+            blob(20, -46, 18, 17);
+            blob(air ? 20 : 14 + sw, air ? -10 : -5, 10, 5.5, air ? -0.5 : 0);
+            ctx.strokeStyle = 'transparent';
+            ctx.fillStyle = '#FFE3C2'; blob(2, -20, 16, 11);
+            ctx.fillStyle = '#FFB3C7'; blob(24, -74, 3, 12, 0.05); blob(37, -41, 3, 2.4);
+            ctx.fillStyle = '#3D3551'; blob(27, -49, 3.2, 3.8);
+            ctx.fillStyle = '#fff'; blob(28, -50.5, 1.2, 1.2);
+        }
+        function hills(base, amp, k, off, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(0, H);
+            for (let x = 0; x <= W + 16; x += 16) {
+                const a = (x + off) * k;
+                ctx.lineTo(x, base - amp * (0.6 + 0.5 * Math.sin(a) + 0.25 * Math.sin(a * 2.3 + 1)));
+            }
+            ctx.lineTo(W, H);
+            ctx.fill();
+        }
+        function draw() {
+            // Day slowly turns to sunset, night, and back to day.
+            const cyc = (dist / (40 * S) / 260) % 3, i0 = Math.floor(cyc), i1 = (i0 + 1) % 3;
+            const f0 = Math.max(0, (cyc - i0 - 0.65) / 0.35), f = f0 * f0 * (3 - 2 * f0);
+            const g = ctx.createLinearGradient(0, 0, 0, GY);
+            g.addColorStop(0, mix(SKIES[i0][0], SKIES[i1][0], f));
+            g.addColorStop(1, mix(SKIES[i0][1], SKIES[i1][1], f));
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, W, H);
+            const dim = DIM[i0] + (DIM[i1] - DIM[i0]) * f;
+            const night = i0 === 2 ? 1 - f : i1 === 2 ? f : 0;
+
+            if (night > 0) {
+                ctx.fillStyle = `rgba(255,255,255,${0.9 * night})`;
+                for (const s of starsBg) { ctx.beginPath(); ctx.arc(s.x * W, s.y * GY * 0.7, s.r * (0.7 + 0.3 * Math.sin(clock * 2 + s.x * 40)), 0, 6.3); ctx.fill(); }
+                ctx.globalAlpha = night; emoji('🌙', W * 0.8, GY * 0.22, 54 * S); ctx.globalAlpha = 1;
+            }
+            if (night < 1) {
+                const sunset = i0 === 1 ? 1 - f : i1 === 1 ? f : 0;
+                ctx.globalAlpha = 1 - night;
+                ctx.fillStyle = '#FFE066';
+                ctx.beginPath(); ctx.arc(W * 0.8, GY * (0.2 + 0.45 * sunset), 34 * S, 0, 6.3); ctx.fill();
+                ctx.fillStyle = 'rgba(255,224,102,0.3)';
+                ctx.beginPath(); ctx.arc(W * 0.8, GY * (0.2 + 0.45 * sunset), 50 * S, 0, 6.3); ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            for (const c of clouds) {
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 22 * c.s, 0, 6.3); ctx.arc(c.x + 26 * c.s, c.y - 10 * c.s, 28 * c.s, 0, 6.3);
+                ctx.arc(c.x + 58 * c.s, c.y, 22 * c.s, 0, 6.3); ctx.rect(c.x, c.y, 58 * c.s, 22 * c.s);
+                ctx.fill();
+            }
+            hills(GY, 110 * S, 0.004, dist * 0.12, '#A6E08C');
+            hills(GY, 60 * S, 0.007, dist * 0.3 + 300, '#7FCB6E');
+
+            // Ground
+            ctx.fillStyle = '#6CC25A'; ctx.fillRect(0, GY, W, H - GY);
+            ctx.fillStyle = '#58AE4C'; ctx.fillRect(0, GY, W, 10 * S);
+            ctx.fillStyle = '#8B6B4A'; ctx.fillRect(0, GY + 10 * S, W, 6 * S);
+            ctx.fillStyle = '#58AE4C';
+            const step = 96 * S, off = dist % step;
+            for (let x = -off; x < W + step; x += step) {
+                const k = Math.floor((x + dist) / step + 0.5);
+                const yy = GY + 30 * S + ((k * 37) % 5) * 12 * S;
+                ctx.beginPath(); ctx.moveTo(x, yy); ctx.lineTo(x + 6 * S, yy - 14 * S); ctx.lineTo(x + 10 * S, yy); ctx.lineTo(x + 16 * S, yy - 10 * S); ctx.lineTo(x + 20 * S, yy); ctx.fill();
+            }
+            if (dim > 0) { ctx.fillStyle = `rgba(22,18,70,${dim})`; ctx.fillRect(0, 0, W, H); }
+
+            for (const c of carrots) emoji('🥕', c.x, GY - c.alt * S + Math.sin(clock * 4 + c.x * 0.01) * 4, 34 * S);
+            for (const o of obstacles) {
+                const sz = o.s * S;
+                if (o.air) emoji(o.e, o.x, GY - (o.alt + Math.sin(clock * 5 + o.ph) * 8) * S, sz);
+                else emoji(o.e, o.x, GY - sz * 0.46, sz);
+            }
+
+            // Bunny shadow, then bunny
+            const sh = Math.max(0.35, 1 - bunny.y / (220 * S));
+            ctx.fillStyle = 'rgba(30,60,30,0.25)';
+            ctx.beginPath(); ctx.ellipse(BX, GY + 3, 26 * S * sh, 7 * S * sh, 0, 0, 6.3); ctx.fill();
+            const blink = inv > 0 && running;
+            if (!blink || Kit.reduceMotion() || Math.floor(inv * 12) % 2 === 0) {
+                const sz = 66 * S, onGround = bunny.y === 0;
+                const bob = onGround && running ? Math.abs(Math.sin(clock * 14)) * 7 * S : 0;
+                const rot = onGround ? Math.sin(clock * 14) * 0.06 : Math.max(-0.5, Math.min(0.45, -bunny.vy / (1800 * S)));
+                ctx.save();
+                ctx.translate(BX, GY - bunny.y - bob);
+                ctx.scale(1 - bunny.squash, 1 + bunny.squash);
+                if (blink) ctx.globalAlpha = 0.6;
+                ctx.translate(0, -26 * S); ctx.rotate(rot); ctx.translate(0, 26 * S);
+                drawBunny(onGround && running);
+                ctx.restore();
+            }
+
+            for (const p of parts) {
+                ctx.globalAlpha = Math.max(0, p.t / p.life) * 0.8;
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r * S, 0, 6.3); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+            ctx.font = `${30 * S}px "Fredoka One", system-ui, sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            for (const p of popups) {
+                ctx.globalAlpha = Math.min(1, p.t * 2.5);
+                ctx.lineWidth = 5; ctx.strokeStyle = '#E8590C'; ctx.strokeText(p.text, p.x, p.y);
+                ctx.fillStyle = '#fff'; ctx.fillText(p.text, p.x, p.y);
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        // ---------- HUD ----------
+        function renderScore() {
+            shown = score;
+            const el = $('#score');
+            el.textContent = `🥕 ${score}`;
+        }
+        function renderHearts(bump) {
+            const el = $('#hearts');
+            el.textContent = '❤️'.repeat(Math.max(0, hearts)) + '🤍'.repeat(Math.max(0, cfg.hearts - hearts));
+            el.setAttribute('aria-label', T(`${hearts} hearts`, `${hearts} cœurs`));
+            if (bump) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+        }
+        function banner(text, color) {
+            const el = document.createElement('div');
+            el.className = 'banner';
+            el.textContent = text;
+            el.style.setProperty('--bc', color);
+            play.appendChild(el);
+            el.addEventListener('animationend', () => el.remove());
+        }
+
+        // ---------- Rounds ----------
+        function startRound(m) {
+            mode = m; cfg = MODES[m];
+            Kit.show(play);
+            resize();
+            obstacles = []; carrots = []; parts = []; popups = [];
+            clouds = Array.from({ length: 5 }, (_, i) => ({ x: (i + Math.random()) * W / 4, y: 30 + Math.random() * GY * 0.4, s: (0.7 + Math.random() * 0.7) * S, k: 0.08 + Math.random() * 0.1 }));
+            starsBg = Array.from({ length: 40 }, () => ({ x: Math.random(), y: Math.random(), r: 1 + Math.random() * 1.6 }));
+            speed = cfg.v0 * S; dist = 0; bonus = 0; score = 0; shown = -1; nextMile = 100;
+            hearts = cfg.hearts; inv = 0; gap = W * 0.9;
+            bunny.y = 0; bunny.vy = 0; bunny.jumps = 0; bunny.squash = 0;
+            $('#results-slot').innerHTML = '';
+            $('#best').textContent = T(`Best: ${getBest(m)}`, `Record${NBSP}: ${getBest(m)}`);
+            renderScore(); renderHearts();
+            running = true; ending = false;
+            last = performance.now();
+            cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(step);
+            banner(T('Tap to hop!', `Touche pour sauter${NBSP}!`), '#26A65B');
+            say('Tap to hop!', `Touche pour sauter${NBSP}!`);
+        }
+        function finish() {
+            if (ending) return;
+            running = false; ending = true;
+            Kit.sfx.fanfare();
+            const best = getBest(mode), isBest = score > best;
+            if (isBest) Kit.store.set(bestKey(mode), score);
+            Kit.later(() => showResults(isBest, Math.max(best, score)), 900);
+        }
+        function showResults(isBest, best) {
+            $('#results-slot').innerHTML = `<div class="results" role="dialog" aria-label="${T('Results', 'Résultats')}">
+                <h2>${T('Great hopping!', `Bien sauté${NBSP}!`)}</h2>
+                <div class="big">🥕 ${score}</div>
+                ${isBest ? `<p class="new-best">${T('New best score! 🏆', `Nouveau record${NBSP}! 🏆`)}</p>` : `<p>${T(`Best: ${best}`, `Record${NBSP}: ${best}`)}</p>`}
+                <div class="row">
+                    <button type="button" id="again" style="--c:var(--orange);--cd:var(--orange-d)">${T('Play again', 'Rejouer')}</button>
+                    <button type="button" id="menu" style="--c:var(--blue);--cd:var(--blue-d)">${T('Menu', 'Menu')}</button>
+                </div></div>`;
+            $('#again').addEventListener('click', () => startRound(mode));
+            $('#menu').addEventListener('click', () => goStart());
+            if (isBest) { Kit.confetti(); say(`New best score! ${score}!`, `Nouveau record${NBSP}! ${score}${NBSP}!`); }
+            else say(`You got ${score}!`, `Tu as ${score}${NBSP}!`);
+            $('#again').focus();
+        }
+        Kit.onLeave(play, () => { running = false; cancelAnimationFrame(raf); board.classList.remove('shake'); });
+
+        function goStart() {
+            Kit.show(start, { back: false });
+            for (const m of ['cozy', 'speedy']) {
+                const el = $(`#${m}-best`), b = getBest(m);
+                el.textContent = b ? `🏆 ${b}` : '';
+                el.hidden = !b;
+            }
+        }
+
+        // ---------- Controls ----------
+        board.addEventListener('pointerdown', e => { e.preventDefault(); jump(); });
+        window.addEventListener('pointerup', release);
+        window.addEventListener('pointercancel', release);
+        window.addEventListener('keydown', e => {
+            if (play.hidden || !running) return;
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+                e.preventDefault();
+                if (!e.repeat) jump();
+            }
+        });
+        window.addEventListener('keyup', e => { if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') release(); });
+
+        $('#go-cozy').addEventListener('click', () => startRound('cozy'));
+        $('#go-speedy').addEventListener('click', () => startRound('speedy'));
+        window.addEventListener('resize', () => { if (!play.hidden) resize(); });
+        document.addEventListener('visibilitychange', () => { last = performance.now(); });
+        Kit.onLang(() => { if (!start.hidden) goStart(); });
+        goStart();
+    }());
+    </script>
+</body>
+</html>
