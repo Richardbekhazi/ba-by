@@ -238,6 +238,7 @@
                 if (!c.got && Math.abs(c.x - BX) < 34 * S && Math.abs(c.alt * S - (bunny.y + 28 * S)) < 44 * S) {
                     c.got = true; bonus += 10;
                     popups.push({ x: c.x, y: GY - c.alt * S, text: '+10', t: 0.8 });
+                    for (let i = 0; i < 10; i++) parts.push({ x: c.x, y: GY - c.alt * S, vx: (Math.random() - 0.5) * 360, vy: -80 - Math.random() * 240, r: 3 + Math.random() * 4, t: 0.55, life: 0.55, color: Kit.pick(['#FFD23F', '#FF9F1C', '#fff', '#FF7AA8']) });
                     Kit.tone(Kit.note(12), { dur: 0.1, vol: 0.08 });
                     Kit.tone(Kit.note(19), { at: 0.07, dur: 0.14, vol: 0.08 });
                 }
@@ -294,6 +295,27 @@
             ctx.fillStyle = '#3D3551'; blob(27, -49, 3.2, 3.8);
             ctx.fillStyle = '#fff'; blob(28, -50.5, 1.2, 1.2);
         }
+        function grad(y0, y1, c0, c1) {
+            const g = ctx.createLinearGradient(0, y0, 0, y1);
+            g.addColorStop(0, c0); g.addColorStop(1, c1);
+            return g;
+        }
+        // A scrolling row of trees (or bushes) standing on the ground line.
+        function trees(k, gapPx, scale, leaf, leaf2, bush) {
+            const stepX = gapPx * S, off = (dist * k) % stepX, base = Math.floor(dist * k / stepX);
+            for (let i = -1; i * stepX - off < W + stepX; i++) {
+                const r = (Math.abs((base + i) * 9301 + 49297) % 233280) / 233280;
+                const x = i * stepX - off + r * stepX * 0.5, sc = scale * S * (0.75 + r * 0.5);
+                if (!bush) { ctx.fillStyle = '#9A7048'; ctx.fillRect(x - 5 * sc, GY - 70 * sc, 10 * sc, 70 * sc); }
+                const cy = bush ? GY - 12 * sc : GY - 88 * sc;
+                ctx.fillStyle = leaf2;
+                ctx.beginPath(); ctx.arc(x - 20 * sc, cy + 8 * sc, 22 * sc, 0, 6.3); ctx.arc(x + 22 * sc, cy + 8 * sc, 22 * sc, 0, 6.3); ctx.fill();
+                ctx.fillStyle = leaf;
+                ctx.beginPath(); ctx.arc(x, cy - 8 * sc, 30 * sc, 0, 6.3); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.18)';
+                ctx.beginPath(); ctx.arc(x - 9 * sc, cy - 17 * sc, 12 * sc, 0, 6.3); ctx.fill();
+            }
+        }
         function hills(base, amp, k, off, color) {
             ctx.fillStyle = color;
             ctx.beginPath();
@@ -320,15 +342,23 @@
             if (night > 0) {
                 ctx.fillStyle = `rgba(255,255,255,${0.9 * night})`;
                 for (const s of starsBg) { ctx.beginPath(); ctx.arc(s.x * W, s.y * GY * 0.7, s.r * (0.7 + 0.3 * Math.sin(clock * 2 + s.x * 40)), 0, 6.3); ctx.fill(); }
-                ctx.globalAlpha = night; emoji('🌙', W * 0.8, GY * 0.22, 54 * S); ctx.globalAlpha = 1;
+                ctx.globalAlpha = night; emoji('🌙', W * 0.6, GY * 0.32, 54 * S); ctx.globalAlpha = 1;
             }
             if (night < 1) {
                 const sunset = i0 === 1 ? 1 - f : i1 === 1 ? f : 0;
                 ctx.globalAlpha = 1 - night;
                 ctx.fillStyle = '#FFE066';
-                ctx.beginPath(); ctx.arc(W * 0.8, GY * (0.2 + 0.45 * sunset), 34 * S, 0, 6.3); ctx.fill();
+                ctx.beginPath(); ctx.arc(W * 0.6, GY * (0.32 + 0.38 * sunset), 34 * S, 0, 6.3); ctx.fill();
                 ctx.fillStyle = 'rgba(255,224,102,0.3)';
-                ctx.beginPath(); ctx.arc(W * 0.8, GY * (0.2 + 0.45 * sunset), 50 * S, 0, 6.3); ctx.fill();
+                ctx.beginPath(); ctx.arc(W * 0.6, GY * (0.32 + 0.38 * sunset), 50 * S, 0, 6.3); ctx.fill();
+                ctx.save();
+                ctx.translate(W * 0.6, GY * (0.32 + 0.38 * sunset));
+                ctx.rotate(Kit.reduceMotion() ? 0 : clock * 0.25);
+                for (let a = 0; a < 12; a++) {
+                    ctx.rotate(Math.PI / 6);
+                    ctx.beginPath(); ctx.moveTo(-7 * S, -56 * S); ctx.lineTo(0, -(78 + (a % 2) * 14) * S); ctx.lineTo(7 * S, -56 * S); ctx.fill();
+                }
+                ctx.restore();
                 ctx.globalAlpha = 1;
             }
             ctx.fillStyle = 'rgba(255,255,255,0.85)';
@@ -338,13 +368,29 @@
                 ctx.arc(c.x + 58 * c.s, c.y, 22 * c.s, 0, 6.3); ctx.rect(c.x, c.y, 58 * c.s, 22 * c.s);
                 ctx.fill();
             }
-            hills(GY, 110 * S, 0.004, dist * 0.12, '#A6E08C');
-            hills(GY, 60 * S, 0.007, dist * 0.3 + 300, '#7FCB6E');
+            hills(GY, 200 * S, 0.0022, dist * 0.05 + 900, grad(GY - 320 * S, GY, '#AFC3F0', '#E4EEFA'));
+            hills(GY, 110 * S, 0.004, dist * 0.12, grad(GY - 190 * S, GY, '#BDEBA2', '#8FD67C'));
+            trees(0.2, 330, 1, '#74C468', '#5DAF58', false);
+            hills(GY, 60 * S, 0.007, dist * 0.3 + 300, grad(GY - 100 * S, GY, '#8AD475', '#62B957'));
+            trees(0.5, 250, 0.9, '#55AE4E', '#429645', true);
 
-            // Ground
-            ctx.fillStyle = '#6CC25A'; ctx.fillRect(0, GY, W, H - GY);
-            ctx.fillStyle = '#58AE4C'; ctx.fillRect(0, GY, W, 10 * S);
-            ctx.fillStyle = '#8B6B4A'; ctx.fillRect(0, GY + 10 * S, W, 6 * S);
+            // Ground: soft gradient, a fringe of grass blades, a strip of soil
+            ctx.fillStyle = grad(GY, H, '#7AD063', '#4A9F47'); ctx.fillRect(0, GY, W, H - GY);
+            ctx.fillStyle = '#8B6B4A'; ctx.fillRect(0, GY + 11 * S, W, 5 * S);
+            ctx.fillStyle = '#57B14C';
+            const fs = 14 * S, fo = dist % fs;
+            ctx.beginPath(); ctx.moveTo(-fo, GY + 1);
+            for (let x = -fo; x < W + fs; x += fs) { ctx.lineTo(x + fs * 0.3, GY - 7 * S); ctx.lineTo(x + fs * 0.55, GY + 1); ctx.lineTo(x + fs * 0.8, GY - 5 * S); ctx.lineTo(x + fs, GY + 1); }
+            ctx.lineTo(W + fs * 2, GY + 11 * S); ctx.lineTo(-fo, GY + 11 * S); ctx.fill();
+            const fstep = 96 * S, foff = dist % fstep;
+            for (let x = -foff; x < W + fstep; x += fstep) {
+                const k = Math.abs(Math.floor((x + dist) / fstep + 0.5));
+                if (k % 3 === 2) continue;
+                const fx = x + 48 * S, fy = GY + 34 * S + ((k * 53) % 4) * 14 * S;
+                ctx.fillStyle = ['#FF7AA8', '#FFD23F', '#FFFFFF', '#B58CFF'][k % 4];
+                for (let a = 0; a < 5; a++) { ctx.beginPath(); ctx.arc(fx + Math.cos(a * 1.257) * 5 * S, fy + Math.sin(a * 1.257) * 5 * S, 3.8 * S, 0, 6.3); ctx.fill(); }
+                ctx.fillStyle = '#FF9F1C'; ctx.beginPath(); ctx.arc(fx, fy, 3 * S, 0, 6.3); ctx.fill();
+            }
             ctx.fillStyle = '#58AE4C';
             const step = 96 * S, off = dist % step;
             for (let x = -off; x < W + step; x += step) {
@@ -354,7 +400,24 @@
             }
             if (dim > 0) { ctx.fillStyle = `rgba(22,18,70,${dim})`; ctx.fillRect(0, 0, W, H); }
 
-            for (const c of carrots) emoji('🥕', c.x, GY - c.alt * S + Math.sin(clock * 4 + c.x * 0.01) * 4, 34 * S);
+            // Fireflies come out at night
+            if (night > 0) {
+                for (let i = 0; i < 14; i++) {
+                    const s = starsBg[i], fx = s.x * W + Math.sin(clock * 0.7 + i) * 34, fy = GY - 24 * S - s.y * 150 * S + Math.cos(clock + i * 2) * 14;
+                    const a = night * (0.45 + 0.55 * Math.sin(clock * 3 + i * 1.7));
+                    if (a <= 0) continue;
+                    ctx.fillStyle = `rgba(255,240,130,${a * 0.25})`; ctx.beginPath(); ctx.arc(fx, fy, 9 * S, 0, 6.3); ctx.fill();
+                    ctx.fillStyle = `rgba(255,250,190,${a})`; ctx.beginPath(); ctx.arc(fx, fy, 2.6 * S, 0, 6.3); ctx.fill();
+                }
+            }
+            for (const c of carrots) {
+                const cy = GY - c.alt * S + Math.sin(clock * 4 + c.x * 0.01) * 4, pulse = 1 + 0.12 * Math.sin(clock * 6 + c.x * 0.02);
+                ctx.fillStyle = 'rgba(255,225,120,0.28)'; ctx.beginPath(); ctx.arc(c.x, cy, 30 * S * pulse, 0, 6.3); ctx.fill();
+                ctx.fillStyle = 'rgba(255,245,190,0.4)'; ctx.beginPath(); ctx.arc(c.x, cy, 20 * S * pulse, 0, 6.3); ctx.fill();
+                emoji('🥕', c.x, cy, 34 * S);
+            }
+            ctx.fillStyle = 'rgba(30,60,30,0.22)';
+            for (const o of obstacles) { if (!o.air) { ctx.beginPath(); ctx.ellipse(o.x, GY + 3, o.s * S * 0.42, 6 * S, 0, 0, 6.3); ctx.fill(); } }
             for (const o of obstacles) {
                 const sz = o.s * S;
                 if (o.air) emoji(o.e, o.x, GY - (o.alt + Math.sin(clock * 5 + o.ph) * 8) * S, sz);
