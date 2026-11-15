@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" data-title-fr="Tuiles musicales">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Tap the falling tiles to play songs like Twinkle Twinkle and Frère Jacques. Easy mode waits for little fingers, Challenge mode speeds up. No ads. English and French.">
+    <title>Melody Tiles</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎹</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/kit.css?v=20261029">
+    <script src="/assets/js/site-lang.js?v=20261028"></script>
+    <script src="/assets/js/kit.js?v=20261029"></script>
+    <style>
+        :root { --tint: #E9E2FF; }
+        .keys-art { display: flex; gap: 6px; height: 74px; align-items: flex-end; }
+        .keys-art span { width: 34px; border-radius: 10px; box-shadow: 0 5px 0 rgba(61,53,81,0.18); animation: key-bob 1.6s ease-in-out infinite; }
+        .keys-art span:nth-child(1) { height: 60px; background: #FF6B8B; }
+        .keys-art span:nth-child(2) { height: 74px; background: #FFB627; animation-delay: -0.4s; }
+        .keys-art span:nth-child(3) { height: 52px; background: #3FC9C0; animation-delay: -0.8s; }
+        .keys-art span:nth-child(4) { height: 68px; background: #A66BFF; animation-delay: -1.2s; }
+        @keyframes key-bob { 50% { transform: translateY(-10px); } }
+        .kit-modes { max-width: 640px; }
+
+        .songs { width: 100%; max-width: 760px; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+        .song {
+            --c: #A66BFF;
+            display: flex; align-items: center; gap: 12px;
+            border: 0; border-radius: 24px; padding: 12px 14px;
+            background: #fff; text-align: left;
+            box-shadow: 0 6px 0 color-mix(in srgb, var(--c) 55%, #fff), 0 12px 22px rgba(61,53,81,0.08);
+            transition: transform 0.15s;
+            animation: kit-rise 0.4s backwards;
+        }
+        .song:hover { transform: translateY(-4px); }
+        .song:active { transform: translateY(4px); }
+        .song .pic { flex: none; width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center; font-size: 34px; background: color-mix(in srgb, var(--c) 28%, #fff); }
+        .song b { display: block; font-family: 'Fredoka One', system-ui, sans-serif; font-weight: 400; font-size: 1.15rem; line-height: 1.15; }
+        .song small { display: block; margin-top: 3px; font-weight: 900; color: var(--muted); font-size: 0.95rem; }
+
+        /* Play screen: a night stage over the whole screen, tiles in the middle. */
+        #play { padding: 0; }
+        .stage {
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(60% 40% at 20% 10%, rgba(255,120,200,0.25), transparent),
+                radial-gradient(60% 40% at 80% 15%, rgba(110,180,255,0.25), transparent),
+                linear-gradient(180deg, #1F1846 0%, #2C2266 60%, #3A2C7A 100%);
+            display: flex; justify-content: center;
+        }
+        .lights { position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(circle, rgba(255,255,255,0.7) 0 1.5px, transparent 2px); background-size: 46px 46px; opacity: 0.25; }
+        .board { position: relative; height: 100%; width: min(100%, 560px); touch-action: none; }
+        .board canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .hud {
+            position: fixed; left: 50%; top: calc(var(--safe-top) + 4px); translate: -50% 0; z-index: 6;
+            pointer-events: none; text-align: center; color: #fff;
+            font-family: 'Fredoka One', system-ui, sans-serif;
+        }
+        @media (max-width: 600px) { .hud { top: calc(var(--safe-top) + 58px); } }
+        .hud .score { font-size: clamp(2.2rem, 8vw, 3.2rem); line-height: 1; text-shadow: 0 4px 0 #E04870, 0 8px 20px rgba(0,0,0,0.4); }
+        .hud .score.bump { animation: bump 0.2s; }
+        @keyframes bump { 50% { transform: scale(1.15); } }
+        .hud .stars { font-size: 1.4rem; letter-spacing: 2px; }
+        .hud .stars .off { opacity: 0.25; filter: grayscale(1); }
+        .hud .song-name { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 0.95rem; opacity: 0.85; }
+        .results {
+            position: fixed; left: 50%; top: 50%; z-index: 8; translate: -50% -50%;
+            width: min(92vw, 420px); padding: 26px 22px 22px; border-radius: 34px; background: #fff; text-align: center;
+            box-shadow: 0 10px 0 rgba(61,53,81,0.15), 0 30px 60px rgba(0,0,0,0.45);
+            animation: kit-rise 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+        }
+        .results h2 { margin: 0; font-family: 'Fredoka One', system-ui, sans-serif; font-weight: 400; font-size: 2.1rem; color: var(--purple); }
+        .results .big { font-family: 'Fredoka One', system-ui, sans-serif; font-size: 3.6rem; line-height: 1.15; }
+        .results .rstars { font-size: 2.4rem; letter-spacing: 4px; }
+        .results .rstars .off { opacity: 0.2; filter: grayscale(1); }
+        .results p { margin: 4px 0 0; font-weight: 900; color: var(--muted); font-size: 1.1rem; }
+        .results .new-best { color: var(--pink); }
+        .results .row { display: flex; gap: 12px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+        .results button { border: 0; border-radius: 22px; padding: 14px 22px; font-family: 'Fredoka One', system-ui, sans-serif; font-size: 1.25rem; color: #fff; background: var(--c); box-shadow: 0 6px 0 var(--cd); }
+        .results button:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--cd); }
+        .banner {
+            position: fixed; left: 50%; top: 40%; z-index: 7; translate: -50% -50%;
+            pointer-events: none; white-space: nowrap;
+            font-family: 'Fredoka One', system-ui, sans-serif; font-size: clamp(2.4rem, 10vw, 4.4rem); color: #fff;
+            text-shadow: 0 6px 0 var(--bc, #A66BFF), 0 14px 30px rgba(0,0,0,0.45);
+            animation: banner 1.4s ease-out forwards;
+        }
+        @keyframes banner { 0% { transform: scale(0.3); opacity: 0; } 15% { transform: scale(1.12); opacity: 1; } 25% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: translateY(-20px); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <main class="kit-screen" id="start">
+        <div class="keys-art" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <h1 class="kit-title" style="--title-shadow:#A66BFF"><span class="bob" data-fr="Tuiles">Melody</span> <span class="bob" style="animation-delay:-1.3s" data-fr="musicales">Tiles</span></h1>
+        <p class="kit-sub" data-fr="Touche les tuiles pour jouer la chanson !">Tap the tiles to play the song!</p>
+        <div class="kit-modes">
+            <button class="kit-mode" type="button" id="go-easy" style="--c:#4CC26A"><span class="kit-mode-art"><span>🐣</span></span><span class="kit-mode-label"><b data-fr="Facile">Easy</b><small data-fr="Les tuiles t'attendent, pas de perdu">The tiles wait for you, no game over</small></span></button>
+            <button class="kit-mode" type="button" id="go-hard" style="--c:#FF6B8B"><span class="kit-mode-art"><span>🔥</span></span><span class="kit-mode-label"><b data-fr="Défi">Challenge</b><small data-fr="De plus en plus vite, ne rate pas une tuile">Faster and faster, don't miss a tile</small></span></button>
+        </div>
+    </main>
+
+    <main class="kit-screen" id="pick" hidden>
+        <h2 class="kit-title" style="font-size:2.4rem;--title-shadow:#A66BFF" id="pick-title"></h2>
+        <div class="songs" id="songs"></div>
+    </main>
+
+    <main class="kit-screen fit" id="play" hidden>
+        <div class="stage">
+            <div class="lights"></div>
+            <div class="board" id="board" aria-label="Piano tiles: tap the tiles" data-fr-aria-label="Tuiles de piano : touche les tuiles"><canvas id="cv" aria-hidden="true"></canvas></div>
+        </div>
+        <div class="hud"><div class="score" id="score">0</div><div class="stars" id="hud-stars"></div><div class="song-name" id="song-name"></div></div>
+        <div id="results-slot"></div>
+    </main>
+
+    <script>
+    (function () {
+        'use strict';
+        const { T, $, say } = Kit;
+        const NBSP = ' ';
+
+        // ---------- Songs (all traditional / public domain) ----------
+        // "C4" is one beat, "G4:2" two beats, "G4:3" three.
+        const SONGS = [
+            { id: 'twinkle', e: '⭐', c: '#FFB627', en: 'Twinkle Twinkle Little Star', fr: `Ah${NBSP}! vous dirai-je, maman`,
+              notes: 'C4 C4 G4 G4 A4 A4 G4:2 F4 F4 E4 E4 D4 D4 C4:2 G4 G4 F4 F4 E4 E4 D4:2 G4 G4 F4 F4 E4 E4 D4:2 C4 C4 G4 G4 A4 A4 G4:2 F4 F4 E4 E4 D4 D4 C4:2' },
+            { id: 'jacques', e: '🔔', c: '#FF9F43', en: 'Frère Jacques', fr: 'Frère Jacques',
+              notes: 'C4 D4 E4 C4 C4 D4 E4 C4 E4 F4 G4:2 E4 F4 G4:2 G4 A4 G4 F4 E4 C4 G4 A4 G4 F4 E4 C4 C4 G3 C4:2 C4 G3 C4:2' },
+            { id: 'mary', e: '🐑', c: '#4FB8FF', en: 'Mary Had a Little Lamb', fr: 'Marie avait un petit agneau',
+              notes: 'E4 D4 C4 D4 E4 E4 E4:2 D4 D4 D4:2 E4 G4 G4:2 E4 D4 C4 D4 E4 E4 E4 E4 D4 D4 E4 D4 C4:3' },
+            { id: 'farm', e: '🐮', c: '#4CC26A', en: 'Old MacDonald', fr: 'Dans la ferme',
+              notes: 'G4 G4 G4 D4 E4 E4 D4:2 B4 B4 A4 A4 G4:3 D4 G4 G4 G4 D4 E4 E4 D4:2 B4 B4 A4 A4 G4:3' },
+            { id: 'boat', e: '⛵', c: '#3FC9C0', en: 'Row Row Row Your Boat', fr: 'Rame, rame ton bateau',
+              notes: 'C4 C4 C4 D4 E4:2 E4 D4 E4 F4 G4:3 C5 C5 C5 G4 G4 G4 E4 E4 E4 C4 C4 C4 G4 F4 E4 D4 C4:3' },
+            { id: 'birthday', e: '🎂', c: '#FF6B8B', en: 'Happy Birthday', fr: 'Joyeux anniversaire',
+              notes: 'G4 G4 A4:2 G4:2 C5:2 B4:3 G4 G4 A4:2 G4:2 D5:2 C5:3 G4 G4 G5:2 E5:2 C5:2 B4:2 A4:3 F5 F5 E5:2 C5:2 D5:2 C5:3' },
+            { id: 'jingle', e: '🛷', c: '#E8344E', en: 'Jingle Bells', fr: 'Vive le vent',
+              notes: 'E4 E4 E4:2 E4 E4 E4:2 E4 G4 C4 D4 E4:3 F4 F4 F4 F4 F4 E4 E4 E4 E4 D4 D4 E4 D4:2 G4:2 E4 E4 E4:2 E4 E4 E4:2 E4 G4 C4 D4 E4:3 F4 F4 F4 F4 F4 E4 E4 E4 G4 G4 F4 D4 C4:3' },
+            { id: 'joy', e: '🎻', c: '#A66BFF', en: 'Ode to Joy', fr: 'Hymne à la joie',
+              notes: 'E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 E4:2 D4 D4:2 E4 E4 F4 G4 G4 F4 E4 D4 C4 C4 D4 E4 D4:2 C4 C4:2' },
+            { id: 'moon', e: '🌙', c: '#5B6CFF', en: 'By the Light of the Moon', fr: 'Au clair de la lune',
+              notes: 'C4 C4 C4 D4 E4:2 D4:2 C4 E4 D4 D4 C4:3 C4 C4 C4 D4 E4:2 D4:2 C4 E4 D4 D4 C4:3' }
+        ];
+        const SEMI = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+        function freqOf(n) {
+            const m = /^([A-G])(#|b)?(\d)$/.exec(n);
+            const midi = 12 * (Number(m[3]) + 1) + SEMI[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0);
+            return 440 * Math.pow(2, (midi - 69) / 12);
+        }
+        const parse = s => s.trim().split(/\s+/).map(tok => { const [n, d] = tok.split(':'); return { f: freqOf(n), beats: Number(d) || 1 }; });
+
+        // A soft toy-piano note: a bright attack and a gentle fade.
+        function piano(f, long) {
+            const d = long ? 1.6 : 1.0;
+            Kit.tone(f, { dur: d, vol: 0.2, type: 'triangle' });
+            Kit.tone(f * 2, { dur: d * 0.5, vol: 0.05 });
+            Kit.tone(f * 3, { dur: 0.12, vol: 0.02 });
+        }
+
+        const LANE_COLORS = [['#FF6B8B', '#E04870'], ['#FFB627', '#D98C00'], ['#3FC9C0', '#22968E'], ['#A66BFF', '#7B45D6']];
+        const KEYS = { d: 0, f: 1, j: 2, k: 3, arrowleft: 0, arrowdown: 1, arrowup: 2, arrowright: 3 };
+        const MODES = {
+            easy: { speed: 1.5, grow: 0, wait: true, long: false },
+            hard: { speed: 2.4, grow: 0.55, wait: false, long: true }
+        };
+
+        const start = $('#start'), pick = $('#pick'), play = $('#play'), board = $('#board'), cv = $('#cv'), ctx = cv.getContext('2d');
+        Kit.topbar({ onBack: () => (play.hidden ? goStart() : openPick()) });
+
+        const stars = Kit.store.json('tiles-stars', {});
+        const best = Kit.store.json('tiles-best', {});
+        const easyDone = new Set(Kit.store.json('tiles-easy', []));
+        const save = () => {
+            Kit.store.set('tiles-stars', JSON.stringify(stars));
+            Kit.store.set('tiles-best', JSON.stringify(best));
+            Kit.store.set('tiles-easy', JSON.stringify([...easyDone]));
+        };
+
+        // ---------- Board ----------
+        let W = 0, H = 0, DPR = 1, laneW = 0, rowH = 0;
+        function resize() {
+            DPR = Math.min(2, window.devicePixelRatio || 1);
+            const r = board.getBoundingClientRect();
+            W = r.width; H = r.height;
+            cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            laneW = W / 4;
+            rowH = H / 4;
+        }
+
+        // ---------- Round state ----------
+        let mode = 'easy', cfg = MODES.easy, song = SONGS[0], melody = [];
+        let tiles = [], next = 0, scroll = 0, speed = 1.5, running = false, started = false, over = false;
+        let score = 0, laps = 0, raf = 0, last = 0, lastLane = -1, laneSeed = 1;
+        let fx = [], flashes = [], missTile = null, missLane = -1, missT = 0;
+        const held = new Map();
+
+        function rand() { laneSeed = (laneSeed * 16807) % 2147483647; return laneSeed / 2147483647; }
+        // Add one run of the song on top of the tiles already there.
+        function addLap() {
+            let row = tiles.length ? tiles[tiles.length - 1].row + tiles[tiles.length - 1].h : 0;
+            for (const n of melody) {
+                let lane = Math.floor(rand() * 4);
+                if (lane === lastLane) lane = (lane + 1 + Math.floor(rand() * 3)) % 4;
+                lastLane = lane;
+                const h = cfg.long && n.beats >= 2 ? 2 : 1;
+                tiles.push({ row, h, lane, f: n.f, long: h > 1, hit: false, done: false, hold: 0, lap: laps });
+                row += h;
+            }
+        }
+
+        function startRound() {
+            Kit.show(play);
+            resize();
+            melody = parse(song.notes);
+            tiles = []; next = 0; scroll = -0.4; laps = 0; score = 0; fx = []; flashes = []; held.clear();
+            missTile = null; over = false; started = false; running = true;
+            laneSeed = 7 + SONGS.indexOf(song) * 131; lastLane = -1;
+            speed = cfg.speed;
+            addLap();
+            $('#results-slot').innerHTML = '';
+            $('#song-name').textContent = T(song.en, song.fr);
+            renderHud();
+            last = performance.now();
+            cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(loop);
+            say('Tap the tiles!', `Touche les tuiles${NBSP}!`);
+        }
+
+        const tileBottom = t => H - (t.row - scroll) * rowH;
+        function hitTile(t) {
+            t.hit = true;
+            piano(t.f, t.long);
+            score++;
+            if (!started) started = true;
+            const x = (t.lane + 0.5) * laneW, y = tileBottom(t) - rowH * t.h / 2;
+            const [c] = LANE_COLORS[t.lane];
+            for (let i = 0; i < 14; i++) {
+                const a = Math.random() * Math.PI * 2, v = 80 + Math.random() * 220;
+                fx.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0.6, c, r: 3 + Math.random() * 4 });
+            }
+            flashes.push({ lane: t.lane, life: 0.25 });
+            next++;
+            if (!t.long) t.done = true;
+            renderHud(true);
+            if (next >= tiles.length) songDone();
+        }
+        function songDone() {
+            if (mode === 'easy') {
+                running = false;
+                easyDone.add(song.id);
+                save();
+                Kit.later(() => { Kit.sfx.fanfare(); Kit.confetti(); showResults(true); }, 700);
+                return;
+            }
+            // Challenge: the song starts again, a bit faster. Each run earns a star.
+            laps++;
+            if (laps <= 3) {
+                banner('⭐'.repeat(laps), '#FFB627');
+                Kit.sfx.cheer();
+                if (laps === 3) Kit.confetti();
+            } else banner(T('Faster!', `Plus vite${NBSP}!`), '#FF6B8B');
+            speed += cfg.grow;
+            addLap();
+            renderHud();
+        }
+        function gameOver(t, lane) {
+            if (over) return;
+            over = true; running = false;
+            missTile = t; missLane = lane; missT = 0;
+            Kit.tone(220, { to: 150, dur: 0.5, vol: 0.14, type: 'square' });
+            Kit.tone(233, { to: 155, dur: 0.5, vol: 0.08, type: 'square' });
+            const s = Math.min(3, laps);
+            const isBest = score > (best[song.id] || 0);
+            if (isBest) best[song.id] = score;
+            stars[song.id] = Math.max(stars[song.id] || 0, s);
+            save();
+            Kit.later(() => showResults(false, isBest), 1300);
+        }
+
+        // ---------- Input ----------
+        function press(lane, y, id) {
+            if (!running) return;
+            const t = tiles[next];
+            if (!t) return;
+            const bottom = tileBottom(t), top = bottom - rowH * t.h;
+            const onScreen = bottom > 0;
+            if (cfg.wait) {
+                // Easy: anywhere in the right lane plays the next note.
+                if (lane === t.lane && onScreen) { hitTile(t); if (id != null && t.long) held.set(id, t); }
+                else { Kit.tone(330, { dur: 0.12, vol: 0.05, type: 'triangle' }); t.nudge = 0.4; }
+                return;
+            }
+            const slack = rowH * 0.35;
+            if (lane === t.lane && onScreen && y >= top - slack && y <= bottom + slack) {
+                hitTile(t);
+                if (t.long && id != null) held.set(id, t);
+                return;
+            }
+            // A tap on a tile that is already played is fine; anything else is a miss.
+            const onPlayed = tiles.some(o => o.hit && o.lane === lane && y <= tileBottom(o) && y >= tileBottom(o) - rowH * o.h);
+            if (onPlayed) return;
+            missY = y;
+            gameOver(null, lane);
+        }
+        let missY = 0;
+        board.addEventListener('pointerdown', e => {
+            const r = board.getBoundingClientRect();
+            const x = e.clientX - r.left, y = e.clientY - r.top;
+            try { board.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
+            press(Math.max(0, Math.min(3, Math.floor(x / laneW))), y, e.pointerId);
+        });
+        const release = e => {
+            const t = held.get(e.pointerId);
+            if (t) { held.delete(e.pointerId); t.done = true; }
+        };
+        board.addEventListener('pointerup', release);
+        board.addEventListener('pointercancel', release);
+        const keyHeld = new Map();
+        document.addEventListener('keydown', e => {
+            if (play.hidden || e.repeat) return;
+            const lane = KEYS[e.key.toLowerCase()];
+            if (lane === undefined) return;
+            e.preventDefault();
+            const t = tiles[next];
+            const y = t ? tileBottom(t) - rowH * t.h / 2 : H - rowH / 2;
+            press(lane, y, 'key' + lane);
+        });
+        document.addEventListener('keyup', e => {
+            const lane = KEYS[e.key.toLowerCase()];
+            if (lane !== undefined) release({ pointerId: 'key' + lane });
+        });
+
+        // ---------- Loop ----------
+        function loop(now) {
+            raf = requestAnimationFrame(loop);
+            const dt = Math.min(0.05, (now - last) / 1000 || 0);
+            last = now;
+            if (running && started) {
+                let s = scroll + speed * dt;
+                if (cfg.wait && tiles[next]) s = Math.min(s, tiles[next].row);
+                scroll = s;
+                if (!cfg.wait && tiles[next] && tileBottom(tiles[next]) > H + rowH * 0.15) gameOver(tiles[next], -1);
+                if (mode === 'hard') speed += cfg.grow * 0.004 * dt;
+            }
+            // Long tiles: holding fills them up for a bonus point.
+            for (const t of held.values()) {
+                const prog = Math.max(0, Math.min(1, (scroll - t.row) / (t.h - 1)));
+                t.hold = Math.max(t.hold, prog);
+                if (prog >= 1 && !t.done) { t.done = true; score++; renderHud(true); Kit.sfx.sparkle(); }
+            }
+            if (over && missTile) {
+                // Slide back so the missed tile can be seen.
+                missT += dt;
+                const want = missTile.row - 0.5;
+                scroll += (want - scroll) * Math.min(1, dt * 6);
+            }
+            for (const p of fx) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 500 * dt; p.life -= dt; }
+            fx = fx.filter(p => p.life > 0);
+            for (const f of flashes) f.life -= dt;
+            flashes = flashes.filter(f => f.life > 0);
+            for (const t of tiles) if (t.nudge) t.nudge = Math.max(0, t.nudge - dt);
+            draw(now);
+        }
+
+        function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+        function draw(now) {
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = 'rgba(255,255,255,0.06)';
+            ctx.fillRect(0, 0, W, H);
+            ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+            ctx.lineWidth = 2;
+            for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(i * laneW, 0); ctx.lineTo(i * laneW, H); ctx.stroke(); }
+            for (const f of flashes) {
+                const g = ctx.createLinearGradient(0, H, 0, 0);
+                g.addColorStop(0, LANE_COLORS[f.lane][0] + 'AA');
+                g.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.globalAlpha = f.life * 4;
+                ctx.fillStyle = g;
+                ctx.fillRect(f.lane * laneW, 0, laneW, H);
+            }
+            ctx.globalAlpha = 1;
+
+            const pad = Math.max(4, laneW * 0.06);
+            for (let i = 0; i < tiles.length; i++) {
+                const t = tiles[i];
+                const bottom = tileBottom(t), top = bottom - rowH * t.h;
+                if (top > H || bottom < -rowH) continue;
+                const [c, cd] = LANE_COLORS[t.lane];
+                let x = t.lane * laneW + pad, w = laneW - pad * 2;
+                if (t.nudge) x += Math.sin(t.nudge * 40) * 6;
+                const y = top + pad / 2, h = rowH * t.h - pad;
+                const missed = over && t === missTile;
+                if (t.hit && (!t.long || t.done)) {
+                    ctx.globalAlpha = 0.18;
+                    ctx.fillStyle = c;
+                    rr(x, y, w, h, 16); ctx.fill();
+                    ctx.globalAlpha = 1;
+                    continue;
+                }
+                const flick = missed ? (Math.floor(missT * 6) % 2 ? '#FF3B3B' : '#FFFFFF') : null;
+                ctx.fillStyle = flick || cd;
+                rr(x, y + 6, w, h - 6, 16); ctx.fill();
+                const g = ctx.createLinearGradient(0, y, 0, y + h);
+                g.addColorStop(0, flick || c);
+                g.addColorStop(1, flick || cd);
+                ctx.fillStyle = g;
+                rr(x, y, w, h - 6, 16); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                rr(x + w * 0.14, y + 8, w * 0.36, 7, 3.5); ctx.fill();
+                if (t.long) {
+                    // Long tile: a track to hold, filling from the bottom.
+                    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+                    ctx.fillRect(x + w / 2 - 3, y + 26, 6, h - 52);
+                    if (t.hit) {
+                        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+                        const fh = (h - 6) * Math.max(0.15, t.hold);
+                        rr(x, y + h - 6 - fh, w, fh, 16); ctx.fill();
+                    }
+                }
+                // The next tile gets a friendly face and, before the start, a "tap" hint.
+                if (i === next && running) {
+                    const cx = x + w / 2, cy = y + (h - 6) - Math.min(rowH * 0.5, (h - 6) / 2);
+                    const s = Math.min(w, rowH) * 0.16;
+                    ctx.fillStyle = '#2D2A38';
+                    ctx.beginPath(); ctx.arc(cx - s, cy - s * 0.3, s * 0.3, 0, Math.PI * 2); ctx.arc(cx + s, cy - s * 0.3, s * 0.3, 0, Math.PI * 2); ctx.fill();
+                    ctx.lineWidth = s * 0.28; ctx.strokeStyle = '#2D2A38'; ctx.lineCap = 'round';
+                    ctx.beginPath(); ctx.arc(cx, cy + s * 0.2, s * 0.55, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+                    if (!started || (cfg.wait && Math.abs(scroll - t.row) < 0.01)) {
+                        const pulse = 0.5 + 0.5 * Math.sin(now / 180);
+                        ctx.strokeStyle = `rgba(255,255,255,${0.5 + pulse * 0.5})`;
+                        ctx.lineWidth = 4;
+                        rr(x - 3, y - 3, w + 6, h, 18); ctx.stroke();
+                        if (!started) {
+                            ctx.fillStyle = '#fff';
+                            ctx.font = `${Math.round(Math.min(w, rowH) * 0.2)}px "Fredoka One", system-ui, sans-serif`;
+                            ctx.textAlign = 'center';
+                            ctx.fillText(T('TAP', 'TOUCHE'), cx, y + 30);
+                        }
+                    }
+                }
+            }
+            if (over && !missTile && missLane >= 0) {
+                ctx.fillStyle = Math.floor(performance.now() / 160) % 2 ? 'rgba(255,59,59,0.85)' : 'rgba(255,255,255,0.6)';
+                rr(missLane * laneW + pad, missY - rowH / 2, laneW - pad * 2, rowH, 16); ctx.fill();
+            }
+            for (const p of fx) {
+                ctx.globalAlpha = Math.min(1, p.life * 2);
+                ctx.fillStyle = p.c;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        // ---------- HUD and screens ----------
+        function renderHud(bump) {
+            const el = $('#score');
+            el.textContent = score;
+            if (bump) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+            $('#hud-stars').innerHTML = mode === 'hard' ? [1, 2, 3].map(i => `<span class="${laps >= i ? '' : 'off'}">⭐</span>`).join('') : '';
+        }
+        function banner(text, color) {
+            const el = document.createElement('div');
+            el.className = 'banner';
+            el.textContent = text;
+            el.style.setProperty('--bc', color);
+            play.appendChild(el);
+            el.addEventListener('animationend', () => el.remove());
+        }
+        function showResults(finished, isBest) {
+            const s = mode === 'easy' ? 0 : Math.min(3, laps);
+            $('#results-slot').innerHTML = `<div class="results" role="dialog" aria-label="${T('Results', 'Résultats')}">
+                <h2>${finished ? T('You played it!', `Tu l'as jouée${NBSP}!`) : T('Great playing!', `Bien joué${NBSP}!`)}</h2>
+                <div class="big">${finished ? song.e + ' 🎶' : '🎹 ' + score}</div>
+                ${mode === 'hard' ? `<div class="rstars">${[1, 2, 3].map(i => `<span class="${s >= i ? '' : 'off'}">⭐</span>`).join('')}</div>` : ''}
+                ${mode === 'hard' ? (isBest ? `<p class="new-best">${T('New best score! 🏆', `Nouveau record${NBSP}! 🏆`)}</p>` : `<p>${T(`Best: ${best[song.id] || 0}`, `Record${NBSP}: ${best[song.id] || 0}`)}</p>`) : ''}
+                <div class="row">
+                    <button type="button" id="again" style="--c:var(--purple);--cd:var(--purple-d)">${T('Play again', 'Rejouer')}</button>
+                    <button type="button" id="songs-btn" style="--c:var(--blue);--cd:var(--blue-d)">${T('Songs', 'Chansons')}</button>
+                </div></div>`;
+            $('#again').addEventListener('click', startRound);
+            $('#songs-btn').addEventListener('click', openPick);
+            if (finished) say(`You played ${song.en}!`, `Tu as joué ${song.fr}${NBSP}!`);
+            else if (isBest) { Kit.confetti(); say(`New best score! ${score}!`, `Nouveau record${NBSP}! ${score}${NBSP}!`); }
+            else say(`${score} tiles!`, `${score} tuiles${NBSP}!`);
+            $('#again').focus();
+        }
+        Kit.onLeave(play, () => { running = false; cancelAnimationFrame(raf); held.clear(); });
+
+        function openPick() {
+            Kit.show(pick);
+            Kit.tint(mode === 'easy' ? '#E3F6E6' : '#FFE3EC');
+            $('#pick-title').textContent = mode === 'easy' ? T('Easy: pick a song', `Facile${NBSP}: choisis une chanson`) : T('Challenge: pick a song', `Défi${NBSP}: choisis une chanson`);
+            $('#songs').innerHTML = SONGS.map((s, i) => {
+                const info = mode === 'easy'
+                    ? (easyDone.has(s.id) ? T('✅ Played', '✅ Jouée') : T('🎵 New', '🎵 Nouvelle'))
+                    : `${[1, 2, 3].map(n => (stars[s.id] || 0) >= n ? '⭐' : '☆').join('')}${best[s.id] ? ` · 🏆 ${best[s.id]}` : ''}`;
+                return `<button type="button" class="song" data-id="${s.id}" style="--c:${s.c};animation-delay:${i * 0.04}s"><span class="pic" aria-hidden="true">${s.e}</span><span><b>${T(s.en, s.fr)}</b><small>${info}</small></span></button>`;
+            }).join('');
+        }
+        $('#songs').addEventListener('click', e => {
+            const b = e.target.closest('.song');
+            if (!b) return;
+            song = SONGS.find(s => s.id === b.dataset.id);
+            startRound();
+        });
+        function goStart() { Kit.show(start, { back: false }); Kit.tint('#E9E2FF'); }
+        $('#go-easy').addEventListener('click', () => { mode = 'easy'; cfg = MODES.easy; openPick(); });
+        $('#go-hard').addEventListener('click', () => { mode = 'hard'; cfg = MODES.hard; openPick(); });
+        window.addEventListener('resize', () => { if (!play.hidden) resize(); });
+        document.addEventListener('visibilitychange', () => { last = performance.now(); });
+        Kit.onLang(() => { if (!pick.hidden) openPick(); if (!play.hidden) $('#song-name').textContent = T(song.en, song.fr); });
+        goStart();
+    })();
+    </script>
+</body>
+</html>

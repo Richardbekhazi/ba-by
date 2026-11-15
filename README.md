@@ -40,6 +40,7 @@ with its own `index.html`, so its address is `https://ba-by.ca/<folder>/`.
 | Jump! | `/rooftoprush/` | Kitty's rooftop adventure: run, jump and collect fish across 5 worlds |
 | Rooftop Santa | `/rooftopsanta/` | Run the snowy rooftops and grab presents (see below) |
 | Bunny Hop | `/bunny-hop/` | Endless meadow run: tap to hop over mushrooms and snails (see below) |
+| Melody Tiles | `/melody-tiles/` | Tap falling tiles to play songs: Easy and Challenge (see below) |
 | Fruit Slice | `/fruit-slice/` | Swipe to slice flying fruit: Fruit Rush and Picnic (see below) |
 | Tetris (Stacky Smiles) | `/tetris/` | Stack the smiley blocks to make lines, 6 levels (see below) |
 
@@ -59,7 +60,7 @@ ba-by/
 │  └─ badges1/         → Badge/reward icons used by Bubble Hero
 ├─ abc/  colors/  numbers/  shapes/  sounds/  animals/  puzzles/  keyboard-letter/
 ├─ animal-wash/  car-garage/  tiny-garden/  finger-paint/
-└─ bubbles/  rooftoprush/  rooftopsanta/  tetris/  fruit-slice/  bunny-hop/
+└─ bubbles/  rooftoprush/  rooftopsanta/  tetris/  fruit-slice/  melody-tiles/  bunny-hop/
 ```
 
 Each game is one `index.html` built on the shared kit. `numbers/` and `sounds/` also have
@@ -220,6 +221,19 @@ air for a double hop. Hop over mushrooms, snails, hedgehogs, logs, turtles and t
 - A bump costs one heart and a short blink; the round ends when the hearts run out.
 - Best score per mode: `hop-best-cozy`, `hop-best-speedy`.
 
+### Melody Tiles (`/melody-tiles/`)
+
+An ad-free piano tiles game with its own look. Candy-coloured tiles slide down 4 columns on a night stage;
+each tap plays the next note, so the child plays the song. A soft toy-piano sound is made in the browser.
+Touch, mouse or the D F J K keys. Nine traditional songs: Twinkle Twinkle, Frère Jacques, Mary Had a Little
+Lamb, Old MacDonald, Row Row Row Your Boat, Happy Birthday, Jingle Bells, Ode to Joy, Au clair de la lune.
+
+- **Easy**: the next tile has a face; tapping anywhere in its column plays it, and the tiles stop and wait
+  when it reaches the bottom. No game over. Songs played are ticked (`tiles-easy`).
+- **Challenge**: tiles keep moving; a missed tile or a tap on an empty spot ends the round. Long notes are
+  long tiles to hold for a bonus point. Each time the song ends it starts again faster and earns a star
+  (up to 3). Stars and best score per song: `tiles-stars`, `tiles-best`.
+
 ### Fruit Slice (`/fruit-slice/`)
 
 An ad-free fruit-slicing game with its own name, look and rules. Fruit is tossed up over a picnic blanket;
@@ -283,6 +297,7 @@ Nothing is uploaded; progress is kept in the browser's `localStorage`:
 | `numbers-count-level`, `numbers-feed-level` | Numbers: Count and Feed levels |
 | `numbers-voice` | Numbers: Tagalog / Arabic / Ilokano number voice |
 | `stacky-level`, `stacky-cleared` | Stacky Smiles: level to continue and levels cleared |
+| `tiles-easy`, `tiles-stars`, `tiles-best` | Melody Tiles: songs played, stars and best scores |
 | `fruit-best-arcade`, `fruit-best-zen` | Fruit Slice: best scores |
 | `hop-best-cozy`, `hop-best-speedy` | Bunny Hop: best scores |
 | `animals-quiz-level` | Animal Safari: "Who says that?" level |
