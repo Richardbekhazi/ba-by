@@ -214,11 +214,13 @@ shared setting; the 🔊 button there mutes every kit game (`baby-muted`).
 ### Bunny Hop (`/bunny-hop/`)
 
 An endless runner in a meadow. Tap, click or press Space to hop; hold for a higher hop, tap again in the
-air for a double hop. Hop over mushrooms, snails, hedgehogs, logs, turtles and tulips, and grab carrots
+air for a double hop. Hop over mushrooms, snails, hedgehogs, logs, rocks and tree stumps, and grab carrots
 (+10). The run speeds up slowly and the sky turns from day to sunset to night.
 
 - **Stroll**: slow, 5 hearts. **Dash**: faster, 3 hearts, and bees fly at hop height (stay on the ground).
-- A bump costs one heart and a short blink; the round ends when the hearts run out.
+- A bump costs one heart: the bunny sees stars for a moment and the thing it bumped tumbles away. The
+  round ends when the hearts run out.
+- Everything is drawn on the canvas in one outlined style (no emoji), so it looks the same on every device.
 - Best score per mode: `hop-best-cozy`, `hop-best-speedy`.
 
 ### Melody Tiles (`/melody-tiles/`)
