@@ -50,7 +50,9 @@
             display: flex; justify-content: center;
         }
         .lights { position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(circle, rgba(255,255,255,0.7) 0 1.5px, transparent 2px); background-size: 46px 46px; opacity: 0.25; }
-        .board { position: relative; height: 100%; width: min(100%, 560px); touch-action: none; }
+        .board { position: relative; height: 100%; width: min(100%, 560px); touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        .board.shake { animation: shake 0.4s; }
+        @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
         .board canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
         .hud {
             position: fixed; left: 50%; top: calc(var(--safe-top) + 4px); translate: -50% 0; z-index: 6;
@@ -194,6 +196,7 @@
         let tiles = [], next = 0, scroll = 0, speed = 1.5, running = false, started = false, over = false;
         let score = 0, laps = 0, raf = 0, last = 0, lastLane = -1, laneSeed = 1;
         let fx = [], flashes = [], missTile = null, missLane = -1, missT = 0;
+        let lives = 3, pauseT = 0, backTo = null, hurtLane = -1, hurtY = 0, hurtT = 0;
         const held = new Map();
 
         function rand() { laneSeed = (laneSeed * 16807) % 2147483647; return laneSeed / 2147483647; }
@@ -216,6 +219,7 @@
             melody = parse(song.notes);
             tiles = []; next = 0; scroll = -0.4; laps = 0; score = 0; fx = []; flashes = []; held.clear();
             missTile = null; over = false; started = false; running = true;
+            lives = 3; pauseT = 0; backTo = null; hurtT = 0;
             laneSeed = 7 + SONGS.indexOf(song) * 131; lastLane = -1;
             speed = cfg.speed;
             addLap();
@@ -230,7 +234,7 @@
 
         const tileBottom = t => H - (t.row - scroll) * rowH;
         function hitTile(t) {
-            t.hit = true;
+            t.hit = true; t.hitScroll = scroll;
             piano(t.f, t.long);
             score++;
             if (!started) started = true;
@@ -265,6 +269,27 @@
             addLap();
             renderHud();
         }
+        // Challenge: a miss costs a heart; the game only ends when all hearts are gone.
+        function loseLife(t, lane, y) {
+            if (over) return;
+            lives--;
+            renderHud();
+            if (lives <= 0) { missY = y; gameOver(t, lane); return; }
+            Kit.tone(260, { to: 180, dur: 0.3, vol: 0.1, type: 'triangle' });
+            board.classList.remove('shake'); void board.offsetWidth; board.classList.add('shake');
+            for (const k of held.keys()) held.delete(k);
+            pauseT = 1.0; hurtT = 1.0;
+            if (t) {
+                // The missed tile turns red and the game moves on to the next one.
+                t.hit = true; t.done = true; t.missed = true;
+                hurtLane = -1;
+                next++;
+                if (next >= tiles.length) songDone();
+                backTo = tiles[next] ? tiles[next].row - 1.2 : null;
+            } else {
+                hurtLane = lane; hurtY = y; backTo = null;
+            }
+        }
         function gameOver(t, lane) {
             if (over) return;
             over = true; running = false;
@@ -281,7 +306,7 @@
 
         // ---------- Input ----------
         function press(lane, y, id) {
-            if (!running) return;
+            if (!running || pauseT > 0) return;
             const t = tiles[next];
             if (!t) return;
             const bottom = tileBottom(t), top = bottom - rowH * t.h;
@@ -301,8 +326,7 @@
             // A tap on a tile that is already played is fine; anything else is a miss.
             const onPlayed = tiles.some(o => o.hit && o.lane === lane && y <= tileBottom(o) && y >= tileBottom(o) - rowH * o.h);
             if (onPlayed) return;
-            missY = y;
-            gameOver(null, lane);
+            loseLife(null, lane, y);
         }
         let missY = 0;
         board.addEventListener('pointerdown', e => {
@@ -316,6 +340,7 @@
             if (t) { held.delete(e.pointerId); t.done = true; }
         };
         board.addEventListener('pointerup', release);
+        board.addEventListener('contextmenu', e => e.preventDefault());
         board.addEventListener('pointercancel', release);
         const keyHeld = new Map();
         document.addEventListener('keydown', e => {
@@ -337,16 +362,20 @@
             raf = requestAnimationFrame(loop);
             const dt = Math.min(0.05, (now - last) / 1000 || 0);
             last = now;
-            if (running && started) {
+            if (pauseT > 0) {
+                pauseT -= dt;
+                if (backTo != null && backTo < scroll) scroll += (backTo - scroll) * Math.min(1, dt * 6);
+            } else if (running && started) {
                 let s = scroll + speed * dt;
                 if (cfg.wait && tiles[next]) s = Math.min(s, tiles[next].row);
                 scroll = s;
-                if (!cfg.wait && tiles[next] && tileBottom(tiles[next]) > H + rowH * 0.15) gameOver(tiles[next], -1);
+                if (!cfg.wait && tiles[next] && tileBottom(tiles[next]) > H + rowH * 0.15) loseLife(tiles[next], -1, 0);
                 if (mode === 'hard') speed += cfg.grow * 0.004 * dt;
             }
             // Long tiles: holding fills them up for a bonus point.
             for (const t of held.values()) {
-                const prog = Math.max(0, Math.min(1, (scroll - t.row) / (t.h - 1)));
+                // Fills from the moment the tile is touched: about one row of holding.
+                const prog = Math.max(0, Math.min(1, (scroll - t.hitScroll) / (t.h - 1)));
                 t.hold = Math.max(t.hold, prog);
                 if (prog >= 1 && !t.done) { t.done = true; score++; renderHud(true); Kit.sfx.sparkle(); }
             }
@@ -359,6 +388,7 @@
             for (const p of fx) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 500 * dt; p.life -= dt; }
             fx = fx.filter(p => p.life > 0);
             for (const f of flashes) f.life -= dt;
+            if (hurtT > 0) hurtT -= dt;
             flashes = flashes.filter(f => f.life > 0);
             for (const t of tiles) if (t.nudge) t.nudge = Math.max(0, t.nudge - dt);
             draw(now);
@@ -393,8 +423,8 @@
                 const y = top + pad / 2, h = rowH * t.h - pad;
                 const missed = over && t === missTile;
                 if (t.hit && (!t.long || t.done)) {
-                    ctx.globalAlpha = 0.18;
-                    ctx.fillStyle = c;
+                    ctx.globalAlpha = t.missed ? 0.45 : 0.18;
+                    ctx.fillStyle = t.missed ? '#FF3B3B' : c;
                     rr(x, y, w, h, 16); ctx.fill();
                     ctx.globalAlpha = 1;
                     continue;
@@ -441,6 +471,12 @@
                     }
                 }
             }
+            if (hurtT > 0 && hurtLane >= 0) {
+                ctx.globalAlpha = Math.min(1, hurtT * 2);
+                ctx.fillStyle = Math.floor(hurtT * 8) % 2 ? 'rgba(255,59,59,0.85)' : 'rgba(255,255,255,0.6)';
+                rr(hurtLane * laneW + pad, hurtY - rowH / 2, laneW - pad * 2, rowH, 16); ctx.fill();
+                ctx.globalAlpha = 1;
+            }
             if (over && !missTile && missLane >= 0) {
                 ctx.fillStyle = Math.floor(performance.now() / 160) % 2 ? 'rgba(255,59,59,0.85)' : 'rgba(255,255,255,0.6)';
                 rr(missLane * laneW + pad, missY - rowH / 2, laneW - pad * 2, rowH, 16); ctx.fill();
@@ -458,7 +494,7 @@
             const el = $('#score');
             el.textContent = score;
             if (bump) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
-            $('#hud-stars').innerHTML = mode === 'hard' ? [1, 2, 3].map(i => `<span class="${laps >= i ? '' : 'off'}">⭐</span>`).join('') : '';
+            $('#hud-stars').innerHTML = mode === 'hard' ? [1, 2, 3].map(i => `<span class="${lives >= i ? '' : 'off'}">❤️</span>`).join('') + ' ' + [1, 2, 3].map(i => `<span class="${laps >= i ? '' : 'off'}">⭐</span>`).join('') : '';
         }
         function banner(text, color) {
             const el = document.createElement('div');
