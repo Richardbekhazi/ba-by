@@ -24,8 +24,6 @@
         #play { padding: 0; animation: none; }
         .board { position: fixed; inset: 0; overflow: hidden; touch-action: none; background: #8FD3FF; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
         .board canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-        .board.shake { animation: shake 0.35s; }
-        @keyframes shake { 25% { transform: translate(-7px, 4px); } 50% { transform: translate(6px, -4px); } 75% { transform: translate(-4px, -2px); } }
 
         .hud {
             position: fixed;
@@ -67,7 +65,7 @@
             text-shadow: 0 6px 0 var(--bc, #26A65B), 0 14px 30px rgba(0,0,0,0.4);
             animation: banner 1.4s ease-out forwards;
         }
-        @keyframes banner { 0% { transform: scale(0.3); opacity: 0; } 15% { transform: scale(1.12); opacity: 1; } 25% { transform: scale(1); } 80% { opacity: 1; } 100% { transform: scale(1.05) translateY(-20px); opacity: 0; } }
+        @keyframes banner { 0% { transform: translateY(10px); opacity: 0; } 15%, 80% { transform: none; opacity: 1; } 100% { opacity: 0; } }
         @media (prefers-reduced-motion: reduce) { .hop-row .bun { animation: none; } }
     </style>
 </head>
@@ -100,8 +98,8 @@
         const NBSP = ' ';
 
         const MODES = {
-            cozy: { hearts: 5, v0: 270, vmax: 540, acc: 4, bees: 1e9 },
-            speedy: { hearts: 3, v0: 370, vmax: 820, acc: 9, bees: 80 }
+            cozy: { hearts: 5, v0: 215, vmax: 370, acc: 2.5, bees: 1e9 },
+            speedy: { hearts: 3, v0: 295, vmax: 540, acc: 5, bees: 80 }
         };
         // Things on the ground to hop over, all drawn by hand.
         // hw = half width and hh = height that count as solid (a little smaller than the picture, to be kind).
@@ -137,7 +135,7 @@
             cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
             ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
             // On a tall, narrow phone the picture follows the width, so there is room to see what is coming.
-            S = Math.max(0.62, Math.min(1.35, H / 560, W / 460));
+            S = Math.max(0.62, Math.min(1.2, H / 560, W / 460));
             GY = H - Math.max(84, H * 0.2);
             BX = Math.max(74, Math.min(W * 0.2, 220));
         }
@@ -159,9 +157,9 @@
             const second = bunny.jumps === 1 || bunny.y > 2;
             bunny.vy = (second ? JUMP2 : JUMP) * S;
             bunny.jumps = second ? 2 : 1;
-            bunny.squash = 0.18;
+            bunny.squash = 0.07;
             Kit.tone(second ? 520 : 380, { to: second ? 820 : 620, dur: 0.14, vol: 0.07, type: 'triangle' });
-            for (let i = 0; i < 4; i++) puff(BX - 6 * S, GY - bunny.y, '#FFFFFF', 5);
+            for (let i = 0; i < 2; i++) puff(BX - 6 * S, GY - bunny.y, '#FFFFFF', 4);
         }
         function release() {
             // Letting go early makes a smaller hop, but never a tiny one.
@@ -173,6 +171,9 @@
         function sparks(x, y, colors, n, power) {
             for (let i = 0; i < n; i++) parts.push({ x, y, vx: (Math.random() - 0.5) * power, vy: -Math.random() * power * 0.8, g: 700, r: 3 + Math.random() * 4, t: 0.6, life: 0.6, color: Kit.pick(colors), star: true });
         }
+
+        // Bees drift gently up and down.
+        const beeAlt = o => o.alt + Math.sin(clock * 2 + o.ph) * 5;
 
         function spawn() {
             const x = W + 80;
@@ -196,12 +197,11 @@
         function hurt(o) {
             o.gone = true;
             // The thing we bumped tumbles away instead of just vanishing.
-            knocked.push({ kind: o.kind, x: o.x, y: o.air ? GY - o.alt * S : GY, vx: 260 * S, vy: -640 * S, rot: 0 });
+            knocked.push({ kind: o.kind, x: o.x, y: o.air ? GY - o.alt * S : GY, vx: 200 * S, vy: -520 * S, rot: 0 });
             hearts--; inv = 1.8;
             renderHearts(true);
             Kit.tone(240, { to: 150, dur: 0.28, vol: 0.1, type: 'sine' });
-            sparks((o.x + BX) / 2, GY - bunny.y - 30 * S, ['#FFD23F', '#FFFFFF', '#FF9F1C'], 9, 420);
-            if (!calm) { board.classList.remove('shake'); void board.offsetWidth; board.classList.add('shake'); }
+            sparks((o.x + BX) / 2, GY - bunny.y - 30 * S, ['#FFD23F', '#FFFFFF', '#FF9F1C'], 5, 240);
             if (hearts <= 0) finish();
             else say('Oops! Keep hopping!', `Oups${NBSP}! Continue${NBSP}!`);
         }
@@ -221,8 +221,8 @@
                 bunny.vy -= GRAV * S * dt;
                 bunny.y += bunny.vy * dt;
                 if (bunny.y <= 0) {
-                    bunny.y = 0; bunny.vy = 0; bunny.jumps = 0; bunny.squash = -0.16;
-                    for (let i = 0; i < 3; i++) puff(BX, GY, '#E2CFA0', 4);
+                    bunny.y = 0; bunny.vy = 0; bunny.jumps = 0; bunny.squash = -0.06;
+                    for (let i = 0; i < 2; i++) puff(BX, GY, '#E2CFA0', 4);
                     Kit.noise({ dur: 0.07, freq: 300, q: 0.8, vol: 0.05 });
                     if (running && buffer > 0) { buffer = 0; jump(); }
                 }
@@ -230,7 +230,7 @@
             bunny.squash *= Math.pow(0.002, dt);
         }
         function moveBits(dt, dx) {
-            for (const k of knocked) { k.x += k.vx * dt; k.y += k.vy * dt; k.vy += 1900 * S * dt; k.rot += 9 * dt; }
+            for (const k of knocked) { k.x += k.vx * dt; k.y += k.vy * dt; k.vy += 1500 * S * dt; k.rot += 2.2 * dt; }
             knocked = knocked.filter(k => k.y < H + 120);
             for (const p of parts) { p.t -= dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += p.g * dt; }
             parts = parts.filter(p => p.t > 0);
@@ -254,7 +254,7 @@
                 o.x -= dx;
                 if (o.gone || inv > 0) continue;
                 let lo = 0, hi = o.hh * S;
-                if (o.air) { const mid = (o.alt + Math.sin(clock * 5 + o.ph) * 8) * S; lo = mid - o.hh * S; hi = mid + o.hh * S; }
+                if (o.air) { const mid = beeAlt(o) * S; lo = mid - o.hh * S; hi = mid + o.hh * S; }
                 if (Math.abs(o.x - BX) < (o.hw + 15) * S && bunny.y < hi && bunny.y + 50 * S > lo) hurt(o);
             }
             obstacles = obstacles.filter(o => o.x > -90 && !o.gone);
@@ -263,7 +263,7 @@
                 if (!c.got && Math.abs(c.x - BX) < 36 * S && Math.abs(c.alt * S - (bunny.y + 28 * S)) < 46 * S) {
                     c.got = true; bonus += 10;
                     popups.push({ x: c.x, y: GY - c.alt * S, text: '+10', t: 0.8 });
-                    sparks(c.x, GY - c.alt * S, ['#FFD23F', '#FF9F1C', '#FFFFFF', '#FF7AA8'], 8, 360);
+                    sparks(c.x, GY - c.alt * S, ['#FFD23F', '#FF9F1C', '#FFFFFF', '#FF7AA8'], 5, 220);
                     Kit.tone(Kit.note(12), { dur: 0.1, vol: 0.08 });
                     Kit.tone(Kit.note(19), { at: 0.07, dur: 0.14, vol: 0.08 });
                 }
@@ -271,9 +271,6 @@
             carrots = carrots.filter(c => c.x > -60 && !c.got);
             moveBits(dt, dx);
             for (const c of clouds) { c.x -= dx * c.k; if (c.x < -140) { c.x = W + 140; c.y = 30 + Math.random() * GY * 0.4; } }
-
-            // A little dust behind the running feet
-            if (bunny.y === 0 && Math.random() < dt * 7) puff(BX - 18 * S, GY - 2, '#E2CFA0', 3.5);
 
             score = Math.floor(dist / (40 * S)) + bonus;
             if (score !== shown) renderScore();
@@ -356,7 +353,7 @@
                 ctx.beginPath(); ctx.moveTo(-8, -22); ctx.lineTo(-7, -8); ctx.moveTo(7, -24); ctx.lineTo(8, -12); ctx.stroke();
             },
             bee() {
-                const flap = calm ? 0 : Math.sin(clock * 38) * 0.5;
+                const flap = calm ? 0 : Math.sin(clock * 16) * 0.35;
                 ctx.fillStyle = '#E8F6FF';
                 oval(-2, -13, 8, 13, -0.4 + flap); ink();
                 oval(9, -12, 7, 11, 0.4 - flap); ink();
@@ -377,7 +374,7 @@
             },
             // The bunny faces right, with its feet at (0, 0).
             bunny(run, dizzy) {
-                const sw = run ? Math.sin(clock * 14) * 7 : 0, air = bunny.y > 0;
+                const sw = run ? Math.sin(clock * 9) * 5 : 0, air = bunny.y > 0;
                 ctx.fillStyle = '#FFFFFF'; oval(-27, -27, 9, 9); ink();
                 ctx.fillStyle = '#F6A04D';
                 oval(air ? -20 : -12 - sw, air ? -8 : -5, 12, 6, air ? 0.5 : 0); ink();
@@ -450,7 +447,6 @@
                 const sx = W * 0.6, sy = GY * (0.3 + 0.34 * sunset + 0.9 * night);
                 ctx.save();
                 ctx.translate(sx, sy);
-                ctx.rotate(calm ? 0 : clock * 0.25);
                 ctx.fillStyle = '#FFE680';
                 for (let a = 0; a < 12; a++) {
                     ctx.rotate(Math.PI / 6);
@@ -469,28 +465,26 @@
                     ctx.fill();
                 }
             }
-            hills(GY, 200 * S, 0.0022, dist * 0.05 + 900, grad(GY - 300 * S, GY, '#7C98E6', '#B4C9F5'));
-            hills(GY, 110 * S, 0.004, dist * 0.12, grad(GY - 190 * S, GY, '#9EE077', '#74C860'));
-            trees(0.2, 330, 1, '#4DB04A', '#3A963F', '#6CC760', false);
-            hills(GY, 60 * S, 0.007, dist * 0.3 + 300, grad(GY - 100 * S, GY, '#6FCB58', '#4FAF48'));
-            trees(0.5, 250, 0.9, '#3FA043', '#2F8638', '#58B852', true);
+            // The scenery drifts by slowly and the far layers hardly move, so it is restful to look at.
+            hills(GY, 200 * S, 0.0022, dist * 0.015 + 900, grad(GY - 300 * S, GY, '#7C98E6', '#B4C9F5'));
+            hills(GY, 110 * S, 0.004, dist * 0.04, grad(GY - 190 * S, GY, '#9EE077', '#74C860'));
+            trees(0.08, 380, 1, '#4DB04A', '#3A963F', '#6CC760', false);
+            hills(GY, 50 * S, 0.005, dist * 0.13 + 300, grad(GY - 90 * S, GY, '#6FCB58', '#4FAF48'));
+            trees(0.22, 460, 0.9, '#3FA043', '#2F8638', '#58B852', true);
 
-            // Ground: a strip of soil, a fringe of grass blades, flowers and tufts
+            // Ground: a plain grass edge over a strip of soil, with a few tufts and flowers going by.
+            // (No fine repeating pattern here: one that scrolls fast flickers and is tiring to watch.)
             ctx.fillStyle = grad(GY, H, '#63C74E', '#3F9A3C'); ctx.fillRect(0, GY, W, H - GY);
+            ctx.fillStyle = '#2F8F36'; ctx.fillRect(0, GY - 3 * S, W, 14 * S);
             ctx.fillStyle = '#7A5433'; ctx.fillRect(0, GY + 11 * S, W, 5 * S);
-            ctx.fillStyle = '#2F8F36';
-            const fs = 14 * S, fo = dist % fs;
-            ctx.beginPath(); ctx.moveTo(-fo, GY + 1);
-            for (let x = -fo; x < W + fs; x += fs) { ctx.lineTo(x + fs * 0.3, GY - 7 * S); ctx.lineTo(x + fs * 0.55, GY + 1); ctx.lineTo(x + fs * 0.8, GY - 5 * S); ctx.lineTo(x + fs, GY + 1); }
-            ctx.lineTo(W + fs * 2, GY + 11 * S); ctx.lineTo(-fo, GY + 11 * S); ctx.fill();
-            const step = 96 * S, off = dist % step;
+            const step = 230 * S, off = dist % step;
             for (let x = -off; x < W + step; x += step) {
                 const k = Math.abs(Math.floor((x + dist) / step + 0.5));
                 const yy = GY + 30 * S + ((k * 37) % 5) * 12 * S;
                 ctx.fillStyle = '#3A9339';
                 ctx.beginPath(); ctx.moveTo(x, yy); ctx.lineTo(x + 6 * S, yy - 14 * S); ctx.lineTo(x + 10 * S, yy); ctx.lineTo(x + 16 * S, yy - 10 * S); ctx.lineTo(x + 20 * S, yy); ctx.fill();
                 if (k % 3 === 2) continue;
-                const fx = x + 48 * S, fy = GY + 34 * S + ((k * 53) % 4) * 14 * S;
+                const fx = x + 115 * S, fy = GY + 34 * S + ((k * 53) % 4) * 14 * S;
                 ctx.fillStyle = ['#FF7AA8', '#FFD23F', '#FFFFFF', '#C79BFF'][k % 4];
                 for (let a = 0; a < 5; a++) dot(fx + Math.cos(a * 1.257) * 5 * S, fy + Math.sin(a * 1.257) * 5 * S, 3.8 * S);
                 ctx.fillStyle = '#FF9F1C'; dot(fx, fy, 3 * S);
@@ -522,13 +516,13 @@
 
             // Carrots, with a little twinkle
             for (const c of carrots) {
-                const cy = GY - c.alt * S + (calm ? 0 : Math.sin(clock * 4 + c.x * 0.01) * 4);
+                const cy = GY - c.alt * S;
                 sprite('carrot', c.x, cy);
-                star(c.x + 15 * S, cy - 17 * S, (4 + 2.5 * Math.sin(clock * 7 + c.alt)) * S, '#FFFFFF');
+                star(c.x + 15 * S, cy - 17 * S, (5 + Math.sin(clock * 2.5 + c.alt)) * S, '#FFFFFF');
             }
             ctx.fillStyle = 'rgba(20,50,20,0.28)';
             for (const o of obstacles) { if (!o.air) { oval(o.x, GY + 3, (o.hw + 12) * S, 6 * S); ctx.fill(); } }
-            for (const o of obstacles) sprite(o.kind, o.x, o.air ? GY - (o.alt + Math.sin(clock * 5 + o.ph) * 8) * S : GY + 2);
+            for (const o of obstacles) sprite(o.kind, o.x, o.air ? GY - beeAlt(o) * S : GY + 2);
             for (const k of knocked) sprite(k.kind, k.x, k.y, k.rot);
 
             // Bunny shadow, then the bunny. It stays solid when bumped: stars spin round its head instead.
@@ -536,18 +530,18 @@
             ctx.fillStyle = 'rgba(20,50,20,0.28)';
             oval(BX, GY + 3, 26 * S * sh, 7 * S * sh); ctx.fill();
             const onGround = bunny.y === 0, dizzy = inv > 0;
-            const bob = onGround && running && !calm ? Math.abs(Math.sin(clock * 14)) * 7 * S : 0;
-            const rot = onGround ? (running && !calm ? Math.sin(clock * 14) * 0.06 : 0) : Math.max(-0.5, Math.min(0.45, -bunny.vy / (1800 * S)));
-            const by = GY - bunny.y - bob;
+            // The body stays level and steady (no bobbing or rocking): only the feet move.
+            const rot = onGround ? 0 : Math.max(-0.14, Math.min(0.12, -bunny.vy / (6000 * S)));
+            const by = GY - bunny.y;
             ctx.save();
             ctx.translate(BX, by);
             ctx.scale(1 - bunny.squash, 1 + bunny.squash);
             ctx.translate(0, -26 * S); ctx.rotate(rot); ctx.translate(0, 26 * S);
-            sprite('bunny', 0, 0, 0, onGround && running, dizzy);
+            sprite('bunny', 0, 0, 0, onGround && running && !calm, dizzy);
             ctx.restore();
             if (dizzy) {
                 for (let i = 0; i < 3; i++) {
-                    const a = clock * 6 + i * 2.094;
+                    const a = clock * 2 + i * 2.094;
                     star(BX + 16 * S + Math.cos(a) * 26 * S, by - 96 * S + Math.sin(a) * 7 * S, 7 * S, i === 1 ? '#FFFFFF' : '#FFD23F');
                 }
             }
@@ -596,7 +590,7 @@
             resize();
             calm = Kit.reduceMotion();
             obstacles = []; knocked = []; carrots = []; parts = []; popups = [];
-            clouds = Array.from({ length: 5 }, (_, i) => ({ x: (i + Math.random()) * W / 4, y: 30 + Math.random() * GY * 0.4, s: (0.7 + Math.random() * 0.7) * S, k: 0.08 + Math.random() * 0.1 }));
+            clouds = Array.from({ length: 5 }, (_, i) => ({ x: (i + Math.random()) * W / 4, y: 30 + Math.random() * GY * 0.4, s: (0.7 + Math.random() * 0.7) * S, k: 0.02 + Math.random() * 0.03 }));
             starsBg = Array.from({ length: 40 }, () => ({ x: Math.random(), y: Math.random(), r: 1 + Math.random() * 1.6 }));
             speed = cfg.v0 * S; dist = 0; bonus = 0; score = 0; shown = -1; nextMile = 100;
             hearts = cfg.hearts; inv = 0; gap = W * 1.1; buffer = 0; lastBee = false;
@@ -634,7 +628,7 @@
             else say(`You got ${score}!`, `Tu as ${score}${NBSP}!`);
             $('#again').focus();
         }
-        Kit.onLeave(play, () => { running = false; ending = false; cancelAnimationFrame(raf); board.classList.remove('shake'); });
+        Kit.onLeave(play, () => { running = false; ending = false; cancelAnimationFrame(raf); });
 
         function goStart() {
             Kit.show(start, { back: false });

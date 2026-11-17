@@ -221,6 +221,9 @@ air for a double hop. Hop over mushrooms, snails, hedgehogs, logs, rocks and tre
 - A bump costs one heart: the bunny sees stars for a moment and the thing it bumped tumbles away. The
   round ends when the hearts run out.
 - Everything is drawn on the canvas in one outlined style (no emoji), so it looks the same on every device.
+- The motion is kept calm on purpose, so it is easy on the eyes: the bunny's body stays level (only its
+  feet move), the far scenery hardly moves, the ground has no fine scrolling pattern, and there is no
+  screen shake.
 - Best score per mode: `hop-best-cozy`, `hop-best-speedy`.
 
 ### Melody Tiles (`/melody-tiles/`)
