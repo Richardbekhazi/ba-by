@@ -213,7 +213,7 @@ shared setting; the 🔊 button there mutes every kit game (`baby-muted`).
 
 ### Bunny Hop (`/bunny-hop/`)
 
-An endless runner in a meadow. Tap, click or press Space to hop; hold for a higher hop, tap again in the
+An endless runner on a path through a meadow. Tap, click or press Space to hop; hold for a higher hop, tap again in the
 air for a double hop. Hop over mushrooms, snails, hedgehogs, logs, rocks and tree stumps, and grab carrots
 (+10). The run speeds up slowly and the sky turns from day to sunset to night.
 
@@ -221,9 +221,13 @@ air for a double hop. Hop over mushrooms, snails, hedgehogs, logs, rocks and tre
 - A bump costs one heart: the bunny sees stars for a moment and the thing it bumped tumbles away. The
   round ends when the hearts run out.
 - Everything is drawn on the canvas in one outlined style (no emoji), so it looks the same on every device.
-- The motion is kept calm on purpose, so it is easy on the eyes: the bunny's body stays level (only its
-  feet move), the far scenery hardly moves, the ground has no fine scrolling pattern, and there is no
-  screen shake.
+- The motion is kept calm on purpose, so it is easy on the eyes: the backdrop (sky, pale hills, sandy
+  path) does not move at all, the bunny's body stays level (only its feet move), and there is no screen
+  shake. Only the bunny, the things on the path and a few pale pebbles move. Bright colours are kept for
+  the bunny, the obstacles and the carrots.
+- Pause with the round button under the hearts, or with P or Escape. The run also pauses by itself when
+  the tab or app is left.
+- Every run is different: obstacles, gaps and carrots are picked at random (not from a fixed seed).
 - Best score per mode: `hop-best-cozy`, `hop-best-speedy`.
 
 ### Melody Tiles (`/melody-tiles/`)
